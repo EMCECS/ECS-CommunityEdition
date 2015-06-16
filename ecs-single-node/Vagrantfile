@@ -1,0 +1,27 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+
+    config.vm.define :managed_linux do |ml_config|
+
+        ml_config.vm.box = "tknerr/managed-server-dummy"
+
+        ml_config.vm.synced_folder ".", "/ecs"
+
+        ml_config.vm.provider :managed do |managed, override|
+          managed.server = "your_host.com"
+          override.ssh.username = "your_username"
+          override.ssh.password = "your_password"
+          override.ssh.port = 22
+          #override.ssh.private_key_path = "/path/to/bobs_private_key"
+        end
+
+        ml_config.vm.provision "shell" do |s|
+          s.inline = "sh /ecs/vagrant-install.sh"
+          s.privileged = true
+        end
+
+    end
+
+end
