@@ -3,8 +3,8 @@
 
 There are three deployment options available:
 
-- [ECS Docker Multiple Node Deployment](https://github.com/emccode/solidsnakev2/tree/master/ecs-multi-node "ECS Multiple Node Deployment Information")
-- [ECS Docker Single Node Deployment](https://github.com/emccode/solidsnakev2/tree/master/ecs-single-node "ECS Single Node Deployment Information")
+- [ECS Docker Multiple Node Deployment](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node "ECS Multiple Node Deployment Information")
+- [ECS Docker Single Node Deployment](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node "ECS Single Node Deployment Information")
 
 ## Description
 
@@ -17,10 +17,7 @@ There are three deployment options available:
 |--------------|-----------|
 |ecs-single-node| Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments|
 |ecs-multi-node| Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment|
-|Libraries| Contains common libraries and/or scripts used by the single and multiple node deployments|
-|Archive| Contains archived files|
-
-
+|Documentation| Contains documentation files and media|
 
 
 ## End User License Agreement	

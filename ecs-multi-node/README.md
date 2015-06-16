@@ -3,9 +3,9 @@
 Welcome to the Multiple Nodes installation for ECS Software 2.0. We have provided the following deployment options: 
 
 
-- **[Using Docker](https://github.com/emccode/solidsnakev2/blob/master/Documentation/ECS-MultiNode-Instructions.md "ECS Single Node Deployment Information")**
-- **[Using Docker Compose](https://github.com/emccode/ecs-dockerswarm)**
-- **[Using Puppet]()**
+- **[ECS Multiple Nodes Docker Deployment](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-MultiNode-Instructions.md "ECS Single Node Deployment Information")**
+- **[ECS Multiple Nodes Docker Compose Deployment](https://github.com/emccode/ecs-dockerswarm)**
+- **[ECS Multiple Nodes Puppet Deployment](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-MultiNode-Puppet-Instructions.md)**
 
 
 ## Requirements
