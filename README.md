@@ -8,7 +8,7 @@ There are three deployment options available:
 
 ## Description
 
-[Description goes here]
+**EMC Elastic Cloud Storage (ECS) is a stateful containerized cloud storage.  It provides persistence for your applications that can access data through standardized Object protocols like AWS S3 or Openstack Swift. ECS can be set up on one or more hosts / VMs in a single-site or a multi-site geo replicted configuration. We want the wider community to use ECS and provide feedback.  Usage of this software is under the following End User License Agreement.**
 
 
 ## License Agreement	
