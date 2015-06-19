@@ -9,8 +9,6 @@ import sys
 import os
 
 import settings
-import step2_update_container
-
 
 # Logging Initialization
 logging.config.dictConfig(settings.ECS_SINGLENODE_LOGGING)
@@ -404,6 +402,55 @@ def cmdline(command):
     return process.communicate()[0]
 
 
+def modify_container_conf_func():
+    try:
+        logger.info("Backup object properties file")
+        os.system(
+            "docker exec -i -t  ecsstandalone cp /opt/storageos/conf/cm.object.properties /opt/storageos/conf/cm.object.properties.old")
+
+        logger.info("Backup application config file")
+        os.system(
+            "docker exec -i -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /opt/storageos/ecsportal/conf/application.conf.old")
+
+        logger.info("Copy object properties file to host")
+        os.system(
+            "docker exec -i -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
+
+        logger.info("Copy application config file to host")
+        os.system(
+            "docker exec -i -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /host/application.conf")
+
+        logger.info("Modify BlobSvc config for single node")
+        os.system(
+            "sed s/object.MustHaveEnoughResources=true/object.MustHaveEnoughResources=false/  < /host/cm.object.properties1 > /host/cm.object.properties")
+
+        logger.info("Modify Portal config for to bypass validation")
+        os.system("echo ecs.minimum.node.requirement=1 >> /host/application.conf")
+
+        logger.info("Copy modified files to container")
+        os.system(
+            "docker exec -i -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
+        os.system(
+            "docker exec -i -t  ecsstandalone cp /host/application.conf /opt/storageos/ecsportal/conf/application.conf")
+
+        logger.info("Stop container")
+        os.system("docker stop ecsstandalone")
+
+        logger.info("Start container")
+        os.system("docker start ecsstandalone")
+
+        logger.info("Clean up local files")
+        os.system("rm -rf /host/cm.object.properties*")
+        os.system("rm -rf /host/application.conf")
+
+
+    except Exception as ex:
+        logger.exception(ex)
+        logger.fatal("Aborting program! Please review log.")
+        sys.exit()
+
+
+
 # Main Execution
 def main():
     import os
@@ -448,10 +495,12 @@ def main():
     directory_files_conf_func()
     set_docker_configuration_func()
     execute_docker_func()
+    modify_container_conf_func()
     logger.info(
         "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
         The ECS administrative portal can be accessed from port 443. For example: https://ecs-node-external-ip-address. \
         The website may take a few minutes to become available.")
+
 
 
 if __name__ == "__main__":
