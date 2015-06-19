@@ -6,6 +6,7 @@ import subprocess
 import logging
 import logging.config
 import sys
+import os
 
 import settings
 import step2_update_container
@@ -57,6 +58,15 @@ def package_install_func():
         sys.exit()
 
 
+def update_selinux_os_configuration():
+    """
+    Update the selinux permissions to permissive
+    """
+
+    logger.info("Updating SELinux to Permissive mode.")
+    subprocess.call(["setenforce", "0"])
+
+
 def docker_install_func():
     """
     Downloads, Install and starts the service for the  Supported Docker Version  1.4.1
@@ -71,7 +81,6 @@ def docker_install_func():
         # Removes previous Docker installations
         logger.info("Removing Docker Packages.")
         subprocess.call([docker_yum, docker_yum_arg, docker_name, docker_package_auto])
-
 
         docker_wget = "wget"
         docker_url = "http://cbs.centos.org/kojifiles/packages/docker/1.4.1/2.el7/x86_64/docker-1.4.1-2.el7.x86_64.rpm"
@@ -121,6 +130,25 @@ def prep_file_func():
         file_name = "additional_prep.sh"
         logger.info("Changing the additional_prep.sh file permissions.")
         subprocess.call([chmod, chmod_arg, file_name])
+
+    except Exception as ex:
+        logger.exception(ex)
+        logger.fatal("Aborting program! Please review log.")
+        sys.exit()
+
+
+def docker_cleanup_old_images():
+    """
+    Clean up images and containers from the Host Docker images repository
+    sudo docker rm -f $(sudo docker ps -a -q) 2>/dev/null
+    sudo docker rmi -f $(sudo docker images -q) 2>/dev/null
+    """
+    try:
+
+        logger.info("Clean up Docker containers and images from the Host")
+
+        os.system("docker rm -f $(docker ps -a -q) 2>/dev/null")
+        os.system("docker rmi -f $(docker images -q) 2>/dev/null")
 
     except Exception as ex:
         logger.exception(ex)
@@ -206,12 +234,14 @@ def seeds_file_func():
         sys.exit()
 
 
-def prepare_data_disk_Azure_func(disks):
+
+def prepare_data_disk_func(disks):
     """
     Prepare the data disk for usage. This includes format, and mount
     """
 
     try:
+
         # echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/sdc
 
         for index, disk in enumerate(disks):
@@ -226,21 +256,22 @@ def prepare_data_disk_Azure_func(disks):
             device_name = disk_path + "1"
             # Make File Filesystem in attached Volume
             logger.info("Make File filesystem in '{}'".format(device_name))
-            subprocess.call(["mkfs.xfs", device_name])
+            subprocess.call(["mkfs.xfs", "-f", device_name])
 
             uuid_name = "uuid-{}".format(index + 1)
             # mkdir -p /ecs/uuid-1
             logger.info("Make /ecs/{} Directory in attached Volume".format(uuid_name))
-            subprocess.call(["mkdir", "-p", "/ecs/uuid-1"])
+            subprocess.call(["mkdir", "-p", "/ecs/{}".format(uuid_name)])
 
             # mount /dev/sdc1 /ecs/uuid-1
-            logger.info("Mount attached /dev/{} to /ecs/{} volume.".format(device_name, uuid_name))
+            logger.info("Mount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
             subprocess.call(["mount", device_name, "/ecs/{}".format(uuid_name)])
 
     except Exception as ex:
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log.")
         sys.exit()
+
 
 
 def run_additional_prep_file_func(disks):
@@ -306,7 +337,7 @@ def directory_files_conf_func():
 
         # chown 444 /data
         logger.info("Changing permissions to /data folder.")
-        subprocess.call(["chown", "444", "/data"])
+        subprocess.call(["chown","-R", "444", "/data"])
 
     except Exception as ex:
         logger.exception(ex)
@@ -406,17 +437,21 @@ def main():
 
     yum_func()
     package_install_func()
+    update_selinux_os_configuration()
     docker_install_func()
     prep_file_func()
     docker_pull_func()
     network_file_func()
     seeds_file_func()
-    prepare_data_disk_Azure_func(args.disks)
+    prepare_data_disk_func(args.disks)
     run_additional_prep_file_func(args.disks)
     directory_files_conf_func()
     set_docker_configuration_func()
     execute_docker_func()
-    logger.info("Completed Step 1...")
+    logger.info(
+        "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
+        The ECS administrative portal can be accessed from port 443. For example: https://ecs-node-external-ip-address. \
+        The website may take a few minutes to become available.")
 
 
 if __name__ == "__main__":

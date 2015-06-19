@@ -34,14 +34,6 @@ def yum_update_func():
         sys.exit()
 
 
-def update_selinux_os_configuration():
-    """
-    Update the selinux permissions to permissive
-    """
-
-    logger.info("Updating SELinux to Permissive mode.")
-    subprocess.call(["setenforce", "0"])
-
 def package_install_func():
     """
     Installs required packages
@@ -64,6 +56,15 @@ def package_install_func():
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log.")
         sys.exit()
+
+
+def update_selinux_os_configuration():
+    """
+    Update the selinux permissions to permissive
+    """
+
+    logger.info("Updating SELinux to Permissive mode.")
+    subprocess.call(["setenforce", "0"])
 
 
 def docker_install_func():
@@ -190,13 +191,13 @@ def network_file_func():
         # Create the Network.json file
         logger.info("Creating the Network.json file with Hostname: {} and IP: {}:".format(hostname, ip_address))
         logger.info(
-            "{\"private_interface_name\":\"eth0\",\"public_interface_name\":\"eth0\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
+            "{\"private_interface_name\":\"eth0\",\"public_interface_name\":\"eth0\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}\n" % (
                 hostname, ip_address))
 
         # Open a file
         network_file = open("network.json", "wb")
 
-        network_string = "{\"private_interface_name\":\"eth0\",\"public_interface_name\":\"eth0\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
+        network_string = "{\"private_interface_name\":\"eth0\",\"public_interface_name\":\"eth0\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}\n" % (
             hostname, ip_address)
 
         network_file.write(network_string)
@@ -300,7 +301,7 @@ def prepare_data_disk_func(disks):
             uuid_name = "uuid-{}".format(index + 1)
             # mkdir -p /ecs/uuid-1
             logger.info("Make /ecs/{} Directory in attached Volume".format(uuid_name))
-            subprocess.call(["mkdir", "-p", "/ecs/uuid-1"])
+            subprocess.call(["mkdir", "-p", "/ecs/{}".format(uuid_name)])
 
             # mount /dev/sdc1 /ecs/uuid-1
             logger.info("Mount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
@@ -382,10 +383,10 @@ def directory_files_conf_func():
         logger.fatal("Aborting program! Please review log")
 
 
-def fix_selinux_permissions_func():
-    """
-    Fix SELinux permissions on the folders
-    """
+def set_docker_configuration_func():
+    '''
+    Sets Docker Configuration and Restarts the Service
+    '''
 
     try:
 
@@ -448,7 +449,8 @@ def main():
         print("You need to run it as root.")
         sys.exit(3)
 
-    parser = argparse.ArgumentParser(description='Install script. ')
+    parser = argparse.ArgumentParser(
+        description='EMC\'s Elastic Cloud Storage 2.0 Software in a Docker container installation script.')
     parser.add_argument('--ips', nargs='+', help='A list of data nodes\' IPs. Example: 10.1.0.4 10.1.0.5 10.1.0.6',
                         required=True)
     parser.add_argument('--hostnames', nargs='+',
@@ -498,9 +500,12 @@ def main():
     prepare_data_disk_func(args.disks)
     run_additional_prep_file_func(args.disks)
     directory_files_conf_func()
-    fix_selinux_permissions_func()
+    set_docker_configuration_func()
     execute_docker_func()
-    logger.info("Completed Step 1...")
+    logger.info(
+        "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
+        The ECS administrative portal can be accessed from port 443. For example: https://ecs-node-external-ip-address. \
+        The website may take a few minutes to become available.")
 
 
 if __name__ == "__main__":
