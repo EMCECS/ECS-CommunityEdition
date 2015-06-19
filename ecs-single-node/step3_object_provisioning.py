@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 import os,json
 import subprocess
 import shutil
@@ -105,7 +104,7 @@ def CreateObjectVArray(ECSNode, objectVArrayName):
     print("Object Varray %s is created" % objectVArrayName)
 
 def CreateObjectVarrayWithRetry(ECSNode, objectVArrayName):
-    retry(5, 60, CreateObjectVArray, [ECSNode, objectVArrayName])
+    retry(30, 60, CreateObjectVArray, [ECSNode, objectVArrayName])
 
 
 def createDataStoreOnCommodityNodes(ECSNode, dataStoreName, varray):
@@ -134,7 +133,7 @@ def InsertVDC(ECSNode, VDCName):
 
 
 def InsertVDCWithRetry(ECSNode, objectVpoolName):
-    retry(5, 60, InsertVDC, [ECSNode, objectVpoolName])
+    retry(30, 60, InsertVDC, [ECSNode, objectVpoolName])
 
 
 def CreateObjectVpool(ECSNode, objectVpoolName, VDCName):
@@ -154,8 +153,6 @@ def CreateObjectVpool(ECSNode, objectVpoolName, VDCName):
 
 def CreateObjectVpoolWithRetry(ECSNode, objectVpoolName, VDCName):
     retry(5, 60, CreateObjectVpool, [ECSNode, objectVpoolName, VDCName])
-
-
 
 
 def CreateNamespace(ECSNode, Namespace, objectVpoolName):
@@ -295,10 +292,6 @@ def main(argv):
         addUserSecretKey(ECSNode, UserName)
         getUserSecretKey(ECSNode, UserName)
         sys.exit()
-
-#DeleteUser(ECSNode,UserName,Namespace)
-#DeleteNamespace(ECSNode, Namespace)
-#print (getNamespaces(ECSNode))
 
 
 if __name__ == "__main__":
