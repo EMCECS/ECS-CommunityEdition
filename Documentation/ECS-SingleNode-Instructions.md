@@ -51,9 +51,8 @@ The installation script is composed by three main steps:
 
 |Step| Name | Description |Execution Time |
 |------|------|-----------|---------------|
-|1| Host Configuration | Step 1 of the single node installation. This step controls the flow and contains the configuration changes required for the Host OS that will run the ECS 2.0 Software Docker container.|1-5 min|
-|2| ECS Container Configuration |Step 2 of the single node installation. This step updates the ECS Docker container so it can run as a single node and with limited resources.|10 secs|
-|3|ECS Object Configuration  |  Step 3 of the single node installation using Python. This step performs the ECS configuration so it can start serving objects.|5-15 min|
+|1| Host & ECS Container Configuration  | Step 1 of the single node installation. This step controls the flow and contains the configuration changes required for the Host OS that will run the ECS 2.0 Software Docker container. In addition, this step updates the ECS Docker container so it can run as a single node and with limited resources|1-5 min|
+|2|ECS Object Configuration  |  Step 3 of the single node installation using Python. This step performs the ECS configuration so it can start serving objects.|5-15 min|
 
 
 ## CentOS Installation
@@ -85,48 +84,57 @@ These are the installation steps to perform a CentOS installation:
 4. Execute the following command as SUDO: `sudo python step1_ecs_singlenode_install.py --disks= sdc` .This will take about 1-5 minutes depending of how many packages need to be updated. This script will install both Steps 1 and 2 described above. 
 
 
-### ECS Object Configuration
 
-1. Navigate to the  **/ecs-single-node** folder 
-2. Before executing the last installation step, please review and define values for the following variables:
+### ECS Object Configuration 
+
+The next step, is the ECS Object configuration. This can be accomplished in two ways: 
+
+- **ECS' Administration UI:** [Please follow these Instructions.](https://github.com/emccode/solidsnakev2/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS UI Object Configuration via Administration website")
+
+	or
+
+- **Automated script:** Follow the instructions in the section below.
+
+Both methods provide the same results, one of them walks you through the ECS's administrative web interface and the second uses the ECS's Management API (exposed on port 4443)
+
+
+**ECS Object Configuration via an automated script**
+
+
+1. Navigate to the  **/ecs-multi-node** folder 
+2. Copy the `step2_object_provisioning.py` script to the host or machine that can access the 4443 port on any of the ECS Nodes.
+2. Before executing the `step2_object_provisioning.py` please, please provide values for the following variables:
 	
 	|Variable Name|Variable Description | Example Value|
 	|-------------|---------------------|--------------|
-	|ECSNodes | IP Address of the ECS Node. For Single Node Deployment, only one IP is necessary. | 10.0.0.4 |
+	|ECSNodes | IP Address of the ECS Node. For Single Node Deployment, only one IP is necessary. | 10.0.1.10 |
 	|NameSpace | The objects' Namespace | ns1 |
- 	|ObjectVArray | The objects Virtual Array | ova1 |
+ 	|ObjectVArray | The objects' Virtual Array | ova1 |
 	|ObjectVPool | The objects' Virtual Pool | ov1 |
 	|DataStoreName | The name of the Data Store.| ds1 |
 	|VDCName | The name of the Virtual Data Center.| vdc1 |
 	|MethodName | The name of step to be executed. Leave blank for automated and add a value for a manual installation| [empty] |
 	
-	The script will perform the following operations in order: 
+	Once the variables are defined, they should be placed in the script. The command looks like this: 
 
-	- **UploadLicense**
-	- **CreateObjectVarray**
-	- **CreateDataStore**
-	- **InsertVDC**
-	- **CreateObjectVpool**
-	- **CreateNamespace**
-	- **CreateUser:**  CreateUser method will return an exception that user already exists. Ignore the exception and proceed to create secret key for the user. Looks like the user is being created inspite of the exception.
-	- **CreateSecretKey:** This is the S3 API secret Key used for authentication. It will be displayed at the end of the script execution and is also available in the ECS' administration portal. 
-
-	The command looks like this: 
-
-	**step3_object_provisioning.py** --ECSNodes=`Coma seperated list of datanodes` --Namespace=`namespace` --ObjectVArray=`Object vArray Name` --ObjectVPool=`Object VPool name` --UserName=`user name to be created` --DataStoreName=`Name of the datastore to be created` --VDCName=`Name of the VDC` --MethodName=`Operation to be performed`
+	**step2_object_provisioning.py** --ECSNodes=`Coma seperated list of datanodes` --Namespace=`namespace` --ObjectVArray=`Object vArray Name` --ObjectVPool=`Object VPool name` --UserName=`user name to be created` --DataStoreName=`Name of the datastore to be created` --VDCName=`Name of the VDC` --MethodName=`Operation to be performed`
 	
-	An example of this script's execution would look like this: 
+	Using the example values, the command would look like this: 
 	
-	`sudo python step3_object_provisioning.py --ECSNodes=10.4.0.4 --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=`
+	`sudo python step2_object_provisioning.py --ECSNodes=10.0.1.10,10.0.1.11,10.0.1.12,10.0.1.13 --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=`
+	
+	For more granular way of executing the Object Configuration, you can follow the instructions on  **[this document](https://github.com/emccode/solidsnakev2/blob/master/Documentation/ECS-UI-Automation.md "ECS UI Automation Detailed")** that show how to run the process step by step. 
 
-	**This step takes about 10 to 30 min to execute.** 
+	**The execution of this script may take about 5 to 30 min to complete**
+
 
 ### ECS Web Environment access and object testing
 
 After the successful execution of the ECS Object Configuration, the system is ready to start serving objects.
 
-In addition, access to the ECS's admin panel is available via the HTTPS. Using our previous example for ECS deployed on 10.0.0.4. Access should be enabled for https://10.0.04. Default login and password: root / ChangeMe
+In addition, access to the ECS's admin panel is available via the HTTPS. Using our previous example for ECS deployed on 10.0.0.4. Access should be enabled for https://IP-Address-of-ECS-Node. Default login and password: `root/ChangeMe`
   
+
 	
 
 ## Files Inventory & Description
@@ -135,9 +143,8 @@ ECS Single Node installation files /ecs-single-node folder
 
 |File Name| Description |
 |--------|-------------|
-|step1_ecs_singlenode_install.py | Step 1 of the single node installation. This step controls the flow and contains the configuration changes required for the Host OS that will run the ECS 2.0 Software Docker container|
-|step2_update_container.py |Step 2 of the single node installation. This step updates the ECS Docker container so it can run as a single node and with limited resources.|
-|step3_object_provisioning.py| Step 3 of the single node installation using Python. This step performs the ECS configuration so it can start serving objects |
+|step1_ecs_singlenode_install.py | Step 1 of the single node installation. This step controls the flow and contains the configuration changes required for the Host OS that will run the ECS 2.0 Software Docker container. In addition, this step performs the ECS configuration so it can start serving objects|
+|step2_object_provisioning.py| Step 2 of the single node installation using Python.  |
 |settings.py| Settings file that holds the installation scripts logging configuration |
 |license.xml| ECS License file |
 
