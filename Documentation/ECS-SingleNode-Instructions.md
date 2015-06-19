@@ -63,17 +63,37 @@ These are the installation steps to perform a CentOS installation:
 
 ### Pre Installation Steps
 
-1. **Attach Disk to Host:** ECS requires a disk to be attached to the host. This disk will hold the data (objects). For testing purposes you can attach a disk above 128 GB.
-2. **Open Ports in Host:** ECS requires the following ports open:
+1. **Attach Data Disk(s):** ECS requires one or more disks to be attached to the host. The disk(s) will hold the object data store. The minimum is one data disk per data node. More disks can be added to increase total storage and performance. For testing purposes you can attach a disk above 512 GB. **The Disks will be formatted as XFS by the installation script**
+
+	The Data Disk(s) attached to each host need to be **unpartioned or RAW**. For example: We have a new host where we execute an `fdisk -l`:
+	
+	![Fdisk in a new Host ](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step1.PNG)
+
+	In the picture we can see two disks sda and sdb. A `mount -l` looks like this: 
+
+	![Mount in a new Host](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step2.PNG)
+
+	Now, we attach a new disk to the Host VM. The new disk **/dev/sdc** looks like this after executing `fdisk -l` again:
+
+	![Fdisk in New Host with a new disk attached](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step3.PNG)
+
+	**Note:** Depending on the environment or the cloud provider you maybe using, the attached Disk(s) Name will be different. On this example the attached disk came as **/dev/sdc**.
+
+	Once you execute the STEP 1 script,  the attached disk (**/dev/sdc** in our example) will be formated and mounted:
+
+ 	![Fdisk after the STEP 1 script has executed](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step4.PNG)
+	
+
+2. **Open Ports:** ECS requires the following ports open:
 
 	|Port Number|Port Description|
 	|-----------|----------------|
 	|22| SSH, needed if using remote access |
 	|443 | Port used for accessing the ECS Web Application|
-	|4443| Port used for accessing the ECS API. This port can be closed from external access after the installation|
-	|9011| Port used for accessing the ECS API. This port can be closed from external access after the installation|
 	|9020| Port used for the S3 API|
 	|9024| Port used for SWIFT API |
+
+	You may need more ports open, please refer to the **[ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012)** if you find any issues.
 
 
 ### Host and Container Configuration
