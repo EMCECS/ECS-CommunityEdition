@@ -137,7 +137,7 @@ The following section needs to be performed on each one of the ECS Nodes:
 	
 	**The execution of this script is will take about 1-5 minutes** depending of how many packages need to be updated. This script executed should be executed on each ECS Node.
 
-3. Once this step has finished, you will have to wait until the administrator website is available from one of the ECS data nodes. The ECS Administrative portal can be accessed from any one of the ECS data nodes on port 443. For example: https://ecs-node-ip. The Page should look like this. You are now ready to execute STEP 2.    
+3. Once this step has finished, **you may have to wait a few minutes** until the administrator website is available from one of the ECS data nodes. The ECS Administrative portal can be accessed from any one of the ECS data nodes on port 443. For example: https://ecs-node-ip-address. Once you see the screen bellow, you are now ready to execute STEP 2.    
 
 ![ECS UI](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-waiting-for-webserver.PNG)
 
@@ -164,7 +164,7 @@ Both methods provide the same results, one of them walks you through the ECS's a
 	
 	|Variable Name|Variable Description | Example Value|
 	|-------------|---------------------|--------------|
-	|ECSNodes | IP Address of the ECS Node. For Single Node Deployment, only one IP is necessary. | 10.0.1.10 |
+	|ECSNodes | IP Addressess of the ECS Nodes (coma delimited list). | 10.0.1.10,10.0.1.11,10.0.1.12,10.0.1.13 |
 	|NameSpace | The objects' Namespace | ns1 |
  	|ObjectVArray | The objects' Virtual Array | ova1 |
 	|ObjectVPool | The objects' Virtual Pool | ov1 |
@@ -180,7 +180,7 @@ Both methods provide the same results, one of them walks you through the ECS's a
 	
 	`sudo python step2_object_provisioning.py --ECSNodes=10.0.1.10,10.0.1.11,10.0.1.12,10.0.1.13 --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=`
 	
-	For more granular way of executing this step you can follow the instructions on  **[this document](https://github.com/emccode/solidsnakev2/blob/master/Documentation/ECS-UI-Automation.md "ECS UI Automation Detailed")**
+	For more granular way of executing the Object Configuration, you can follow the instructions on  **[this document](https://github.com/emccode/solidsnakev2/blob/master/Documentation/ECS-UI-Automation.md "ECS UI Automation Detailed")** that show how to run the process step by step. 
 
 	**The execution of this script may take about 5 to 30 min to complete**
 
