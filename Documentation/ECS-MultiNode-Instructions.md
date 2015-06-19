@@ -107,7 +107,13 @@ These steps are to be performed prior running the installation scripts on each o
 
 
 1. **Get the Scripts:** Clone or copy this GitHub repository into the Host OS.
-2. **Gather** the IP Addresses, Hostnames and disc(s) to be used on each one of the hosts. For Example:
+
+2. **Network configuration:** Define your network configuration. Make sure that all nodes are on the same subnet and they can see each other. This is an example:
+
+	![ECS Multinode network configuration example](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecc-host-network-example.png)
+	
+
+3. **Gather** the IP Addresses, Hostnames and disc(s) to be used on each one of the hosts. For Example:
 	
 	|Hostname | IP Address | Disk Name|  
  	|---------|------------|----------|
@@ -115,8 +121,6 @@ These steps are to be performed prior running the installation scripts on each o
     |ecstestnode2 | 10.0.1.11 |sdc sdd |
 	|ecstestnode3 | 10.0.1.12 |sdc sdd |
 	|ecstestnode4 | 10.0.1.13 |sdc sdd |
-
-
 
 
 ### Host and Container Configuration
