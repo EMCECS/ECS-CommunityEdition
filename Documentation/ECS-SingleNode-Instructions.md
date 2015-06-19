@@ -99,7 +99,7 @@ These are the installation steps to perform a CentOS installation:
 ### Host and Container Configuration
 
 1. **Perform Updates:**  Perform a Yum update `Sudo yum update` and Download packages `sudo yum install git tar wget`
-2. **Git Clone/Pull** the repository: https://github.com/emccode/solidsnakev2.git
+2. **Git Clone/Pull** the repository: [https://github.com/EMCECS/ECS-CommunityEdition](https://github.com/EMCECS/ECS-CommunityEdition)
 3. Navigate to the  **/ecs-single-node** folder.
 4. Execute the following command as SUDO: `sudo python step1_ecs_singlenode_install.py --disks= sdc` .This will take about 1-5 minutes depending of how many packages need to be updated. This script will install both Steps 1 and 2 described above. 
 
