@@ -8,6 +8,7 @@ import logging
 import logging.config
 import sys
 import socket
+import os
 
 import settings
 
@@ -16,7 +17,7 @@ logging.config.dictConfig(settings.ECS_SINGLENODE_LOGGING)
 logger = logging.getLogger("root")
 
 
-def yum_func():
+def yum_update_func():
     """
     Performs CentOS update
     """
@@ -32,6 +33,14 @@ def yum_func():
         logger.fatal("Aborting program! Please review log.")
         sys.exit()
 
+
+def update_selinux_os_configuration():
+    """
+    Update the selinux permissions to permissive
+    """
+
+    logger.info("Updating SELinux to Permissive mode.")
+    subprocess.call(["setenforce", "0"])
 
 def package_install_func():
     """
@@ -61,23 +70,27 @@ def docker_install_func():
     """
     Downloads, Install and starts the service for the  Supported Docker Version  1.4.1
     """
+    docker_package = "docker-1.4.1-2.el7.x86_64.rpm"
+
     try:
 
-        docker_wget = "wget"
-        docker_url = "http://cbs.centos.org/kojifiles/packages/docker/1.4.1/2.el7/x86_64/docker-1.4.1-2.el7.x86_64.rpm"
+        if not os.path.exists(os.getcwd() + "/{}".format(docker_package)):
+            docker_wget = "wget"
+            docker_url = "http://cbs.centos.org/kojifiles/packages/docker/1.4.1/2.el7/x86_64/docker-1.4.1-2.el7.x86_64.rpm"
 
-        # Gets the docker package
-        logger.info("Downloading the Docker Package.")
-        subprocess.call([docker_wget, docker_url])
+            # Gets the docker package
+            logger.info("Downloading the Docker Package.")
+            subprocess.call([docker_wget, docker_url])
 
-        docker_yum = "yum"
-        docker_yum_arg = "install"
-        docker_package = "docker-1.4.1-2.el7.x86_64.rpm"
-        docker_package_auto_install = "-y"
+            docker_yum = "yum"
+            docker_yum_arg = "install"
+            docker_package_auto_install = "-y"
 
-        # Installs the docker package
-        logger.info("Installing the Docker Package.")
-        subprocess.call([docker_yum, docker_yum_arg, docker_package, docker_package_auto_install])
+            # Installs the docker package
+            logger.info("Installing the Docker Package.")
+            subprocess.call([docker_yum, docker_yum_arg, docker_package, docker_package_auto_install])
+        else:
+            print "(Ignoring) Docker File already Exists: {}".format(docker_package)
 
         docker_service = "service"
         docker_service_name = "docker"
@@ -97,20 +110,45 @@ def prep_file_func():
     """
     Downloads and configures the preparation file
     """
+
+    file_name = "additional_prep.sh"
+
     try:
+        if not os.path.exists(os.getcwd() + "/{}".format(file_name)):
 
-        wget = "wget"
-        url = "https://emccodevmstore001.blob.core.windows.net/test/additional_prep.sh"
+            wget = "wget"
+            url = "https://emccodevmstore001.blob.core.windows.net/test/additional_prep.sh"
 
-        # Gets the prep. file
-        logger.info("Downloading the additional_prep file.")
-        subprocess.call([wget, url])
+            # Gets the prep. file
+            logger.info("Downloading the additional_prep file.")
+            subprocess.call([wget, url])
+
+        else:
+            print "(Ignoring) Preparation File already Exists: {}".format(file_name)
 
         chmod = "chmod"
         chmod_arg = "777"
-        file_name = "additional_prep.sh"
         logger.info("Changing the additional_prep.sh file permissions.")
         subprocess.call([chmod, chmod_arg, file_name])
+
+    except Exception as ex:
+        logger.exception(ex)
+        logger.fatal("Aborting program! Please review log.")
+        sys.exit()
+
+
+def docker_cleanup_old_images():
+    """
+    Clean up images and containers from the Host Docker images repository
+    sudo docker rm -f $(sudo docker ps -a -q) 2>/dev/null
+    sudo docker rmi -f $(sudo docker images -q) 2>/dev/null
+    """
+    try:
+
+        logger.info("Clean up Docker containers and images from the Host")
+
+        os.system("docker rm -f $(docker ps -a -q) 2>/dev/null")
+        os.system("docker rmi -f $(docker images -q) 2>/dev/null")
 
     except Exception as ex:
         logger.exception(ex)
@@ -236,16 +274,16 @@ def hosts_file_func(ips, hostnames):
         sys.exit()
 
 
-def prepare_data_disk_Azure_func(disks):
+def prepare_data_disk_func(disks):
     """
     Prepare the data disk for usage. This includes format, and mount
     """
 
     try:
+
         # echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/sdc
 
         for index, disk in enumerate(disks):
-
             disk_path = "/dev/{}".format(disk)
 
             logger.info("Partitioning the disk '{}'".format(disk_path))
@@ -257,15 +295,15 @@ def prepare_data_disk_Azure_func(disks):
             device_name = disk_path + "1"
             # Make File Filesystem in attached Volume
             logger.info("Make File filesystem in '{}'".format(device_name))
-            subprocess.call(["mkfs.xfs", device_name])
+            subprocess.call(["mkfs.xfs", "-f", device_name])
 
-            uuid_name = "uuid-{}".format(index+1)
+            uuid_name = "uuid-{}".format(index + 1)
             # mkdir -p /ecs/uuid-1
             logger.info("Make /ecs/{} Directory in attached Volume".format(uuid_name))
             subprocess.call(["mkdir", "-p", "/ecs/uuid-1"])
 
             # mount /dev/sdc1 /ecs/uuid-1
-            logger.info("Mount attached /dev/{} to /ecs/{} volume.".format(device_name, uuid_name))
+            logger.info("Mount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
             subprocess.call(["mount", device_name, "/ecs/{}".format(uuid_name)])
 
     except Exception as ex:
@@ -283,7 +321,6 @@ def run_additional_prep_file_func(disks):
         prep_file_name = "./additional_prep.sh"
 
         for disk in disks:
-
             device_name = "/dev/{}1".format(disk)
             # Gets the prep. file
             logger.info("Executing the additional preparation script in '{}'".format(device_name))
@@ -316,9 +353,9 @@ def directory_files_conf_func():
         logger.info("Copying network.json to /host/data.")
         subprocess.call(["cp", "network.json", "/host/data"])
 
-        # cp seeds.example /host/files
-        logger.info("Copying seeds.example file to /host/files.")
-        subprocess.call(["cp", "seeds.example", "/host/files"])
+        # cp seeds /host/files
+        logger.info("Copying seeds file to /host/files.")
+        subprocess.call(["cp", "seeds", "/host/files"])
 
         # chown -R 444 /host
         logger.info("Changing permissions to the /host folder.")
@@ -338,7 +375,7 @@ def directory_files_conf_func():
 
         # chown 444 /data
         logger.info("Changing permissions to /data folder.")
-        subprocess.call(["chown", "444", "/data"])
+        subprocess.call(["chown", "-R", "444", "/data"])
 
     except Exception as ex:
         logger.exception(ex)
@@ -379,7 +416,7 @@ def execute_docker_func():
         logger.info("Execute the Docker Container.")
         subprocess.call(["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/disks", "-v", "/host:/host", "-v",
                          "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
-                         "--name=ecsstandalone",
+                         "--name=ecsmultinode",
                          "emccode/ecsobjectsw:v2.0"])
 
         # docker ps
@@ -406,14 +443,19 @@ def valid_ip(address):
 
 def main():
     import os
+
     if os.getuid() != 0:
         print("You need to run it as root.")
         sys.exit(3)
 
     parser = argparse.ArgumentParser(description='Install script. ')
-    parser.add_argument('--ips', nargs='+', help='A list of data nodes\' IPs. Example: 10.1.0.4 10.1.0.5 10.1.0.6', required=True)
-    parser.add_argument('--hostnames', nargs='+', help='A list of data nodes\' hostnames. Example: ECSNode1.mydomain.com ECSNode2.mydomain.com ECSNode3.mydomain.com', required=True)
-    parser.add_argument('--disks', nargs='+', help='A list of disk names to be prepared. Example: sda sdb sdc', required=True)
+    parser.add_argument('--ips', nargs='+', help='A list of data nodes\' IPs. Example: 10.1.0.4 10.1.0.5 10.1.0.6',
+                        required=True)
+    parser.add_argument('--hostnames', nargs='+',
+                        help='A list of data nodes\' hostnames. Example: ECSNode1.mydomain.com ECSNode2.mydomain.com ECSNode3.mydomain.com',
+                        required=True)
+    parser.add_argument('--disks', nargs='+', help='A list of disk names to be prepared. Example: sda sdb sdc',
+                        required=True)
     args = parser.parse_args()
 
     # Check if Number of IPs and Hostnames are the same
@@ -429,30 +471,36 @@ def main():
 
     # Check that the Selected Disks have not been initialized and can be used
     for disk in args.disks:
-        disk_ready = cmdline("fdisk -l /dev/{} | grep \"Disk label type:\"".format(disk))
-        if disk_ready:
-            print "Please check that Disk: {} is not formatted (fdisk -l)." % disk
+        if not os.path.exists("/dev/{}".format(disk)):
+            print "Disk '/dev/{}' does not exist".format(disk)
             sys.exit(4)
-        else:
-            print "Disk {} checked. Ready for the installation." % disk
+
+            # disk_ready = cmdline("fdisk -l /dev/{} | grep \"Disk label type:\"".format(disk))
+            # if disk_ready:
+            #    print "Please check that Disk: {} is not formatted (fdisk -l).".format(disk)
+            #    sys.exit(5)
+            # else:
+            #    print "Disk {} checked. Ready for the installation.".format(disk)
 
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container.")
 
-    # yum_func()
-    # package_install_func()
-    # docker_install_func()
-    # prep_file_func()
-    # docker_pull_func()
-    # network_file_func()
-    # seeds_file_func(args.ips)
+    # yum_update_func()
+    update_selinux_os_configuration()
+    package_install_func()
+    docker_install_func()
+    prep_file_func()
+    docker_cleanup_old_images()
+    docker_pull_func()
+    network_file_func()
+    seeds_file_func(args.ips)
     hosts_file_func(args.ips, args.hostnames)
-    # prepare_data_disk_Azure_func(args.disks)
-    # run_additional_prep_file_func(args.disks)
-    # directory_files_conf_func()
-    # fix_selinux_permissions_func()
-    # execute_docker_func()
-    # logger.info("Completed Step 1...")
+    prepare_data_disk_func(args.disks)
+    run_additional_prep_file_func(args.disks)
+    directory_files_conf_func()
+    fix_selinux_permissions_func()
+    execute_docker_func()
+    logger.info("Completed Step 1...")
 
 
 if __name__ == "__main__":
