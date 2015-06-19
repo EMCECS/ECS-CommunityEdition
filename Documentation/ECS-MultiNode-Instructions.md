@@ -71,21 +71,21 @@ These steps are to be performed prior running the installation scripts on each o
 
 	The Data Disk(s) attached to each host need to be **unpartioned or RAW**. For example: We have a new host where we execute an `fdisk -l`:
 	
-	![Fdisk in a new Host ](http://i.imgur.com/OFxGzEx.png)
+	![Fdisk in a new Host ](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step1.PNG)
 
 	In the picture we can see two disks sda and sdb. A `mount -l` looks like this: 
 
-	![Mount in a new Host](http://i.imgur.com/TY8Kerw.png)
+	![Mount in a new Host](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step2.PNG)
 
 	Now, we attach a new disk to the Host VM. The new disk **/dev/sdc** looks like this after executing `fdisk -l` again:
 
-	![Fdisk in New Host with a new disk attached](http://i.imgur.com/7fHuQQH.png)
+	![Fdisk in New Host with a new disk attached](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step3.PNG)
 
 	**Note:** Depending on the environment or the cloud provider you maybe using, the attached Disk(s) Name will be different. On this example the attached disk came as **/dev/sdc**.
 
 	Once you execute the STEP 1 script,  the attached disk (**/dev/sdc** in our example) will be formated and mounted:
 
- 	![Fdisk after the STEP 1 script has executed](http://i.imgur.com/w6tE9qs.png)
+ 	![Fdisk after the STEP 1 script has executed](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step4.PNG)
 	
 
 2. **Open Ports:** ECS requires the following ports open:
