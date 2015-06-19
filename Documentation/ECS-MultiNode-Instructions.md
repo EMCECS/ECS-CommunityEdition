@@ -67,7 +67,26 @@ The installation script is composed by two main steps:
 
 These steps are to be performed prior running the installation scripts on each of the ECS Nodes:
 
-1. **Attach Disk:** ECS requires one or more disks to be attached to the host. The disk(s) will hold the object data store. The minimum is one data disk per data node. More disks can be added to increase total storage and performance. For testing purposes you can attach a disk above 512 GB.
+1. **Attach Data Disk(s):** ECS requires one or more disks to be attached to the host. The disk(s) will hold the object data store. The minimum is one data disk per data node. More disks can be added to increase total storage and performance. For testing purposes you can attach a disk above 512 GB. **The Disks will be formatted as XFS by the installation script**
+
+	The Data Disk(s) attached to each host need to be **unpartioned or RAW**. For example: We have a new host where we execute an `fdisk -l`:
+	
+	![Fdisk in a new Host ](http://i.imgur.com/OFxGzEx.png)
+
+	In the picture we can see two disks sda and sdb. A `mount -l` looks like this: 
+
+	![Mount in a new Host](http://i.imgur.com/TY8Kerw.png)
+
+	Now, we attach a new disk to the Host VM. The new disk **/dev/sdc** looks like this after executing `fdisk -l` again:
+
+	![Fdisk in New Host with a new disk attached](http://i.imgur.com/7fHuQQH.png)
+
+	**Note:** Depending on the environment or the cloud provider you maybe using, the attached Disk(s) Name will be different. On this example the attached disk came as **/dev/sdc**.
+
+	Once you execute the STEP 1 script,  the attached disk (**/dev/sdc** in our example) will be formated and mounted:
+
+ 	![Fdisk after the STEP 1 script has executed](http://i.imgur.com/w6tE9qs.png)
+	
 
 2. **Open Ports:** ECS requires the following ports open:
 
@@ -113,11 +132,15 @@ The following section needs to be performed on each one of the ECS Nodes:
 	|HostnameList | Hostnames of the ECS Nodes | ecstestnode1 ecstestnode2 ecstestnode3 ecstestnode4 |
 	|disks |Name of the disks to be attached for each ECS Node. You can attach one or more disks on each data node | sda sdc sdd |
 
-The command should look like this: 
+	The command should look like this: 
+	
+	    sudo python step1_ecs_multinode_install.py --IPListOfNodes=10.0.1.10 10.0.1.11 10.0.1.12 10.0.1.13 --HostnameList= ecstestnode1 ecstestnode2 ecstestnode3 ecstestnode4 --disks= sdc sdd
+	
+	**The execution of this script is will take about 1-5 minutes** depending of how many packages need to be updated. This script executed should be executed on each ECS Node.
 
-    sudo python step1_ecs_multinode_install.py --IPListOfNodes=10.0.1.10 10.0.1.11 10.0.1.12 10.0.1.13 --HostnameList= ecstestnode1 ecstestnode2 ecstestnode3 ecstestnode4 --disks= sdc sdd
+3. Once this step has finished, you will have to wait until the administrator website is available from one of the ECS data nodes. The ECS Administrative portal can be accessed from any one of the ECS data nodes on port 443. For example: https://ecs-node-ip. The Page should look like this. You are now ready to execute STEP 2.    
 
-**The execution of this script is will take about 1-5 minutes** depending of how many packages need to be updated. This script executed should be executed on each ECS Node.
+![ECS UI](http://i.imgur.com/LHtr4HA.png)
 
 
 ### ECS Object Configuration 
