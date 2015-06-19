@@ -105,7 +105,7 @@ These are the installation steps to perform a CentOS installation:
 
 1. **Perform Updates:**  Perform a Yum update `Sudo yum update` and Download packages `sudo yum install git tar wget`
 
-2. **Git Clone/Pull** the repository: [https://github.com/emccode/solidsnakev2.git](https://github.com/EMCECS/ECS-CommunityEdition "https://github.com/EMCECS/ECS-CommunityEdition")
+2. **Git Clone/Pull** the repository: [https://github.com/EMCECS/ECS-CommunityEdition ](https://github.com/EMCECS/ECS-CommunityEdition "https://github.com/EMCECS/ECS-CommunityEdition")
 
 3. Navigate to the  **/ecs-single-node** folder.
 
@@ -123,7 +123,7 @@ These are the installation steps to perform a CentOS installation:
 
 The next step, is the ECS Object configuration. This can be accomplished in two ways: 
 
-- **ECS' Administration UI:** [Please follow these Instructions.](https://github.com/emccode/solidsnakev2/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS UI Object Configuration via Administration website")
+- **ECS' Administration UI:** [Please follow these Instructions.](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS UI Object Configuration via Administration website")
 
 	or
 
@@ -157,7 +157,7 @@ Both methods provide the same results, one of them walks you through the ECS's a
 	
 	`sudo python step2_object_provisioning.py --ECSNodes=10.0.1.10,10.0.1.11,10.0.1.12,10.0.1.13 --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=`
 	
-	For more granular way of executing the Object Configuration, you can follow the instructions on  **[this document](https://github.com/emccode/solidsnakev2/blob/master/Documentation/ECS-UI-Automation.md "ECS UI Automation Detailed")** that show how to run the process step by step. 
+	For more granular way of executing the Object Configuration, you can follow the instructions on  **[this document](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Automation.md "ECS UI Automation Detailed")** that show how to run the process step by step. 
 
 	**The execution of this script may take about 5 to 30 min to complete**
 
@@ -177,8 +177,8 @@ ECS Single Node installation files /ecs-single-node folder
 
 |File Name| Description |
 |--------|-------------|
-|step1_ecs_singlenode_install.py | Step 1 of the single node installation. This step controls the flow and contains the configuration changes required for the Host OS that will run the ECS 2.0 Software Docker container. In addition, this step performs the ECS configuration so it can start serving objects|
-|step2_object_provisioning.py| Step 2 of the single node installation using Python.  |
+|step1_ecs_singlenode_install.py | Step 1 of the single node installation. This step controls the flow and contains the configuration changes required for the Host OS that will run the ECS 2.0 Software Docker container. In addition, t|
+|step2_object_provisioning.py| Step 2 of the single node installation performs the ECS configuration so it can start serving objects.  |
 |settings.py| Settings file that holds the installation scripts logging configuration |
 |license.xml| ECS License file |
 

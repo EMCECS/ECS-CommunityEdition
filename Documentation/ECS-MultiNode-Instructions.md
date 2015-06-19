@@ -155,7 +155,7 @@ The following section needs to be performed on each one of the ECS Nodes:
 
 The next step, is the ECS Object configuration. This can be accomplished in two ways: 
 
-- **ECS' Administration UI:** [Please follow these Instructions.](https://github.com/emccode/solidsnakev2/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS UI Object Configuration via Administration website")
+- **ECS' Administration UI:** [Please follow these Instructions.](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS UI Object Configuration via Administration website")
 
 	or
 
@@ -189,7 +189,7 @@ Both methods provide the same results, one of them walks you through the ECS's a
 	
 	`sudo python step2_object_provisioning.py --ECSNodes=10.0.1.10,10.0.1.11,10.0.1.12,10.0.1.13 --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=`
 	
-	For more granular way of executing the Object Configuration, you can follow the instructions on  **[this document](https://github.com/emccode/solidsnakev2/blob/master/Documentation/ECS-UI-Automation.md "ECS UI Automation Detailed")** that show how to run the process step by step. 
+	For more granular way of executing the Object Configuration, you can follow the instructions on  **[this document](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Automation.md "ECS UI Automation Detailed")** that show how to run the process step by step. 
 
 	**The execution of this script may take about 5 to 30 min to complete**
 
