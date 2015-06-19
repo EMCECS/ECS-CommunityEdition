@@ -94,11 +94,10 @@ These steps are to be performed prior running the installation scripts on each o
 	|-----------|----------------|
 	|22| SSH, needed if using remote access |
 	|443 | Port used for accessing the ECS Web Application|
-	|4443| Port used for accessing the ECS API. This port can be closed from external access after the installation|
-	|9011| Port used for accessing the ECS API. This port can be closed from external access after the installation|
 	|9020| Port used for the S3 API|
 	|9024| Port used for SWIFT API |
 
+	You may need more ports open, please refer to the **[ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012)** if you find any issues.
 
 ### Host Configuration
 
@@ -109,7 +108,7 @@ These steps are to be performed prior running the installation scripts on each o
 	|Hostname | IP Address | Disk Name|  
  	|---------|------------|----------|
 	|ecstestnode1 | 10.0.1.10 |sdc sdd | 		  	
-    	|ecstestnode2 | 10.0.1.11 |sdc sdd |
+    |ecstestnode2 | 10.0.1.11 |sdc sdd |
 	|ecstestnode3 | 10.0.1.12 |sdc sdd |
 	|ecstestnode4 | 10.0.1.13 |sdc sdd |
 
@@ -179,11 +178,11 @@ Both methods provide the same results, one of them walks you through the ECS's a
 	
 	Using the example values, the command would look like this: 
 	
-	`sudo python step2_object_provisioning.py --ECSNodes=10.0.1.10 --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=`
+	`sudo python step2_object_provisioning.py --ECSNodes=10.0.1.10,10.0.1.11,10.0.1.12,10.0.1.13 --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=`
 	
 	For more granular way of executing this step you can follow the instructions on  **[this document](https://github.com/emccode/solidsnakev2/blob/master/Documentation/ECS-UI-Automation.md "ECS UI Automation Detailed")**
 
-	**The execution of this script may take about 5 to 20 min to complete**
+	**The execution of this script may take about 5 to 30 min to complete**
 
 
 ### ECS Web Environment access and object testing
