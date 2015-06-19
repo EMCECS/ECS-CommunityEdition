@@ -93,9 +93,13 @@ These steps are to be performed prior running the installation scripts on each o
 	|Port Number|Port Description|
 	|-----------|----------------|
 	|22| SSH, needed if using remote access |
-	|443 | Port used for accessing the ECS Web Application|
+	|443 | Port used for accessing the ECS management Website|
 	|9020| Port used for the S3 API|
 	|9024| Port used for SWIFT API |
+	|4443| ECS Management API Port *|
+	|9011| ECS Management API Port *|
+
+	**Note:** Ports 4443 and 9011 should be open on the ECS Data nodes if you choose to run Step 2 via the provided script vs. using the ECS management website.
 
 	You may need more ports open, please refer to the **[ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012)** if you find any issues.
 
@@ -123,7 +127,7 @@ The following section needs to be performed on each one of the ECS Nodes:
 
 	`scp -P 63090 -r ecs-multi-node User_name_on_ECS_Node@IP_Address_Of_ECS_Node:/home/User_name_on_ECS_Node`
 
-2. Use gathered values of each ECS node (IP addresses, Hostnames, Disk Names) to build the  `step1_ecs_multinode_install.py` script:
+2. Use gathered values of each ECS node (IP addresses, Hostnames, Disk Names) to build the  `Step1_ecs_singlenode_install.py` script:
 
 	|Variable Name|Variable Description | Example Value|
 	|-------------|---------------------|--------------|
@@ -133,7 +137,7 @@ The following section needs to be performed on each one of the ECS Nodes:
 
 	The command should look like this: 
 	
-	    sudo python step1_ecs_multinode_install.py --ips 10.0.1.10 10.0.1.11 10.0.1.12 10.0.1.13 --hostnames ecstestnode1 ecstestnode2 ecstestnode3 ecstestnode4 --disks sdc sdd
+	    sudo python step1_ecs_multinode_install.py --IPListOfNodes=10.0.1.10 10.0.1.11 10.0.1.12 10.0.1.13 --HostnameList= ecstestnode1 ecstestnode2 ecstestnode3 ecstestnode4 --disks= sdc sdd
 	
 	**The execution of this script is will take about 1-5 minutes** depending of how many packages need to be updated. This script executed should be executed on each ECS Node.
 

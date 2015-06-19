@@ -89,19 +89,33 @@ These are the installation steps to perform a CentOS installation:
 	|Port Number|Port Description|
 	|-----------|----------------|
 	|22| SSH, needed if using remote access |
-	|443 | Port used for accessing the ECS Web Application|
+	|443 | Port used for accessing the ECS management Website|
 	|9020| Port used for the S3 API|
 	|9024| Port used for SWIFT API |
+	|4443| ECS Management API Port *|
+	|9011| ECS Management API Port *|
+
+	**Note:** Ports 4443 and 9011 should be open on the ECS Data nodes if you choose to run Step 2 via the provided script vs. using the ECS management website.
 
 	You may need more ports open, please refer to the **[ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012)** if you find any issues.
+
 
 
 ### Host and Container Configuration
 
 1. **Perform Updates:**  Perform a Yum update `Sudo yum update` and Download packages `sudo yum install git tar wget`
-2. **Git Clone/Pull** the repository: [https://github.com/EMCECS/ECS-CommunityEdition](https://github.com/EMCECS/ECS-CommunityEdition)
+
+2. **Git Clone/Pull** the repository: [https://github.com/emccode/solidsnakev2.git](https://github.com/EMCECS/ECS-CommunityEdition "https://github.com/EMCECS/ECS-CommunityEdition")
+
 3. Navigate to the  **/ecs-single-node** folder.
-4. Execute the following command as SUDO: `sudo python step1_ecs_singlenode_install.py --disks= sdc` .This will take about 1-5 minutes depending of how many packages need to be updated. This script will install both Steps 1 and 2 described above. 
+
+4. Execute the following command as SUDO: `sudo python step1_ecs_singlenode_install.py --disks= sdc` .
+	
+	**The execution of this script is will take about 1-5 minutes** depending of how many packages need to be updated. This script executed should be executed on each ECS Node.
+
+3. Once this step has finished, **you may have to wait a few minutes** until the administrator website is available from one of the ECS data nodes. The ECS Administrative portal can be accessed from any one of the ECS data nodes on port 443. For example: https://ecs-node-ip-address. Once you see the screen bellow, you are now ready to execute STEP 2.    
+
+	![ECS UI](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-waiting-for-webserver.PNG)
 
 
 
@@ -115,13 +129,13 @@ The next step, is the ECS Object configuration. This can be accomplished in two 
 
 - **Automated script:** Follow the instructions in the section below.
 
-Both methods provide the same results, one of them walks you through the ECS's administrative web interface and the second uses the ECS's Management API (exposed on port 4443)
+Both methods provide the same results, one of them walks you through the ECS's administrative web interface and the second uses the ECS's Management API (exposed on port 4443 and 9011)
 
 
 **ECS Object Configuration via an automated script**
 
 
-1. Navigate to the  **/ecs-multi-node** folder 
+1. Navigate to the  **/ecs-single-node** folder 
 2. Copy the `step2_object_provisioning.py` script to the host or machine that can access the 4443 port on any of the ECS Nodes.
 2. Before executing the `step2_object_provisioning.py` please, please provide values for the following variables:
 	
