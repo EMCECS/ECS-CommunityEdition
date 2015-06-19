@@ -140,7 +140,7 @@ The following section needs to be performed on each one of the ECS Nodes:
 
 3. Once this step has finished, you will have to wait until the administrator website is available from one of the ECS data nodes. The ECS Administrative portal can be accessed from any one of the ECS data nodes on port 443. For example: https://ecs-node-ip. The Page should look like this. You are now ready to execute STEP 2.    
 
-![ECS UI](http://i.imgur.com/LHtr4HA.png)
+![ECS UI](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-waiting-for-webserver.PNG)
 
 
 ### ECS Object Configuration 
