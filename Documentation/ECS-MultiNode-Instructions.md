@@ -123,7 +123,7 @@ The following section needs to be performed on each one of the ECS Nodes:
 
 	`scp -P 63090 -r ecs-multi-node User_name_on_ECS_Node@IP_Address_Of_ECS_Node:/home/User_name_on_ECS_Node`
 
-2. Use gathered values of each ECS node (IP addresses, Hostnames, Disk Names) to build the  `Step1_ecs_singlenode_install.py` script:
+2. Use gathered values of each ECS node (IP addresses, Hostnames, Disk Names) to build the  `step1_ecs_multinode_install.py` script:
 
 	|Variable Name|Variable Description | Example Value|
 	|-------------|---------------------|--------------|
@@ -133,7 +133,7 @@ The following section needs to be performed on each one of the ECS Nodes:
 
 	The command should look like this: 
 	
-	    sudo python step1_ecs_multinode_install.py --IPListOfNodes=10.0.1.10 10.0.1.11 10.0.1.12 10.0.1.13 --HostnameList= ecstestnode1 ecstestnode2 ecstestnode3 ecstestnode4 --disks= sdc sdd
+	    sudo python step1_ecs_multinode_install.py --ips 10.0.1.10 10.0.1.11 10.0.1.12 10.0.1.13 --hostnames ecstestnode1 ecstestnode2 ecstestnode3 ecstestnode4 --disks sdc sdd
 	
 	**The execution of this script is will take about 1-5 minutes** depending of how many packages need to be updated. This script executed should be executed on each ECS Node.
 
