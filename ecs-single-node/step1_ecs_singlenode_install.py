@@ -232,7 +232,6 @@ def seeds_file_func():
         sys.exit()
 
 
-
 def prepare_data_disk_func(disks):
     """
     Prepare the data disk for usage. This includes format, and mount
@@ -269,7 +268,6 @@ def prepare_data_disk_func(disks):
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log.")
         sys.exit()
-
 
 
 def run_additional_prep_file_func(disks):
@@ -335,7 +333,7 @@ def directory_files_conf_func():
 
         # chown 444 /data
         logger.info("Changing permissions to /data folder.")
-        subprocess.call(["chown","-R", "444", "/data"])
+        subprocess.call(["chown", "-R", "444", "/data"])
 
     except Exception as ex:
         logger.exception(ex)
@@ -450,6 +448,44 @@ def modify_container_conf_func():
         sys.exit()
 
 
+def docker_cleanup_old_images():
+    """
+    Clean up images and containers from the Host Docker images repository
+    sudo docker rm -f $(sudo docker ps -a -q) 2>/dev/null
+    sudo docker rmi -f $(sudo docker images -q) 2>/dev/null
+    """
+    try:
+
+        logger.info("Clean up Docker containers and images from the Host")
+
+        os.system("docker rm -f $(docker ps -a -q) 2>/dev/null")
+        os.system("docker rmi -f $(docker images -q) 2>/dev/null")
+
+    except Exception as ex:
+        logger.exception(ex)
+        logger.fatal("Aborting program! Please review log.")
+        sys.exit()
+
+
+
+def cleanup_installation():
+    """
+    Clean the directory and files created by ECS. It un-mounds the drive and performs a directory cleanup
+    """
+    try:
+
+        logger.info("CleanUp Installation. Un-mount Drive and Delete Directories and Files from the Host")
+        os.system("umount /dev/sdc1 /ecs/uuid-1")
+        os.system("rm -rf /ecs/uuid-1")
+        os.system("rm -rf /data/*")
+        os.system("rm -rf /var/log/vipr/emcvipr-object/*")
+
+    except Exception as ex:
+        logger.exception(ex)
+        logger.fatal("Aborting program! Please review log.")
+        sys.exit()
+
+
 
 # Main Execution
 def main():
@@ -460,10 +496,14 @@ def main():
         sys.exit(3)
 
     parser = argparse.ArgumentParser(
-        description='EMC\'s Elastic Cloud Storage 2.0 Software in a Docker container installation script. ')
+        description='EMC\'s Elastic Cloud Storage 2.0 Software Single Node Docker container installation script. ')
     parser.add_argument('--disks', nargs='+', help='The disk(s) name(s) to be prepared. Example: sda sdb sdc',
                         required=True)
-    parser.add_argument('--onlyContainerConfig', nargs='+', help='If true, it will only run the container configuration. Example: True/False',
+    parser.add_argument('--onlyContainerConfig', nargs='+',
+                        help='If true, it will only run the container configuration. Example: True/False',
+                        required=False)
+    parser.add_argument('--cleanup', nargs='+',
+                        help='If true, run the Docker container/images Clean up and the /data Folder. Example: True/False',
                         required=False)
     args = parser.parse_args()
 
@@ -473,13 +513,20 @@ def main():
         modify_container_conf_func()
         sys.exit(6)
 
+    # Check if only wants to run the Container Configuration section
+    if args.cleanup:
+        logger.info("Starting CleanUp: Removing Previous Docker containers and images. Deletes the created Directories.")
+        docker_cleanup_old_images()
+        cleanup_installation()
+        sys.exit(7)
+
     # Check that the Selected Disks have not been initialized and can be used
     for disk in args.disks:
         if not os.path.exists("/dev/{}".format(disk)):
             print "Disk '/dev/{}' does not exist".format(disk)
             sys.exit(4)
 
-    #    disk_ready = cmdline("fdisk -l /dev/{} | grep \"Disk label type:\"".format(disk))
+    # disk_ready = cmdline("fdisk -l /dev/{} | grep \"Disk label type:\"".format(disk))
     #    if disk_ready:
     #        print "Please check that Disk: {} is not formatted (fdisk -l).".format(disk)
     #        sys.exit(5)
@@ -510,7 +557,6 @@ def main():
         "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
         The ECS administrative portal can be accessed from port 443. For example: https://ecs-node-external-ip-address. \
         The website may take a few minutes to become available.")
-
 
 
 if __name__ == "__main__":
