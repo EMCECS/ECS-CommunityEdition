@@ -372,7 +372,7 @@ def execute_docker_func(docker_image_name):
     '''
     try:
 
-        # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecsstandalone:v2.0
+        # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecsstandalone:v2.0 --name=ecsstandalone
         logger.info("Execute the Docker Container.")
         subprocess.call(["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/disks", "-v", "/host:/host", "-v",
                          "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
@@ -474,17 +474,17 @@ def main():
         sys.exit(6)
 
     # Check that the Selected Disks have not been initialized and can be used
-    for disk in args.disks:
-        if not os.path.exists("/dev/{}".format(disk)):
-            print "Disk '/dev/{}' does not exist".format(disk)
-            sys.exit(4)
-
-        disk_ready = cmdline("fdisk -l /dev/{} | grep \"Disk label type:\"".format(disk))
-        if disk_ready:
-            print "Please check that Disk: {} is not formatted (fdisk -l).".format(disk)
-            sys.exit(5)
-        else:
-            print "Disk {} checked. Ready for the installation.".format(disk)
+    #for disk in args.disks:
+    #    if not os.path.exists("/dev/{}".format(disk)):
+    #        print "Disk '/dev/{}' does not exist".format(disk)
+    #        sys.exit(4)
+    #
+    #    disk_ready = cmdline("fdisk -l /dev/{} | grep \"Disk label type:\"".format(disk))
+    #    if disk_ready:
+    #        print "Please check that Disk: {} is not formatted (fdisk -l).".format(disk)
+    #        sys.exit(5)
+    #    else:
+    #        print "Disk {} checked. Ready for the installation.".format(disk)
 
 
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
