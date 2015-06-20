@@ -512,14 +512,14 @@ def main():
     # Check if only wants to run the Container Configuration section
     if args.container_config:
         logger.info("Starting Step 1b: Only running the Container Configuration for Single Node.")
-        # modify_container_conf_func()
+        modify_container_conf_func()
         sys.exit(6)
 
     # Check if only wants to run the Container Configuration section
     if args.cleanup:
         logger.info("Starting CleanUp: Removing Previous Docker containers and images. Deletes the created Directories.")
-        # docker_cleanup_old_images()
-        # cleanup_installation()
+        docker_cleanup_old_images()
+        cleanup_installation()
         sys.exit(7)
 
     # Check that the Selected Disks have not been initialized and can be used
