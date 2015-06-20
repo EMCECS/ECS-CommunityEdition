@@ -165,7 +165,7 @@ def docker_pull_func():
 
         docker = "docker"
         docker_arg = "pull"
-        docker_file = "emccode/ecsobjectsw:v2.0"
+        docker_file = "emccode/ecs-software"
         logger.info("Executing a Docker Pull for image {}".format(docker_file))
         subprocess.call([docker, docker_arg, docker_file])
 
