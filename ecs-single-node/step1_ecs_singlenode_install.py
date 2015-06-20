@@ -499,25 +499,27 @@ def main():
         description='EMC\'s Elastic Cloud Storage 2.0 Software Single Node Docker container installation script. ')
     parser.add_argument('--disks', nargs='+', help='The disk(s) name(s) to be prepared. Example: sda sdb sdc',
                         required=True)
-    parser.add_argument('--onlyContainerConfig', nargs='+',
-                        help='If true, it will only run the container configuration. Example: True/False',
+    parser.add_argument('--onlyContainerConfig', dest='container_config', action='store_true',
+                        help='If present, it will only run the container configuration. Example: True/False',
                         required=False)
-    parser.add_argument('--cleanup', nargs='+',
-                        help='If true, run the Docker container/images Clean up and the /data Folder. Example: True/False',
+    parser.add_argument('--cleanup', dest='cleanup', action='store_true',
+                        help='If present, run the Docker container/images Clean up and the /data Folder. Example: True/False',
                         required=False)
+    parser.set_defaults(container_config=False)
+    parser.set_defaults(cleanup=False)
     args = parser.parse_args()
 
     # Check if only wants to run the Container Configuration section
-    if args.onlyContainerConfig:
+    if args.container_config:
         logger.info("Starting Step 1b: Only running the Container Configuration for Single Node.")
-        modify_container_conf_func()
+        # modify_container_conf_func()
         sys.exit(6)
 
     # Check if only wants to run the Container Configuration section
     if args.cleanup:
         logger.info("Starting CleanUp: Removing Previous Docker containers and images. Deletes the created Directories.")
-        docker_cleanup_old_images()
-        cleanup_installation()
+        # docker_cleanup_old_images()
+        # cleanup_installation()
         sys.exit(7)
 
     # Check that the Selected Disks have not been initialized and can be used

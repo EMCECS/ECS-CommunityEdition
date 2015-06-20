@@ -494,9 +494,10 @@ def main():
                         required=True)
     parser.add_argument('--disks', nargs='+', help='A list of disk names to be prepared. Example: sda sdb sdc',
                         required=True)
-    parser.add_argument('--cleanup', nargs='+',
-                        help='If true, run the Docker container/images Clean up and the /data Folder. Example: True/False',
+    parser.add_argument('--cleanup', dest='cleanup', action='store_true',
+                        help='If present, run the Docker container/images Clean up and the /data Folder. Example: True/False',
                         required=False)
+    parser.set_defaults(cleanup=False)
     args = parser.parse_args()
 
 
