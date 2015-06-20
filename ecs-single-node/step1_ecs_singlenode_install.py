@@ -474,11 +474,11 @@ def main():
         sys.exit(6)
 
     # Check that the Selected Disks have not been initialized and can be used
-    #for disk in args.disks:
-    #    if not os.path.exists("/dev/{}".format(disk)):
-    #        print "Disk '/dev/{}' does not exist".format(disk)
-    #        sys.exit(4)
-    #
+    for disk in args.disks:
+        if not os.path.exists("/dev/{}".format(disk)):
+            print "Disk '/dev/{}' does not exist".format(disk)
+            sys.exit(4)
+
     #    disk_ready = cmdline("fdisk -l /dev/{} | grep \"Disk label type:\"".format(disk))
     #    if disk_ready:
     #        print "Please check that Disk: {} is not formatted (fdisk -l).".format(disk)

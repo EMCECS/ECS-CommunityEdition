@@ -157,7 +157,7 @@ def docker_cleanup_old_images():
         sys.exit()
 
 
-def docker_pull_func():
+def docker_pull_func(docker_image_name):
     """
     Getting the ECS Docker image from DockerHub. Using Docker Pull
     """
@@ -165,7 +165,7 @@ def docker_pull_func():
 
         docker = "docker"
         docker_arg = "pull"
-        docker_file = "emccode/ecs-software"
+        docker_file = docker_image_name
         logger.info("Executing a Docker Pull for image {}".format(docker_file))
         subprocess.call([docker, docker_arg, docker_file])
 
@@ -407,18 +407,18 @@ def set_docker_configuration_func():
         logger.fatal("Aborting program! Please review log")
 
 
-def execute_docker_func():
+def execute_docker_func(docker_image_name):
     """
     Execute Docker Container
     """
     try:
 
-        # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecsstandalone:v2.0
+        # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecs-software --name=ecsmultinode
         logger.info("Execute the Docker Container.")
         subprocess.call(["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/disks", "-v", "/host:/host", "-v",
                          "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
                          "--name=ecsmultinode",
-                         "emccode/ecsobjectsw:v2.0"])
+                         "{}".format(docker_image_name)])
 
         # docker ps
         logger.info("Check the Docker processes.")
@@ -484,6 +484,8 @@ def main():
             # else:
             #    print "Disk {} checked. Ready for the installation.".format(disk)
 
+    docker_image_name = "emccode/ecs-software"
+
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container.")
 
@@ -493,7 +495,7 @@ def main():
     docker_install_func()
     prep_file_func()
     docker_cleanup_old_images()
-    docker_pull_func()
+    docker_pull_func(docker_image_name)
     network_file_func()
     seeds_file_func(args.ips)
     hosts_file_func(args.ips, args.hostnames)
@@ -501,7 +503,7 @@ def main():
     run_additional_prep_file_func(args.disks)
     directory_files_conf_func()
     set_docker_configuration_func()
-    execute_docker_func()
+    execute_docker_func(docker_image_name)
     logger.info(
         "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
         The ECS administrative portal can be accessed from port 443. For example: https://ecs-node-external-ip-address. \
