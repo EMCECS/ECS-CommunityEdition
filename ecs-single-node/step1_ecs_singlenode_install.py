@@ -154,7 +154,7 @@ def docker_cleanup_old_images():
         sys.exit()
 
 
-def docker_pull_func():
+def docker_pull_func(docker_image_name):
     """
     Getting the ECS Docker image from DockerHub. Using Docker Pull
     """
@@ -162,7 +162,7 @@ def docker_pull_func():
 
         docker = "docker"
         docker_arg = "pull"
-        docker_file = "emccode/ecs-software"
+        docker_file = docker_image_name
         logger.info("Executing a Docker Pull for image {}".format(docker_file))
         subprocess.call([docker, docker_arg, docker_file])
 
@@ -366,7 +366,7 @@ def set_docker_configuration_func():
         logger.fatal("Aborting program! Please review log")
 
 
-def execute_docker_func():
+def execute_docker_func(docker_image_name):
     '''
     Execute Docker Container
     '''
@@ -377,7 +377,7 @@ def execute_docker_func():
         subprocess.call(["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/disks", "-v", "/host:/host", "-v",
                          "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
                          "--name=ecsstandalone",
-                         "emccode/ecsobjectsw:v2.0"])
+                         "{}".format(docker_image_name)])
 
         # docker ps
         logger.info("Check the Docker processes.")
@@ -463,7 +463,15 @@ def main():
         description='EMC\'s Elastic Cloud Storage 2.0 Software in a Docker container installation script. ')
     parser.add_argument('--disks', nargs='+', help='The disk(s) name(s) to be prepared. Example: sda sdb sdc',
                         required=True)
+    parser.add_argument('--onlyContainerConfig', nargs='+', help='If true, it will only run the container configuration. Example: True/False',
+                        required=False)
     args = parser.parse_args()
+
+    # Check if only wants to run the Container Configuration section
+    if args.onlyContainerConfig:
+        logger.info("Starting Step 1b: Only running the Container Configuration for Single Node.")
+        modify_container_conf_func()
+        sys.exit(6)
 
     # Check that the Selected Disks have not been initialized and can be used
     for disk in args.disks:
@@ -480,21 +488,23 @@ def main():
 
 
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
-    logger.info("Staring Step 1: Configuration of Host Machine to run the ECS Docker Container.")
+    logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container.")
+
+    docker_image_name = "emccode/ecs-software"
 
     yum_func()
     package_install_func()
     update_selinux_os_configuration()
     docker_install_func()
     prep_file_func()
-    docker_pull_func()
+    docker_pull_func(docker_image_name)
     network_file_func()
     seeds_file_func()
     prepare_data_disk_func(args.disks)
     run_additional_prep_file_func(args.disks)
     directory_files_conf_func()
     set_docker_configuration_func()
-    execute_docker_func()
+    execute_docker_func(docker_image_name)
     modify_container_conf_func()
     logger.info(
         "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
