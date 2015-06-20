@@ -313,6 +313,42 @@ def prepare_data_disk_func(disks):
         sys.exit()
 
 
+def clean_data_disk_func(disks):
+    """
+    Un-mounts created disks, removes files and directories created by ECS
+    """
+
+    try:
+
+        for index, disk in enumerate(disks):
+            disk_path = "/dev/{}".format(disk)
+
+            device_name = disk_path + "1"
+            uuid_name = "uuid-{}".format(index + 1)
+
+            # umount /dev/sdc1 /ecs/uuid-1
+            logger.info("Umount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
+            subprocess.call(["umount", device_name, "/ecs/{}".format(uuid_name)])
+
+            # rm -rf /ecs/uuid-1
+            logger.info("Remove /ecs/{} Directory in attached Volume".format(uuid_name))
+            subprocess.call(["rm", "-rf", "/ecs/{}".format(uuid_name)])
+
+        # sudo rm -rf /data/*
+        logger.info("Remove /data/* Directory in attached Volume")
+        subprocess.call(["rm", "-rf", "/data/*"])
+
+        # sudo rm -rf /var/log/vipr/emcvipr-object/*
+        logger.info("Remove /var/log/vipr/emcvipr-object/* Directory ")
+        subprocess.call(["rm", "-rf", "/var/log/vipr/emcvipr-object/*"])
+
+    except Exception as ex:
+        logger.exception(ex)
+        logger.fatal("Aborting program! Please review log.")
+        sys.exit()
+
+
+
 def run_additional_prep_file_func(disks):
     """
     Execute the additional preparation script
@@ -458,7 +494,18 @@ def main():
                         required=True)
     parser.add_argument('--disks', nargs='+', help='A list of disk names to be prepared. Example: sda sdb sdc',
                         required=True)
+    parser.add_argument('--cleanup', nargs='+',
+                        help='If true, run the Docker container/images Clean up and the /data Folder. Example: True/False',
+                        required=False)
     args = parser.parse_args()
+
+
+      # Check if only wants to run the Container Configuration section
+    if args.cleanup:
+        logger.info("Starting CleanUp: Removing Previous Docker containers and images. Deletes the created Directories.")
+        docker_cleanup_old_images()
+        clean_data_disk_func(args.disks)
+        sys.exit(4)
 
     # Check if Number of IPs and Hostnames are the same
     if len(args.ips) != len(args.hostnames):
