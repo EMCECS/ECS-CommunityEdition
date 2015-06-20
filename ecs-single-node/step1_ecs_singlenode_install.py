@@ -537,7 +537,7 @@ def main():
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container.")
 
-    docker_image_name = "emccode/ecs-software"
+    docker_image_name = "emccorp/ecs-software"
 
     yum_func()
     package_install_func()

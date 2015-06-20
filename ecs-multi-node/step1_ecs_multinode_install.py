@@ -484,7 +484,7 @@ def main():
             # else:
             #    print "Disk {} checked. Ready for the installation.".format(disk)
 
-    docker_image_name = "emccode/ecs-software"
+    docker_image_name = "emccorp/ecs-software"
 
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container.")
