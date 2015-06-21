@@ -11,8 +11,7 @@
 	- [Host and Container Configuration](#host-and-container-configuration)
 	- [ECS Object Configuration](#ecs-object-configuration)
 	- [ECS Web Environment access and object testing](#ecs-web-environment-access-and-object-testing)
-	- [Troubleshooting](#troubleshooting)
-- [Files Inventory](#files-inventory)
+- [Troubleshooting](#troubleshooting)
 - [Support](#support)
 
 
@@ -74,6 +73,11 @@ These steps are to be performed prior install The module on the Puppet master se
 	|9024| Port used for SWIFT API |
 	|61613| Puppet MCollective |
 	|8140| Puppet |
+
+	**Note:** There are more ports required to be open if you have a firewall running on the hosts. Please refer to **[List of Ports to be Open](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md#list-of-open-ports-required-on-each-ecs-data-node)** of the troubleshooting page.
+
+	In addtion, please refer to the [ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012 "ECS Security Configuration Guide") and our the [troubleshooting page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md "troubleshooting page") if you find any issues.
+
 3. The following [Puppet Get Start Guide](http://info.puppetlabs.com/pe-azure-gsg.html) is good reference to use.
 
 ### Install ECS Module 
@@ -142,12 +146,16 @@ The next step, is the ECS Object configuration. This can be accomplished in two 
 
 
 
+
 ### ECS Web Environment access and object testing
 
 After the successful execution of the ECS Object Configuration, the system is ready to start serving objects.
 
 In addition, access to the ECS's admin panel is available via the HTTPS. Using our previous example for ECS deployed on 10.0.0.4. Access should be enabled for https://IP-Address-of-ECS-Node. Default login and password: `root/ChangeMe`
   
+
+## Troubleshooting
+If you have any issues with the installatation you can **[review this page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md "Troubleshooting page")** for troubleshooting tips and/or go to the support section bellow.
 
 
 ## Support
