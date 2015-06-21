@@ -10,12 +10,6 @@ There are two deployment options available:
 
 EMC Elastic Cloud Storage (ECS) is a stateful containerized cloud storage.  It provides persistence for your applications that can access data through standardized Object protocols like AWS S3 or Openstack Swift. ECS can be set up on one or more hosts / VMs in a single-site or a multi-site geo replicted configuration. We want the wider community to use ECS and provide feedback.  Usage of this software is under the following End User License Agreement.
 
-
-## Support
-
-Please file bugs and issues at the [ECS's site in the EMC Commnuity Network (ECS's support site) ](https://community.emc.com/community/products/vipr#support) and you can also use this Github's repository issues page. For more general discussions you can contact the EMC Code team at <a href="https://groups.google.com/forum/#!forum/emccode-users">Google Groups</a> or tagged with **EMC** on <a href="https://stackoverflow.com">Stackoverflow.com</a>. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community driven process.
-
-
 ### Directory Structure
 
 |Directory Name|Description| 
@@ -23,6 +17,12 @@ Please file bugs and issues at the [ECS's site in the EMC Commnuity Network (ECS
 |ecs-single-node| Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments|
 |ecs-multi-node| Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment|
 |Documentation| Contains documentation files and media|
+
+
+## Support
+
+Please file bugs and issues at the [ECS's site in the EMC Commnuity Network (ECS's support site) ](https://community.emc.com/community/products/vipr#support) and you can also use this Github's repository issues page. For more general discussions you can contact the EMC Code team at <a href="https://groups.google.com/forum/#!forum/emccode-users">Google Groups</a> or tagged with **EMC** on <a href="https://stackoverflow.com">Stackoverflow.com</a>. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community driven process.
+
 
 
 ## License Agreement	
