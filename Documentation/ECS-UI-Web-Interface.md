@@ -45,8 +45,9 @@ Group, and click Save at the very bottom.
 
 ### Create object user  [TODO]
 
-Creating an object user in the Users panel
+Once we have configured the NameSpace, we add a new user for the Object. 
 
+![Create Namespace](https://github.com/emccode/solidsnakev2/blob/master/Documentation/media/create_namespace.PNG)
 
 ### Create User S3 Key [TODO]
 
