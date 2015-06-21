@@ -97,9 +97,10 @@ These steps are to be performed prior running the installation scripts on each o
 	|4443| ECS Management API Port *|
 	|9011| ECS Management API Port *|
 
-	**Note:** Ports 4443 and 9011 should be open on the ECS Data nodes if you choose to run Step 2 via the provided script vs. using the ECS management website.
+	**Note:** There are more ports required to be open if you have a firewall running on the hosts. Please refer to **[List of Ports to be Open](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md#list-of-open-ports-required-on-each-ecs-data-node)** of the troubleshooting page.
 
-	You may need more ports open, please refer to the **[ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012)** if you find any issues.
+	In addtion, please refer to the [ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012 "ECS Security Configuration Guide") and our the [troubleshooting page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md "troubleshooting page") if you find any issues.
+
 
 
 3. **Network configuration:** Define your network configuration. ECS Data nodes should be on the same Subnet and they should be able to talk to each other. This is an example:
@@ -202,7 +203,7 @@ In addition, access to the ECS's admin panel is available via the HTTPS. Using o
   
 
 ## Troubleshooting
-If you have any issues with the installatation you can **[review this page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting%20.md "Troubleshooting page")** for troubleshooting tips and/or go to the support section bellow.
+If you have any issues with the installatation you can **[review this page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md "Troubleshooting page")** for troubleshooting tips and/or go to the support section bellow.
 
 
 ## Support
