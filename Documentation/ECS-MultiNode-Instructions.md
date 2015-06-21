@@ -69,7 +69,7 @@ These steps are to be performed prior running the installation scripts on each o
 
 1. **Attach Data Disk(s):** ECS requires one or more disks to be attached to the host. The disk(s) will hold the object data store. The minimum is one data disk per data node. More disks can be added to increase total storage and performance. For testing purposes you can attach a disk above 512 GB. **The Disks will be formatted as XFS by the installation script**
 
-	The Data Disk(s) attached to each host need to be **unpartioned or RAW**. For example: We have a new host where we execute an `fdisk -l`:
+	The Data Disk(s) attached to each host need to be **unpartioned or RAW**. For example: We have a new host where we execute an `sudo fdisk -l`:
 	
 	![Fdisk in a new Host ](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step1.PNG)
 
