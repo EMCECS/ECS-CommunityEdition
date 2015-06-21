@@ -1,4 +1,4 @@
-# ECS Software 2.0 - Multi-Node Docker Configuration Instructions
+# ECS Software 2.0 - Troubleshooting Instructions
 
 
 **Table of Contents**
@@ -113,9 +113,7 @@ These steps are to be performed prior running the installation scripts on each o
 ### Host Configuration
 
 
-1. **Get the Scripts:** Clone or copy this [https://github.com/EMCECS/ECS-CommunityEdition](https://github.com/EMCECS/ECS-CommunityEdition "https://github.com/EMCECS/ECS-CommunityEdition") GitHub repository into each one of Hosts. 
-
-	The multi node scripts are located in the **/ECS-CommunityEdition/ecs-multi-node/** folder. 
+1. **Get the Scripts:** Clone or copy this GitHub repository into the Host OS.
 
 2. **Gather** the IP Addresses, Hostnames and disc(s) to be used on each one of the hosts. For Example:
 	
@@ -131,7 +129,7 @@ These steps are to be performed prior running the installation scripts on each o
 
 The following section needs to be performed on each one of the ECS Nodes:
 
-1. navigate to the  **ECS-CommunityEdition/ecs-multi-node/** folder on each one of the ECS Nodes. You can use the following **SCP** command:
+1. Copy the  **/ecs-multi-node** folder on each one of the ECS Nodes. You can use the following **SCP** command:
 
 	`scp -P 63090 -r ecs-multi-node User_name_on_ECS_Node@IP_Address_Of_ECS_Node:/home/User_name_on_ECS_Node`
 
@@ -205,7 +203,7 @@ In addition, access to the ECS's admin panel is available via the HTTPS. Using o
   
 
 ## Troubleshooting
-If you have any issues with the installatation you can **[check this page]( https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ECS-troubleshooting.md "Troubleshooting page")** for troubleshooting tips and/or review our support section bellow.
+If you have any issues with the installatation you can **[check this page]( "Troubleshooting page")** for troubleshooting tips and/or review our support section bellow.
 
 
 ## Support
