@@ -118,8 +118,8 @@ These steps are to be performed prior running the installation scripts on each o
 	
 	|Hostname | IP Address | Disk Name|  
  	|---------|------------|----------|
-	|ecstestnode1 | 10.0.1.10 |sdc sdd | 		  	
-    |ecstestnode2 | 10.0.1.11 |sdc sdd |
+	|ecstestnode1 | 10.0.1.10 |sdc sdd |
+	|ecstestnode2 | 10.0.1.11 |sdc sdd |
 	|ecstestnode3 | 10.0.1.12 |sdc sdd |
 	|ecstestnode4 | 10.0.1.13 |sdc sdd |
 
@@ -132,17 +132,17 @@ The following section needs to be performed on each one of the ECS Nodes:
 
 	`scp -P 63090 -r ecs-multi-node User_name_on_ECS_Node@IP_Address_Of_ECS_Node:/home/User_name_on_ECS_Node`
 
-2. Use gathered values of each ECS node (IP addresses, Hostnames, Disk Names) to build the  `Step1_ecs_singlenode_install.py` script:
+2. Use gathered values of each ECS node (IP addresses, Hostnames, Disk Names) to build the  `step1_ecs_multinode_install.py` script:
 
 	|Variable Name|Variable Description | Example Value|
 	|-------------|---------------------|--------------|
-	|IPListOfNodes| IP Address of the ECS Nodes |10.0.1.10 10.0.1.11 10.0.1.12 10.0.1.13 |
-	|HostnameList | Hostnames of the ECS Nodes | ecstestnode1 ecstestnode2 ecstestnode3 ecstestnode4 |
-	|disks |Name of the disks to be attached for each ECS Node. You can attach one or more disks on each data node | sda sdc sdd |
+	| ips | IP Address of the ECS Nodes |10.0.1.10 10.0.1.11 10.0.1.12 10.0.1.13 |
+	| hostnames | Hostnames of the ECS Nodes | ecstestnode1 ecstestnode2 ecstestnode3 ecstestnode4 |
+	| disks |Name of the disks to be attached for each ECS Node. You can attach one or more disks on each data node | sda sdc sdd |
 
 	The command should look like this: 
 	
-	    sudo python step1_ecs_multinode_install.py --IPListOfNodes=10.0.1.10 10.0.1.11 10.0.1.12 10.0.1.13 --HostnameList= ecstestnode1 ecstestnode2 ecstestnode3 ecstestnode4 --disks= sdc sdd
+	    sudo python step1_ecs_multinode_install.py --ips 10.0.1.10 10.0.1.11 10.0.1.12 10.0.1.13 --hostnames ecstestnode1 ecstestnode2 ecstestnode3 ecstestnode4 --disks sdc sdd
 	
 	**The execution of this script is will take about 1-5 minutes** depending of how many packages need to be updated. This script executed should be executed on each ECS Node.
 
@@ -187,7 +187,7 @@ Both methods provide the same results, one of them walks you through the ECS's a
 	
 	Using the example values, the command would look like this: 
 	
-	`sudo python step2_object_provisioning.py --ECSNodes=10.0.1.10,10.0.1.11,10.0.1.12,10.0.1.13 --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=`
+		sudo python step2_object_provisioning.py --ECSNodes=10.0.1.10,10.0.1.11,10.0.1.12,10.0.1.13 --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=`
 	
 	For more granular way of executing the Object Configuration, you can follow the instructions on  **[this document](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Automation.md "ECS UI Automation Detailed")** that show how to run the process step by step. 
 
@@ -211,7 +211,7 @@ ECS Multiple Node installation files are located in the **/ecs-multi-node** fold
 |File Name| Description |
 |--------|-------------|
 |step1_ecs_multinode_install.py | Step 1 of the single node installation. This step controls the flow and contains the configuration changes required for the Host OS that will run the ECS 2.0 Software Docker container|
-|step2_object_provisioning.py| Step 3 of the single node installation using Python. This step performs the ECS configuration so it can start serving objects |
+|step2_object_provisioning.py| Step 2 of the single node installation using Python. This step performs the ECS configuration so it can start serving objects |
 |settings.py| Settings file that holds the installation scripts logging configuration |
 |license.xml| ECS License file |
 
