@@ -5,7 +5,8 @@
 - [Introduction](#introduction)
 - [Requirements](#requirements)
 - [Using Vagrant](#using-vagrant)
-  - [Troubleshooting](#troubleshooting)
+- [Troubleshooting](#troubleshooting)
+- [Support](#support)
 
 ## Introduction
 
@@ -46,6 +47,11 @@ These are the installation steps to perform a CentOS installation:
 	|9011| Port used for accessing the ECS API. This port can be closed from external access after the installation|
 	|9020| Port used for the S3 API|
 	|9024| Port used for SWIFT API |
+	
+	**Note:** There are more ports required to be open if you have a firewall running on the host. Please refer to [List of Ports to be Open](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md#list-of-open-ports-required-on-each-ecs-data-node) of the troubleshooting page.
+
+	In addtion, please refer to the [ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012 "ECS Security Configuration Guide") and our the [troubleshooting page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md "troubleshooting page") if you find any issues.
+
 
 ### Remote host configuration
 
@@ -103,4 +109,11 @@ If everything goes right, you will access the remote host. You can now exit from
 
 It will prepare the remote host and install ECS in single node mode. You will be able to see the output while Vagrant is configuring the host. When it finishes, the system is ready to start serving objects. In addition, access to the ECS's admin panel is available via the HTTPS. Using our previous example for ECS deployed on 10.0.0.4. Access should be enabled for https://IP_OR_HOST. Default login and password: `root` / `ChangeMe`
 
+## Troubleshooting
+If you have any issues with the installatation you can **[review this page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting%20.md "Troubleshooting page")** for troubleshooting tips and/or go to the support section bellow.
+
+
+## Support
+
+Please file bugs and issues at the Github issues page. For more general discussions you can contact the EMC Code team at <a href="https://groups.google.com/forum/#!forum/emccode-users">Google Groups</a> or tagged with **EMC** on <a href="https://stackoverflow.com">Stackoverflow.com</a>. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community driven process.
 
