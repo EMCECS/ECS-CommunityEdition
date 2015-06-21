@@ -9,7 +9,7 @@
 ### Input License
 Go to Settings | Licensing and upload the license. The license was included in the zipfile that was downloaded. You should see something similar to the below:
 
-![Upload License file](https://github.com/emccode/solidsnakev2/blob/master/Documentation/media/input_license.PNG)
+![Upload License file](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/input_license.PNG)
 
 **Note:** the UI will not automatically update in this release. Current beta version may look as if it is “frozen”. Navigating away from page and returning will usually fix this.
 
@@ -18,7 +18,7 @@ Go to Manage | Storage Pools, and create a storage pool. Keep the name simple, a
 
 **Note:** While processing, the tab will appear frozen for about 1-2 minutes. Let it come back on its own, and you should see something similar to:
 
-![Create Storage VPool](https://github.com/emccode/solidsnakev2/blob/master/Documentation/media/create_storage_vpool.PNG)
+![Create Storage VPool](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/create_storage_vpool.PNG)
 
 
 ### Create Virtual Data Center
@@ -26,14 +26,14 @@ Go to Manage | Storage Pools, and create a storage pool. Keep the name simple, a
 Create a Virtual Data Center using the below screenshot as a guide.
 **Note:** Please wait for 20 minutes after creating a Storage vPool before creating a Virtual Data Center. There are several background tasks that must complete, and for object to fully initialize.
 
-![Create Virtual Data Center](https://github.com/emccode/solidsnakev2/blob/master/Documentation/media/create_virtual_data_center.PNG)
+![Create Virtual Data Center](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/create_virtual_data_center.PNG)
 
 
 ### Create Replication Group
 
 Next, create a Replication Group, using the below as an example. Note that currently only 1 VDC in a replication group is supported.
 
-![Create Replication Group](https://github.com/emccode/solidsnakev2/blob/master/Documentation/media/Create_replication_group.PNG)
+![Create Replication Group](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/Create_replication_group.PNG)
 
 
 ### Create Namespace
@@ -41,20 +41,22 @@ Next, create a Replication Group, using the below as an example. Note that curre
 Next, set the Namespace. Note that in this build optional features such as Retention Policies, quotas, Authentication Domains are not supported. For Namespace, set a simple Namespace name such as ‘ns’, pick a user such as “ecs_user”, select the Replication
 Group, and click Save at the very bottom.
 
-![Create Namespace](https://github.com/emccode/solidsnakev2/blob/master/Documentation/media/create_namespace.PNG)
+![Create Namespace](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/create_namespace.PNG)
 
-### Create object user  [TODO]
+### Create object user
 
-Once we have configured the NameSpace, we add a new user for the Object. 
+Once we have configured the NameSpace, click on the User section on the left menu. Then Click on the Object Users and Click on the New Object User button. 
 
-![Create Namespace](https://github.com/emccode/solidsnakev2/blob/master/Documentation/media/create_namespace.PNG)
+![Create Namespace](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/create_object_user.png)
 
-### Create User S3 Key [TODO]
+### Create User S3 and Siwft Key
 
-Creating an object user in the Users panel
+In order to create the required keys you click the follwing buttons: 
+
+- **S3 Key generation**: Click the Generate & Add Password button. This will provide you with a server generated key. 
+- **Swift Password**: Enter your own password and click the Set Password button to summit your selection. 
+
+![Create User S3 and Swift Keys](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/create_object_user_keys.png)
 
 
-### Create User SWIFT Key [TODO]
- 
-Creating an object user in the Users panel
 
