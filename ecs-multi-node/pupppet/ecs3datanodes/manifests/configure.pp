@@ -107,12 +107,12 @@ service { "docker":
 
 #pull docker image
 exec{"docker_pull_image_ecs":
- command => '/usr/bin/docker pull emccode/ecsobjectsw:v2.0',
+ command => '/usr/bin/docker pull emccorp/ecs-software',
 
 }->
 #start docker conatiner
 exec{"Start_ecs_container":
- command =>"/usr/bin/docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host docker.io/emccode/ecsobjectsw:v2.0",
+ command =>"/usr/bin/docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host docker.io/emcorp/ecsobjectsw",
 }->
 file {"/host/ecscontainer":
  ensure  => file,
