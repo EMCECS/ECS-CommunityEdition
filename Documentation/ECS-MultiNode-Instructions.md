@@ -171,7 +171,7 @@ Both methods provide the same results, one of them walks you through the ECS's a
 
 
 1. Navigate to the  **/ecs-multi-node** folder 
-2. Copy the `step2_object_provisioning.py` script to the host or machine that can access the 4443 port on any of the ECS Nodes.
+2. We will be executing the `step2_object_provisioning.py` script. This can be executed from any of the hosts or an external machinecan access the 4443  and 9011 ports.
 2. Before executing the `step2_object_provisioning.py` please, please provide values for the following variables:
 	
 	|Variable Name|Variable Description | Example Value|
@@ -205,7 +205,7 @@ In addition, access to the ECS's admin panel is available via the HTTPS. Using o
   
 
 ## Troubleshooting
-If you have any issues with the installatation you can **[check this page]( https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ECS-troubleshooting.md "Troubleshooting page")** for troubleshooting tips and/or review our support section bellow.
+If you have any issues with the installatation you can **[review this page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting%20.md "Troubleshooting page")** for troubleshooting tips and/or go to the support section bellow.
 
 
 ## Support
