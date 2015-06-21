@@ -103,13 +103,13 @@ These are the installation steps to perform a CentOS installation:
 
 ### Host and Container Configuration
 
-1. **Perform Updates:**  Perform a Yum update `Sudo yum update` and Download packages `sudo yum install git tar wget`
+1. **Perform Updates:**  Perform a Yum update `sudo yum update` and Download packages `sudo yum install git tar wget`
 
 2. **Git Clone/Pull** the repository: [https://github.com/EMCECS/ECS-CommunityEdition ](https://github.com/EMCECS/ECS-CommunityEdition "https://github.com/EMCECS/ECS-CommunityEdition")
 
 3. Navigate to the  **/ecs-single-node** folder.
 
-4. Execute the following command as SUDO: `sudo python step1_ecs_singlenode_install.py --disks= sdc` .
+4. Execute the following command as SUDO: `sudo python step1_ecs_singlenode_install.py --disks sdc`
 	
 	**The execution of this script is will take about 1-5 minutes** depending of how many packages need to be updated. This script executed should be executed on each ECS Node.
 
@@ -155,7 +155,7 @@ Both methods provide the same results, one of them walks you through the ECS's a
 	
 	Using the example values, the command would look like this: 
 	
-	`sudo python step2_object_provisioning.py --ECSNodes=10.0.1.10 --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=`
+		sudo python step2_object_provisioning.py --ECSNodes=10.0.1.10 --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=
 	
 	For more granular way of executing the Object Configuration, you can follow the instructions on  **[this document](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Automation.md "ECS UI Automation Detailed")** that show how to run the process step by step. 
 
