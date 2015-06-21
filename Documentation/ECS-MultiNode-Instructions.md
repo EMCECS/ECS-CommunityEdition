@@ -45,9 +45,6 @@ OS Name | Version | Docker Version |
 |-------|---------|----------------|
 |CentOS	| 7.1	  | 1.4.1          |
 
-## Versioning
-
-ECS 2.0 Software on Docker consists of images for different platforms, install scripts, and documentation. Individual portions for different platforms will be updated independently. Please use this Github repository and versioning table at the bottom of this page as the location to check for the latest releases.
 
 ## Installation Steps
 
