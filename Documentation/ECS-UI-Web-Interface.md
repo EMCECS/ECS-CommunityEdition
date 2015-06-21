@@ -49,9 +49,9 @@ Once we have configured the NameSpace, click on the User section on the left men
 
 ![Create Namespace](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/create_object_user.png)
 
-### Create User S3 and Siwft Key
+### Create User S3 and Swift Keys
 
-In order to create the required keys you click the follwing buttons: 
+In order to create the required keys you click the following buttons: 
 
 - **S3 Key generation**: Click the Generate & Add Password button. This will provide you with a server generated key. 
 - **Swift Password**: Enter your own password and click the Set Password button to summit your selection. 
