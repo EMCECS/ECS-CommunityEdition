@@ -172,7 +172,7 @@ In addition, access to the ECS's admin panel is available via the HTTPS. Using o
   
 
 ## Troubleshooting
-If you have any issues with the installatation you can **[review this page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting%20.md "Troubleshooting page")** for troubleshooting tips and/or go to the support section bellow.
+If you have any issues with the installatation you can **[review this page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md#ecs-software-20---troubleshooting-tips "Troubleshooting page")** for troubleshooting tips and/or go to the support section bellow.
 
 
 ## Support
