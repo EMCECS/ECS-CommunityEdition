@@ -2,14 +2,14 @@
 
 
 ## Troubleshooting Tips
-This is a list of troubleshooting tips and nuggets that will help with any issues. If you still have problems, please use the support seciton. 
+This is a list of troubleshooting tips and nuggets that will help with issues. If you still have problems, please use the support section. 
   
  
-### Step 2 Object Creation 
+### Provisioning of ECS 
 
-It takes roughly 30 mins to get the system going for Step 2.   If Step 2 is successful, you should see something along these lines.   
+It takes roughly 30 mins to get the system provisioned for Step 2 (step2_object_provisioning.py).   ECS creates Storage Pools, Replication Groups with the attached disks. If Step 2 is successful, you should see something along these lines.   
 
-### Adding a Secret Key for a user
+#### Adding a Secret Key for a user
 
 Set the user and the key that needs to be used and execute the command. For example:
 
@@ -29,10 +29,10 @@ If you want to see if system is making progress:
 
 1. Log into one of ECS data nodes. 
 2. Navigate to the **/var/log/vipr/emc-viprobject/** directory 
-3. View the **/var/log/vipr/emc-viprobject/ssm.log**
+3. View the **/var/log/vipr/emc-viprobject/ssm.log** (tail -f /var/log/vipr/emc-viprobject/ssm.log) 
    
 
-**Note:** there are about ~2k tables to be initialized for the system to be up and running.  You can check the following command to see if the tables are close to that number and if all tables are ready.  Run this from the node.   
+**Note:** there are ~2k tables to be initialized for the provisioning to complete.  You can check the following command to see if the tables are close to that number and if all tables are ready.  Run this from the node.   
 
 `curl -X GET "http://<YourIPAddress>:9101/stats/dt/DTInitStat”`
 
