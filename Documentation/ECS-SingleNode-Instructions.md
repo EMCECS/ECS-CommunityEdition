@@ -166,7 +166,7 @@ Both methods provide the same results, one of them walks you through the ECS's a
 
 ### ECS Web Environment access and object testing
 
-After the successful execution of the ECS Object Configuration, the system is ready to do read / write. Object users can read / write using free tools like **[S3 browser](//http://s3browser.com/ "S3 browser")**
+After the successful execution of the ECS Object Configuration, the system is ready to do read / write. Object users can read / write using free tools like **[S3 browser](http://s3browser.com/ "S3 browser")**
 
 In addition, access to the ECS's admin panel is available via the HTTPS. Using our previous example for ECS deployed on 10.0.0.4. Access should be enabled for https://IP-Address-of-ECS-Node. Default login and password: `root/ChangeMe`
   
