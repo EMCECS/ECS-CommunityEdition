@@ -48,7 +48,7 @@ The installation script is composed by three main steps:
 |Step| Name | Description |Execution Time |
 |------|------|-----------|---------------|
 |1| Host & ECS Container Configuration  | Step 1 of the single node installation. This step controls the flow and contains the configuration changes required for the Host OS that will run the ECS 2.0 Software Docker container. In addition, this step updates the ECS Docker container so it can run as a single node and with limited resources|1-5 min|
-|2|ECS Object Configuration  |  Step 3 of the single node installation using Python. This step performs the ECS configuration so it can start serving objects.|10-30 min|
+|2|ECS Object Configuration  |  Step 2 of the single node installation. This step performs the ECS configuration so it can start serving objects.|10-30 min|
 
 
 ## CentOS Installation
