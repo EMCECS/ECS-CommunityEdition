@@ -137,11 +137,11 @@ The following section needs to be performed on each one of the ECS Nodes:
 
 The next step, is the ECS Object configuration. This can be accomplished in two ways: 
 
-- **ECS' Administration UI:** [Please follow these Instructions.](https://github.com/emccode/solidsnakev2/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS UI Object Configuration via Administration website")
+- **ECS' Administration UI:** [Please follow these Instructions.](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS UI Object Configuration via Administration website")
 
 	or
 
-- **Automated script:** [Please follow these Instructions.](https://github.com/emccode/solidsnakev2/blob/master/Documentation/ECS-MultiNode-Instructions.md#ecs-object-configuration "ECS UI Object Configuration via Automated script")
+- **Automated script:** [Please follow these Instructions.](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-MultiNode-Instructions.md#ecs-object-configuration "ECS UI Object Configuration via Automated script")
 
 
 
