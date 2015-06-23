@@ -87,12 +87,12 @@ These steps are to be performed prior install The module on the Puppet master se
 1. From the command line on the Puppet master, navigate to the modules directory `cd /etc/puppetlabs/puppet/environments/production/modules`.
 2. Run `mkdir -p ecs3datanodes/manifests` to create the new module directory and its manifests directory.
 3. Run `cd ecs3datanodes/manifests`
-3. Using wget download ecs manifest ini.pp `wget -q https://github.com/emccode/solidsnakev2/blob/master/ecs-multi-node/pupppet/ecs3datanodes/manifest/ini.pp -O ini.pp`
-4. Then download ecs manifest configure.pp `wget -q https://github.com/emccode/solidsnakev2/blob/master/ecs-multi-node/pupppet/ecs3datanodes/manifest/configure.pp -O configure.pp`
+3. Using wget download ecs manifest ini.pp `wget -q https://github.com/EMCECS/ECS-CommunityEdition/blob/master/ecs-multi-node/pupppet/ecs3datanodes/manifest/ini.pp -O ini.pp`
+4. Then download ecs manifest configure.pp `wget -q https://github.com/EMCECS/ECS-CommunityEdition/blob/master/ecs-multi-node/pupppet/ecs3datanodes/manifest/configure.pp -O configure.pp`
 5. Add custom Fact to check if ECS breadcrum file exists on the node machines.
 	- Run `cd /etc/puppetlabs/puppet/environments/production/modules/ecs3datanodes`
 	- Run `mkdir facts.d; cd facts.d`
-	- Then download ecs fact checkecsfile.sh `wget -q https://github.com/emccode/solidsnakev2/blob/master/ecs-multi-node/pupppet/ecs3datanodes/facts.d/checkecsfile.sh -O checkecsfile.sh`
+	- Then download ecs fact checkecsfile.sh `wget -q https://github.com/EMCECS/ECS-CommunityEdition/blob/master/ecs-multi-node/pupppet/ecs3datanodes/facts.d/checkecsfile.sh -O checkecsfile.sh`
 5. Run `puppet agent -t`
 
 
@@ -137,11 +137,11 @@ The following section needs to be performed on each one of the ECS Nodes:
 
 The next step, is the ECS Object configuration. This can be accomplished in two ways: 
 
-- **ECS' Administration UI:** [Please follow these Instructions.](https://github.com/emccode/solidsnakev2/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS UI Object Configuration via Administration website")
+- **ECS' Administration UI:** [Please follow these Instructions.](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS UI Object Configuration via Administration website")
 
 	or
 
-- **Automated script:** [Please follow these Instructions.](https://github.com/emccode/solidsnakev2/blob/master/Documentation/ECS-MultiNode-Instructions.md#ecs-object-configuration "ECS UI Object Configuration via Automated script")
+- **Automated script:** [Please follow these Instructions.](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-MultiNode-Instructions.md#ecs-object-configuration "ECS UI Object Configuration via Automated script")
 
 
 
