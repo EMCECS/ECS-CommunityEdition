@@ -102,16 +102,17 @@ These are the installation steps to perform a CentOS installation:
 1. **Perform Updates:**  Perform a Yum update `sudo yum update` and Download packages `sudo yum install git tar wget`
 
 2. **Git Clone/Pull** the repository: [https://github.com/EMCECS/ECS-CommunityEdition ](https://github.com/EMCECS/ECS-CommunityEdition "https://github.com/EMCECS/ECS-CommunityEdition")
+3. **Find Ethernet Adapter**: Find the main Host's Ethernet Adapter. You can run this command `netstat -ie | grep -B1 "<public ip address>" | head -n1 | awk '{print $1}'`  Replace "public ip address" with the Hosts public Address. Some Cloud Providers will have an Internal IP Address. Please use this one instead of the public one. **Note:** you can also can use the `ifconfig -l` command.  
 
-3. **Navigate** to the  **/ecs-single-node** folder.
+4. **Navigate** to the  **/ecs-single-node** folder.
 
-4. **Gather** the IP Addresse, hostname and  designated data disc(s). For Example:
+5. **Gather** the IP Addresse, hostname and  designated data disc(s). For Example:
 	
-	|Hostname | IP Address | Disk Name|  
- 	|---------|------------|----------|
-	|ecstestnode1 | 10.0.1.10 |sdc    |
+	|Hostname | IP Address | Disk Name|Main Ethernet Adapter|  
+ 	|---------|------------|----------|----------------|
+	|ecstestnode1 | 10.0.1.10 |sdc    |eth0|
 
-5. Execute the following command as SUDO. For our example the command would look like this: `sudo python step1_ecs_singlenode_install.py --disks sdc`
+6. Execute the following command as SUDO. For our example the command would look like this: `sudo python step1_ecs_singlenode_install.py --disks sdc --ethadapter eth0`
 	
 	**The execution of this script is will take about 1-5 minutes** depending of how many packages need to be updated. This script executed should be executed on each ECS Node.
 

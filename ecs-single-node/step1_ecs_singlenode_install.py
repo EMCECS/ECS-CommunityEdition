@@ -172,7 +172,7 @@ def docker_pull_func(docker_image_name):
         sys.exit()
 
 
-def network_file_func():
+def network_file_func(ethadapter):
     """
     Creates and configures the the network configuration file
     """
@@ -188,8 +188,8 @@ def network_file_func():
         # Create the Network.json file
         logger.info("Creating the Network.json file with Hostname: {} and IP: {}:".format(hostname, ip_address))
         logger.info(
-            "{\"private_interface_name\":\"eth0\",\"public_interface_name\":\"eth0\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
-                hostname, ip_address))
+            "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"$s\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
+                ethadapter, ethadapter, hostname, ip_address))
 
         # Open a file
         network_file = open("network.json", "wb")
@@ -499,6 +499,8 @@ def main():
         description='EMC\'s Elastic Cloud Storage 2.0 Software Single Node Docker container installation script. ')
     parser.add_argument('--disks', nargs='+', help='The disk(s) name(s) to be prepared. Example: sda sdb sdc',
                         required=True)
+    parser.add_argument('--ethadapter', nargs='+', help='The main Ethernet Adapter used by the Host VM to communicate with the internet. Example: eth0.',
+                        required=True)
     parser.add_argument('--onlyContainerConfig', dest='container_config', action='store_true',
                         help='If present, it will only run the container configuration. Example: True/False',
                         required=False)
@@ -547,7 +549,7 @@ def main():
     docker_install_func()
     prep_file_func()
     docker_pull_func(docker_image_name)
-    network_file_func()
+    network_file_func(args.ethadapter)
     seeds_file_func()
     prepare_data_disk_func(args.disks)
     run_additional_prep_file_func(args.disks)
