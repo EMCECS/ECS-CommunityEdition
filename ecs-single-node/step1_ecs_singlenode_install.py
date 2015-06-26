@@ -549,7 +549,7 @@ def main():
     docker_install_func()
     prep_file_func()
     docker_pull_func(docker_image_name)
-    network_file_func(args.ethadapter)
+    network_file_func(args.ethadapter[0])
     seeds_file_func()
     prepare_data_disk_func(args.disks)
     run_additional_prep_file_func(args.disks)
