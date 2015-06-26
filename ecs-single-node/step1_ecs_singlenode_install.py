@@ -475,10 +475,15 @@ def cleanup_installation():
     try:
 
         logger.info("CleanUp Installation. Un-mount Drive and Delete Directories and Files from the Host")
+        logger.info("Cleanup performing: Un-mount Drive from the Host :: umount /dev/sdc1 /ecs/uuid-1")
         os.system("umount /dev/sdc1 /ecs/uuid-1")
+        logger.info("Cleanup performing: rm -rf /ecs/uuid-1")
         os.system("rm -rf /ecs/uuid-1")
+        logger.info("Cleanup performing: rm -rf /data/*")
         os.system("rm -rf /data/*")
+        logger.info("Cleanup performing: rm -rf /var/log/vipr/emcvipr-object/*")
         os.system("rm -rf /var/log/vipr/emcvipr-object/*")
+
 
     except Exception as ex:
         logger.exception(ex)
