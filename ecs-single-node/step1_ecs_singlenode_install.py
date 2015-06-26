@@ -186,7 +186,7 @@ def network_file_func(ethadapter):
         hostname = subprocess.check_output(['hostname']).rstrip('\r\n')
 
         # Create the Network.json file
-        logger.info("Creating the Network.json file with Hostname: {} and IP: {}:".format(hostname, ip_address))
+        logger.info("Creating the Network.json file with Ethernet Adapter: {} Hostname: {} and IP: {}:".format(ethadapter, hostname, ip_address))
         logger.info(
             "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"$s\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
                 ethadapter, ethadapter, hostname, ip_address))
