@@ -102,7 +102,7 @@ These are the installation steps to perform a CentOS installation:
 1. **Perform Updates:**  Perform a Yum update `sudo yum update` and Download packages `sudo yum install git tar wget`
 
 2. **Git Clone/Pull** the repository: [https://github.com/EMCECS/ECS-CommunityEdition ](https://github.com/EMCECS/ECS-CommunityEdition "https://github.com/EMCECS/ECS-CommunityEdition")
-3. **Find Ethernet Adapter**: Find the main Host's Ethernet Adapter. You can run this command `netstat -ie | grep -B1 "<public ip address>" | head -n1 | awk '{print $1}'`  Replace "public ip address" with the Hosts public Address. Some Cloud Providers will have an Internal IP Address. Please use this one instead of the public one. **Note:** you can also can use the `ifconfig -l` command.  
+3. **Find Ethernet Adapter**: Find the main Host's Ethernet Adapter. You can run this command `netstat -ie | grep -B1 "<public ip address>" | head -n1 | awk '{print $1}'`  Replace "public ip address" with the Hosts public Address. **Note:** you can also can use the `ifconfig` command.  
 
 4. **Navigate** to the  **/ecs-single-node** folder.
 
