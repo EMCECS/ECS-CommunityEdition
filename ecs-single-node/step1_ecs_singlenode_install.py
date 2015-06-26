@@ -486,6 +486,15 @@ def cleanup_installation():
         sys.exit()
 
 
+def get_first(iterable, default=None):
+    """
+    Returns the first item from a list
+    :rtype : object
+    """
+    if iterable:
+        for item in iterable:
+            return item
+    return default
 
 # Main Execution
 def main():
@@ -542,6 +551,8 @@ def main():
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container.")
 
     docker_image_name = "emccorp/ecs-software"
+    ethernet_adapter_name = get_first(args.ethadapter)
+
 
     yum_func()
     package_install_func()
@@ -549,7 +560,7 @@ def main():
     docker_install_func()
     prep_file_func()
     docker_pull_func(docker_image_name)
-    network_file_func(args.ethadapter[0])
+    network_file_func(ethernet_adapter_name)
     seeds_file_func()
     prepare_data_disk_func(args.disks)
     run_additional_prep_file_func(args.disks)
