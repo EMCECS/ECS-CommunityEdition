@@ -5,6 +5,7 @@ There are two deployment options available:
 
 - **[ECS Docker Multiple Node Deployment](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node "ECS Multiple Node Deployment Information")**
 - **[ECS Docker Single Node Deployment](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node "ECS Single Node Deployment Information")**
+- **[ECS Docker Multi Node Deployment using Docker Machine, Docker Swarm, & Docker Compose](https://github.com/emccode/ecs-dockerswarm/ "ECS Docker Multi Node Deployment using Docker Machine, Docker Swarm, & Docker Compose Deployment Information")**
 
 ## Description
 
