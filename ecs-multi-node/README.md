@@ -4,7 +4,7 @@ Welcome to the Multiple Nodes installation for ECS Software 2.0. We have provide
 
 
 - **[ECS Multiple Nodes Docker Deployment](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-MultiNode-Instructions.md "ECS Multiple Node Docker Deployment Information")**
-- **[ECS Multiple Nodes Docker Compose Deployment](https://github.com/emccode/ecs-dockerswarm "ECS Multiple Node Docker Compose Deployment Information")**
+- **[ECS Docker Multi Node Deployment using Docker Machine, Docker Swarm, & Docker Compose](https://github.com/emccode/ecs-dockerswarm/ "ECS Docker Multi Node Deployment using Docker Machine, Docker Swarm, & Docker Compose Deployment Information")**
 - **[ECS Multiple Nodes Puppet Deployment](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-MultiNode-Puppet-Instructions.md "ECS Multiple Node Puppet Deployment Information")**
 
 
