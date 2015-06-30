@@ -172,7 +172,7 @@ def docker_pull_func(docker_image_name):
         sys.exit()
 
 
-def network_file_func():
+def network_file_func(ethadapter):
     """
     Creates and configures the the network configuration file
     """
@@ -186,16 +186,16 @@ def network_file_func():
         hostname = subprocess.check_output(['hostname']).rstrip('\r\n')
 
         # Create the Network.json file
-        logger.info("Creating the Network.json file with Hostname: {} and IP: {}:".format(hostname, ip_address))
+        logger.info("Creating the Network.json file with Ethernet Adapter: {} Hostname: {} and IP: {}:".format(ethadapter, hostname, ip_address))
         logger.info(
-            "{\"private_interface_name\":\"eth0\",\"public_interface_name\":\"eth0\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
-                hostname, ip_address))
+            "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
+                ethadapter, ethadapter, hostname, ip_address))
 
         # Open a file
         network_file = open("network.json", "wb")
 
-        network_string = "{\"private_interface_name\":\"eth0\",\"public_interface_name\":\"eth0\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
-            hostname, ip_address)
+        network_string = "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
+            ethadapter, ethadapter, hostname, ip_address)
 
         network_file.write(network_string)
 
@@ -475,10 +475,15 @@ def cleanup_installation():
     try:
 
         logger.info("CleanUp Installation. Un-mount Drive and Delete Directories and Files from the Host")
+        logger.info("Cleanup performing: Un-mount Drive from the Host :: umount /dev/sdc1 /ecs/uuid-1")
         os.system("umount /dev/sdc1 /ecs/uuid-1")
+        logger.info("Cleanup performing: rm -rf /ecs/uuid-1")
         os.system("rm -rf /ecs/uuid-1")
+        logger.info("Cleanup performing: rm -rf /data/*")
         os.system("rm -rf /data/*")
+        logger.info("Cleanup performing: rm -rf /var/log/vipr/emcvipr-object/*")
         os.system("rm -rf /var/log/vipr/emcvipr-object/*")
+
 
     except Exception as ex:
         logger.exception(ex)
@@ -486,6 +491,15 @@ def cleanup_installation():
         sys.exit()
 
 
+def get_first(iterable, default=None):
+    """
+    Returns the first item from a list
+    :rtype : object
+    """
+    if iterable:
+        for item in iterable:
+            return item
+    return default
 
 # Main Execution
 def main():
@@ -498,6 +512,8 @@ def main():
     parser = argparse.ArgumentParser(
         description='EMC\'s Elastic Cloud Storage 2.0 Software Single Node Docker container installation script. ')
     parser.add_argument('--disks', nargs='+', help='The disk(s) name(s) to be prepared. Example: sda sdb sdc',
+                        required=True)
+    parser.add_argument('--ethadapter', nargs='+', help='The main Ethernet Adapter used by the Host VM to communicate with the internet. Example: eth0.',
                         required=True)
     parser.add_argument('--onlyContainerConfig', dest='container_config', action='store_true',
                         help='If present, it will only run the container configuration. Example: True/False',
@@ -540,6 +556,8 @@ def main():
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container.")
 
     docker_image_name = "emccorp/ecs-software"
+    ethernet_adapter_name = get_first(args.ethadapter)
+
 
     yum_func()
     package_install_func()
@@ -547,7 +565,7 @@ def main():
     docker_install_func()
     prep_file_func()
     docker_pull_func(docker_image_name)
-    network_file_func()
+    network_file_func(ethernet_adapter_name)
     seeds_file_func()
     prepare_data_disk_func(args.disks)
     run_additional_prep_file_func(args.disks)
