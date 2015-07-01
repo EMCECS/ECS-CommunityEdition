@@ -175,7 +175,7 @@ def docker_pull_func(docker_image_name):
         sys.exit()
 
 
-def network_file_func():
+def network_file_func(ethadapter):
     """
     Creates and configures the the network configuration file
     """
@@ -189,16 +189,16 @@ def network_file_func():
         hostname = subprocess.check_output(['hostname']).rstrip('\r\n')
 
         # Create the Network.json file
-        logger.info("Creating the Network.json file with Hostname: {} and IP: {}:".format(hostname, ip_address))
+        logger.info("Creating the Network.json file with Ethernet Adapter: {} Hostname: {} and IP: {}:".format(ethadapter, hostname, ip_address))
         logger.info(
-            "{\"private_interface_name\":\"eth0\",\"public_interface_name\":\"eth0\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}\n" % (
-                hostname, ip_address))
+            "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
+                ethadapter, ethadapter, hostname, ip_address))
 
         # Open a file
         network_file = open("network.json", "wb")
 
-        network_string = "{\"private_interface_name\":\"eth0\",\"public_interface_name\":\"eth0\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}\n" % (
-            hostname, ip_address)
+        network_string = "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
+            ethadapter, ethadapter, hostname, ip_address)
 
         network_file.write(network_string)
 
@@ -477,6 +477,15 @@ def valid_ip(address):
     except:
         return False
 
+def get_first(iterable, default=None):
+    """
+    Returns the first item from a list
+    :rtype : object
+    """
+    if iterable:
+        for item in iterable:
+            return item
+    return default
 
 def main():
     import os
@@ -491,6 +500,8 @@ def main():
                         required=True)
     parser.add_argument('--hostnames', nargs='+',
                         help='A list of data nodes\' hostnames. Example: ECSNode1.mydomain.com ECSNode2.mydomain.com ECSNode3.mydomain.com',
+                        required=True)
+    parser.add_argument('--ethadapter', nargs='+', help='The main Ethernet Adapter used by the Host VM to communicate with the internet. Example: eth0.',
                         required=True)
     parser.add_argument('--disks', nargs='+', help='A list of disk names to be prepared. Example: sda sdb sdc',
                         required=True)
@@ -520,6 +531,7 @@ def main():
             print "Please check the --ips parameter. The IP '%s' is not valid" % ip
             sys.exit(2)
 
+
     # Check that the Selected Disks have not been initialized and can be used
     for disk in args.disks:
         if not os.path.exists("/dev/{}".format(disk)):
@@ -534,6 +546,7 @@ def main():
             #    print "Disk {} checked. Ready for the installation.".format(disk)
 
     docker_image_name = "emccorp/ecs-software"
+    ethernet_adapter_name = get_first(args.ethadapter)
 
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container.")
@@ -545,7 +558,7 @@ def main():
     prep_file_func()
     docker_cleanup_old_images()
     docker_pull_func(docker_image_name)
-    network_file_func()
+    network_file_func(ethernet_adapter_name)
     seeds_file_func(args.ips)
     hosts_file_func(args.ips, args.hostnames)
     prepare_data_disk_func(args.disks)
