@@ -586,7 +586,7 @@ def main():
             print "Disk '/dev/{}' does not exist".format(disk)
             sys.exit(4)
 
-    if string.lower(args.hostname)=="localhost":
+    if string.lower(args.hostname[0])=="localhost":
         logger.info("StartUp Check: Hostname can not be localhost")
         print "StartUp Check: Hostname can not be localhost"
         sys.exit(10)
