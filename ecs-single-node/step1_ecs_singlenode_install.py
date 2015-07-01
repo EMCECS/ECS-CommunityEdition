@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # An installation program for ECS SW 2.0 Single Data node
 import argparse
-
+import string
 import subprocess
 import logging
 import logging.config
@@ -585,8 +585,8 @@ def main():
         if not os.path.exists("/dev/{}".format(disk)):
             print "Disk '/dev/{}' does not exist".format(disk)
             sys.exit(4)
-    s=args.hostname
-    if s.lower()=="localhost":
+
+    if string.lower(args.hostname)=="localhost":
         logger.info("StartUp Check: Hostname can not be localhost")
         print "StartUp Check: Hostname can not be localhost"
         sys.exit(10)
