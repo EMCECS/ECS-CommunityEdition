@@ -143,7 +143,7 @@ The following section needs to be performed on each one of the ECS Nodes:
 
 	The command should look like this: 
 	
-	    sudo python step1_ecs_multinode_install.py --ips 10.0.1.10 10.0.1.11 10.0.1.12 10.0.1.13 --hostnames ecstestnode1 ecstestnode2 ecstestnode3 ecstestnode4 --disks sdc sdd
+	    sudo python step1_ecs_multinode_install.py --ips 10.0.1.10 10.0.1.11 10.0.1.12 10.0.1.13 --hostnames ecstestnode1 ecstestnode2 ecstestnode3 ecstestnode4 --ethadapter eth0 --disks sdc sdd
 	
 	**The execution of this script is will take about 1-5 minutes** depending of how many packages need to be updated. This script executed should be executed on each ECS Node.
 

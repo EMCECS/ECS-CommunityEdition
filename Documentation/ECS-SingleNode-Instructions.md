@@ -112,7 +112,9 @@ These are the installation steps to perform a CentOS installation:
  	|---------|------------|----------|----------------|
 	|ecstestnode1 | 10.0.1.10 |sdc    |eth0|
 
-6. Execute the following command as SUDO. For our example the command would look like this: `sudo python step1_ecs_singlenode_install.py --disks sdc --ethadapter eth0`
+6. Execute the following command as SUDO. For our example the command would look like this: `sudo python step1_ecs_singlenode_install.py --disks sdc --ethadapter eth0 --hostname ecssinglenode`
+	
+	****Hostname can not be localhost**
 	
 	**The execution of this script is will take about 1-5 minutes** depending of how many packages need to be updated. This script executed should be executed on each ECS Node.
 

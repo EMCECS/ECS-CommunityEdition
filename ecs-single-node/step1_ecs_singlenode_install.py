@@ -172,6 +172,45 @@ def docker_pull_func(docker_image_name):
         sys.exit()
 
 
+def hosts_file_func(hostname):
+    """
+    Updates the /etc/hosts file with the IP-Hostname of each one of the DataNodes in the cluster
+    :rtype : null
+    """
+
+    try:
+        logger.info("Updating the /etc/hostname file with the Parameter Hostname")
+        hostname_exists = cmdline("cat /etc/hostname | grep %s" % hostname)
+        if not hostname_exists:
+            print "(Adding) Hostname does not Exist: %s" % hostname
+            os.remove("/etc/hostname")
+            hostname_file=open("/etc/hostname", "wb")
+            hostname_file.writable(hostname)
+            hostname_file.close()
+        else:
+            print "(Ignoring) Hostname Exists: %s" % hostname_exists
+
+        logger.info("Updating the /etc/hosts file with the Parameter Hostname")
+
+      # Get the IP address
+        ip_address = subprocess.check_output(['hostname', '-i']).rstrip('\r\n')
+        # Open a file hosts
+        hosts_file = open("/etc/hosts", "a")
+        # Check if the hosts file has the entries
+        hostname_exists = cmdline("cat /etc/hosts | grep %s" % hostname)
+        if not hostname_exists:
+            print "(Adding) Hostname does not Exist: %s    %s" % (ip_address, hostname)
+            hosts_file.write("%s    %s\n" % (ip_address, hostname))
+        else:
+            print "(Ignoring) Hostname Exists: %s" % hostname_exists
+        # Close file
+        hosts_file.close()
+
+    except Exception as ex:
+        logger.exception(ex)
+        logger.fatal("Aborting program! Please review log.")
+        sys.exit()
+
 def network_file_func(ethadapter):
     """
     Creates and configures the the network configuration file
@@ -513,6 +552,9 @@ def main():
         description='EMC\'s Elastic Cloud Storage 2.0 Software Single Node Docker container installation script. ')
     parser.add_argument('--disks', nargs='+', help='The disk(s) name(s) to be prepared. Example: sda sdb sdc',
                         required=True)
+    parser.add_argument('--hostname', nargs='+',
+                        help='Host VM hostname. Example: ECSNode1.mydomain.com',
+                        required=True)
     parser.add_argument('--ethadapter', nargs='+', help='The main Ethernet Adapter used by the Host VM to communicate with the internet. Example: eth0.',
                         required=True)
     parser.add_argument('--onlyContainerConfig', dest='container_config', action='store_true',
@@ -544,6 +586,10 @@ def main():
             print "Disk '/dev/{}' does not exist".format(disk)
             sys.exit(4)
 
+    if args.hostname.lower()=="localhost":
+        logger.info("StartUp Check: Hostname can not be localhost")
+        print "StartUp Check: Hostname can not be localhost"
+        sys.exit(10)
     # disk_ready = cmdline("fdisk -l /dev/{} | grep \"Disk label type:\"".format(disk))
     #    if disk_ready:
     #        print "Please check that Disk: {} is not formatted (fdisk -l).".format(disk)
@@ -565,6 +611,7 @@ def main():
     docker_install_func()
     prep_file_func()
     docker_pull_func(docker_image_name)
+    hosts_file_func(args.hostname)
     network_file_func(ethernet_adapter_name)
     seeds_file_func()
     prepare_data_disk_func(args.disks)
