@@ -185,7 +185,7 @@ def hosts_file_func(hostname):
             print "(Adding) Hostname does not Exist: %s" % hostname
             os.remove("/etc/hostname")
             hostname_file=open("/etc/hostname", "wb")
-            hostname_file.writable(hostname)
+            hostname_file.write(hostname)
             hostname_file.close()
         else:
             print "(Ignoring) Hostname Exists: %s" % hostname_exists
@@ -585,8 +585,8 @@ def main():
         if not os.path.exists("/dev/{}".format(disk)):
             print "Disk '/dev/{}' does not exist".format(disk)
             sys.exit(4)
-
-    if args.hostname.lower()=="localhost":
+    s=args.hostname
+    if s.lower()=="localhost":
         logger.info("StartUp Check: Hostname can not be localhost")
         print "StartUp Check: Hostname can not be localhost"
         sys.exit(10)
