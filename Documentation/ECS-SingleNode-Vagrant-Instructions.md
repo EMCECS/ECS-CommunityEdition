@@ -18,7 +18,7 @@ EMC's Elastic Cloud Storage (ECS) 2.0 Software Docker **single node** deployment
 Remote machine:
 - **Operating system:** CentOS 7
 - **CPU/Cores:** 4 Cores
-- **Memory:** Mininum of 30 GB RAM
+- **Memory:** Mininum of 16 GB RAM
 - **Disks:** An unpartitioned/Raw disk with at least 100 GB. 
 - `rsync` package
 
