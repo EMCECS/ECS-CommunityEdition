@@ -1,5 +1,8 @@
 # ECS 2.0 Software Container Deployment
 
+**Update July-28-2015:** Updated Docker Image to a Reduced Memory Footprint (16 GB RAM)
+
+
 
 There are two deployment options available:
 
