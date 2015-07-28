@@ -28,7 +28,7 @@ All instances currently require to have the following minimum requirements:
 
 - **Operating system:** CentOS 7
 - **CPU/Cores:** 4 Cores
-- **Memory:** Mininum of 30 GB RAM
+- **Memory:** Mininum of 16 GB RAM
 - **Disks:** An unpartitioned/Raw disk with at least 100 GB. 
 
 ### Supported Host Operative Systems and Docker Version
