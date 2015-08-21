@@ -7,7 +7,7 @@ This is a list of troubleshooting tips and nuggets that will help with issues. I
  
 ### Provisioning of ECS 
 
-It takes roughly 30 mins to get the system provisioned for Step 2 (step2_object_provisioning.py).   ECS creates Storage Pools, Replication Groups with the attached disks. If Step 2 is successful, you should see something along these lines.   
+It takes roughly 30 minutes to get the system provisioned for Step 2 (step2_object_provisioning.py).   ECS creates Storage Pools, Replication Groups with the attached disks. If Step 2 is successful, you should see something along these lines.
 
 #### Adding a Secret Key for a user
 

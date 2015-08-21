@@ -27,7 +27,7 @@ An ECS cluster deployment requires a minimum of three (3) data nodes to provide 
 
 - **Operative system:** CentOS 7
 - **CPU/Cores:** 4 Cores
-- **Memory:** Mininum of 16 GB RAM
+- **Memory:** Minimum of 16 GB RAM
 - **Disks:** An unpartitioned/Raw disk with at least 100 GB of Storage per disk per host. Multiple disks can be attached on each ECS Node to increase capacity and performance. Each disk need to be un-partitioned before running the installation scripts.
 
 
@@ -76,7 +76,7 @@ These steps are to be performed prior install The module on the Puppet master se
 
 	**Note:** There are more ports required to be open if you have a firewall running on the hosts. Please refer to **[List of Ports to be Open](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md#list-of-open-ports-required-on-each-ecs-data-node)** of the troubleshooting page.
 
-	In addtion, please refer to the [ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012 "ECS Security Configuration Guide") and our the [troubleshooting page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md "troubleshooting page") if you find any issues.
+	In addition, please refer to the [ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012 "ECS Security Configuration Guide") and our the [troubleshooting page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md "troubleshooting page") if you find any issues.
 
 3. The following [Puppet Get Start Guide](http://info.puppetlabs.com/pe-azure-gsg.html) is good reference to use.
 
@@ -89,7 +89,7 @@ These steps are to be performed prior install The module on the Puppet master se
 3. Run `cd ecs3datanodes/manifests`
 3. Using wget download ecs manifest ini.pp `wget -q https://github.com/EMCECS/ECS-CommunityEdition/blob/master/ecs-multi-node/pupppet/ecs3datanodes/manifest/ini.pp -O ini.pp`
 4. Then download ecs manifest configure.pp `wget -q https://github.com/EMCECS/ECS-CommunityEdition/blob/master/ecs-multi-node/pupppet/ecs3datanodes/manifest/configure.pp -O configure.pp`
-5. Add custom Fact to check if ECS breadcrum file exists on the node machines.
+5. Add custom Fact to check if ECS breadcrumb file exists on the node machines.
 	- Run `cd /etc/puppetlabs/puppet/environments/production/modules/ecs3datanodes`
 	- Run `mkdir facts.d; cd facts.d`
 	- Then download ecs fact checkecsfile.sh `wget -q https://github.com/EMCECS/ECS-CommunityEdition/blob/master/ecs-multi-node/pupppet/ecs3datanodes/facts.d/checkecsfile.sh -O checkecsfile.sh`
@@ -155,9 +155,9 @@ In addition, access to the ECS's admin panel is available via the HTTPS. Using o
   
 
 ## Troubleshooting
-If you have any issues with the installatation you can **[review this page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md "Troubleshooting page")** for troubleshooting tips and/or go to the support section bellow.
+If you have any issues with the installation you can **[review this page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md "Troubleshooting page")** for troubleshooting tips and/or go to the support section bellow.
 
 
 ## Support
 
-Please file bugs and issues at the Github issues page. For more general discussions you can contact the EMC Code team at <a href="https://groups.google.com/forum/#!forum/emccode-users">Google Groups</a> or tagged with **EMC** on <a href="https://stackoverflow.com">Stackoverflow.com</a>. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community driven process.
+Please file bugs and issues at the GitHub issues page. For more general discussions you can contact the EMC Code team at <a href="https://groups.google.com/forum/#!forum/emccode-users">Google Groups</a> or tagged with **EMC** on <a href="https://stackoverflow.com">Stack Overflow</a>. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community driven process.
