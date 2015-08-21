@@ -28,7 +28,7 @@ All instances currently require to have the following minimum requirements:
 
 - **Operating system:** CentOS 7
 - **CPU/Cores:** 4 Cores
-- **Memory:** Mininum of 16 GB RAM
+- **Memory:** Minimum of 16 GB RAM
 - **Disks:** An unpartitioned/Raw disk with at least 100 GB. 
 
 ### Supported Host Operative Systems and Docker Version
@@ -61,7 +61,7 @@ These are the installation steps to perform a CentOS installation:
 
 1. **Attach Data Disk(s):** ECS requires one or more disks to be attached to the host. The disk(s) will hold the object data store. The minimum is one data disk per data node. More disks can be added to increase total storage and performance. For testing purposes you can attach a disk above 512 GB. **The Disks will be formatted as XFS by the installation script**
 
-	The Data Disk(s) attached to each host need to be **unpartioned or RAW**. For example: We have a new host where we execute an `fdisk -l`:
+	The Data Disk(s) attached to each host need to be **unpartitioned or RAW**. For example: We have a new host where we execute an `fdisk -l`:
 	
 	![Fdisk in a new Host ](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step1.PNG)
 
@@ -75,7 +75,7 @@ These are the installation steps to perform a CentOS installation:
 
 	**Note:** Depending on the environment or the cloud provider you maybe using, the attached Disk(s) Name will be different. On this example the attached disk came as **/dev/sdc**.
 
-	Once you execute the STEP 1 script,  the attached disk (**/dev/sdc** in our example) will be formated and mounted:
+	Once you execute the STEP 1 script,  the attached disk (**/dev/sdc** in our example) will be formatted and mounted:
 
  	![Fdisk after the STEP 1 script has executed](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step4.PNG)
 	
@@ -93,7 +93,7 @@ These are the installation steps to perform a CentOS installation:
 
 	**Note:** There are more ports required to be open if you have a firewall running on the host. Please refer to [List of Ports to be Open](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md#list-of-open-ports-required-on-each-ecs-data-node) of the troubleshooting page.
 
-	In addtion, please refer to the [ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012 "ECS Security Configuration Guide") and our the [troubleshooting page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md "troubleshooting page") if you find any issues.
+	In addition, please refer to the [ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012 "ECS Security Configuration Guide") and our the [troubleshooting page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md "troubleshooting page") if you find any issues.
 
 
 
@@ -106,7 +106,7 @@ These are the installation steps to perform a CentOS installation:
 
 4. **Navigate** to the  **/ecs-single-node** folder.
 
-5. **Gather** the IP Addresse, hostname and  designated data disc(s). For Example:
+5. **Gather** the IP Address, hostname and  designated data disc(s). For Example:
 	
 	|Hostname | IP Address | Disk Name|Main Ethernet Adapter|  
  	|---------|------------|----------|----------------|
@@ -141,7 +141,7 @@ Both methods provide the same results, one of them walks you through the ECS's a
 
 
 1. **Navigate** to the  **/ecs-single-node** folder 
-2. **Verify** that for the execution of  `step2_object_provisioning.py` scrip the environtment you are in, can access the 4443 and 9011 ports of the Host machine.
+2. **Verify** that for the execution of  `step2_object_provisioning.py` scrip the environment you are in, can access the 4443 and 9011 ports of the Host machine.
 2. Before executing the `step2_object_provisioning.py` please, please provide values for the following variables:
 	
 	|Variable Name|Variable Description | Example Value|
@@ -175,9 +175,9 @@ In addition, access to the ECS's admin panel is available via the HTTPS. Using o
   
 
 ## Troubleshooting
-If you have any issues with the installatation you can **[review this page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md#ecs-software-20---troubleshooting-tips "Troubleshooting page")** for troubleshooting tips and/or go to the support section bellow.
+If you have any issues with the installation you can **[review this page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md#ecs-software-20---troubleshooting-tips "Troubleshooting page")** for troubleshooting tips and/or go to the support section bellow.
 
 
 ## Support
 
-Please file bugs and issues at the Github issues page. For more general discussions you can contact the EMC Code team at <a href="https://groups.google.com/forum/#!forum/emccode-users">Google Groups</a> or tagged with **EMC** on <a href="https://stackoverflow.com">Stackoverflow.com</a>. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community driven process.
+Please file bugs and issues at the GitHub issues page. For more general discussions you can contact the EMC Code team at <a href="https://groups.google.com/forum/#!forum/emccode-users">Google Groups</a> or tagged with **EMC** on <a href="https://stackoverflow.com">Stack Overflow</a>. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community driven process.
