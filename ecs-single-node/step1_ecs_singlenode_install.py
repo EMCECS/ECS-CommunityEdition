@@ -283,6 +283,10 @@ def prepare_data_disk_func(disks):
         for index, disk in enumerate(disks):
             disk_path = "/dev/{}".format(disk)
 
+            if "{}1".format(disk) in cmdline("df"):
+                logger.fatal("Partitioned disk {} already mounted. Please unmount and re-initialize disk before retrying.".format(disk))
+                sys.exit()
+
             logger.info("Partitioning the disk '{}'".format(disk_path))
             ps = subprocess.Popen(["echo", "-e", "\"o\nn\np\n1\n\n\nw\""], stdout=subprocess.PIPE)
             output = subprocess.check_output(["fdisk", disk_path], stdin=ps.stdout)
