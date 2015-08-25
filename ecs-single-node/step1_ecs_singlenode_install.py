@@ -160,7 +160,7 @@ def hosts_file_func(hostname):
             print "(Adding) Hostname does not Exist: %s" % hostname
             os.remove("/etc/hostname")
             hostname_file=open("/etc/hostname", "wb")
-            hostname_file.write(hostname)
+            hostname_file.write(str(hostname))
             hostname_file.close()
         else:
             print "(Ignoring) Hostname Exists: %s" % hostname_exists
