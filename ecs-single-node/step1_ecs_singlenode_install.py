@@ -110,31 +110,6 @@ def docker_install_func():
         sys.exit()
 
 
-def prep_file_func():
-    """
-    Downloads and configures the preparation file
-    """
-    try:
-
-        wget = "wget"
-        url = "https://emccodevmstore001.blob.core.windows.net/test/additional_prep.sh"
-
-        # Gets the prep. file
-        logger.info("Downloading the additional_prep file.")
-        subprocess.call([wget, url])
-
-        chmod = "chmod"
-        chmod_arg = "777"
-        file_name = "additional_prep.sh"
-        logger.info("Changing the additional_prep.sh file permissions.")
-        subprocess.call([chmod, chmod_arg, file_name])
-
-    except Exception as ex:
-        logger.exception(ex)
-        logger.fatal("Aborting program! Please review log.")
-        sys.exit()
-
-
 def docker_cleanup_old_images():
     """
     Clean up images and containers from the Host Docker images repository
@@ -609,7 +584,6 @@ def main():
     package_install_func()
     update_selinux_os_configuration()
     docker_install_func()
-    prep_file_func()
     docker_pull_func(docker_image_name)
     hosts_file_func(args.hostname)
     network_file_func(ethernet_adapter_name)
