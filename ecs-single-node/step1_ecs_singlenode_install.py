@@ -5,8 +5,11 @@ import string
 import subprocess
 import logging
 import logging.config
-import sys
-import os
+import time
+import sys,re
+import shutil
+import getopt
+import os,json
 
 import settings
 
@@ -283,7 +286,7 @@ def prepare_data_disk_func(disks):
         for index, disk in enumerate(disks):
             disk_path = "/dev/{}".format(disk)
 
-            if "{}1".format(disk) in cmdline("df"):
+            if "{}1".format(disk) in cmdline("fdisk -l"):
                 logger.fatal("Partitioned disk {} already mounted. Please unmount and re-initialize disk before retrying.".format(disk))
                 sys.exit()
 
@@ -490,6 +493,28 @@ def modify_container_conf_func():
         logger.fatal("Aborting program! Please review log.")
         sys.exit()
 
+def getAuthToken(ECSNode, User, Password):
+    """
+    Poll to see if Auth Service is active.
+    """
+    logger.info("Waiting on Authentication Service. This may take several minutes.")
+    for i in range (0,30):
+        time.sleep(30)
+        try:
+            curlCommand = "curl -i -k https://%s:4443/login -u %s:%s" % (ECSNode, User, Password)
+            print ("Executing getAuthToken: %s " % curlCommand)
+            res=subprocess.check_output(curlCommand, shell=True)
+            authTokenPattern = "X-SDS-AUTH-TOKEN:(.*)\r\n"
+            searchObject=re.search(authTokenPattern,res)
+            assert searchObject, "Get Auth Token failed"
+            print("Auth Token %s" % searchObject.group(1))
+            return searchObject.group(1)
+        except Exception as ex:
+            logger.info("Problem reaching authentication server. Retrying shortly.")
+            # logger.info("Attempting to authenticate for {} minutes.".format(i%2))
+
+    logger.fatal("Authentication service not yet started.")
+
 
 def docker_cleanup_old_images():
     """
@@ -607,6 +632,7 @@ def main():
 
     docker_image_name = "emccorp/ecs-software"
     ethernet_adapter_name = get_first(args.ethadapter)
+    ip_address = subprocess.check_output(['hostname', '-i']).rstrip('\r\n')
 
 
     yum_func()
@@ -624,6 +650,7 @@ def main():
     set_docker_configuration_func()
     execute_docker_func(docker_image_name)
     modify_container_conf_func()
+    getAuthToken(ip_address,root,ChangeMe)
     logger.info(
         "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
         The ECS administrative portal can be accessed from port 443. For example: https://ecs-node-external-ip-address. \
