@@ -22,7 +22,7 @@ ECS_SINGLENODE_LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'formatter': 'verbose',
-            'filename' : 'ecs-install-singlenode.log'
+            'filename' : 'ecs-install-multinode.log'
         }
     },
     'loggers': {
