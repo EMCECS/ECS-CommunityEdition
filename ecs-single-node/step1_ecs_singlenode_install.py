@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+!/usr/bin/env python
 # An installation program for ECS SW 2.0 Single Data node
 import argparse
 import string
@@ -83,21 +83,22 @@ def docker_install_func():
         logger.info("Removing Docker Packages.")
         subprocess.call([docker_yum, docker_yum_arg, docker_name, docker_package_auto])
 
-        docker_wget = "wget"
-        docker_url = "http://cbs.centos.org/kojifiles/packages/docker/1.4.1/2.el7/x86_64/docker-1.4.1-2.el7.x86_64.rpm"
-
-        # Gets the docker package
-        logger.info("Downloading the Docker Package.")
-        subprocess.call([docker_wget, docker_url])
-
-        docker_yum = "yum"
-        docker_yum_arg = "install"
         docker_package = "docker-1.4.1-2.el7.x86_64.rpm"
-        docker_package_auto_install = "-y"
+
+        # Downloads Docker package if not already existent
+        if not docker_package in cmdline("ls"):
+            docker_wget = "wget"
+            docker_url = "http://cbs.centos.org/kojifiles/packages/docker/1.4.1/2.el7/x86_64/{}".format(docker_package)
+
+            # Gets the docker package
+            logger.info("Downloading the Docker Package.")
+            subprocess.call([docker_wget, docker_url])
+
+        docker_yum_arg = "install"
 
         # Installs the docker package
         logger.info("Installing the Docker Package.")
-        subprocess.call([docker_yum, docker_yum_arg, docker_package, docker_package_auto_install])
+        subprocess.call([docker_yum, docker_yum_arg, docker_package, docker_package_auto])
 
         docker_service = "service"
         docker_service_name = "docker"
@@ -119,18 +120,15 @@ def prep_file_func():
     """
     try:
 
-        wget = "wget"
-        url = "https://emccodevmstore001.blob.core.windows.net/test/additional_prep.sh"
+        # wget = "wget"
+        # url = "https://emccodevmstore001.blob.core.windows.net/test/additional_prep.sh"
 
         # Gets the prep. file
-        logger.info("Downloading the additional_prep file.")
-        subprocess.call([wget, url])
+        # logger.info("Downloading the additional_prep file.")
+        # subprocess.call([wget, url])
 
-        chmod = "chmod"
-        chmod_arg = "777"
-        file_name = "additional_prep.sh"
         logger.info("Changing the additional_prep.sh file permissions.")
-        subprocess.call([chmod, chmod_arg, file_name])
+        subprocess.call(["chmod", "777", "additional_prep.sh"])
 
     except Exception as ex:
         logger.exception(ex)
