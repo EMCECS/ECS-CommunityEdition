@@ -1,4 +1,4 @@
-# ECS UI - Web Driven Object Provisioning
+# ECS Administrative Web UI
 
 ## Login to the Web UI
 The WebUI uses SSL and a self-signed certificate to help protect your session from casual eves-dropping. Take the IP of your first ECS node, fire up your browser, and point `https://` at it. For this example, the latest Google Chrome browser was used.
