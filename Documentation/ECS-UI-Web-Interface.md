@@ -4,8 +4,8 @@
 The WebUI uses SSL and a self-signed certificate to help protect your session from casual eves-dropping. Take the IP of your first ECS node, fire up your browser, and point `https://` at it. For this example, the latest Google Chrome browser was used.
 
 You cannot add, change, or remove administrative users in this build. Use the default below.
-> Username: **root**
 
+> Username: **root**
 > Password: **ChangeMe**
 
 ## Input License
