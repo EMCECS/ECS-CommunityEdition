@@ -357,6 +357,11 @@ def run_additional_prep_file_func(disks):
     try:
         prep_file_name = "./additional_prep.sh"
 
+        chmod = "chmod"
+        chmod_arg = "0755"
+        logger.info("Setting the additional preparation script permissions.")
+        subprocess.call([chmod, chmod_arg, prep_file_name])
+
         for disk in disks:
             device_name = "/dev/{}1".format(disk)
             # Gets the prep. file
