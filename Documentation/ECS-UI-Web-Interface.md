@@ -5,6 +5,7 @@ The WebUI uses SSL and a self-signed certificate to help protect your session fr
 
 You cannot add, change, or remove administrative users in this build. Use the default below.
 > Username: **root**
+
 > Password: **ChangeMe**
 
 ## Input License
@@ -20,17 +21,17 @@ There's a known issue in this build that causes the Storage Pools view to appear
 ![Create Storage VPool](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/create_storage_vpool.PNG)
 
 ## Create Virtual Data Center
-Open *Manage*, *Virtual Data Center* and create a Virtual Data Center using the below screenshot as a guide. **Please wait for up to 20 minutes after creating a Storage vPool before creating a Virtual Data Center.** There are several background tasks that must complete, and for object to fully initialize.
+Open *Manage*, then *Virtual Data Center* and create a Virtual Data Center using the below screenshot as a guide. **Please wait for up to 20 minutes after creating a Storage vPool before creating a Virtual Data Center.** There are several background tasks that must complete, and for object to fully initialize.
 
 ![Create Virtual Data Center](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/create_virtual_data_center.PNG)
 
 ## Create Replication Group
-Open *Manage*, *Replication Group* and create a Replication Group using the below as an example. Currently only one VDC in a replication group is supported.
+Open *Manage*, then *Replication Group* and create a Replication Group using the below as an example. Currently only one VDC in a replication group is supported.
 
 ![Create Replication Group](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/Create_replication_group.PNG)
 
 ## Create Namespace
-Open *Manage*, *Namespace*. Set up a Simple Namespace with a name such as "ns". Input a namespace username to use with the namespace, such as "ecs_user". Select the replication group for the namespace, and click *Save* at the very bottom.
+Open *Manage*, then *Namespace*. Set up a Simple Namespace with a name such as "ns". Input a namespace username to use with the namespace, such as "ecs_user". Select the replication group for the namespace, and click *Save* at the very bottom.
 
 ###### Namespace features available in this release
 - :white_check_mark: Simple Namespace
@@ -41,13 +42,13 @@ Open *Manage*, *Namespace*. Set up a Simple Namespace with a name such as "ns". 
 ![Create Namespace](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/create_namespace.PNG)
 
 ## Create Object User Account
-Open *Manage*, *Users, then click on *Object Users* and *New Object User* to set up object store credentials.
+Open *Manage*, then *Users*, then click on *Object Users* and *New Object User* to set up object store credentials.
 
 ![Create Namespace](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/create_object_user.png)
 
 Create secrets by filling the fields and clicking the buttons.
 
-- **S3 Key**: Click *Generate & Add Password*. The key is server-generated.
+- **S3 Key**: Click *Generate & Add Password* to retrieve the server-generated key.
 - **Swift Password**: Enter your own password and click *Set Password*.
 
 ![Create User S3 and Swift Keys](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/create_object_user_keys.png)
