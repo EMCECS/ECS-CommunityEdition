@@ -5,8 +5,7 @@ The WebUI uses SSL and a self-signed certificate to help protect your session fr
 
 You cannot add, change, or remove administrative users in this build. Use the default below.
 
-> Username: **root**
-> Password: **ChangeMe**
+> Username: **root**<br/>Password: **ChangeMe**
 
 ## Input License
 Open *Settings*, then *Licensing* and upload the `license.txt` file located in the root of this repo. **The UI will not automatically update the license view in this release.** Navigating away from page and returning will prompt it to update. You may need to try a few times before it updates. Once it does, you should see something like this:
