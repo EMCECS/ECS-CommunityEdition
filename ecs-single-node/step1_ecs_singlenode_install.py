@@ -1,12 +1,15 @@
-#!/usr/bin/env python
+!/usr/bin/env python
 # An installation program for ECS SW 2.0 Single Data node
 import argparse
 import string
 import subprocess
 import logging
 import logging.config
-import sys
-import os
+import time
+import sys,re
+import shutil
+import getopt
+import os,json
 
 import settings
 
@@ -80,21 +83,22 @@ def docker_install_func():
         logger.info("Removing Docker Packages.")
         subprocess.call([docker_yum, docker_yum_arg, docker_name, docker_package_auto])
 
-        docker_wget = "wget"
-        docker_url = "http://cbs.centos.org/kojifiles/packages/docker/1.4.1/2.el7/x86_64/docker-1.4.1-2.el7.x86_64.rpm"
-
-        # Gets the docker package
-        logger.info("Downloading the Docker Package.")
-        subprocess.call([docker_wget, docker_url])
-
-        docker_yum = "yum"
-        docker_yum_arg = "install"
         docker_package = "docker-1.4.1-2.el7.x86_64.rpm"
-        docker_package_auto_install = "-y"
+
+        # Downloads Docker package if not already existent
+        if not docker_package in cmdline("ls"):
+            docker_wget = "wget"
+            docker_url = "http://cbs.centos.org/kojifiles/packages/docker/1.4.1/2.el7/x86_64/{}".format(docker_package)
+
+            # Gets the docker package
+            logger.info("Downloading the Docker Package.")
+            subprocess.call([docker_wget, docker_url])
+
+        docker_yum_arg = "install"
 
         # Installs the docker package
         logger.info("Installing the Docker Package.")
-        subprocess.call([docker_yum, docker_yum_arg, docker_package, docker_package_auto_install])
+        subprocess.call([docker_yum, docker_yum_arg, docker_package, docker_package_auto])
 
         docker_service = "service"
         docker_service_name = "docker"
@@ -103,6 +107,28 @@ def docker_install_func():
         # Starts the Docker Service
         logger.info("Starting the Docker Service.")
         subprocess.call([docker_service, docker_service_name, docker_service_action])
+
+    except Exception as ex:
+        logger.exception(ex)
+        logger.fatal("Aborting program! Please review log.")
+        sys.exit()
+
+
+def prep_file_func():
+    """
+    Downloads and configures the preparation file
+    """
+    try:
+
+        # wget = "wget"
+        # url = "https://emccodevmstore001.blob.core.windows.net/test/additional_prep.sh"
+
+        # Gets the prep. file
+        # logger.info("Downloading the additional_prep file.")
+        # subprocess.call([wget, url])
+
+        logger.info("Changing the additional_prep.sh file permissions.")
+        subprocess.call(["chmod", "777", "additional_prep.sh"])
 
     except Exception as ex:
         logger.exception(ex)
@@ -257,6 +283,10 @@ def prepare_data_disk_func(disks):
 
         for index, disk in enumerate(disks):
             disk_path = "/dev/{}".format(disk)
+
+            if "{}1".format(disk) in cmdline("fdisk -l"):
+                logger.fatal("Partitioned disk {} already mounted. Please unmount and re-initialize disk before retrying.".format(disk))
+                sys.exit()
 
             logger.info("Partitioning the disk '{}'".format(disk_path))
             ps = subprocess.Popen(["echo", "-e", "\"o\nn\np\n1\n\n\nw\""], stdout=subprocess.PIPE)
@@ -461,6 +491,28 @@ def modify_container_conf_func():
         logger.fatal("Aborting program! Please review log.")
         sys.exit()
 
+def getAuthToken(ECSNode, User, Password):
+    """
+    Poll to see if Auth Service is active.
+    """
+    logger.info("Waiting on Authentication Service. This may take several minutes.")
+    for i in range (0,30):
+        time.sleep(30)
+        try:
+            curlCommand = "curl -i -k https://%s:4443/login -u %s:%s" % (ECSNode, User, Password)
+            print ("Executing getAuthToken: %s " % curlCommand)
+            res=subprocess.check_output(curlCommand, shell=True)
+            authTokenPattern = "X-SDS-AUTH-TOKEN:(.*)\r\n"
+            searchObject=re.search(authTokenPattern,res)
+            assert searchObject, "Get Auth Token failed"
+            print("Auth Token %s" % searchObject.group(1))
+            return searchObject.group(1)
+        except Exception as ex:
+            logger.info("Problem reaching authentication server. Retrying shortly.")
+            # logger.info("Attempting to authenticate for {} minutes.".format(i%2))
+
+    logger.fatal("Authentication service not yet started.")
+
 
 def docker_cleanup_old_images():
     """
@@ -578,12 +630,14 @@ def main():
 
     docker_image_name = "emccorp/ecs-software"
     ethernet_adapter_name = get_first(args.ethadapter)
+    ip_address = subprocess.check_output(['hostname', '-i']).rstrip('\r\n')
 
 
     yum_func()
     package_install_func()
     update_selinux_os_configuration()
     docker_install_func()
+    prep_file_func()
     docker_pull_func(docker_image_name)
     hosts_file_func(args.hostname)
     network_file_func(ethernet_adapter_name)
@@ -594,6 +648,7 @@ def main():
     set_docker_configuration_func()
     execute_docker_func(docker_image_name)
     modify_container_conf_func()
+    getAuthToken(ip_address,root,ChangeMe)
     logger.info(
         "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
         The ECS administrative portal can be accessed from port 443. For example: https://ecs-node-external-ip-address. \

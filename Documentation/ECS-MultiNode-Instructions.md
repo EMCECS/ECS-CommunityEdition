@@ -103,7 +103,7 @@ In addition, please refer to the [ECS Security Configuration Guide](https://comm
 
 
 
-3. **Network configuration:** Define your network configuration. ECS Data nodes should be on the same Subnet and they should be able to talk to each other. This is an example:
+3. **Network configuration:** Define your network configuration. ECS Data nodes must be on the same Subnet and they should be able to talk to each other. This is an example:
 
 ![ECS Multinode network configuration example](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecc-host-network-example.png)
 
