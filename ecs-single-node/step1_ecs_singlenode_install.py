@@ -114,7 +114,6 @@ def docker_install_func():
         sys.exit()
 
 
-<<<<<<< HEAD
 def prep_file_func():
     """
     Downloads and configures the preparation file
@@ -137,8 +136,6 @@ def prep_file_func():
         sys.exit()
 
 
-=======
->>>>>>> origin/master
 def docker_cleanup_old_images():
     """
     Clean up images and containers from the Host Docker images repository
@@ -640,6 +637,7 @@ def main():
     package_install_func()
     update_selinux_os_configuration()
     docker_install_func()
+    prep_file_func()
     docker_pull_func(docker_image_name)
     hosts_file_func(args.hostname)
     network_file_func(ethernet_adapter_name)
