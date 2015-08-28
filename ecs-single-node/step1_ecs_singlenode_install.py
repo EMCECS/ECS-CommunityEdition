@@ -534,7 +534,7 @@ def docker_cleanup_old_images():
 
 
 
-def cleanup_installation():
+def cleanup_installation(disks):
     """
     Clean the directory and files created by ECS. It un-mounts the drive and performs a directory cleanup
     """
