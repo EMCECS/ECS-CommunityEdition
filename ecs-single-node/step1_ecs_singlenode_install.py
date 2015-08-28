@@ -536,19 +536,33 @@ def docker_cleanup_old_images():
 
 def cleanup_installation():
     """
-    Clean the directory and files created by ECS. It un-mounds the drive and performs a directory cleanup
+    Clean the directory and files created by ECS. It un-mounts the drive and performs a directory cleanup
     """
     try:
 
         logger.info("CleanUp Installation. Un-mount Drive and Delete Directories and Files from the Host")
-        logger.info("Cleanup performing: Un-mount Drive from the Host :: umount /dev/sdc1 /ecs/uuid-1")
-        os.system("umount /dev/sdc1 /ecs/uuid-1")
-        logger.info("Cleanup performing: rm -rf /ecs/uuid-1")
-        os.system("rm -rf /ecs/uuid-1")
-        logger.info("Cleanup performing: rm -rf /data/*")
-        os.system("rm -rf /data/*")
-        logger.info("Cleanup performing: rm -rf /var/log/vipr/emcvipr-object/*")
-        os.system("rm -rf /var/log/vipr/emcvipr-object/*")
+        
+        for index, disk in enumerate(disks):
+            disk_path = "/dev/{}".format(disk)
+
+            device_name = disk_path + "1"
+            uuid_name = "uuid-{}".format(index + 1)
+
+            # umount /dev/sdc1 /ecs/uuid-1
+            logger.info("Umount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
+            subprocess.call(["umount", device_name, "/ecs/{}".format(uuid_name)])
+
+            # rm -rf /ecs/uuid-1
+            logger.info("Remove /ecs/{} Directory in attached Volume".format(uuid_name))
+            subprocess.call(["rm", "-rf", "/ecs/{}".format(uuid_name)])
+            
+        # sudo rm -rf /data/*
+        logger.info("Remove /data/* Directory in attached Volume")
+        subprocess.call(["rm", "-rf", "/data/*"])
+
+        # sudo rm -rf /var/log/vipr/emcvipr-object/*
+        logger.info("Remove /var/log/vipr/emcvipr-object/* Directory ")
+        subprocess.call(["rm", "-rf", "/var/log/vipr/emcvipr-object/*"])
 
 
     except Exception as ex:
@@ -604,7 +618,7 @@ def main():
     if args.cleanup:
         logger.info("Starting CleanUp: Removing Previous Docker containers and images. Deletes the created Directories.")
         docker_cleanup_old_images()
-        cleanup_installation()
+        cleanup_installation(args.disks)
         sys.exit(7)
 
     # Check that the Selected Disks have not been initialized and can be used
