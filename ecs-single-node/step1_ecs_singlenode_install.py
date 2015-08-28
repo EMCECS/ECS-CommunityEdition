@@ -557,7 +557,7 @@ def cleanup_installation(disks):
             subprocess.call(["rm", "-rf", "/ecs/{}".format(uuid_name)])
             
             # dd if=/dev/zero of=/dev/sdc bs=512 count=1 conv=notrunc
-            logger.info("Destroying partition table for /dev/{}".format(device_name))
+            logger.info("Destroying partition table for {}".format(disk_path))
             subprocess.call(["dd", "if=/dev/zero", "of={}".format(disk_path), "bs=512", "count=1", "conv=notrunc"])
                         
         # sudo rm -rf /data/*
