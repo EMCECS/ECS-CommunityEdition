@@ -1,4 +1,4 @@
-!/usr/bin/env python
+#!/usr/bin/env python
 # An installation program for ECS SW 2.0 Single Data node
 import argparse
 import string
