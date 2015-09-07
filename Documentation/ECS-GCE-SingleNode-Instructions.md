@@ -48,7 +48,7 @@ The script will attempt to login using curl, this may take from 10 - 15 minutes.
 
 ##5. Access the ECS Web UI
 
- The ECS Administrative portal can be accessed from any one of the ECS data nodes via HTTPS on port 443. For example: https://ecs-node-ip-address. Once you see the screen bellow, you are now ready to execute step 2.
+ The ECS Administrative portal can be accessed from any one of the ECS data nodes via HTTPS on port 443. For example: https://ecs-node-ip-address. Once you see the screen below:
 
 ![ECS UI](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-waiting-for-webserver.PNG)
 
