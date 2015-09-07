@@ -38,8 +38,13 @@ This is a single command that will do the following
 
 **gcloud compute instances create ecs1 --image=centos-7 --disk name=disk1,mode=rw,auto-delete=yes --machine-type n1-highmem-8 --preemptible --metadata-from-file startup-script=./ECS-CommunityEdition/ecs-single-node/gce/gce-startup.sh --zone us-central1-f**
 
+##4. Monitor Node Status
+In order to monitor the installation process, you need to get a serial port dump from GCE, this can be done using the following command:
 
-##4. Cleanup
+**gcloud compute instances get-serial-port-output --zone us-central1-f ecs1**
+
+
+##5. Cleanup
 Now once you are done, you can cleaup instance, disk and networks created (note the disk will be automatically deleted once the instance is deleted)
 
 **gcloud compute instances delete ecs1**
