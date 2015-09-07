@@ -30,7 +30,9 @@ This will open up ports required by ECS, note this will be created as part of yo
 **gcloud compute firewall-rules create ecs --allow tcp:9020,tcp:9024,tcp:4443,tcp:9011,tcp:22,tcp:80,tcp:443**
 
 ##3. Start VM Instance and Install ECS from a startup script
-This is a single command that will do the following
+This gcloud command will create a new VM instance of type high memory with 8 core and 50 GB RAM. Second it will attach the previously created disk and run a startup script that will install ECS on the node. 
+
+Note I am using here a preemtible GCE node type, this means it lasts only 24 hours. If you are looking to run this for sometime remove this option.
 
 1. Create a new instance of type n1-highmem-8 with 50 GB Ram
 2. Attach previously created data disk "disk1"
