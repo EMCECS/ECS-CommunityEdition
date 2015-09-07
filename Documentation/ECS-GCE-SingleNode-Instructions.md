@@ -43,8 +43,18 @@ In order to monitor the installation process, you need to get a serial port dump
 
 **gcloud compute instances get-serial-port-output --zone us-central1-f ecs1**
 
+The script will attempt to login using curl, this may take from 10 - 15 minutes. Once this is completed the script will start the provisioning process which may take upto 20 minutes. If the process gets stuck you can log into the ECS UI to complete the provisioning process. - [Please follow these Instructions.](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS Manual Provisioning using ECS Web UI")
 
-##5. Cleanup
+
+##5. Access the ECS Web UI
+
+ The ECS Administrative portal can be accessed from any one of the ECS data nodes via HTTPS on port 443. For example: https://ecs-node-ip-address. Once you see the screen bellow, you are now ready to execute step 2.
+
+![ECS UI](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-waiting-for-webserver.PNG)
+
+
+
+##6. Cleanup
 Now once you are done, you can cleaup instance, disk and networks created (note the disk will be automatically deleted once the instance is deleted)
 
 **gcloud compute instances delete ecs1**
