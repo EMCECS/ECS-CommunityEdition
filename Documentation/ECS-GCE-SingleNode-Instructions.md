@@ -21,6 +21,7 @@ The following are the base requirements for running ECS 2.0 software for a singl
 
 ##1. Creating a new RAW disk
 This will create a new disk with the name "disk1" that will be used for ECS data storage:
+
 **gcloud compute disks create disk1 --size 250 --zone us-central1-f**
 
 ##2. Create Firewall rules
