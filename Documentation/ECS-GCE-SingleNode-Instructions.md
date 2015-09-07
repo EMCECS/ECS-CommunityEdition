@@ -38,7 +38,8 @@ Note I am using here a preemtible GCE node type, this means it lasts only 24 hou
 2. Attach previously created data disk "disk1"
 3. reference  gce-startup.sh script, this can be found under the git repository ./ECS-CommunityEdition/ecs-single-node/gce/gce-startup.sh
 
-    gcloud compute instances create ecs1 --image=centos-7 --disk name=disk1,mode=rw,auto-delete=yes --machine-type n1-highmem-8 --preemptible --metadata-from-file startup-script=./ECS-CommunityEdition/ecs-single-node/gce/gce-startup.sh --zone us-central1-f
+
+    gcloud compute instances create ecs1 --image=centos-7 --disk name=disk1,mode=rw,auto-delete=yes --machine-type n1-highmem-8     --preemptible --metadata-from-file startup-script=./ECS-CommunityEdition/ecs-single-node/gce/gce-startup.sh --zone      us-central1-f
 
 The script will attempt to login using curl, this may take from 10 - 15 minutes. Once this is completed the script will start the provisioning process which may take upto 20 minutes. If the process gets stuck you can log into the ECS UI to complete the provisioning process. - [Please follow these Instructions.](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS Manual Provisioning using ECS Web UI")
 
