@@ -1,0 +1,8 @@
+imports:
+- path: ecs_node_template.jinja
+
+resources:
+- name: ecs1
+  type: ecs_node_template.jinja
+  properties:
+    zone: us-central1-f
