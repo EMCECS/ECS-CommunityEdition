@@ -17,6 +17,8 @@ resources:
   properties:
     zone: {{ properties["zone"] }}
     machineType: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/machineTypes/n1-highmem-8
+    scheduling:
+      preemptible: true
     metadata:
       items:
       # For more ways to use startup scripts on an instance, see:
