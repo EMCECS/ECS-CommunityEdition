@@ -19,7 +19,7 @@ The following are the base requirements for running ECS 2.0 software for a singl
 - **Disks:** An un-partitioned/Raw disk with at least 100 GB of Storage per disk per host. Multiple disks can be attached on each ECS Node to increase capacity and performance. Each disk need to be un-partitioned before running the installation scripts.
 
 
-##. Deploy ECS Single Node Install
+## Deploy ECS Single Node Install
 
 Using GCE Deployment Manager to deploy a single node ECS. Please make sure to reference the right template from ECS-CommunityEdition/ecs-single-node/gce/ecs_singlenode.yaml
 
