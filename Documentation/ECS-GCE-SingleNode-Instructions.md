@@ -19,23 +19,20 @@ The following are the base requirements for running ECS 2.0 software for a singl
 - **Disks:** An un-partitioned/Raw disk with at least 100 GB of Storage per disk per host. Multiple disks can be attached on each ECS Node to increase capacity and performance. Each disk need to be un-partitioned before running the installation scripts.
 
 
-##1. Create Firewall rules
-This will open up ports required by ECS, note this will be created as part of your default network.
+##. Deploy ECS Single Node Install
 
-    gcloud compute firewall-rules create ecs --allow tcp:9020,tcp:9024,tcp:4443,tcp:9011,tcp:22,tcp:80,tcp:443
+Using GCE Deployment Manager to deploy a single node ECS. Please make sure to reference the right template from ECS-CommunityEdition/ecs-single-node/gce/ecs_singlenode.yaml
 
-##2. Create ECS Single Node Deployment
+Deployment Manager is GCE's deployment orchestration tool that allows describing deployments using templates to make it easier to consume, manage and deploy. The following is a deployment template that basically does the following;
 
-Using GCE Deployment Manager to create a single node ECS deployment. Please make sure to reference the right template from ECS-CommunityEdition/ecs-single-node/gce/ecs_singlenode.yaml
-
-This will do the following:
-1. Create a new disk
+1. Open required firewall ports for ECS
+2. Create a new data disk of 100 GB size.
 2. Create a new VM Instance of type n1-highmem-8 (8core 50GB)
 3. Attach Disk
 4. Assign Network
 5. Run a startup script for installing and provisioning ECS.
 
-Note I am using here a preemtible GCE node type, this means it lasts only 24 hours. If you are looking to run this for sometime remove this option.
+Note I am using here a preemtible GCE node type, this means it lasts only 24 hours. If you are looking to run this for sometime remove this option from the template.
 
 ```
 gcloud deployment-manager deployments create ecs-deployment --config ./ecs_singlenode.yaml
@@ -44,20 +41,19 @@ gcloud deployment-manager deployments create ecs-deployment --config ./ecs_singl
 After the installation has completed the script will attempt to login using curl, this may take from 10 - 15 minutes. Once this is completed the script will start the provisioning process which may take upto 20 minutes. If the process gets stuck you can log into the ECS UI to complete the provisioning process. - [Please follow these Instructions.](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS Manual Provisioning using ECS Web UI")
 
 
-##3. Monitor Node Status
+##. Monitor Node Status
 In order to monitor the installation process, you need to get a serial port dump from GCE, this can be done using the following command:
 
     gcloud compute instances get-serial-port-output --zone us-central1-f ecs1
 
-##4. Access the ECS Web UI
+##. Access the ECS Web UI
 
  The ECS Administrative portal can be accessed from any one of the ECS data nodes via HTTPS on port 443. For example: https://ecs-node-ip-address. Once you see the screen below:
 
 ![ECS UI](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-waiting-for-webserver.PNG)
 
 
-
-##5. Cleanup
+##. Cleanup
 Now once you are done, you can cleaup instance, disk and networks created (note the disk will be automatically deleted once the instance is deleted)
 
     gcloud deployment-manager deployments delete ecs-deployment
