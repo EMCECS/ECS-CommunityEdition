@@ -2,7 +2,7 @@
 
 ECS 2.0 Single Node installation on Google Compute Engine: 
 
-The following instructions will allow you to install ECS 2.0 software on a Google Compute Engine Deployment Manager using a single command.
+The following instructions will allow you to install ECS 2.0 software using a GCE Deployment Manager with a single command.
 
 ## Prerequisite -
 Install Google Compute Engine Tools
