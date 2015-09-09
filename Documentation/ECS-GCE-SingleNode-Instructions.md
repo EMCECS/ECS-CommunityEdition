@@ -23,7 +23,7 @@ The following are the base requirements for running ECS 2.0 software for a singl
 
 Using GCE Deployment Manager to deploy a single node ECS. Please make sure to reference the right template from ECS-CommunityEdition/ecs-single-node/gce/ecs_singlenode.yaml
 
-Deployment Manager is GCE's deployment orchestration tool that allows describing deployments using templates to make it easier to consume, manage and deploy. The following is a deployment template that basically does the following;
+Deployment Manager is GCE's deployment orchestration tool. It enables developers/ops to describe deployments using templates so it is easier to consume, manage and deploy. The following is a deployment template that basically does the following;
 
 1. Open required firewall ports for ECS
 2. Create a new data disk of 100 GB size.
