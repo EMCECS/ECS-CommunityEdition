@@ -630,7 +630,8 @@ def main():
 
     docker_image_name = "emccorp/ecs-software"
     ethernet_adapter_name = get_first(args.ethadapter)
-    ip_address = subprocess.check_output(['hostname', '-i']).rstrip('\r\n')
+    ip_address = subprocess.check_output(['hostname', '-i'])
+    ip_address = re.findall(r'[0-9]+(?:\.[0-9]+){3}', ip_address)[0]
 
 
     yum_func()
