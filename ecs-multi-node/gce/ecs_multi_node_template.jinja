@@ -1,0 +1,74 @@
+
+{% set DATADISK = "datadisk-" + env["name"] %}
+
+# Creates a Persistent Disk
+# Creates an instance that attaches that Persistent Disk as a data disk
+resources:
+- type: compute.v1.disk
+  name: {{ DATADISK }}
+  properties:
+    zone: {{ properties["zone"] }}
+    sizeGb: 100
+    # Disk type is a full URI.  Example uses pd-standard, but pd-ssd can be used as well
+    type: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/diskTypes/pd-standard
+
+- type: compute.v1.instance
+  name: {{ env["name"] }}
+  properties:
+    zone: {{ properties["zone"] }}
+    machineType: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/machineTypes/n1-highmem-2
+    scheduling:
+      preemptible: true
+    metadata:
+      items:
+      # For more ways to use startup scripts on an instance, see:
+      #   https://cloud.google.com/compute/docs/startupscript
+      - key: startup-script
+        value: |
+          # startup script for installing ECS on GCE
+          echo "Starting..."
+          echo "Install Packages..."
+          yum update -y
+          yum install wget -y
+          yum install tar -y
+          yum install git -y
+          echo "Installed!"
+          echo "Cloning git repo"
+          git clone https://github.com/EMCECS/ECS-CommunityEdition.git
+          echo "Change directory"
+          cd /ECS-CommunityEdition/ecs-multi-node/
+          echo "Starting ECS Install Script"
+          iplookup() { 
+            python -c 'import socket, sys; print socket.gethostbyname(sys.argv[1])' "$@" 2>/dev/null
+          } 
+          echo "sleep 15 seconds"
+          sleep 15s
+          node1=$(iplookup ecs1)
+          node2=$(iplookup ecs2)
+          node3=$(iplookup ecs3)
+          node4=$(iplookup ecs4)
+          echo $node1 $node2 $node3 $node4
+          python step1_ecs_multinode_install.py --ips $node1 $node2 $node3 $node4 --hostnames ecs1 ecs2 ecs3 ecs4 --disks sdb --ethadapter eth0
+          echo "Done! Try it out"
+
+    disks:
+    - deviceName: boot
+      type: PERSISTENT
+      boot: true
+      autoDelete: true
+      initializeParams:
+        diskName: disk-{{ env["name"] }}
+        sourceImage: https://www.googleapis.com/compute/v1/projects/centos-cloud/global/images/centos-7-v20150818
+    - deviceName: {{ DATADISK }}
+      type: PERSISTENT
+      source: $(ref.{{ DATADISK }}.selfLink)
+      autoDelete: true
+
+    networkInterfaces:
+    - network: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/global/networks/default
+      # Access Config required to give the instance a public IP address
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT
+
+
