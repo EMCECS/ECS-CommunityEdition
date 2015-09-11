@@ -12,7 +12,7 @@ Welcome to the Single Node installation for ECS Software 2.0. We have provided t
 
 The Host Machine should have these following minimum requirements: 
 
-- **Operative system:** CentOS 7.1
+- **Operative system:** CentOS 7.1(vagrant/gce deploy)  SLES12(docker deploy)
 - **CPU/Cores:** 4 Cores
 - **Memory:** Minimum of 50 GB RAM (64 GB recommended)
 - **Disks:** An un-partitioned/Raw disk with at least 100 GB of Storage per disk per host. Multiple disks can be attached on each ECS Node to increase capacity and performance. Each disk need to be un-partitioned before running the installation scripts.
