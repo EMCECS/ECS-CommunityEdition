@@ -448,19 +448,19 @@ def modify_container_conf_func():
     try:
         logger.info("Backup object properties file")
         os.system(
-            "docker exec -i -t  ecsstandalone cp /opt/storageos/conf/cm.object.properties /opt/storageos/conf/cm.object.properties.old")
+            "docker exec -t  ecsstandalone cp /opt/storageos/conf/cm.object.properties /opt/storageos/conf/cm.object.properties.old")
 
         logger.info("Backup application config file")
         os.system(
-            "docker exec -i -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /opt/storageos/ecsportal/conf/application.conf.old")
+            "docker exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /opt/storageos/ecsportal/conf/application.conf.old")
 
         logger.info("Copy object properties file to host")
         os.system(
-            "docker exec -i -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
+            "docker exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
 
         logger.info("Copy application config file to host")
         os.system(
-            "docker exec -i -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /host/application.conf")
+            "docker exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /host/application.conf")
 
         logger.info("Modify BlobSvc config for single node")
         os.system(
@@ -471,9 +471,9 @@ def modify_container_conf_func():
 
         logger.info("Copy modified files to container")
         os.system(
-            "docker exec -i -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
+            "docker exec -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
         os.system(
-            "docker exec -i -t  ecsstandalone cp /host/application.conf /opt/storageos/ecsportal/conf/application.conf")
+            "docker exec -t  ecsstandalone cp /host/application.conf /opt/storageos/ecsportal/conf/application.conf")
 
         logger.info("Stop container")
         os.system("docker stop ecsstandalone")
