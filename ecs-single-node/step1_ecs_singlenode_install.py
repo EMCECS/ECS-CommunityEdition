@@ -178,7 +178,7 @@ def docker_pull_func(docker_image_name):
         sys.exit()
 
 
-def hosts_file_func(hostname):
+def hosts_file_func(hostname, ethadapter):
     """
     Updates the /etc/hosts file with the IP-Hostname of each one of the DataNodes in the cluster
     :rtype : null
@@ -198,8 +198,11 @@ def hosts_file_func(hostname):
 
         logger.info("Updating the /etc/hosts file with the Parameter Hostname")
 
-      # Get the IP address
-        ip_address = subprocess.check_output(['hostname', '-i']).rstrip('\r\n')
+        # Get the IP address on Linux
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        ip_address = socket.inet_ntoa(fcntl.ioctl(s.fileno(),
+            0x8915, struct.pack('256s', ethadapter[:15]))[20:24])
+
         # Open a file hosts
         hosts_file = open("/etc/hosts", "a")
         # Check if the hosts file has the entries
@@ -255,14 +258,16 @@ def network_file_func(ethadapter):
         sys.exit()
 
 
-def seeds_file_func():
+def seeds_file_func(ethadapter):
     """
     Creates and configures the seeds file
     """
 
     try:
-        # Get the IP address
-        ip_address = subprocess.check_output(['hostname', '-i']).rstrip('\r\n')
+        # Get the IP address on Linux
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        ip_address = socket.inet_ntoa(fcntl.ioctl(s.fileno(),
+                0x8915, struct.pack('256s', ethadapter[:15]))[20:24])
 
         logger.info("Creating the seeds file with IP address: {} ".format(ip_address))
         # Open a file
@@ -637,8 +642,10 @@ def main():
 
     docker_image_name = "emccorp/ecs-software"
     ethernet_adapter_name = get_first(args.ethadapter)
-    ip_address = subprocess.check_output(['hostname', '-i'])
-    ip_address = re.findall(r'[0-9]+(?:\.[0-9]+){3}', ip_address)[0]
+    # Get the IP address on Linux
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    ip_address = socket.inet_ntoa(fcntl.ioctl(s.fileno(),
+        0x8915, struct.pack('256s', ethernet_adapter_name[:15]))[20:24])
 
 
     yum_func()
@@ -647,9 +654,9 @@ def main():
     docker_install_func()
     prep_file_func()
     docker_pull_func(docker_image_name)
-    hosts_file_func(args.hostname)
+    hosts_file_func(args.hostname, ethernet_adapter_name)
     network_file_func(ethernet_adapter_name)
-    seeds_file_func()
+    seeds_file_func(ethernet_adapter_name)
     prepare_data_disk_func(args.disks)
     run_additional_prep_file_func(args.disks)
     directory_files_conf_func()
