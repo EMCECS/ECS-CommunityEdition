@@ -26,7 +26,7 @@ Using GCE Deployment Manager to deploy a single node ECS. Please make sure to re
 Deployment Manager is GCE's deployment orchestration tool. It enables developers/ops to describe deployments using templates so it is easier to consume, manage and deploy. The following is a deployment template that basically does the following;
 
 1. Open required firewall ports for ECS
-2. Create a new data disk of 100 GB size.
+2. Create a new data disk of 256 GB size.
 2. Create a new VM Instance of type n1-highmem-8 (8core 50GB)
 3. Attach Disk
 4. Assign Network
