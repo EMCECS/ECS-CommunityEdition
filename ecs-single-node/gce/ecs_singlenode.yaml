@@ -2,11 +2,6 @@ imports:
 - path: ecs_node_template.jinja
 
 resources:
-- name: ecs1
-  type: ecs_node_template.jinja
-  properties:
-    zone: us-central1-f
-
 - name: ecs-firewall
   type: compute.v1.firewall
   properties:
@@ -14,3 +9,9 @@ resources:
       - IPProtocol: TCP
         ports: [ 22,443,80,9024,9020,9011,4443 ]
     sourceRanges: [ 0.0.0.0/0 ]
+
+- name: ecs1
+  type: ecs_node_template.jinja
+  properties:
+    zone: us-central1-f
+
