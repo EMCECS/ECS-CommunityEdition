@@ -42,7 +42,8 @@ After the installation has completed the script will attempt to login using curl
 
 
 # Provisioning
-The automated provisioning may get stuck, login into the portal and start the manual provisioning. The license is already uploaded so you will need to just provisiong the following in order:
+The automated provisioning may get stuck, login into the portal and start the manual provisioning. The license is already uploaded so you will need to just provision the following in order:
+
 1. Storage Pool
 2. Virtual Data Center
 3. Replication Group
