@@ -5,7 +5,7 @@ Welcome to the Single Node installation for ECS Software 2.0. We have provided t
 
 - **[ECS Single Node Docker Deployment](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-SingleNode-Instructions.md "ECS Single Node Deployment Information")**
 - **[ECS Single Node Vagrant Deployment](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-SingleNode-Vagrant-Instructions.md "ECS Single Node Vagrant Deployment Information")**
-- **[Google Compute Engine Single Deployment](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-GCE-SingleNode-Instructions.md "ECS GCE Single Node  Deployment")**
+- **[Google Compute Engine Single Node Deployment](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-GCE-SingleNode-Instructions.md "ECS GCE Single Node  Deployment")**
 
 
 ## Requirements
