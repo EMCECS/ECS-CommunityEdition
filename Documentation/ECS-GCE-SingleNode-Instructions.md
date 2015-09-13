@@ -38,7 +38,19 @@ Note I am using here a preemtible GCE node type, this means it lasts only 24 hou
 gcloud deployment-manager deployments create ecs-deployment --config ./ecs_singlenode.yaml
 ```
 
-After the installation has completed the script will attempt to login using curl, this may take from 10 - 15 minutes. Once this is completed the script will start the provisioning process which may take upto 20 minutes. If the process gets stuck you can log into the ECS UI to complete the provisioning process. - [Please follow these Instructions.](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS Manual Provisioning using ECS Web UI")
+After the installation has completed the script will attempt to login using curl, this may take from 10 - 15 minutes.
+
+
+# Provisioning
+The automated provisioning may get stuck, login into the portal and start the manual provisioning. The license is already uploaded so you will need to just provisiong the following in order:
+1. Storage Pool
+2. Virtual Data Center
+3. Replication Group
+4. Namespace
+4. Create User and retrieve S3 Secret Key
+5. Create Bucket
+
+[For details follow these steps in the ECS Portal.](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS Manual Provisioning using ECS Web UI")
 
 
 ## Monitor Node Status
