@@ -44,10 +44,10 @@ After the installation has completed the script will attempt to login using curl
 # Provisioning
 The automated provisioning may get stuck, login into the portal and start the manual provisioning. The license is already uploaded so you will need to just provision the following in order:
 
-1. Storage Pool
-2. Virtual Data Center
-3. Replication Group
-4. Namespace
+1. Create Storage Pool
+2. Create Virtual Data Center
+3. Create Replication Group
+4. Create Namespace
 4. Create User and retrieve S3 Secret Key
 5. Create Bucket
 
