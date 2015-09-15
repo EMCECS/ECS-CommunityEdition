@@ -92,7 +92,8 @@ target/
 ### Eclipse template
 # Covers Eclipse
 
-.project/
+# Eclipse Core
+.project
 
 ## File-based project format:
 *.ipr
