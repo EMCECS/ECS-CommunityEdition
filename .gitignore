@@ -89,6 +89,11 @@ target/
 # Mongo Explorer plugin:
 # .idea/mongoSettings.xml
 
+### Eclipse template
+# Covers Eclipse
+
+.project/
+
 ## File-based project format:
 *.ipr
 *.iws
@@ -108,5 +113,3 @@ atlassian-ide-plugin.xml
 com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
-
-
