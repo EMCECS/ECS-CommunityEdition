@@ -5,8 +5,10 @@ ECS 2.0 Single Node installation on Google Compute Engine:
 The following instructions will allow you to install ECS 2.0 software using a GCE Deployment Manager with a single command.
 
 ## Prerequisite -
-Install Google Compute Engine Tools
+Google Compute Engine Tools, you can download and install it from the following link:
 - **[gcloud Tools Install](https://cloud.google.com/sdk/gcloud/ "gcloud Tool Guide")**
+
+Google Compute Engine Template files that are located in this git repository under ECS-CommunityEdition/ecs-single-node/gce/
 
 
 ## Evnvironment Requirements 
