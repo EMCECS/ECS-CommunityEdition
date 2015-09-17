@@ -7,7 +7,7 @@ The following instructions will allow you to install ECS 2.0 software using a GC
 ## Prerequisite -
 1. Google Compute Engine Tools, you can download and install it from the following link: **[gcloud Tools Install](https://cloud.google.com/sdk/gcloud/ "gcloud Tool Guide")**
 
-2. Google Compute Engine Template files that are located in this git repository under ECS-CommunityEdition/ecs-single-node/gce/
+2. Google Compute Engine Template files that are located in this git repository under ECS-CommunityEdition/ecs-multi-node/gce/
 
 
 ## Evnvironment Requirements 
