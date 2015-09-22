@@ -8,7 +8,7 @@ resources:
   name: {{ DATADISK }}
   properties:
     zone: {{ properties["zone"] }}
-    sizeGb: 256
+    sizeGb: 100
     # Disk type is a full URI.  Example uses pd-standard, but pd-ssd can be used as well
     type: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/diskTypes/pd-standard
 
@@ -49,7 +49,7 @@ resources:
           node4=$(iplookup ecs4)
           echo $node1 $node2 $node3 $node4
           python step1_ecs_multinode_install.py --ips $node1 $node2 $node3 $node4 --hostnames ecs1 ecs2 ecs3 ecs4 --disks sdb --ethadapter eth0
-          echo "Done!"
+          echo "Done! Try it out"
 
     disks:
     - deviceName: boot
