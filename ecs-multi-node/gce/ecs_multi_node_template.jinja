@@ -16,7 +16,7 @@ resources:
   name: {{ env["name"] }}
   properties:
     zone: {{ properties["zone"] }}
-    machineType: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/machineTypes/n1-highmem-8
+    machineType: https://www.googleapis.com/compute/v1/projects/{{ env["project"] }}/zones/{{ properties["zone"] }}/machineTypes/n1-highmem-2
     scheduling:
       preemptible: true
     metadata:
@@ -36,12 +36,21 @@ resources:
           echo "Cloning git repo"
           git clone https://github.com/EMCECS/ECS-CommunityEdition.git
           echo "Change directory"
-          cd /ECS-CommunityEdition/ecs-single-node/
+          cd /ECS-CommunityEdition/ecs-multi-node/
           echo "Starting ECS Install Script"
-          python step1_ecs_singlenode_install.py --disks sdb --ethadapter eth0 --hostname ecs1
-          echo "Upload License"
-          python step2_object_provisioning.py --ECSNodes=ecs1 --Namespace=ns1 --ObjectVArray=sp1 --ObjectVPool=rg1 --UserName=user1 --DataStoreName=ds1 --VDCName=vdc1 --MethodName=UploadLicense
-          echo "Done! Login and continue provisioning process"
+          iplookup() { 
+            python -c 'import socket, sys; print socket.gethostbyname(sys.argv[1])' "$@" 2>/dev/null
+          } 
+          echo "sleep 15 seconds"
+          sleep 15s
+          node1=$(iplookup ecs1)
+          node2=$(iplookup ecs2)
+          node3=$(iplookup ecs3)
+          node4=$(iplookup ecs4)
+          echo $node1 $node2 $node3 $node4
+          python step1_ecs_multinode_install.py --ips $node1 $node2 $node3 $node4 --hostnames ecs1 ecs2 ecs3 ecs4 --disks sdb --ethadapter eth0
+          echo "Done!"
+
     disks:
     - deviceName: boot
       type: PERSISTENT

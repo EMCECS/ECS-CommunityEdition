@@ -1,18 +1,17 @@
 # ECS SW 2.0 Google Compute Engine Deployment
 
-ECS 2.0 Single Node installation on Google Compute Engine: 
+ECS 2.0 Multi Node installation on Google Compute Engine: 
 
-The following instructions will allow you to install ECS 2.0 software using a GCE Deployment Manager with a single command.
+The following instructions will allow you to install ECS 2.0 software using a GCE Deployment Manager, using a simple template file.
 
 ## Prerequisite -
-Google Compute Engine Tools, you can download and install it from the following link:
-- **[gcloud Tools Install](https://cloud.google.com/sdk/gcloud/ "gcloud Tool Guide")**
+1. Google Compute Engine Tools, you can download and install it from the following link: **[gcloud Tools Install](https://cloud.google.com/sdk/gcloud/ "gcloud Tool Guide")**
 
-Google Compute Engine Template files that are located in this git repository under ECS-CommunityEdition/ecs-single-node/gce/
+2. Google Compute Engine Template files that are located in this git repository under ECS-CommunityEdition/ecs-multi-node/gce/
 
 
 ## Evnvironment Requirements 
-The following are the base requirements for running ECS 2.0 software for a single node install, this will be created as part of the gcloud commands below:
+The following are the base requirements for running ECS 2.0 software for a mutli node install, this will be created as part of the gcloud commands below:
 
 
 - **Operative system:** CentOS 7.1
@@ -21,37 +20,38 @@ The following are the base requirements for running ECS 2.0 software for a singl
 - **Disks:** An un-partitioned/Raw disk with at least 100 GB of Storage per disk per host. Multiple disks can be attached on each ECS Node to increase capacity and performance. Each disk need to be un-partitioned before running the installation scripts.
 
 
-## Deploy ECS Single Node Install
+## Deploy ECS Multi Node Install
 
-Using GCE Deployment Manager to deploy a single node ECS. Please make sure to reference the right template from ECS-CommunityEdition/ecs-single-node/gce/ecs_singlenode.yaml
+Using GCE Deployment Manager to deploy a multi node ECS. Please make sure to reference the right template from ECS-CommunityEdition/ecs-multi-node/gce/ecs_multinode.yaml
 
 Deployment Manager is GCE's deployment orchestration tool. It enables developers/ops to describe deployments using templates so it is easier to consume, manage and deploy. The following is a deployment template that basically does the following;
 
-1. Open required firewall ports for ECS
-2. Create a new data disk of 256 GB size.
-2. Create a new VM Instance of type n1-highmem-8 (8core 50GB)
-3. Attach Disk
+1. Create required firewall rules for ECS
+2. Create a set of 4 data disk of 256 GB size each.
+2. Create a set of 4 VM Instance of type n1-highmem-2 (2core 13GB)
+3. Attach Disk for each node
 4. Assign Network
 5. Run a startup script for installing and provisioning ECS.
 
 Note I am using here a preemtible GCE node type, this means it lasts only 24 hours. If you are looking to run this for sometime remove this option from the template.
 
 ```
-gcloud deployment-manager deployments create ecs-deployment --config ./ecs_singlenode.yaml
+gcloud deployment-manager deployments create ecs-deployment --config ./ecs-multi-node/gce/ecs_multinode.yaml
 ```
 
-After the installation has completed the script will attempt to login using curl, this may take from 10 - 15 minutes.
+After the installation has completed wait 10 - 15 minutes, and then attempt to login into the ECS portal for any of the nodes.
 
 
 # Provisioning
-The automated provisioning may get stuck, login into the portal and start the manual provisioning. The license is already uploaded so you will need to just provision the following in order:
+The automated provisioning may get stuck, login into the portal and start the manual provisioning. 
 
-1. Create Storage Pool
-2. Create Virtual Data Center
-3. Create Replication Group
-4. Create Namespace
-4. Create User and retrieve S3 Secret Key
-5. Create Bucket
+1. Upload License
+2. Create Storage Pool
+3. Create Virtual Data Center
+4. Create Replication Group
+5. Create Namespace
+6. Create User and retrieve S3 Secret Key
+7. Create Bucket
 
 [For details follow these steps in the ECS Portal.](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS Manual Provisioning using ECS Web UI")
 

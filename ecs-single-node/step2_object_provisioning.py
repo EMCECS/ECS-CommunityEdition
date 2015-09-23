@@ -81,10 +81,9 @@ def DeleteUser(ECSNode,userName,Namespace):
     executeRestAPI("/object/users/deactivate", 'POST','.id', DeleteUserPayload, ECSNode)
 
 
-def getVDCSecretKey(self):
-    Log.info(LoggingInfra.logger, "Fetch VDC secret key")
-    secretKeyDict = self.executeRestAPI("/vdc/secret-key", 'GET', '.secret_key', "")
-    return secretKeyDict['secret_key']
+def getVDCSecretKey(ECSNode):
+    secretKeyDict = executeRestAPI("/object/vdcs/vdc/local/secretkey", 'GET', '.secret_key', "", ECSNode, checkOutput=1)
+    return secretKeyDict['key']
 
 
 def UploadLicense(ECSNode):
@@ -136,8 +135,8 @@ def InsertVDC(ECSNode, VDCName):
         else:
             break
 
-    secretKey="secret12345"
-    #secretKey=getVDCSecretKey()
+    #secretKey="secret12345"
+    secretKey=getVDCSecretKey(ECSNode)
     InsertVDCPayload ='{\\"vdcName\\":\\"%s\\",\
     \\"interVdcEndPoints\\":\\"%s\\", \
     \\"secretKeys\\":\\"%s\\"\

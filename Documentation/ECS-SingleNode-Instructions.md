@@ -26,7 +26,7 @@ In terms of cloud deployments, there are a range of options here. The most compa
 
 All instances currently require to have the following minimum requirements: 
 
-- **Operating system:** CentOS 7
+- **Operating systems:** CentOS 7 (maybe), and  SLES 12
 - **CPU/Cores:** 4 Cores
 - **Memory:** Minimum of 50 GB RAM (64 GB recommended) 
 - **Disks:** An unpartitioned/Raw disk with at least 100 GB. 
@@ -37,8 +37,8 @@ We have performed testing against the following platform(s):
 
 OS Name | Version | Docker Version |
 |-------|---------|----------------|
-|CentOS	| 7.1	  | 1.4.1          |
-
+|CentOS	| 7.1	    | 1.4.1          |
+|SLES   | 12      | 1.5.0-20.1     |
 
 
 ## Installation Steps
@@ -55,7 +55,9 @@ The installation script is composed by three main steps:
 
 [CentOS](http://www.centos.org/) is a well known Linux distribution that has the ability to deploy containers with Docker. Common public cloud platforms have CentOS templates ready to be used, so getting ECS 2.0 Software on a Docker container up is extremely easy!
 
-These are the installation steps to perform a CentOS installation: 
+[SLES](http://www.suse.com/products/server/) is a a versatile Linux server operating system for deploying highly available enterprise-class IT services in mixed IT environments with best-of-breed performance and reduced risk.
+
+These are the installation steps to perform a CentOS or SLES installation: 
 
 ### Pre Installation Steps
 
@@ -90,6 +92,7 @@ Once you execute the STEP 1 script,  the attached disk (**/dev/sdc** in our exam
 |9024| Port used for SWIFT API |
 |4443| ECS Management API Port *|
 |9011| ECS Management API Port *|
+|9101| ECS Diagnostic Service Index |
 
 **Note:** There are more ports required to be open if you have a firewall running on the host. Please refer to [List of Ports to be Open](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md#list-of-open-ports-required-on-each-ecs-data-node) of the troubleshooting page.
 

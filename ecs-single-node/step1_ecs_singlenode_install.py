@@ -6,12 +6,17 @@ import subprocess
 import logging
 import logging.config
 import time
-import sys,re
+import sys
+import re
 import shutil
 import getopt
-import os,json
-
+import os
+import json
 import settings
+import socket
+import fcntl
+import struct
+
 
 # Logging Initialization
 logging.config.dictConfig(settings.ECS_SINGLENODE_LOGGING)
@@ -173,7 +178,7 @@ def docker_pull_func(docker_image_name):
         sys.exit()
 
 
-def hosts_file_func(hostname):
+def hosts_file_func(hostname, ethadapter):
     """
     Updates the /etc/hosts file with the IP-Hostname of each one of the DataNodes in the cluster
     :rtype : null
@@ -193,8 +198,11 @@ def hosts_file_func(hostname):
 
         logger.info("Updating the /etc/hosts file with the Parameter Hostname")
 
-      # Get the IP address
-        ip_address = subprocess.check_output(['hostname', '-i']).rstrip('\r\n')
+        # Get the IP address on Linux
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        ip_address = socket.inet_ntoa(fcntl.ioctl(s.fileno(),
+            0x8915, struct.pack('256s', ethadapter[:15]))[20:24])
+
         # Open a file hosts
         hosts_file = open("/etc/hosts", "a")
         # Check if the hosts file has the entries
@@ -219,8 +227,10 @@ def network_file_func(ethadapter):
 
     try:
 
-        # Get the IP address
-        ip_address = subprocess.check_output(['hostname', '-i']).rstrip('\r\n')
+        # Get the IP address on Linux
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        ip_address = socket.inet_ntoa(fcntl.ioctl(s.fileno(),
+                0x8915, struct.pack('256s', ethadapter[:15]))[20:24])
 
         # Get the hostname
         hostname = subprocess.check_output(['hostname']).rstrip('\r\n')
@@ -248,14 +258,16 @@ def network_file_func(ethadapter):
         sys.exit()
 
 
-def seeds_file_func():
+def seeds_file_func(ethadapter):
     """
     Creates and configures the seeds file
     """
 
     try:
-        # Get the IP address
-        ip_address = subprocess.check_output(['hostname', '-i']).rstrip('\r\n')
+        # Get the IP address on Linux
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        ip_address = socket.inet_ntoa(fcntl.ioctl(s.fileno(),
+                0x8915, struct.pack('256s', ethadapter[:15]))[20:24])
 
         logger.info("Creating the seeds file with IP address: {} ".format(ip_address))
         # Open a file
@@ -449,8 +461,11 @@ def modify_container_conf_func():
         logger.info("Backup object properties files")
         os.system(
             "docker exec -t  ecsstandalone cp /opt/storageos/conf/cm.object.properties /opt/storageos/conf/cm.object.properties.old")
+<<<<<<< HEAD
+=======
         os.system(
             "docker exec -t  ecsstandalone cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
+>>>>>>> bugfix-singlenodeDTs
 
         logger.info("Backup application config file")
         os.system(
@@ -460,7 +475,11 @@ def modify_container_conf_func():
         os.system(
             "docker exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
         os.system(
+<<<<<<< HEAD
+            "docker exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
+=======
             "docker exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
+>>>>>>> bugfix-singlenodeDTs
 
         logger.info("Copy application config file to host")
         os.system(
@@ -480,8 +499,11 @@ def modify_container_conf_func():
         logger.info("Copy modified files to container")
         os.system(
             "docker exec -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
+<<<<<<< HEAD
+=======
         os.system(
             "docker exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
+>>>>>>> bugfix-singlenodeDTs
         os.system(
             "docker exec -t  ecsstandalone cp /host/application.conf /opt/storageos/ecsportal/conf/application.conf")
 
@@ -544,21 +566,39 @@ def docker_cleanup_old_images():
 
 
 
-def cleanup_installation():
+def cleanup_installation(disks):
     """
-    Clean the directory and files created by ECS. It un-mounds the drive and performs a directory cleanup
+    Clean the directory and files created by ECS. It un-mounts the drive and performs a directory cleanup
     """
     try:
 
         logger.info("CleanUp Installation. Un-mount Drive and Delete Directories and Files from the Host")
-        logger.info("Cleanup performing: Un-mount Drive from the Host :: umount /dev/sdc1 /ecs/uuid-1")
-        os.system("umount /dev/sdc1 /ecs/uuid-1")
-        logger.info("Cleanup performing: rm -rf /ecs/uuid-1")
-        os.system("rm -rf /ecs/uuid-1")
-        logger.info("Cleanup performing: rm -rf /data/*")
-        os.system("rm -rf /data/*")
-        logger.info("Cleanup performing: rm -rf /var/log/vipr/emcvipr-object/*")
-        os.system("rm -rf /var/log/vipr/emcvipr-object/*")
+        
+        for index, disk in enumerate(disks):
+            disk_path = "/dev/{}".format(disk)
+
+            device_name = disk_path + "1"
+            uuid_name = "uuid-{}".format(index + 1)
+
+            # umount /dev/sdc1 /ecs/uuid-1
+            logger.info("Umount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
+            subprocess.call(["umount", device_name, "/ecs/{}".format(uuid_name)])
+
+            # rm -rf /ecs/uuid-1
+            logger.info("Remove /ecs/{} Directory in attached Volume".format(uuid_name))
+            subprocess.call(["rm", "-rf", "/ecs/{}".format(uuid_name)])
+            
+            # dd if=/dev/zero of=/dev/sdc bs=512 count=1 conv=notrunc
+            logger.info("Destroying partition table for {}".format(disk_path))
+            subprocess.call(["dd", "if=/dev/zero", "of={}".format(disk_path), "bs=512", "count=1", "conv=notrunc"])
+                        
+        # sudo rm -rf /data/*
+        logger.info("Remove /data/* Directory in attached Volume")
+        subprocess.call(["rm", "-rf", "/data/*"])
+
+        # sudo rm -rf /var/log/vipr/emcvipr-object/*
+        logger.info("Remove /var/log/vipr/emcvipr-object/* Directory ")
+        subprocess.call(["rm", "-rf", "/var/log/vipr/emcvipr-object/*"])
 
 
     except Exception as ex:
@@ -614,7 +654,7 @@ def main():
     if args.cleanup:
         logger.info("Starting CleanUp: Removing Previous Docker containers and images. Deletes the created Directories.")
         docker_cleanup_old_images()
-        cleanup_installation()
+        cleanup_installation(args.disks)
         sys.exit(7)
 
     # Check that the Selected Disks have not been initialized and can be used
@@ -640,8 +680,10 @@ def main():
 
     docker_image_name = "emccorp/ecs-software"
     ethernet_adapter_name = get_first(args.ethadapter)
-    ip_address = subprocess.check_output(['hostname', '-i'])
-    ip_address = re.findall(r'[0-9]+(?:\.[0-9]+){3}', ip_address)[0]
+    # Get the IP address on Linux
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    ip_address = socket.inet_ntoa(fcntl.ioctl(s.fileno(),
+        0x8915, struct.pack('256s', ethernet_adapter_name[:15]))[20:24])
 
 
     yum_func()
@@ -650,9 +692,9 @@ def main():
     docker_install_func()
     prep_file_func()
     docker_pull_func(docker_image_name)
-    hosts_file_func(args.hostname)
+    hosts_file_func(args.hostname, ethernet_adapter_name)
     network_file_func(ethernet_adapter_name)
-    seeds_file_func()
+    seeds_file_func(ethernet_adapter_name)
     prepare_data_disk_func(args.disks)
     run_additional_prep_file_func(args.disks)
     directory_files_conf_func()
