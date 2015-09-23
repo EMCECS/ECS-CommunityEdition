@@ -458,17 +458,28 @@ def cmdline(command):
 
 def modify_container_conf_func():
     try:
-        logger.info("Backup object properties file")
+        logger.info("Backup object properties files")
         os.system(
             "docker exec -t  ecsstandalone cp /opt/storageos/conf/cm.object.properties /opt/storageos/conf/cm.object.properties.old")
+<<<<<<< HEAD
+=======
+        os.system(
+            "docker exec -t  ecsstandalone cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
+>>>>>>> bugfix-singlenodeDTs
 
         logger.info("Backup application config file")
         os.system(
             "docker exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /opt/storageos/ecsportal/conf/application.conf.old")
 
-        logger.info("Copy object properties file to host")
+        logger.info("Copy object properties files to host")
         os.system(
             "docker exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
+        os.system(
+<<<<<<< HEAD
+            "docker exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
+=======
+            "docker exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
+>>>>>>> bugfix-singlenodeDTs
 
         logger.info("Copy application config file to host")
         os.system(
@@ -476,7 +487,11 @@ def modify_container_conf_func():
 
         logger.info("Modify BlobSvc config for single node")
         os.system(
-            "sed s/object.MustHaveEnoughResources=true/object.MustHaveEnoughResources=false/  < /host/cm.object.properties1 > /host/cm.object.properties")
+            "sed s/object.MustHaveEnoughResources=true/object.MustHaveEnoughResources=false/ < /host/cm.object.properties1 > /host/cm.object.properties")
+
+        logger.info("Modify Directory Table config for single node")
+        os.system(
+            "sed --expression='s/object.NumDirectoriesPerCoSForSystemDT=128/object.NumDirectoriesPerCoSForSystemDT=32/' --expression='s/object.NumDirectoriesPerCoSForUserDT=128/object.NumDirectoriesPerCoSForUserDT=32/' < /host/common.object.properties1 > /host/common.object.properties")
 
         logger.info("Modify Portal config for to bypass validation")
         os.system("echo ecs.minimum.node.requirement=1 >> /host/application.conf")
@@ -484,6 +499,11 @@ def modify_container_conf_func():
         logger.info("Copy modified files to container")
         os.system(
             "docker exec -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
+<<<<<<< HEAD
+=======
+        os.system(
+            "docker exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
+>>>>>>> bugfix-singlenodeDTs
         os.system(
             "docker exec -t  ecsstandalone cp /host/application.conf /opt/storageos/ecsportal/conf/application.conf")
 
