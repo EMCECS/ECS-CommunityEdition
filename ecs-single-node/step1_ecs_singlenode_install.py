@@ -473,9 +473,11 @@ def modify_container_conf_func():
         logger.info("Copy object properties files to host")
         os.system(
             "docker exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
+        
         os.system(
             "docker exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
-         os.system( 
+        
+        os.system( 
             "docker exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
 
         logger.info("Copy application config file to host")
