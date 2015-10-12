@@ -626,10 +626,10 @@ def main():
     parser.add_argument('--cleanup', dest='cleanup', action='store_true',
                         help='If present, run the Docker container/images Clean up and the /data Folder. Example: True/False',
                         required=False)
-    parser.add_argument('--imagename', dest='imagename', action='store_true',
+    parser.add_argument('--imagename', dest='imagename',
                         help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-software',
                         required=False)
-    parser.add_argument('--imagetag', dest='imagetag', action='store_true',
+    parser.add_argument('--imagetag', dest='imagetag',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
                         required=False)
     parser.set_defaults(container_config=False)
@@ -672,7 +672,7 @@ def main():
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container.")
 
-    docker_image_name = "{}:{}".format(imagename, imagetag)
+    docker_image_name = "{}:{}".format(args.imagename, args.imagetag)
     ethernet_adapter_name = get_first(args.ethadapter)
     # Get the IP address on Linux
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
