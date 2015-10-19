@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 sudo python /ecs/step1_ecs_singlenode_install.py --disks sdc
 
