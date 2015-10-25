@@ -513,7 +513,15 @@ def main():
     parser.add_argument('--cleanup', dest='cleanup', action='store_true',
                         help='If present, run the Docker container/images Clean up and the /data Folder. Example: True/False',
                         required=False)
+    parser.add_argument('--imagename', dest='imagename',
+                        help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-reduced-footprint',
+                        required=False)
+    parser.add_argument('--imagetag', dest='imagetag',
+                        help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
+                        required=False)
     parser.set_defaults(cleanup=False)
+    parser.set_defaults(imagename="emccorp/ecs-reduced-footprint")
+    parser.set_defaults(imagetag="latest")
     args = parser.parse_args()
 
 
@@ -550,11 +558,11 @@ def main():
             # else:
             #    print "Disk {} checked. Ready for the installation.".format(disk)
 
-    docker_image_name = "emccorp/ecs-reduced-footprint"
+    docker_image_name = "{}:{}".format(args.imagename, args.imagetag)
     ethernet_adapter_name = get_first(args.ethadapter)
 
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
-    logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container.")
+    logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container: {}".format(docker_image_name))
 
     # yum_update_func()
     update_selinux_os_configuration()
