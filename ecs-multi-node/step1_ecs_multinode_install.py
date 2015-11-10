@@ -550,7 +550,7 @@ def main():
             # else:
             #    print "Disk {} checked. Ready for the installation.".format(disk)
 
-    docker_image_name = "emccorp/ecs-reduced-footprint"
+    docker_image_name = "emccorp/ecs-software-2.1:latest"
     ethernet_adapter_name = get_first(args.ethadapter)
 
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
