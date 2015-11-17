@@ -672,7 +672,11 @@ def main():
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container.")
 
+<<<<<<< HEAD
     docker_image_name = "{}:{}".format(imagename, imagetag)
+=======
+    docker_image_name = "emccorp/ecs-software-2.1:latest"
+>>>>>>> 780be856a4ec6a1770380f1aec2bd6695d0a3835
     ethernet_adapter_name = get_first(args.ethadapter)
     # Get the IP address on Linux
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
