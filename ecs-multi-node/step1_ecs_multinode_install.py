@@ -492,6 +492,29 @@ def get_first(iterable, default=None):
             return item
     return default
 
+def getAuthToken(ECSNode, User, Password):
+    """
+    Poll to see if Auth Service is active.
+    """
+    logger.info("Waiting on Authentication Service. This may take several minutes.")
+    for i in range (0,30):
+        time.sleep(30)
+        try:
+            curlCommand = "curl -i -k https://%s:4443/login -u %s:%s" % (ECSNode, User, Password)
+            print ("Executing getAuthToken: %s " % curlCommand)
+            res=subprocess.check_output(curlCommand, shell=True)
+            authTokenPattern = "X-SDS-AUTH-TOKEN:(.*)\r\n"
+            searchObject=re.search(authTokenPattern,res)
+            assert searchObject, "Get Auth Token failed"
+            print("Auth Token %s" % searchObject.group(1))
+            return searchObject.group(1)
+        except Exception as ex:
+            logger.info("Problem reaching authentication server. Retrying shortly.")
+            # logger.info("Attempting to authenticate for {} minutes.".format(i%2))
+
+    logger.fatal("Authentication service not yet started.")
+
+
 def main():
     import os
 
@@ -560,10 +583,14 @@ def main():
 
     docker_image_name = "{}:{}".format(args.imagename, args.imagetag)
     ethernet_adapter_name = get_first(args.ethadapter)
+    
+    
+    #Pick the first node for test purposes
+    ip_address = args.ips[0]
 
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container.")
-
+    
     # yum_update_func()
     update_selinux_os_configuration()
     package_install_func()
@@ -579,6 +606,7 @@ def main():
     directory_files_conf_func()
     set_docker_configuration_func()
     execute_docker_func(docker_image_name)
+    getAuthToken(ip_address,"root","ChangeMe")
     logger.info(
         "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
         The ECS administrative portal can be accessed from port 443. For example: https://ecs-node-external-ip-address. \
