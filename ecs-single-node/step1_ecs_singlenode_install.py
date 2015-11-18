@@ -462,10 +462,13 @@ def modify_container_conf_func():
         os.system(
             "docker exec -t  ecsstandalone cp /opt/storageos/conf/cm.object.properties /opt/storageos/conf/cm.object.properties.old")
 
-
         logger.info("Backup application config file")
         os.system(
             "docker exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /opt/storageos/ecsportal/conf/application.conf.old")
+
+        logger.info("Backup common-object properties file")
+        os.system(
+            "docker exec -t  ecsstandalone cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
 
         logger.info("Copy object properties files to host")
         os.system(
@@ -474,6 +477,10 @@ def modify_container_conf_func():
         logger.info("Copy application config file to host")
         os.system(
             "docker exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /host/application.conf")
+
+        logger.info("Copy common-object properties files to host")
+        os.system(
+            "docker exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
 
         logger.info("Modify BlobSvc config for single node")
         os.system(
@@ -492,6 +499,9 @@ def modify_container_conf_func():
 
         os.system(
             "docker exec -t  ecsstandalone cp /host/application.conf /opt/storageos/ecsportal/conf/application.conf")
+
+        os.system(
+            "docker exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
 
         logger.info("Stop container")
         os.system("docker stop ecsstandalone")
