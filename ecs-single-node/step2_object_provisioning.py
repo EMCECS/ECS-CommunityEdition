@@ -293,7 +293,7 @@ def main(argv):
         
         for node in ECSNodeList:
                 CreateDataStoreOnCommodityNodesWithRetry(node, DataStoreName, ObjectVArrayID)
-        time.sleep(20 * 60)
+        time.sleep(120 * 60)
         InsertVDC(ECSNode, VDCName)
         print("VDCID: %s" %getVDCID(ECSNode, VDCName))
         CreateObjectVpoolWithRetry(ECSNode, ObjectVPool, VDCName)
