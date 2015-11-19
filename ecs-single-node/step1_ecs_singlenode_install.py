@@ -512,6 +512,7 @@ def modify_container_conf_func():
         logger.info("Clean up local files")
         os.system("rm -rf /host/cm.object.properties*")
         os.system("rm -rf /host/application.conf")
+        os.system("rm -rf /host/common.object.properties*")
 
 
     except Exception as ex:
