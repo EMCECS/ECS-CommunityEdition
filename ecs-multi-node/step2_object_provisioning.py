@@ -126,17 +126,16 @@ def RetryDTStatus(ECSNode):
 
     curlCommand = "curl -s http://%s:9101/stats/dt/DTInitStat" % (ECSNode)
     timeout = time.time() + 60*60
+    ret = ""
 
     try:
-        ret = subprocess.check_output(curlCommand, shell=True)
-        reRet = re.findall("<total_dt_num>(.+?)</total_dt_num>", ret)[0]
-        dtTotal = int(float(reRet))
-        dtBad = dtTotal
-
+        dtBad = 1920
         while (dtBad != 0):
             ret = subprocess.check_output(curlCommand, shell=True)
+            dtTot = re.findall("<total_dt_num>(.+?)</total_dt_num>", ret)[0]
             dtUnready = re.findall("<unready_dt_num>(.+?)</unready_dt_num>", ret)[0]
             dtUnknown = re.findall("<unknown_dt_num>(.+?)</unknown_dt_num>", ret)[0]
+            dtTotal = int(float(dtTot))
             dtBad = int(float(dtUnready)) + int(float(dtUnknown))
             initPercent=((dtTotal-dtBad)/dtTotal)*100
             print("Directory Tables %.1f%% ready.") % (initPercent)
@@ -146,8 +145,11 @@ def RetryDTStatus(ECSNode):
                 break
 
     except Exception, e:
-        print("Failed to retrieve DT status: %s" % (e))
-        sys.exit()
+        if("Cannot update" in ret):
+            print(ret)
+        else:
+            print("Failed to retrieve DT status: %s" % (e))
+        
 
 
 def InsertVDC(ECSNode, VDCName):
