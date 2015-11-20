@@ -492,6 +492,41 @@ def get_first(iterable, default=None):
             return item
     return default
 
+
+def modify_container_conf_func():
+    try:
+        logger.info("Backup common-object properties file")
+        os.system(
+            "docker exec -t  ecsstandalone cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
+
+        logger.info("Copy common-object properties files to host")
+        os.system(
+            "docker exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
+
+        logger.info("Modify Directory Table config for single node")
+        os.system(
+            "sed --expression='s/object.NumDirectoriesPerCoSForSystemDT=128/object.NumDirectoriesPerCoSForSystemDT=32/' --expression='s/object.NumDirectoriesPerCoSForUserDT=128/object.NumDirectoriesPerCoSForUserDT=32/' < /host/common.object.properties1 > /host/common.object.properties")
+
+        logger.info("Copy modified files to container")
+        os.system(
+            "docker exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
+
+        logger.info("Stop container")
+        os.system("docker stop ecsstandalone")
+
+        logger.info("Start container")
+        os.system("docker start ecsstandalone")
+
+        logger.info("Clean up local files")
+        os.system("rm -rf /host/common.object.properties*")
+
+
+    except Exception as ex:
+        logger.exception(ex)
+        logger.fatal("Aborting program! Please review log.")
+        sys.exit()
+
+
 def getAuthToken(ECSNode, User, Password):
     """
     Poll to see if Auth Service is active.
@@ -606,6 +641,7 @@ def main():
     directory_files_conf_func()
     set_docker_configuration_func()
     execute_docker_func(docker_image_name)
+    modify_container_conf_func()
     getAuthToken(ip_address,"root","ChangeMe")
     logger.info(
         "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
