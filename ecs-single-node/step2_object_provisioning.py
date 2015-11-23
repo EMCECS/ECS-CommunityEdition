@@ -146,7 +146,7 @@ def RetryDTStatus(ECSNode):
                 break
 
             dtPrev = dtTotal
-            sleep(20)
+            time.sleep(20)
 
     except Exception, e:
         if("Cannot update" in ret):
