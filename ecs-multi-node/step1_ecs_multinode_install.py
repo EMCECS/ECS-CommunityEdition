@@ -497,25 +497,28 @@ def modify_container_conf_func():
     try:
         logger.info("Backup common-object properties file")
         os.system(
-            "docker exec -t  ecsstandalone cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
+            "docker exec -t  ecsmultinode cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
 
         logger.info("Copy common-object properties files to host")
         os.system(
-            "docker exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
+            "docker exec -t ecsmultinode cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
 
-        logger.info("Modify Directory Table config for single node")
+        logger.info("Modify Directory Table config for multi node")
         os.system(
             "sed --expression='s/object.NumDirectoriesPerCoSForSystemDT=128/object.NumDirectoriesPerCoSForSystemDT=32/' --expression='s/object.NumDirectoriesPerCoSForUserDT=128/object.NumDirectoriesPerCoSForUserDT=32/' < /host/common.object.properties1 > /host/common.object.properties")
 
         logger.info("Copy modified files to container")
         os.system(
-            "docker exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
+            "docker exec -t  ecsmultinode cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
+
+        logger.info("Flush VNeST data")
+        os.system("docker exec -t ecsmultinode rm -rf /data/vnest/vnest-main/*")
 
         logger.info("Stop container")
-        os.system("docker stop ecsstandalone")
+        os.system("docker stop ecsmultinode")
 
         logger.info("Start container")
-        os.system("docker start ecsstandalone")
+        os.system("docker start ecsmultinode")
 
         logger.info("Clean up local files")
         os.system("rm -rf /host/common.object.properties*")

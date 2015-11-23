@@ -503,6 +503,9 @@ def modify_container_conf_func():
         os.system(
             "docker exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
 
+        logger.info("Flush VNeST data")
+        os.system("docker exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
+
         logger.info("Stop container")
         os.system("docker stop ecsstandalone")
 
