@@ -684,15 +684,15 @@ def main():
 
 
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
-    logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container: {}".format(docker_image_name))
-
     docker_image_name = "{}:{}".format(args.imagename, args.imagetag)
+
     ethernet_adapter_name = get_first(args.ethadapter)
     # Get the IP address on Linux
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     ip_address = socket.inet_ntoa(fcntl.ioctl(s.fileno(),
         0x8915, struct.pack('256s', ethernet_adapter_name[:15]))[20:24])
 
+    logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container: {}".format(docker_image_name))
 
     yum_func()
     package_install_func()
