@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# An installation program for ECS SW 2.0 Single Data node
+# An installation program for ECS SW 2.1 Multiple Data nodes
 import argparse
 import getopt
 import subprocess
@@ -9,7 +9,7 @@ import logging.config
 import sys
 import socket
 import os
-
+import time
 import settings
 
 # Logging Initialization
@@ -492,6 +492,67 @@ def get_first(iterable, default=None):
             return item
     return default
 
+
+def modify_container_conf_func():
+    try:
+        logger.info("Backup common-object properties file")
+        os.system(
+            "docker exec -t  ecsmultinode cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
+
+        logger.info("Copy common-object properties files to host")
+        os.system(
+            "docker exec -t ecsmultinode cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
+
+        logger.info("Modify Directory Table config for multi node")
+        os.system(
+            "sed --expression='s/object.NumDirectoriesPerCoSForSystemDT=128/object.NumDirectoriesPerCoSForSystemDT=32/' --expression='s/object.NumDirectoriesPerCoSForUserDT=128/object.NumDirectoriesPerCoSForUserDT=32/' < /host/common.object.properties1 > /host/common.object.properties")
+
+        logger.info("Copy modified files to container")
+        os.system(
+            "docker exec -t  ecsmultinode cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
+
+        logger.info("Flush VNeST data")
+        os.system("docker exec -t ecsmultinode rm -rf /data/vnest/vnest-main/*")
+
+        logger.info("Stop container")
+        os.system("docker stop ecsmultinode")
+
+        logger.info("Start container")
+        os.system("docker start ecsmultinode")
+
+        logger.info("Clean up local files")
+        os.system("rm -rf /host/common.object.properties*")
+
+
+    except Exception as ex:
+        logger.exception(ex)
+        logger.fatal("Aborting program! Please review log.")
+        sys.exit()
+
+
+def getAuthToken(ECSNode, User, Password):
+    """
+    Poll to see if Auth Service is active.
+    """
+    logger.info("Waiting on Authentication Service. This may take several minutes.")
+    for i in range (0,30):
+        time.sleep(30)
+        try:
+            curlCommand = "curl -i -k https://%s:4443/login -u %s:%s" % (ECSNode, User, Password)
+            print ("Executing getAuthToken: %s " % curlCommand)
+            res=subprocess.check_output(curlCommand, shell=True)
+            authTokenPattern = "X-SDS-AUTH-TOKEN:(.*)\r\n"
+            searchObject=re.search(authTokenPattern,res)
+            assert searchObject, "Get Auth Token failed"
+            print("Auth Token %s" % searchObject.group(1))
+            return searchObject.group(1)
+        except Exception as ex:
+            logger.info("Problem reaching authentication server. Retrying shortly.")
+            # logger.info("Attempting to authenticate for {} minutes.".format(i%2))
+
+    logger.fatal("Authentication service not yet started.")
+
+
 def main():
     import os
 
@@ -513,7 +574,15 @@ def main():
     parser.add_argument('--cleanup', dest='cleanup', action='store_true',
                         help='If present, run the Docker container/images Clean up and the /data Folder. Example: True/False',
                         required=False)
+    parser.add_argument('--imagename', dest='imagename',
+                        help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-reduced-footprint',
+                        required=False)
+    parser.add_argument('--imagetag', dest='imagetag',
+                        help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
+                        required=False)
     parser.set_defaults(cleanup=False)
+    parser.set_defaults(imagename="emccorp/ecs-software-2.1")
+    parser.set_defaults(imagetag="latest")
     args = parser.parse_args()
 
 
@@ -550,12 +619,16 @@ def main():
             # else:
             #    print "Disk {} checked. Ready for the installation.".format(disk)
 
-    docker_image_name = "emccorp/ecs-reduced-footprint"
+    docker_image_name = "{}:{}".format(args.imagename, args.imagetag)
     ethernet_adapter_name = get_first(args.ethadapter)
+    
+    
+    #Pick the first node for test purposes
+    ip_address = args.ips[0]
 
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
-    logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container.")
-
+    logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container: {}".format(docker_image_name))
+    
     # yum_update_func()
     update_selinux_os_configuration()
     package_install_func()
@@ -571,6 +644,8 @@ def main():
     directory_files_conf_func()
     set_docker_configuration_func()
     execute_docker_func(docker_image_name)
+    # modify_container_conf_func()
+    getAuthToken(ip_address,"root","ChangeMe")
     logger.info(
         "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
         The ECS administrative portal can be accessed from port 443. For example: https://ecs-node-external-ip-address. \

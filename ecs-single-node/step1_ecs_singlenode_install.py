@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# An installation program for ECS SW 2.0 Single Data node
+# An installation program for ECS SW 2.1 Single Data node
 import argparse
 import string
 import subprocess
@@ -458,7 +458,7 @@ def cmdline(command):
 
 def modify_container_conf_func():
     try:
-        logger.info("Backup object properties file")
+        logger.info("Backup object properties files")
         os.system(
             "docker exec -t  ecsstandalone cp /opt/storageos/conf/cm.object.properties /opt/storageos/conf/cm.object.properties.old")
 
@@ -466,7 +466,11 @@ def modify_container_conf_func():
         os.system(
             "docker exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /opt/storageos/ecsportal/conf/application.conf.old")
 
-        logger.info("Copy object properties file to host")
+        logger.info("Backup common-object properties file")
+        os.system(
+            "docker exec -t  ecsstandalone cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
+
+        logger.info("Copy object properties files to host")
         os.system(
             "docker exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
 
@@ -474,9 +478,17 @@ def modify_container_conf_func():
         os.system(
             "docker exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /host/application.conf")
 
+        logger.info("Copy common-object properties files to host")
+        os.system(
+            "docker exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
+
         logger.info("Modify BlobSvc config for single node")
         os.system(
-            "sed s/object.MustHaveEnoughResources=true/object.MustHaveEnoughResources=false/  < /host/cm.object.properties1 > /host/cm.object.properties")
+            "sed s/object.MustHaveEnoughResources=true/object.MustHaveEnoughResources=false/ < /host/cm.object.properties1 > /host/cm.object.properties")
+
+        logger.info("Modify Directory Table config for single node")
+        os.system(
+            "sed --expression='s/object.NumDirectoriesPerCoSForSystemDT=128/object.NumDirectoriesPerCoSForSystemDT=32/' --expression='s/object.NumDirectoriesPerCoSForUserDT=128/object.NumDirectoriesPerCoSForUserDT=32/' < /host/common.object.properties1 > /host/common.object.properties")
 
         logger.info("Modify Portal config for to bypass validation")
         os.system("echo ecs.minimum.node.requirement=1 >> /host/application.conf")
@@ -484,8 +496,15 @@ def modify_container_conf_func():
         logger.info("Copy modified files to container")
         os.system(
             "docker exec -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
+
         os.system(
             "docker exec -t  ecsstandalone cp /host/application.conf /opt/storageos/ecsportal/conf/application.conf")
+
+        os.system(
+            "docker exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
+
+        logger.info("Flush VNeST data")
+        os.system("docker exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
 
         logger.info("Stop container")
         os.system("docker stop ecsstandalone")
@@ -496,6 +515,7 @@ def modify_container_conf_func():
         logger.info("Clean up local files")
         os.system("rm -rf /host/cm.object.properties*")
         os.system("rm -rf /host/application.conf")
+        os.system("rm -rf /host/common.object.properties*")
 
 
     except Exception as ex:
@@ -620,8 +640,16 @@ def main():
     parser.add_argument('--cleanup', dest='cleanup', action='store_true',
                         help='If present, run the Docker container/images Clean up and the /data Folder. Example: True/False',
                         required=False)
+    parser.add_argument('--imagename', dest='imagename', action='store_true',
+                        help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-software',
+                        required=False)
+    parser.add_argument('--imagetag', dest='imagetag', action='store_true',
+                        help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
+                        required=False)
     parser.set_defaults(container_config=False)
     parser.set_defaults(cleanup=False)
+    parser.set_defaults(imagename="emccorp/ecs-software-2.1")
+    parser.set_defaults(imagetag="latest")
     args = parser.parse_args()
 
     # Check if only wants to run the Container Configuration section
@@ -656,9 +684,9 @@ def main():
 
 
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
-    logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container.")
+    logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container: {}".format(docker_image_name))
 
-    docker_image_name = "emccorp/ecs-software"
+    docker_image_name = "{}:{}".format(args.imagename, args.imagetag)
     ethernet_adapter_name = get_first(args.ethadapter)
     # Get the IP address on Linux
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

@@ -120,6 +120,42 @@ def CreateDataStoreOnCommodityNodesWithRetry(ECSNode, dataStoreName, varray):
     retry(5, 60, createDataStoreOnCommodityNodes, [ECSNode, dataStoreName, varray])
 
 
+def RetryDTStatus(ECSNode):
+
+    print("\nWaiting on Directory Tables to Initialize...")
+
+    curlCommand = "curl -s http://%s:9101/stats/dt/DTInitStat" % (ECSNode)
+    timeout = time.time() + 60*60
+    ret = ""
+
+    try:
+        dtPrev = 1
+        while True:
+            ret = subprocess.check_output(curlCommand, shell=True)
+            dtTot = re.findall("<total_dt_num>(.+?)</total_dt_num>", ret)[0]
+            dtUnready = re.findall("<unready_dt_num>(.+?)</unready_dt_num>", ret)[0]
+            dtUnknown = re.findall("<unknown_dt_num>(.+?)</unknown_dt_num>", ret)[0]
+            dtTotal = int(float(dtTot))
+            dtBad = int(float(dtUnready)) + int(float(dtUnknown))
+            initPercent=((dtTotal-dtBad)/dtTotal)*100
+            print("Directory Tables %.1f%% ready.") % (initPercent)
+
+            if (dtBad == 0 and dtPrev == dtTotal):
+                break
+            elif(time.time() > timeout):
+                print("Directory Tables failed to initialize.")
+                break
+
+            dtPrev = dtTotal
+            time.sleep(20)
+
+    except Exception, e:
+        if("Cannot update" in ret):
+            print(ret)
+        else:
+            print("Failed to retrieve DT status: %s" % (e))
+        
+
 
 def InsertVDC(ECSNode, VDCName):
     secretKey="secret12345"
@@ -280,7 +316,8 @@ def main(argv):
         
         for node in ECSNodeList:
                 CreateDataStoreOnCommodityNodesWithRetry(node, DataStoreName, ObjectVArrayID)
-        time.sleep(20 * 60)
+        
+        RetryDTStatus(ECSNode)
         InsertVDC(ECSNode, VDCName)
         print("VDCID: %s" %getVDCID(ECSNode, VDCName))
         CreateObjectVpoolWithRetry(ECSNode, ObjectVPool, VDCName)
