@@ -172,7 +172,7 @@ def InsertVDC(ECSNode, VDCName):
         else:
             break
  
-   secretKey="secret12345"
+    secretKey="secret12345"
     #secretKey=getVDCSecretKey()
     InsertVDCPayload ='{\\"vdcName\\":\\"%s\\",\
     \\"interVdcEndPoints\\":\\"%s\\", \
