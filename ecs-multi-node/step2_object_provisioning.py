@@ -158,7 +158,21 @@ def RetryDTStatus(ECSNode):
 
 
 def InsertVDC(ECSNode, VDCName):
-    secretKey="secret12345"
+    # count storagepool nodes in state "readytouse"
+
+    for i in range(0, 9):
+        curlCommand = "curl -s -k -H\"X-SDS-AUTH-TOKEN: %s\" https://%s/storagepools\ | grep -c 'readytouse'"  % (AuthToken, ECSNode)
+        stateCheck = subprocess.check_output(curlCommand, shell=True)
+        if stateCheck is "0":
+            print("Step 2 loading, Storage data creation in progress")
+            time.sleep(180)
+        elif i == 9:
+            print("No storage pools could be found.")
+            return None
+        else:
+            break
+ 
+   secretKey="secret12345"
     #secretKey=getVDCSecretKey()
     InsertVDCPayload ='{\\"vdcName\\":\\"%s\\",\
     \\"interVdcEndPoints\\":\\"%s\\", \
