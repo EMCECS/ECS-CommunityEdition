@@ -4,7 +4,7 @@
 
 There are two deployment options available:
 
-- **[ECS Docker Multiple Node Deployment](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node "ECS Multiple Node Deployment Information")**
+- **[ECS Docker Multiple Node Deployment (recommended)](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node "ECS Multiple Node Deployment Information")**
 - **[ECS Docker Single Node Deployment](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node "ECS Single Node Deployment Information")**
 
 ## Description
