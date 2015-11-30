@@ -575,7 +575,7 @@ def main():
                         help='If present, run the Docker container/images Clean up and the /data Folder. Example: True/False',
                         required=False)
     parser.add_argument('--imagename', dest='imagename',
-                        help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-reduced-footprint',
+                        help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-software',
                         required=False)
     parser.add_argument('--imagetag', dest='imagetag',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
