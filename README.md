@@ -1,10 +1,13 @@
 # ECS 2.0 Software Container Deployment
 
-**Update July-28-2015:** Updated Docker Image to a Reduced Memory Footprint (16 GB RAM)
+**Update November-30-2015:** Updated Docker Image to a [ECS Software v2.1 Hotfix 1](https://support.emc.com/docu62132_ECS_2.1_HF1_Readme.txt?language=en_US&language=en_US)
+- Users can now optionally specify docker image via command-line arguments in step1.
+- Installation script provides more inforamation to user, proceeds depending on services' availability.
+- Fix for authentication issues resulting from default provisioning.
 
 There are two deployment options available:
 
-- **[ECS Docker Multiple Node Deployment](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node "ECS Multiple Node Deployment Information")**
+- **[ECS Docker Multiple Node Deployment (recommended)](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node "ECS Multiple Node Deployment Information")**
 - **[ECS Docker Single Node Deployment](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node "ECS Single Node Deployment Information")**
 
 ## Description
