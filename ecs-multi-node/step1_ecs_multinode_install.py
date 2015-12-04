@@ -115,17 +115,17 @@ def prep_file_func():
     file_name = "additional_prep.sh"
 
     try:
-        if not os.path.exists(os.getcwd() + "/{}".format(file_name)):
+        # if not os.path.exists(os.getcwd() + "/{}".format(file_name)):
 
-            wget = "wget"
-            url = "https://emccodevmstore001.blob.core.windows.net/test/additional_prep.sh"
+            # wget = "wget"
+            # url = "https://emccodevmstore001.blob.core.windows.net/test/additional_prep.sh"
 
             # Gets the prep. file
-            logger.info("Downloading the additional_prep file.")
-            subprocess.call([wget, url])
+            # logger.info("Downloading the additional_prep file.")
+            # subprocess.call([wget, url])
 
-        else:
-            print "(Ignoring) Preparation File already Exists: {}".format(file_name)
+        # else:
+            # print "(Ignoring) Preparation File already Exists: {}".format(file_name)
 
         chmod = "chmod"
         chmod_arg = "777"
