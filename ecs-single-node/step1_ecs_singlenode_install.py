@@ -640,10 +640,10 @@ def main():
     parser.add_argument('--cleanup', dest='cleanup', action='store_true',
                         help='If present, run the Docker container/images Clean up and the /data Folder. Example: True/False',
                         required=False)
-    parser.add_argument('--imagename', dest='imagename', action='store_true',
+    parser.add_argument('--imagename', dest='imagename', nargs='?',
                         help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-software',
                         required=False)
-    parser.add_argument('--imagetag', dest='imagetag', action='store_true',
+    parser.add_argument('--imagetag', dest='imagetag', nargs='?',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
                         required=False)
     parser.set_defaults(container_config=False)
