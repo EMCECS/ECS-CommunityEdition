@@ -44,6 +44,7 @@ def package_install_func():
         yum_arg = "install"
         yum_package_wget = "wget"
         yum_package_tar = "tar"
+        yum_package_docker = "docker"
         yum_auto_install = "-y"
 
         logger.info("Performing installation of the following package: {} .".format(yum_package_wget))
@@ -51,6 +52,9 @@ def package_install_func():
 
         logger.info("Performing installation of the following package: {} .".format(yum_package_tar))
         subprocess.call([yum, yum_arg, yum_package_tar, yum_auto_install])
+
+        logger.info("Performing installation of the following package: {} .".format(yum_package_docker))
+        subprocess.call([yum, yum_arg, yum_package_docker, yum_auto_install])
 
     except Exception as ex:
         logger.exception(ex)
@@ -67,45 +71,6 @@ def update_selinux_os_configuration():
     subprocess.call(["setenforce", "0"])
 
 
-def docker_install_func():
-    """
-    Downloads, Install and starts the service for the  Supported Docker Version  1.4.1
-    """
-    docker_package = "docker-1.4.1-2.el7.x86_64.rpm"
-
-    try:
-
-        if not os.path.exists(os.getcwd() + "/{}".format(docker_package)):
-            docker_wget = "wget"
-            docker_url = "http://cbs.centos.org/kojifiles/packages/docker/1.4.1/2.el7/x86_64/docker-1.4.1-2.el7.x86_64.rpm"
-
-            # Gets the docker package
-            logger.info("Downloading the Docker Package.")
-            subprocess.call([docker_wget, docker_url])
-
-            docker_yum = "yum"
-            docker_yum_arg = "install"
-            docker_package_auto_install = "-y"
-
-            # Installs the docker package
-            logger.info("Installing the Docker Package.")
-            subprocess.call([docker_yum, docker_yum_arg, docker_package, docker_package_auto_install])
-        else:
-            print "(Ignoring) Docker File already Exists: {}".format(docker_package)
-
-        docker_service = "service"
-        docker_service_name = "docker"
-        docker_service_action = "start"
-
-        # Starts the Docker Service
-        logger.info("Starting the Docker Service.")
-        subprocess.call([docker_service, docker_service_name, docker_service_action])
-
-    except Exception as ex:
-        logger.exception(ex)
-        logger.fatal("Aborting program! Please review log.")
-        sys.exit()
-
 
 def prep_file_func():
     """
@@ -115,18 +80,6 @@ def prep_file_func():
     file_name = "additional_prep.sh"
 
     try:
-        # if not os.path.exists(os.getcwd() + "/{}".format(file_name)):
-
-            # wget = "wget"
-            # url = "https://emccodevmstore001.blob.core.windows.net/test/additional_prep.sh"
-
-            # Gets the prep. file
-            # logger.info("Downloading the additional_prep file.")
-            # subprocess.call([wget, url])
-
-        # else:
-            # print "(Ignoring) Preparation File already Exists: {}".format(file_name)
-
         chmod = "chmod"
         chmod_arg = "777"
         logger.info("Changing the additional_prep.sh file permissions.")
@@ -535,7 +488,7 @@ def getAuthToken(ECSNode, User, Password):
     Poll to see if Auth Service is active.
     """
     logger.info("Waiting on Authentication Service. This may take several minutes.")
-    for i in range (0,30):
+    for i in range (0,60):
         time.sleep(30)
         try:
             curlCommand = "curl -i -k https://%s:4443/login -u %s:%s" % (ECSNode, User, Password)
@@ -632,7 +585,6 @@ def main():
     # yum_update_func()
     update_selinux_os_configuration()
     package_install_func()
-    docker_install_func()
     prep_file_func()
     docker_cleanup_old_images()
     docker_pull_func(docker_image_name)
