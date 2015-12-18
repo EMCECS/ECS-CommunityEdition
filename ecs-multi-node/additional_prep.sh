@@ -34,6 +34,9 @@ if [ $? -eq 1 ]; then
 fi
 
 num_files=`$DF -BG $mount_point | $GREP $mount_point | $AWK -v FGB=$FILE_SIZE_GB '{gsub("G", "", $4); print int($4 / FGB)}'`
+
+# Remove one block so we can account for XFS reserved space.
+$((num_files--))
 declare -a inodes
 for ((i=0;i<$num_files;i++)) {
     file=`printf "%04d\n" $i`
