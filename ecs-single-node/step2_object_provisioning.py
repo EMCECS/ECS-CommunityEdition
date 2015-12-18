@@ -125,10 +125,10 @@ def RetryDTStatus(ECSNode):
 
     curlCommand = "curl -s http://%s:9101/stats/dt/DTInitStat" % (ECSNode)
     timeout = time.time() + 60*60
+    dtExpected = 384
     ret = ""
 
     try:
-        dtPrev = 1
         while True:
             ret = subprocess.check_output(curlCommand, shell=True)
             dtTot = re.findall("<total_dt_num>(.+?)</total_dt_num>", ret)[0]
@@ -139,13 +139,12 @@ def RetryDTStatus(ECSNode):
             initPercent=((dtTotal-dtBad)/dtTotal)*100
             print("Directory Tables %.1f%% ready.") % (initPercent)
 
-            if (dtBad == 0 and dtPrev == dtTotal):
+            if (dtBad == 0 and dtTotal >= dtExpected):
                 break
             elif(time.time() > timeout):
                 print("Directory Tables failed to initialize.")
                 break
 
-            dtPrev = dtTotal
             time.sleep(20)
 
     except Exception, e:
