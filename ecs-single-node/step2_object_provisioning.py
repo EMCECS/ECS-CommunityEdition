@@ -131,6 +131,7 @@ def RetryDTStatus(ECSNode):
     ret = ""
 
     try:
+        dtPrev=1
         while True:
             ret = subprocess.check_output(curlCommand, shell=True)
             dtTot = re.findall("<total_dt_num>(.+?)</total_dt_num>", ret)[0]
@@ -147,6 +148,7 @@ def RetryDTStatus(ECSNode):
                 print("Directory Tables failed to initialize.")
                 break
 
+            dtPrev = dtTotal
             time.sleep(20)
 
     except Exception, e:
