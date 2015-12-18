@@ -120,6 +120,9 @@ def CreateDataStoreOnCommodityNodesWithRetry(ECSNode, dataStoreName, varray):
 
 
 def RetryDTStatus(ECSNode):
+    # DTs stagger their init, so wait for >200 before we accept 100% as okay
+    # Real number is more like 384
+    minDt = 200
 
     print("\nWaiting on Directory Tables to Initialize...")
 
@@ -128,7 +131,6 @@ def RetryDTStatus(ECSNode):
     ret = ""
 
     try:
-        dtPrev = 1
         while True:
             ret = subprocess.check_output(curlCommand, shell=True)
             dtTot = re.findall("<total_dt_num>(.+?)</total_dt_num>", ret)[0]
@@ -136,16 +138,15 @@ def RetryDTStatus(ECSNode):
             dtUnknown = re.findall("<unknown_dt_num>(.+?)</unknown_dt_num>", ret)[0]
             dtTotal = int(float(dtTot))
             dtBad = int(float(dtUnready)) + int(float(dtUnknown))
-            initPercent=((dtTotal-dtBad)/dtTotal)*100
-            print("Directory Tables %.1f%% ready.") % (initPercent)
+            initPercent=((dtTotal-dtBad)*100.0/dtTotal)
+            print("Directory Tables %.1f%% ready. (%s total %s unready %s unknown)") % (initPercent, dtTot, dtUnready, dtUnknown)
 
-            if (dtBad == 0 and dtPrev == dtTotal):
+            if (dtBad == 0 and dtPrev == dtTotal and dtTotal > minDt):
                 break
             elif(time.time() > timeout):
                 print("Directory Tables failed to initialize.")
                 break
 
-            dtPrev = dtTotal
             time.sleep(20)
 
     except Exception, e:
