@@ -11,6 +11,7 @@ import socket
 import os
 import time
 import settings
+import re
 
 # Logging Initialization
 logging.config.dictConfig(settings.ECS_SINGLENODE_LOGGING)
@@ -525,7 +526,7 @@ def getAuthToken(ECSNode, User, Password):
             print("Auth Token %s" % searchObject.group(1))
             return searchObject.group(1)
         except Exception as ex:
-            logger.info("Problem reaching authentication server. Retrying shortly.")
+            logger.info("Problem reaching authentication server. Retrying shortly. %s" % (ex.message))
             # logger.info("Attempting to authenticate for {} minutes.".format(i%2))
 
     logger.fatal("Authentication service not yet started.")
