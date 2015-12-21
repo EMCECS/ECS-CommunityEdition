@@ -448,6 +448,9 @@ def get_first(iterable, default=None):
 
 def modify_container_conf_func():
     try:
+        #
+        # Reduce number of partitions for each table from 128 to 32 to reduce memory/threads
+        #
         logger.info("Backup common-object properties file")
         os.system(
             "docker exec -t  ecsmultinode cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
@@ -464,6 +467,27 @@ def modify_container_conf_func():
         os.system(
             "docker exec -t  ecsmultinode cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
 
+        #
+        # Change Storage Server block allocation watermarks to deal with smaller storage footprints
+        # (NOTE: if you have 100+TB of storage you can comment this out)
+        #
+        logger.info("Backup ssm properties file")
+        os.system(
+            "docker exec -t  ecsmultinode cp /opt/storageos/conf/ssm.object.properties /opt/storageos/conf/ssm.object.properties.old")
+
+        logger.info("Copy ssm properties files to host")
+        os.system(
+            "docker exec -t ecsmultinode cp /opt/storageos/conf/ssm.object.properties /host/ssm.object.properties1")
+
+        logger.info("Modify SSM config for multi node")
+        os.system(
+            "sed --expression='s/object.freeBlocksHighWatermarkLevels=1000,200/object.freeBlocksHighWatermarkLevels=100,50/' --expression='s/object.freeBlocksLowWatermarkLevels=0,100/object.freeBlocksLowWatermarkLevels=0,20/' < /host/ssm.object.properties1 > /host/ssm.object.properties")
+
+        logger.info("Copy modified files to container")
+        os.system(
+            "docker exec -t  ecsmultinode cp /host/ssm.object.properties /opt/storageos/conf/ssm.object.properties")
+
+        # Flush vNest to clear data and restart.
         logger.info("Flush VNeST data")
         os.system("docker exec -t ecsmultinode rm -rf /data/vnest/vnest-main/*")
 
@@ -475,6 +499,7 @@ def modify_container_conf_func():
 
         logger.info("Clean up local files")
         os.system("rm -rf /host/common.object.properties*")
+        os.system("rm -rf /host/ssm.object.properties*")
 
 
     except Exception as ex:
