@@ -622,7 +622,7 @@ def main():
     directory_files_conf_func()
     set_docker_configuration_func()
     execute_docker_func(docker_image_name)
-    # modify_container_conf_func()
+    modify_container_conf_func()
     getAuthToken(ip_address,"root","ChangeMe")
     logger.info(
         "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
