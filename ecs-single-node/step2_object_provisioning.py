@@ -86,7 +86,10 @@ def getVDCSecretKey(ECSNode):
 
 
 def UploadLicense(ECSNode):
-    executeRestAPI("/license", 'POST','', '', ECSNode, contentType='xml', checkOutput=1)
+    ret = executeRestAPI("/license", 'POST','', '', ECSNode, contentType='xml')
+    if ret:
+        print("ERROR: upload license failed with code %d" % ret)
+        sys.exit(1)
 
 def UploadLicenseWithRetry(ECSNode):
     retry(5, 60, UploadLicense, [ECSNode])
@@ -172,13 +175,14 @@ def InsertVDC(ECSNode, VDCName):
         else:
             break
 
-    #secretKey="secret12345"
     secretKey=getVDCSecretKey(ECSNode)
     InsertVDCPayload ='{\\"vdcName\\":\\"%s\\",\
     \\"interVdcEndPoints\\":\\"%s\\", \
     \\"secretKeys\\":\\"%s\\"\
     }' % (VDCName, ECSNode, secretKey)
-    executeRestAPI('/object/vdcs/vdc/%s' % VDCName, 'PUT','',InsertVDCPayload, ECSNode, checkOutput=1)
+    ret = executeRestAPI('/object/vdcs/vdc/%s' % VDCName, 'PUT','',InsertVDCPayload, ECSNode)
+    if ret:
+        raise Exception("InsertVDC failed with code %d" % ret)
     return getVDCID(ECSNode,VDCName)
 
 
@@ -211,8 +215,8 @@ def CreateNamespace(ECSNode, Namespace, objectVpoolName):
     executeRestAPI("/object/namespaces/namespace", 'POST','.id', NamespacePayload, ECSNode, checkOutput=1)
     print("Namespace %s is created" % Namespace)
 
-def CreateNamespaceWithRetry(ECSNode, Namespace):
-    retry(5, 60, CreateNamespace, [ECSNode, Namespace])
+def CreateNamespaceWithRetry(ECSNode, Namespace, defaultObjectVpool):
+    retry(5, 60, CreateNamespace, [ECSNode, Namespace, defaultObjectVpool])
 
 
 def addUser(ECSNode,userName,Namespace):
