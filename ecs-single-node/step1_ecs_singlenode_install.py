@@ -598,7 +598,7 @@ def main():
     parser.add_argument('--hostname',
                         help='Host VM hostname. Example: ECSNode1.mydomain.com',
                         required=True)
-    parser.add_argument('--ethadapter', nargs='+', help='The main Ethernet Adapter used by the Host VM to communicate with the internet. Example: eth0.',
+    parser.add_argument('--ethadapter', help='The main Ethernet Adapter used by the Host VM to communicate with the internet. Example: eth0.',
                         required=True)
     parser.add_argument('--onlyContainerConfig', dest='container_config', action='store_true',
                         help='If present, it will only run the container configuration. Example: True/False',
@@ -617,6 +617,14 @@ def main():
     parser.set_defaults(imagename="emccorp/ecs-software-2.1")
     parser.set_defaults(imagetag="latest")
     args = parser.parse_args()
+
+    # Print configuration
+    print("--- Parsed Configuration ---")
+    print("Hostname: %s" % args.hostname)
+    print("Ethadapter: %s" % args.ethadapter)
+    print("Disk[s]: %s" % args.disks)
+    print("Docker Image Name: %s" % args.imagename)
+    print("Docker Image Tag: %s" % args.imagetag)
 
     # Check if only wants to run the Container Configuration section
     if args.container_config:
@@ -652,7 +660,7 @@ def main():
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
     docker_image_name = "{}:{}".format(args.imagename, args.imagetag)
 
-    ethernet_adapter_name = get_first(args.ethadapter)
+    ethernet_adapter_name = args.ethadapter
     # Get the IP address on Linux
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     ip_address = socket.inet_ntoa(fcntl.ioctl(s.fileno(),
