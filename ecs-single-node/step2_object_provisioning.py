@@ -88,8 +88,7 @@ def getVDCSecretKey(ECSNode):
 def UploadLicense(ECSNode):
     ret = executeRestAPI("/license", 'POST','', '', ECSNode, contentType='xml')
     if ret:
-        print("ERROR: upload license failed with code %d" % ret)
-        sys.exit(1)
+        raise Exception("Upload license failed with code %d" % ret)
 
 def UploadLicenseWithRetry(ECSNode):
     retry(5, 60, UploadLicense, [ECSNode])
@@ -329,7 +328,7 @@ def main(argv):
         sys.exit()
 
     else:
-        UploadLicense(ECSNode)
+        UploadLicenseWithRetry(ECSNode)
         CreateObjectVarrayWithRetry(ECSNode, ObjectVArray)
         print("Virtual Array: %s" %getVarrayID(ECSNode))
         ObjectVArrayID = getVarrayID(ECSNode)
