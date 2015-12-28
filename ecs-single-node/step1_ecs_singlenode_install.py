@@ -523,7 +523,7 @@ def docker_cleanup_old_images():
         logger.info("Clean up Docker containers and images from the Host")
 
         os.system("docker rm -f $(docker ps -a -q) 2>/dev/null")
-        os.system("docker rmi -f $(docker images -q) 2>/dev/null")
+        #os.system("docker rmi -f $(docker images -q) 2>/dev/null")
 
     except Exception as ex:
         logger.exception(ex)
@@ -595,7 +595,7 @@ def main():
         description='EMC\'s Elastic Cloud Storage 2.0 Software Single Node Docker container installation script. ')
     parser.add_argument('--disks', nargs='+', help='The disk(s) name(s) to be prepared. Example: sda sdb sdc',
                         required=True)
-    parser.add_argument('--hostname', nargs='+',
+    parser.add_argument('--hostname',
                         help='Host VM hostname. Example: ECSNode1.mydomain.com',
                         required=True)
     parser.add_argument('--ethadapter', nargs='+', help='The main Ethernet Adapter used by the Host VM to communicate with the internet. Example: eth0.',
