@@ -102,7 +102,7 @@ def docker_cleanup_old_images():
         logger.info("Clean up Docker containers and images from the Host")
 
         os.system("docker rm -f $(docker ps -a -q) 2>/dev/null")
-        os.system("docker rmi -f $(docker images -q) 2>/dev/null")
+        #os.system("docker rmi -f $(docker images -q) 2>/dev/null")
 
     except Exception as ex:
         logger.exception(ex)
@@ -420,6 +420,10 @@ def modify_container_conf_func():
         os.system(
             "docker exec -t  ecsstandalone cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
 
+        logger.info("Backup ssm properties file")
+        os.system(
+            "docker exec -t  ecsstandalone cp /opt/storageos/conf/ssm.object.properties /opt/storageos/conf/ssm.object.properties.old")
+
         logger.info("Copy object properties files to host")
         os.system(
             "docker exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
@@ -432,6 +436,10 @@ def modify_container_conf_func():
         os.system(
             "docker exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
 
+        logger.info("Copy ssm properties files to host")
+        os.system(
+            "docker exec -t ecsstandalone cp /opt/storageos/conf/ssm.object.properties /host/ssm.object.properties1")
+
         logger.info("Modify BlobSvc config for single node")
         os.system(
             "sed s/object.MustHaveEnoughResources=true/object.MustHaveEnoughResources=false/ < /host/cm.object.properties1 > /host/cm.object.properties")
@@ -443,6 +451,11 @@ def modify_container_conf_func():
         logger.info("Modify Portal config for to bypass validation")
         os.system("echo ecs.minimum.node.requirement=1 >> /host/application.conf")
 
+        logger.info("Modify SSM config for small footprint")
+        os.system(
+            "sed --expression='s/object.freeBlocksHighWatermarkLevels=1000,200/object.freeBlocksHighWatermarkLevels=100,50/' --expression='s/object.freeBlocksLowWatermarkLevels=0,100/object.freeBlocksLowWatermarkLevels=0,20/' < /host/ssm.object.properties1 > /host/ssm.object.properties")
+
+
         logger.info("Copy modified files to container")
         os.system(
             "docker exec -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
@@ -452,6 +465,9 @@ def modify_container_conf_func():
 
         os.system(
             "docker exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
+
+        os.system(
+            "docker exec -t  ecsstandalone cp /host/ssm.object.properties /opt/storageos/conf/ssm.object.properties")
 
         logger.info("Flush VNeST data")
         os.system("docker exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
@@ -507,7 +523,7 @@ def docker_cleanup_old_images():
         logger.info("Clean up Docker containers and images from the Host")
 
         os.system("docker rm -f $(docker ps -a -q) 2>/dev/null")
-        os.system("docker rmi -f $(docker images -q) 2>/dev/null")
+        #os.system("docker rmi -f $(docker images -q) 2>/dev/null")
 
     except Exception as ex:
         logger.exception(ex)
@@ -579,10 +595,10 @@ def main():
         description='EMC\'s Elastic Cloud Storage 2.0 Software Single Node Docker container installation script. ')
     parser.add_argument('--disks', nargs='+', help='The disk(s) name(s) to be prepared. Example: sda sdb sdc',
                         required=True)
-    parser.add_argument('--hostname', nargs='+',
+    parser.add_argument('--hostname',
                         help='Host VM hostname. Example: ECSNode1.mydomain.com',
                         required=True)
-    parser.add_argument('--ethadapter', nargs='+', help='The main Ethernet Adapter used by the Host VM to communicate with the internet. Example: eth0.',
+    parser.add_argument('--ethadapter', help='The main Ethernet Adapter used by the Host VM to communicate with the internet. Example: eth0.',
                         required=True)
     parser.add_argument('--onlyContainerConfig', dest='container_config', action='store_true',
                         help='If present, it will only run the container configuration. Example: True/False',
@@ -601,6 +617,14 @@ def main():
     parser.set_defaults(imagename="emccorp/ecs-software-2.1")
     parser.set_defaults(imagetag="latest")
     args = parser.parse_args()
+
+    # Print configuration
+    print("--- Parsed Configuration ---")
+    print("Hostname: %s" % args.hostname)
+    print("Ethadapter: %s" % args.ethadapter)
+    print("Disk[s]: %s" % args.disks)
+    print("Docker Image Name: %s" % args.imagename)
+    print("Docker Image Tag: %s" % args.imagetag)
 
     # Check if only wants to run the Container Configuration section
     if args.container_config:
@@ -636,7 +660,7 @@ def main():
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
     docker_image_name = "{}:{}".format(args.imagename, args.imagetag)
 
-    ethernet_adapter_name = get_first(args.ethadapter)
+    ethernet_adapter_name = args.ethadapter
     # Get the IP address on Linux
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     ip_address = socket.inet_ntoa(fcntl.ioctl(s.fileno(),

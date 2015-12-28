@@ -32,7 +32,6 @@ def executeRestAPI(url, method, filter, data, ECSNode,contentType='json',checkOu
     print ("Executing REST API command: %s " % curlCommand)
 #print jsonResult
     if checkOutput:
-        subprocess.call(curlCommand, shell=True)
         jsonResult = subprocess.check_output(curlCommand, shell=True)
         RestOutputDict = {}
         RestOutputDict = json.loads(jsonResult)
@@ -87,7 +86,9 @@ def getVDCSecretKey(ECSNode):
 
 
 def UploadLicense(ECSNode):
-    executeRestAPI("/license", 'POST','', '', ECSNode, contentType='xml')
+    ret = executeRestAPI("/license", 'POST','', '', ECSNode, contentType='xml')
+    if ret:
+        raise Exception("Upload license failed with code %d" % ret)
 
 def UploadLicenseWithRetry(ECSNode):
     retry(5, 60, UploadLicense, [ECSNode])
@@ -112,7 +113,7 @@ def createDataStoreOnCommodityNodes(ECSNode, dataStoreName, varray):
     \\"nodeId\\":\\"%s\\",\\"name\\":\\"%s\\",\
     \\"virtual_array\\":\\"%s\\",\\"description\\":\\"%s\\"\
     }]}' % (ECSNode, dataStoreName, varray, dataStoreName)
-    return executeRestAPI('/vdc/data-stores/commodity', 'POST','.id', createDataStorePayLoad, ECSNode)
+    return executeRestAPI('/vdc/data-stores/commodity', 'POST','.id', createDataStorePayLoad, ECSNode, checkOutput=1)
 
 
 def CreateDataStoreOnCommodityNodesWithRetry(ECSNode, dataStoreName, varray):
@@ -173,18 +174,19 @@ def InsertVDC(ECSNode, VDCName):
         else:
             break
 
-    #secretKey="secret12345"
     secretKey=getVDCSecretKey(ECSNode)
     InsertVDCPayload ='{\\"vdcName\\":\\"%s\\",\
     \\"interVdcEndPoints\\":\\"%s\\", \
     \\"secretKeys\\":\\"%s\\"\
     }' % (VDCName, ECSNode, secretKey)
-    executeRestAPI('/object/vdcs/vdc/%s' % VDCName, 'PUT','',InsertVDCPayload, ECSNode)
+    ret = executeRestAPI('/object/vdcs/vdc/%s' % VDCName, 'PUT','',InsertVDCPayload, ECSNode)
+    if ret:
+        raise Exception("InsertVDC failed with code %d" % ret)
     return getVDCID(ECSNode,VDCName)
 
 
-def InsertVDCWithRetry(ECSNode, objectVpoolName):
-    retry(30, 60, InsertVDC, [ECSNode, objectVpoolName])
+def InsertVDCWithRetry(ECSNode, VDCName):
+    retry(30, 60, InsertVDC, [ECSNode, VDCName])
 
 
 def CreateObjectVpool(ECSNode, objectVpoolName, VDCName):
@@ -212,8 +214,8 @@ def CreateNamespace(ECSNode, Namespace, objectVpoolName):
     executeRestAPI("/object/namespaces/namespace", 'POST','.id', NamespacePayload, ECSNode, checkOutput=1)
     print("Namespace %s is created" % Namespace)
 
-def CreateNamespaceWithRetry(ECSNode, Namespace):
-    retry(5, 60, CreateNamespace, [ECSNode, Namespace])
+def CreateNamespaceWithRetry(ECSNode, Namespace, defaultObjectVpool):
+    retry(5, 60, CreateNamespace, [ECSNode, Namespace, defaultObjectVpool])
 
 
 def addUser(ECSNode,userName,Namespace):
@@ -221,12 +223,14 @@ def addUser(ECSNode,userName,Namespace):
     createUserPayload ='{\\"user\\":\\"%s\\",\
     \\"namespace\\":\\"%s\\"\
     }' % (userName, Namespace)
-    executeRestAPI("/object/users", 'POST','.id', createUserPayload, ECSNode)
+    executeRestAPI("/object/users", 'POST','.id', createUserPayload, ECSNode, checkOutput=1)
 
+def addUserWithRetry(ECSNode,userName,Namespace):
+    retry(3, 10, addUser, [ECSNode, userName, Namespace])
 
 def addUserSecretKey(ECSNode, username):
     secretKeyPayload='{\\"existing_key_expiry_time_mins\\":20000}'
-    secretKeyDict = executeRestAPI("/object/user-secret-keys/%s" % username, 'POST', '.secret_key', secretKeyPayload, ECSNode)
+    secretKeyDict = executeRestAPI("/object/user-secret-keys/%s" % username, 'POST', '.secret_key', secretKeyPayload, ECSNode, checkOutput=1)
     print("\nAdd secret key for user %s" % username)
 
 def getUserSecretKey(ECSNode, username):
@@ -297,7 +301,7 @@ def main(argv):
         time.sleep(20 * 60)
         sys.exit()
     elif MethodName == "InsertVDC":
-        InsertVDC(ECSNode, VDCName)
+        InsertVDCWithRetry(ECSNode, VDCName)
         print("VDCID: %s" %getVDCID(ECSNode, VDCName))
         sys.exit()
     elif MethodName == "CreateObjectVpool":
@@ -324,7 +328,7 @@ def main(argv):
         sys.exit()
 
     else:
-        UploadLicense(ECSNode)
+        UploadLicenseWithRetry(ECSNode)
         CreateObjectVarrayWithRetry(ECSNode, ObjectVArray)
         print("Virtual Array: %s" %getVarrayID(ECSNode))
         ObjectVArrayID = getVarrayID(ECSNode)
@@ -333,14 +337,14 @@ def main(argv):
                 CreateDataStoreOnCommodityNodesWithRetry(node, DataStoreName, ObjectVArrayID)
 
         RetryDTStatus(ECSNode)
-        InsertVDC(ECSNode, VDCName)
+        InsertVDCWithRetry(ECSNode, VDCName)
         print("VDCID: %s" %getVDCID(ECSNode, VDCName))
         CreateObjectVpoolWithRetry(ECSNode, ObjectVPool, VDCName)
         print("Data service vPool ID:%s" %getVpoolID(ECSNode))
         ObjectVPoolID = getVpoolID(ECSNode)
-        CreateNamespace(ECSNode, Namespace, ObjectVPoolID)
+        CreateNamespaceWithRetry(ECSNode, Namespace, ObjectVPoolID)
         print("Namespace: %s" %getNamespaces(ECSNode))
-        addUser(ECSNode, UserName,  Namespace)
+        addUserWithRetry(ECSNode, UserName,  Namespace)
         addUserSecretKey(ECSNode, UserName)
         getUserSecretKey(ECSNode, UserName)
         sys.exit()
