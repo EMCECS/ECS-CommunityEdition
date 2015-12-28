@@ -102,7 +102,7 @@ def docker_cleanup_old_images():
         logger.info("Clean up Docker containers and images from the Host")
 
         os.system("docker rm -f $(docker ps -a -q) 2>/dev/null")
-        os.system("docker rmi -f $(docker images -q) 2>/dev/null")
+        #os.system("docker rmi -f $(docker images -q) 2>/dev/null")
 
     except Exception as ex:
         logger.exception(ex)
@@ -420,6 +420,10 @@ def modify_container_conf_func():
         os.system(
             "docker exec -t  ecsstandalone cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
 
+        logger.info("Backup ssm properties file")
+        os.system(
+            "docker exec -t  ecsstandalone cp /opt/storageos/conf/ssm.object.properties /opt/storageos/conf/ssm.object.properties.old")
+
         logger.info("Copy object properties files to host")
         os.system(
             "docker exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
@@ -432,6 +436,10 @@ def modify_container_conf_func():
         os.system(
             "docker exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
 
+        logger.info("Copy ssm properties files to host")
+        os.system(
+            "docker exec -t ecsstandalone cp /opt/storageos/conf/ssm.object.properties /host/ssm.object.properties1")
+
         logger.info("Modify BlobSvc config for single node")
         os.system(
             "sed s/object.MustHaveEnoughResources=true/object.MustHaveEnoughResources=false/ < /host/cm.object.properties1 > /host/cm.object.properties")
@@ -443,6 +451,11 @@ def modify_container_conf_func():
         logger.info("Modify Portal config for to bypass validation")
         os.system("echo ecs.minimum.node.requirement=1 >> /host/application.conf")
 
+        logger.info("Modify SSM config for small footprint")
+        os.system(
+            "sed --expression='s/object.freeBlocksHighWatermarkLevels=1000,200/object.freeBlocksHighWatermarkLevels=100,50/' --expression='s/object.freeBlocksLowWatermarkLevels=0,100/object.freeBlocksLowWatermarkLevels=0,20/' < /host/ssm.object.properties1 > /host/ssm.object.properties")
+
+
         logger.info("Copy modified files to container")
         os.system(
             "docker exec -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
@@ -452,6 +465,9 @@ def modify_container_conf_func():
 
         os.system(
             "docker exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
+
+        os.system(
+            "docker exec -t  ecsstandalone cp /host/ssm.object.properties /opt/storageos/conf/ssm.object.properties")
 
         logger.info("Flush VNeST data")
         os.system("docker exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
