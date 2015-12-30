@@ -9,5 +9,5 @@ ExecStart=/usr/bin/docker start -a ecsmultinode
 ExecStop=/usr/bin/docker stop -t 60 ecsmultinode
 
 [Install]
-WantedBy=local.target
+WantedBy=multi-user.target
 
