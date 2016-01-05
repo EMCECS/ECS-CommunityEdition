@@ -378,7 +378,7 @@ def execute_docker_func(docker_image_name):
 
         # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecsstandalone:v2.0 --name=ecsstandalone
         logger.info("Execute the Docker Container.")
-        subprocess.call(["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/disks", "-v", "/host:/host", "-v",
+        subprocess.call(["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/dae", "-v", "/host:/host", "-v",
                          "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
                          "--name=ecsstandalone",
                          "{}".format(docker_image_name)])
