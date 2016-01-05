@@ -260,6 +260,9 @@ def main(argv):
             ObjectVPool = arg
         elif opt in ("-UserName", "--UserName"):
             UserName = arg
+        elif opt not in ("-UserName", "--UserName"):
+            print("Username is a required argument.")
+            sys.exit(2)
         elif opt in ("-DataStoreName", "--DataStoreName"):
             DataStoreName = arg
         elif opt in ("-VDCName", "--VDCName"):
