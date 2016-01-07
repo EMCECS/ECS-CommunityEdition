@@ -85,4 +85,8 @@ Ensure the following ports are open for communication.  Add these ports to the g
 |port.cas=9250|
 |port.hdfs=9208|
 |port.event=9209|
-
+|port.cassvc=3218|
+|port.hdfssvc=9040|
+|port.ecsportal=80|
+|port.ecsportalsvc=443|
+|port.ecsmgmtapi=4443|
