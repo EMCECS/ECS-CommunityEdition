@@ -90,3 +90,8 @@ Ensure the following ports are open for communication.  Add these ports to the g
 |port.ecsportal=80|
 |port.ecsportalsvc=443|
 |port.ecsmgmtapi=4443|
+|port.rmm=5123|
+|port.rmmcmd=7578|
+|port.rmmvcdr=5120|
+|port.activedir=389|
+|port.activedirssl=636|
