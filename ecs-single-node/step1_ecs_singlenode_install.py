@@ -341,6 +341,11 @@ def directory_files_conf_func():
         logger.info("Changing permissions to /data folder.")
         subprocess.call(["chown", "-R", "444", "/data"])
 
+        # Put flag that we're really community edition so SS startup doesn't think this
+        # is developer sanity build.
+        logger.info("Marking node as ECS Community Edition (for bootstrap scripts)")
+        subprocess.call(["touch", "/data/is_community_edition"])
+
     except Exception as ex:
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log")
@@ -378,10 +383,12 @@ def execute_docker_func(docker_image_name):
 
         # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecsstandalone:v2.0 --name=ecsstandalone
         logger.info("Execute the Docker Container.")
-        subprocess.call(["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/dae", "-v", "/host:/host", "-v",
+        args = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/dae", "-v", "/host:/host", "-v",
                          "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
                          "--name=ecsstandalone",
-                         "{}".format(docker_image_name)])
+                         "{}".format(docker_image_name)]
+        logger.info(" ".join(args))
+        subprocess.call(args)
 
         # docker ps
         logger.info("Check the Docker processes.")
