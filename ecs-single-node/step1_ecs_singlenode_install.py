@@ -614,14 +614,14 @@ def main():
                         help='If present, run the Docker container/images Clean up and the /data Folder. Example: True/False',
                         required=False)
     parser.add_argument('--imagename', dest='imagename', nargs='?',
-                        help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-software',
+                        help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-software-2.2',
                         required=False)
     parser.add_argument('--imagetag', dest='imagetag', nargs='?',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
                         required=False)
     parser.set_defaults(container_config=False)
     parser.set_defaults(cleanup=False)
-    parser.set_defaults(imagename="emccorp/ecs-software-2.1")
+    parser.set_defaults(imagename="emccorp/ecs-software-2.2")
     parser.set_defaults(imagetag="latest")
     args = parser.parse_args()
 
