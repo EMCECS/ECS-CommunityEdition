@@ -386,11 +386,12 @@ def execute_docker_func(docker_image_name):
 
         # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecsstandalone:v2.0 --name=ecsstandalone
         logger.info("Execute the Docker Container.")
-        command_line = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/disks", "-v", "/host:/host", "-v",
+        command_line = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/dae", "-v", "/host:/host", "-v",
                          "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
                          "--name=ecsstandalone",
                          "{}".format(docker_image_name)]
         command_line[1:1] = DockerCommandLineFlags
+        logger.info(" ".join(command_line))
         subprocess.call(command_line)
 
         # docker ps
