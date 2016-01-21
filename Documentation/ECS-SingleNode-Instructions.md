@@ -1,4 +1,4 @@
-# ECS SW 2.0 - Single-Node Docker Configuration Instructions
+# ECS SW 2.2 - Single-Node Docker Configuration Instructions
 
 **Table of Contents**
 - [Introduction](#introduction)
@@ -26,9 +26,9 @@ In terms of cloud deployments, there are a range of options here. The most compa
 
 All instances currently require to have the following minimum requirements: 
 
-- **Operating systems:** CentOS 7 (maybe), and  SLES 12
+- **Operating systems:** CentOS 7, and  SLES 12
 - **CPU/Cores:** 4 Cores
-- **Memory:** Minimum of 50 GB RAM (64 GB recommended) 
+- **Memory:** Minimum of 16 GB RAM
 - **Disks:** An unpartitioned/Raw disk with at least 100 GB. 
 
 ### Supported Host Operative Systems and Docker Version
@@ -37,7 +37,7 @@ We have performed testing against the following platform(s):
 
 OS Name | Version | Docker Version |
 |-------|---------|----------------|
-|CentOS	| 7.1	    | 1.4.1          |
+|CentOS	| 7.1	    | (os bundled)          |
 |SLES   | 12      | 1.5.0-20.1     |
 
 
