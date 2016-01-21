@@ -328,6 +328,23 @@ def run_additional_prep_file_func(disks):
         sys.exit()
 
 
+def precheck():
+    """
+    Checks for common errors like the /data directory not being empty before install.
+    """
+    logger.info("PRECHECK: Check that /data directory is clean")
+    data_dir = "/data"
+    if os.path.exists(data_dir):
+        if not os.path.isdir(data_dir):
+            logger.fatal("The path %s is a file.  Please delete it.  It is used as a directory to store "
+                         "configuration information for ECS." % data_dir)
+            sys.exit(1)
+        if len(os.listdir(data_dir)) > 0:
+            logger.fatal("The directory %s is not empty.  Please remove or empty it before installing ECS.  It is "
+                         "used as a directory to store local configuration information for ECS" % data_dir)
+            sys.exit(1)
+
+
 def directory_files_conf_func():
     """
     Configure and create required directories and copy files into them.
@@ -573,7 +590,7 @@ def main():
 
 
 
-      # Check if only wants to run the Container Configuration section
+    # Check if only wants to run the Container Configuration section
     if args.cleanup:
         logger.info("Starting CleanUp: Removing Previous Docker containers and images. Deletes the created Directories.")
         docker_cleanup_old_images()
@@ -616,6 +633,7 @@ def main():
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container: {}".format(docker_image_name))
     
     # yum_update_func()
+    precheck()
     update_selinux_os_configuration()
     package_install_func()
     prep_file_func()
