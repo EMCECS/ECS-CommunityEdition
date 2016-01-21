@@ -275,7 +275,7 @@ def main(argv):
     global AuthToken
     AuthToken=getAuthToken(ECSNode, "root", "ChangeMe")
     
-    print("ECSNodes: %s" %ECSNode)
+    print("ECSNodes: %s" %ECSNodes)
     print("ObjectVArray: %s" %ObjectVArray)
     print("DataStoreName: %s" %DataStoreName)
     if not SkipVdcProvision:
