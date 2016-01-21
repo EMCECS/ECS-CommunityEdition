@@ -22,6 +22,7 @@ import struct
 logging.config.dictConfig(settings.ECS_SINGLENODE_LOGGING)
 logger = logging.getLogger("root")
 
+DockerCommandLineFlags=[]
 
 def yum_func():
     """
@@ -101,7 +102,7 @@ def docker_cleanup_old_images():
 
         logger.info("Clean up Docker containers and images from the Host")
 
-        os.system("docker rm -f $(docker ps -a -q) 2>/dev/null")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+"  rm -f $(docker "+' '.join(DockerCommandLineFlags)+" ps -a -q) 2>/dev/null")
         #os.system("docker rmi -f $(docker images -q) 2>/dev/null")
 
     except Exception as ex:
@@ -120,7 +121,9 @@ def docker_pull_func(docker_image_name):
         docker_arg = "pull"
         docker_file = docker_image_name
         logger.info("Executing a Docker Pull for image {}".format(docker_file))
-        subprocess.call([docker, docker_arg, docker_file])
+        command_line = [docker, docker_arg, docker_file]
+        command_line[1:1] = DockerCommandLineFlags
+        subprocess.call(command_line)
 
     except Exception as ex:
         logger.exception(ex)
@@ -383,16 +386,18 @@ def execute_docker_func(docker_image_name):
 
         # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecsstandalone:v2.0 --name=ecsstandalone
         logger.info("Execute the Docker Container.")
-        args = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/dae", "-v", "/host:/host", "-v",
+        command_line = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/disks", "-v", "/host:/host", "-v",
                          "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
                          "--name=ecsstandalone",
                          "{}".format(docker_image_name)]
-        logger.info(" ".join(args))
-        subprocess.call(args)
+        command_line[1:1] = DockerCommandLineFlags
+        subprocess.call(command_line)
 
         # docker ps
         logger.info("Check the Docker processes.")
-        subprocess.call(["docker", "ps"])
+        command_line = ["docker", "ps"]
+        command_line[1:1] = DockerCommandLineFlags
+        subprocess.call(command_line)
 
     except Exception as ex:
         logger.exception(ex)
@@ -417,35 +422,35 @@ def modify_container_conf_func():
     try:
         logger.info("Backup object properties files")
         os.system(
-            "docker exec -t  ecsstandalone cp /opt/storageos/conf/cm.object.properties /opt/storageos/conf/cm.object.properties.old")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /opt/storageos/conf/cm.object.properties /opt/storageos/conf/cm.object.properties.old")
 
         logger.info("Backup application config file")
         os.system(
-            "docker exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /opt/storageos/ecsportal/conf/application.conf.old")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /opt/storageos/ecsportal/conf/application.conf.old")
 
         logger.info("Backup common-object properties file")
         os.system(
-            "docker exec -t  ecsstandalone cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
 
         logger.info("Backup ssm properties file")
         os.system(
-            "docker exec -t  ecsstandalone cp /opt/storageos/conf/ssm.object.properties /opt/storageos/conf/ssm.object.properties.old")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /opt/storageos/conf/ssm.object.properties /opt/storageos/conf/ssm.object.properties.old")
 
         logger.info("Copy object properties files to host")
         os.system(
-            "docker exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
 
         logger.info("Copy application config file to host")
         os.system(
-            "docker exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /host/application.conf")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /host/application.conf")
 
         logger.info("Copy common-object properties files to host")
         os.system(
-            "docker exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
 
         logger.info("Copy ssm properties files to host")
         os.system(
-            "docker exec -t ecsstandalone cp /opt/storageos/conf/ssm.object.properties /host/ssm.object.properties1")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone cp /opt/storageos/conf/ssm.object.properties /host/ssm.object.properties1")
 
         logger.info("Modify BlobSvc config for single node")
         os.system(
@@ -465,25 +470,25 @@ def modify_container_conf_func():
 
         logger.info("Copy modified files to container")
         os.system(
-            "docker exec -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
 
         os.system(
-            "docker exec -t  ecsstandalone cp /host/application.conf /opt/storageos/ecsportal/conf/application.conf")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/application.conf /opt/storageos/ecsportal/conf/application.conf")
 
         os.system(
-            "docker exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
 
         os.system(
-            "docker exec -t  ecsstandalone cp /host/ssm.object.properties /opt/storageos/conf/ssm.object.properties")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/ssm.object.properties /opt/storageos/conf/ssm.object.properties")
 
         logger.info("Flush VNeST data")
-        os.system("docker exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
 
         logger.info("Stop container")
-        os.system("docker stop ecsstandalone")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" stop ecsstandalone")
 
         logger.info("Start container")
-        os.system("docker start ecsstandalone")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" start ecsstandalone")
 
         logger.info("Clean up local files")
         os.system("rm -rf /host/cm.object.properties*")
@@ -529,7 +534,7 @@ def docker_cleanup_old_images():
 
         logger.info("Clean up Docker containers and images from the Host")
 
-        os.system("docker rm -f $(docker ps -a -q) 2>/dev/null")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" rm -f $(docker ps -a -q) 2>/dev/null")
         #os.system("docker rmi -f $(docker images -q) 2>/dev/null")
 
     except Exception as ex:
@@ -546,7 +551,7 @@ def cleanup_installation(disks):
     try:
 
         logger.info("CleanUp Installation. Un-mount Drive and Delete Directories and Files from the Host")
-        
+
         for index, disk in enumerate(disks):
             disk_path = "/dev/{}".format(disk)
 
@@ -560,11 +565,11 @@ def cleanup_installation(disks):
             # rm -rf /ecs/uuid-1
             logger.info("Remove /ecs/{} Directory in attached Volume".format(uuid_name))
             subprocess.call(["rm", "-rf", "/ecs/{}".format(uuid_name)])
-            
+
             # dd if=/dev/zero of=/dev/sdc bs=512 count=1 conv=notrunc
             logger.info("Destroying partition table for {}".format(disk_path))
             subprocess.call(["dd", "if=/dev/zero", "of={}".format(disk_path), "bs=512", "count=1", "conv=notrunc"])
-                        
+
         # sudo rm -rf /data/*
         logger.info("Remove /data Directory")
         subprocess.call(["rm", "-rf", "/data"])
