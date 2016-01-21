@@ -566,12 +566,12 @@ def cleanup_installation(disks):
             subprocess.call(["dd", "if=/dev/zero", "of={}".format(disk_path), "bs=512", "count=1", "conv=notrunc"])
                         
         # sudo rm -rf /data/*
-        logger.info("Remove /data/* Directory in attached Volume")
-        subprocess.call(["rm", "-rf", "/data/*"])
+        logger.info("Remove /data Directory")
+        subprocess.call(["rm", "-rf", "/data"])
 
         # sudo rm -rf /var/log/vipr/emcvipr-object/*
-        logger.info("Remove /var/log/vipr/emcvipr-object/* Directory ")
-        subprocess.call(["rm", "-rf", "/var/log/vipr/emcvipr-object/*"])
+        logger.info("Remove /var/log/vipr/emcvipr-object Directory ")
+        subprocess.call(["rm", "-rf", "/var/log/vipr/emcvipr-object"])
 
 
     except Exception as ex:
