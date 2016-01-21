@@ -103,7 +103,7 @@ def docker_cleanup_old_images():
         logger.info("Clean up Docker containers and images from the Host")
 
         os.system("docker rm -f $(docker ps -a -q) 2>/dev/null")
-        os.system("docker rmi -f $(docker images -q) 2>/dev/null")
+        # os.system("docker rmi -f $(docker images -q) 2>/dev/null")
 
     except Exception as ex:
         logger.exception(ex)
@@ -328,6 +328,23 @@ def run_additional_prep_file_func(disks):
         sys.exit()
 
 
+def precheck():
+    """
+    Checks for common errors like the /data directory not being empty before install.
+    """
+    logger.info("PRECHECK: Check that /data directory is clean")
+    data_dir = "/data"
+    if os.path.exists(data_dir):
+        if not os.path.isdir(data_dir):
+            logger.fatal("The path %s is a file.  Please delete it.  It is used as a directory to store "
+                         "configuration information for ECS." % data_dir)
+            sys.exit(1)
+        if len(os.listdir(data_dir)) > 0:
+            logger.fatal("The directory %s is not empty.  Please remove or empty it before installing ECS.  It is "
+                         "used as a directory to store local configuration information for ECS" % data_dir)
+            sys.exit(1)
+
+
 def directory_files_conf_func():
     """
     Configure and create required directories and copy files into them.
@@ -373,6 +390,11 @@ def directory_files_conf_func():
         logger.info("Changing permissions to /data folder.")
         subprocess.call(["chown", "-R", "444", "/data"])
 
+        # Put flag that we're really community edition so SS startup doesn't think this
+        # is developer sanity build.
+        logger.info("Marking node as ECS Community Edition (for bootstrap scripts)")
+        subprocess.call(["touch", "/data/is_community_edition"])
+
     except Exception as ex:
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log")
@@ -408,12 +430,14 @@ def execute_docker_func(docker_image_name):
     """
     try:
 
-        # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecs-software --name=ecsmultinode
+        # docker run -d -e SS_GENCONFIG=1 -v /ecs:/dae -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccorp/ecs-software --name=ecsmultinode
         logger.info("Execute the Docker Container.")
-        subprocess.call(["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/disks", "-v", "/host:/host", "-v",
+        args = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/dae", "-v", "/host:/host", "-v",
                          "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
                          "--name=ecsmultinode",
-                         "{}".format(docker_image_name)])
+                         "{}".format(docker_image_name)]
+        logger.info(" ".join(args))
+        subprocess.call(args)
 
         # docker ps
         logger.info("Check the Docker processes.")
@@ -554,19 +578,19 @@ def main():
                         help='If present, run the Docker container/images Clean up and the /data Folder. Example: True/False',
                         required=False)
     parser.add_argument('--imagename', dest='imagename', nargs='?',
-                        help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-software',
+                        help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-software-2.2',
                         required=False)
     parser.add_argument('--imagetag', dest='imagetag', nargs='?',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
                         required=False)
     parser.set_defaults(cleanup=False)
-    parser.set_defaults(imagename="emccorp/ecs-software-2.1")
+    parser.set_defaults(imagename="emccorp/ecs-software-2.2")
     parser.set_defaults(imagetag="latest")
     args = parser.parse_args()
 
 
 
-      # Check if only wants to run the Container Configuration section
+    # Check if only wants to run the Container Configuration section
     if args.cleanup:
         logger.info("Starting CleanUp: Removing Previous Docker containers and images. Deletes the created Directories.")
         docker_cleanup_old_images()
@@ -609,6 +633,7 @@ def main():
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container: {}".format(docker_image_name))
     
     # yum_update_func()
+    precheck()
     update_selinux_os_configuration()
     package_install_func()
     prep_file_func()

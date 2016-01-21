@@ -341,6 +341,11 @@ def directory_files_conf_func():
         logger.info("Changing permissions to /data folder.")
         subprocess.call(["chown", "-R", "444", "/data"])
 
+        # Put flag that we're really community edition so SS startup doesn't think this
+        # is developer sanity build.
+        logger.info("Marking node as ECS Community Edition (for bootstrap scripts)")
+        subprocess.call(["touch", "/data/is_community_edition"])
+
     except Exception as ex:
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log")
@@ -378,10 +383,12 @@ def execute_docker_func(docker_image_name):
 
         # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecsstandalone:v2.0 --name=ecsstandalone
         logger.info("Execute the Docker Container.")
-        subprocess.call(["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/disks", "-v", "/host:/host", "-v",
+        args = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/dae", "-v", "/host:/host", "-v",
                          "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
                          "--name=ecsstandalone",
-                         "{}".format(docker_image_name)])
+                         "{}".format(docker_image_name)]
+        logger.info(" ".join(args))
+        subprocess.call(args)
 
         # docker ps
         logger.info("Check the Docker processes.")
@@ -559,12 +566,12 @@ def cleanup_installation(disks):
             subprocess.call(["dd", "if=/dev/zero", "of={}".format(disk_path), "bs=512", "count=1", "conv=notrunc"])
                         
         # sudo rm -rf /data/*
-        logger.info("Remove /data/* Directory in attached Volume")
-        subprocess.call(["rm", "-rf", "/data/*"])
+        logger.info("Remove /data Directory")
+        subprocess.call(["rm", "-rf", "/data"])
 
         # sudo rm -rf /var/log/vipr/emcvipr-object/*
-        logger.info("Remove /var/log/vipr/emcvipr-object/* Directory ")
-        subprocess.call(["rm", "-rf", "/var/log/vipr/emcvipr-object/*"])
+        logger.info("Remove /var/log/vipr/emcvipr-object Directory ")
+        subprocess.call(["rm", "-rf", "/var/log/vipr/emcvipr-object"])
 
 
     except Exception as ex:
@@ -607,14 +614,14 @@ def main():
                         help='If present, run the Docker container/images Clean up and the /data Folder. Example: True/False',
                         required=False)
     parser.add_argument('--imagename', dest='imagename', nargs='?',
-                        help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-software',
+                        help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-software-2.2',
                         required=False)
     parser.add_argument('--imagetag', dest='imagetag', nargs='?',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
                         required=False)
     parser.set_defaults(container_config=False)
     parser.set_defaults(cleanup=False)
-    parser.set_defaults(imagename="emccorp/ecs-software-2.1")
+    parser.set_defaults(imagename="emccorp/ecs-software-2.2")
     parser.set_defaults(imagetag="latest")
     args = parser.parse_args()
 

@@ -97,8 +97,9 @@ def CreateObjectVArray(ECSNode, objectVArrayName):
     print("\nCreate Object Varray %s" % objectVArrayName)
     objectVArrayPayload ='{\\"name\\":\\"%s\\",\
     \\"description\\":\\"%s\\",\
-    \\"isProtected\\":\\"%s\\"\
-    }' % (objectVArrayName, objectVArrayName, "false")
+    \\"isProtected\\":\\"%s\\",\
+    \\"isColdStorageEnabled\\":\\"%s\\"\
+    }' % (objectVArrayName, objectVArrayName, "false", "false")
     executeRestAPI("/vdc/data-services/varrays", 'POST','.id', objectVArrayPayload, ECSNode, checkOutput=1)
     print("Object Varray %s is created" % objectVArrayName)
 
@@ -274,7 +275,7 @@ def main(argv):
     global AuthToken
     AuthToken=getAuthToken(ECSNode, "root", "ChangeMe")
     
-    print("ECSNodes: %s" %ECSNode)
+    print("ECSNodes: %s" %ECSNodes)
     print("ObjectVArray: %s" %ObjectVArray)
     print("DataStoreName: %s" %DataStoreName)
     if not SkipVdcProvision:
