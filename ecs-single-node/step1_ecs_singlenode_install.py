@@ -604,8 +604,7 @@ def main():
 
 
     # Check if hotname is valid
-    pattern = re.compile("^[a-z0-9]+")
-    if not pattern.match(args.hostname):
+    if not re.match("^[a-z0-9]+", "{}".format(args.hostname[0])):
         logger.info("Hostname must consist of alphanumeric (lowercase) characters.")
         sys.exit(2)
 

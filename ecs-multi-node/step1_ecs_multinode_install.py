@@ -538,15 +538,13 @@ def main():
     parser.set_defaults(imagetag="latest")
     args = parser.parse_args()
 
-
-
     # Check if hotname is valid
-    pattern = re.compile("^[a-z0-9]+")
-    if not pattern.match(args.hostname):
-        logger.info("Hostname must consist of alphanumeric (lowercase) characters.")
-        sys.exit(2)
+    for hostname in args.hostnames: 
+        if not re.match("^[a-z0-9]+", hostname):
+            logger.info("Hostname must consist of alphanumeric (lowercase) characters.")
+            sys.exit(2)
 
-      # Check if only wants to run the Container Configuration section
+    # Check if only wants to run the Container Configuration section
     if args.cleanup:
         logger.info("Starting CleanUp: Removing Previous Docker containers and images. Deletes the created Directories.")
         docker_cleanup_old_images()
