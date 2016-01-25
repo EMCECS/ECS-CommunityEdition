@@ -151,6 +151,7 @@ Both methods provide the same results, one of them walks you through the ECS's a
 |NameSpace | The objects' Namespace | ns1 |
 |ObjectVArray | The objects' Virtual Array | ova1 |
 |ObjectVPool | The objects' Virtual Pool | ov1 |
+|UserName | The name of the initial Object User | user1 |
 |DataStoreName | The name of the Data Store.| ds1 |
 |VDCName | The name of the Virtual Data Center.| vdc1 |
 |MethodName | The name of step to be executed. Leave blank for automated and add a value for a manual installation| [empty] |
