@@ -38,6 +38,10 @@ If you want to see if system is making progress:
 `curl -X GET "http://<YourIPAddress>:9101/stats/dt/DTInitStat”`
 
 
+### For those operating behind EMC firewall
+
+To install ECS Community Edition under these conditions, please view the readme file under **/emc-ssl-cert** for further instructions in installing the necessary CA certificate.
+
 ### List of Open ports required on each ECS data node
 
 Ensure the following ports are open for communication.  Add these ports to the guide saying if a single node is used:
@@ -45,22 +49,22 @@ Ensure the following ports are open for communication.  Add these ports to the g
 
 |Port Name-Usage=Port Number|
 |---------------------------|
-|port.blob=1098|
-|port.objhead=1298|
-|port.provision=1198|
-|port.resource=9888|
-|port.cm=9091|
+|port.ecsportal=80|
+|port.activedir=389|
+|port.ecsportalsvc=443|
+|port.activedirssl=636|
 |port.ssm=1095|
 |port.rm=1096|
-|port.ss=9099|
-|port.netserver=9069|
-|port.georeplayer=9111|
-|port.geo=9098|
-|port.geodata=9096|
-|port.geocmd=9094|
-|port.dtquery=9100|
-|port.dtqueryrecv=9101|
-|port.tcpIpcServer=9898|
+|port.blob=1098|
+|port.provision=1198|
+|port.objhead=1298|
+|port.cassvc=3218|
+|port.ecsmgmtapi=4443|
+|port.rmmvdcr=5120|
+|port.rmm=5123|
+|port.rmmcmd=7578|
+|port.objcontrolUnsecure=9010|
+|port.objcontrolSecure=9011|
 |port.s3MinUnsecure=9020|
 |port.s3MinSecure=9021|
 |port.atmosMinUnsecure=9022|
@@ -69,29 +73,26 @@ Ensure the following ports are open for communication.  Add these ports to the g
 |port.swiftMinSecure=9025|
 |port.apiServerMinUnsecure=9028|
 |port.apiServerMinSecure=9029|
-|port.geoDataMinUnsecure=9096|
-|port.geoDataMinSecure=9097|
+|port.hdfssvc=9040|
+|port.netserver=9069|
+|port.cm=9091|
 |port.geoCmdMinUnsecure=9094|
 |port.geoCmdMinSecure=9095|
+|port.geoDataMinUnsecure=9096|
+|port.geoDataMinSecure=9097|
+|port.geo=9098|
+|port.ss=9099|
+|port.dtquery=9100|
+|port.dtqueryrecv=9101|
+|port.georeplayer=9111|
 |port.stat=9201|
-|port.metering=9203|
 |port.statWebServer=9202|
 |port.vnest=9203|
 |port.vnesthb=9204|
 |port.vnestMinUnsecure=9205|
 |port.vnestMinSecure=9206|
-|port.objcontrolSecure=9011|
-|port.objcontrolUnsecure=9010|
-|port.cas=9250|
 |port.hdfs=9208|
 |port.event=9209|
-|port.cassvc=3218|
-|port.hdfssvc=9040|
-|port.ecsportal=80|
-|port.ecsportalsvc=443|
-|port.ecsmgmtapi=4443|
-|port.rmm=5123|
-|port.rmmcmd=7578|
-|port.rmmvcdr=5120|
-|port.activedir=389|
-|port.activedirssl=636|
+|port.cas=9250|
+|port.resource=9888|
+|port.tcpIpcServer=9898|
