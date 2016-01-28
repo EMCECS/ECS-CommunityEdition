@@ -1,4 +1,4 @@
-# ECS Software 2.0 - Troubleshooting Tips
+# ECS Software 2.2 - Troubleshooting Tips
 
 
 ## Troubleshooting Tips

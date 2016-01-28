@@ -1,4 +1,4 @@
-# ECS SW 2.0 Single Node Vagrant Deployment
+# ECS SW 2.2 Single Node Vagrant Deployment
 
 **Table of Contents**
 
@@ -10,7 +10,7 @@
 
 ## Introduction
 
-EMC's Elastic Cloud Storage (ECS) 2.0 Software Docker **single node** deployment is intended to be used by developers and has a range of deployment options for them. The most universal methods for deploying ECS software is through Docker applied across whichever means at your disposal (IaaS/PaaS/Hypervisor). In addition to this, you can leverage Vagrant for local VirtualBox instances.
+EMC's Elastic Cloud Storage (ECS) 2.2 Software Docker **single node** deployment is intended to be used by developers and has a range of deployment options for them. The most universal methods for deploying ECS software is through Docker applied across whichever means at your disposal (IaaS/PaaS/Hypervisor). In addition to this, you can leverage Vagrant for local VirtualBox instances.
 
 
 ## Requirements
@@ -30,7 +30,7 @@ Local machine:
 
 ## CentOS Installation
 
-[CentOS](http://www.centos.org/) is a well known Linux distribution that has the ability to deploy containers with Docker. Common public cloud platforms have CentOS templates ready to be used, so getting ECS 2.0 Software on a Docker container up is extremely easy!
+[CentOS](http://www.centos.org/) is a well known Linux distribution that has the ability to deploy containers with Docker. Common public cloud platforms have CentOS templates ready to be used, so getting ECS 2.2 Software on a Docker container up is extremely easy!
 
 These are the installation steps to perform a CentOS installation: 
 
