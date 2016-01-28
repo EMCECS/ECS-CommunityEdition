@@ -1,6 +1,6 @@
-# ECS SW 2.2 Multiple Nodes Deployments
+# ECS SW 2.x Multiple Nodes Deployments
 
-Welcome to the Multiple Nodes installation for ECS Software 2.2. We have provided the following deployment options: 
+Welcome to the Multiple Nodes installation for ECS Software 2.x. We have provided the following deployment options: 
 
 
 - **[ECS Multiple Nodes Docker Deployment](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-MultiNode-Instructions.md "ECS Multiple Node Docker Deployment Information")**
