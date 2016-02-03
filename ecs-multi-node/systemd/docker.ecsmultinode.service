@@ -1,0 +1,13 @@
+[Unit]
+Description=ECS Multinode Container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start -a ecsmultinode
+ExecStop=/usr/bin/docker stop -t 60 ecsmultinode
+
+[Install]
+WantedBy=multi-user.target
+

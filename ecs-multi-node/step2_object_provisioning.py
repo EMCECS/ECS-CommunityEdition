@@ -32,14 +32,13 @@ def executeRestAPI(url, method, filter, data, ECSNode,contentType='json',checkOu
     print ("Executing REST API command: %s " % curlCommand)
 #print jsonResult
     if checkOutput:
-        subprocess.call(curlCommand, shell=True)
         jsonResult = subprocess.check_output(curlCommand, shell=True)
         RestOutputDict = {}
         RestOutputDict = json.loads(jsonResult)
         return RestOutputDict
         assert "code" not in jsonResult, "%s %s failed" % (method, url)
     else:
-        res=subprocess.call(curlCommand, shell=True)
+        res=subprocess.check_output(curlCommand, shell=True)
         print res
 
 
@@ -98,8 +97,9 @@ def CreateObjectVArray(ECSNode, objectVArrayName):
     print("\nCreate Object Varray %s" % objectVArrayName)
     objectVArrayPayload ='{\\"name\\":\\"%s\\",\
     \\"description\\":\\"%s\\",\
-    \\"isProtected\\":\\"%s\\"\
-    }' % (objectVArrayName, objectVArrayName, "false")
+    \\"isProtected\\":\\"%s\\",\
+    \\"isColdStorageEnabled\\":\\"%s\\"\
+    }' % (objectVArrayName, objectVArrayName, "false", "false")
     executeRestAPI("/vdc/data-services/varrays", 'POST','.id', objectVArrayPayload, ECSNode, checkOutput=1)
     print("Object Varray %s is created" % objectVArrayName)
 
@@ -239,16 +239,17 @@ def getUserSecretKey(ECSNode, username):
 
 def main(argv):
     try:
-        opts, argv = getopt.getopt(argv, '', ["ECSNodes=","Namespace=","ObjectVArray=","ObjectVPool=","UserName=","DataStoreName=","VDCName=","MethodName="])
+        opts, argv = getopt.getopt(argv, '', ["ECSNodes=","Namespace=","ObjectVArray=","ObjectVPool=","UserName=","DataStoreName=","VDCName=","MethodName=","SkipVdcProvision"])
     except getopt.GetoptError, e:
         print e
-        print 'ObjectProvisioning.py --ECSNodes=<Coma separated list of datanodes> --Namespace=<namespace> --ObjectVArray=<Object vArray Name> --ObjectVPool=<Object VPool name> --UserName=<user name to be created> --DataStoreName=<Name of the datastore to be created> --VDCName=<Name of the VDC> --MethodName=<Operation to be performed>\n  --MethodName is required only when you need to run a particular step in Object Provisioning.If this option is not provided all the Object Provisioning steps will be run.\n Supported options for --MethodName are:\n UploadLicense \n CreateObjectVarray \n GetVarrayID \n CreateDataStore \n InsertVDC \n CreateObjectVpool \n CreateNamespace \n CreateUserAndSecretKey \n'
+        print 'ObjectProvisioning.py --ECSNodes=<Coma separated list of datanodes> --Namespace=<namespace> --ObjectVArray=<Object vArray Name> --ObjectVPool=<Object VPool name> --UserName=<user name to be created> --DataStoreName=<Name of the datastore to be created> --VDCName=<Name of the VDC> --MethodName=<Operation to be performed> [--SkipVdcProvision]\n  --MethodName is required only when you need to run a particular step in Object Provisioning.If this option is not provided all the Object Provisioning steps will be run.\n Supported options for --MethodName are:\n UploadLicense \n CreateObjectVarray \n GetVarrayID \n CreateDataStore \n InsertVDC \n CreateObjectVpool \n CreateNamespace \n CreateUserAndSecretKey \nUse --SkipVdcProvision for non-primary VDCs\n'
         sys.exit(2)
     ECSNodes=""
     MethodName=""
+    SkipVdcProvision = False
     for opt, arg in opts:
         if opt == '-h':
-            print 'ObjectProvisioning.py --ECSNodes=<Coma separated list of datanodes> --Namespace=<namespace> --ObjectVArray=<Object vArray Name> --ObjectVPool=<Object VPool name> --UserName=<user name to be created> --DataStoreName=<Name of the datastore to be created> --VDCName=<Name of the VDC> --MethodName=<Operation to be performed>\n  --MethodName is required only when you need to run a particular step in Object Provisioning.If this option is not provided all the Object Provisioning steps will be run.\n Supported options for --MethodName are:\n UploadLicense \n CreateObjectVarray \n GetVarrayID \n CreateDataStore \n InsertVDC \n CreateObjectVpool \n CreateNamespace \n CreateUserAndSecretKey \n'
+            print 'ObjectProvisioning.py --ECSNodes=<Coma separated list of datanodes> --Namespace=<namespace> --ObjectVArray=<Object vArray Name> --ObjectVPool=<Object VPool name> --UserName=<user name to be created> --DataStoreName=<Name of the datastore to be created> --VDCName=<Name of the VDC> --MethodName=<Operation to be performed> [--SkipVdcProvision]\n  --MethodName is required only when you need to run a particular step in Object Provisioning.If this option is not provided all the Object Provisioning steps will be run.\n Supported options for --MethodName are:\n UploadLicense \n CreateObjectVarray \n GetVarrayID \n CreateDataStore \n InsertVDC \n CreateObjectVpool \n CreateNamespace \n CreateUserAndSecretKey \nUse --SkipVdcProvision for non-primary VDCs\n'
             sys.exit()
         elif opt in ("-ECSNodes", "--ECSNodes"):
             ECSNodes = arg
@@ -268,17 +269,20 @@ def main(argv):
             VDCName = arg
         elif opt in ("-MethodName", "--MethodName"):
             MethodName = arg
+        elif opt in ("-SkipVdcProvision", "--SkipVdcProvision"):
+            SkipVdcProvision = True
 
     global AuthToken
     AuthToken=getAuthToken(ECSNode, "root", "ChangeMe")
     
-    print("ECSNodes: %s" %ECSNode)
-    print("Namespace: %s" %Namespace)
+    print("ECSNodes: %s" %ECSNodes)
     print("ObjectVArray: %s" %ObjectVArray)
-    print("ObjectVPool: %s" %ObjectVPool)
-    print("UserName: %s" %UserName)
     print("DataStoreName: %s" %DataStoreName)
-    print("VDCName: %s" %VDCName)
+    if not SkipVdcProvision:
+        print("ObjectVPool: %s" %ObjectVPool)
+        print("Namespace: %s" %Namespace)
+        print("UserName: %s" %UserName)
+        print("VDCName: %s" %VDCName)
     print("MethodName: %s" %MethodName)
     
     
@@ -299,7 +303,7 @@ def main(argv):
         time.sleep(20 * 60)
         sys.exit()
     elif MethodName == "InsertVDC":
-        InsertVDC(ECSNode, VDCName)
+        InsertVDCWithRetry(ECSNode, VDCName)
         print("VDCID: %s" %getVDCID(ECSNode, VDCName))
         sys.exit()
     elif MethodName == "CreateObjectVpool":
@@ -335,16 +339,20 @@ def main(argv):
                 CreateDataStoreOnCommodityNodesWithRetry(node, DataStoreName, ObjectVArrayID)
         
         RetryDTStatus(ECSNode)
-        InsertVDC(ECSNode, VDCName)
-        print("VDCID: %s" %getVDCID(ECSNode, VDCName))
-        CreateObjectVpoolWithRetry(ECSNode, ObjectVPool, VDCName)
-        print("Data service vPool ID:%s" %getVpoolID(ECSNode))
-        ObjectVPoolID = getVpoolID(ECSNode)
-        CreateNamespace(ECSNode, Namespace, ObjectVPoolID)
-        print("Namespace: %s" %getNamespaces(ECSNode))
-        addUser(ECSNode, UserName,  Namespace)
-        addUserSecretKey(ECSNode, UserName)
-        getUserSecretKey(ECSNode, UserName)
+
+        if not SkipVdcProvision:
+            InsertVDC(ECSNode, VDCName)
+            RetryDTStatus(ECSNode)
+            print("VDCID: %s" %getVDCID(ECSNode, VDCName))
+            CreateObjectVpoolWithRetry(ECSNode, ObjectVPool, VDCName)
+            print("Data service vPool ID:%s" %getVpoolID(ECSNode))
+            ObjectVPoolID = getVpoolID(ECSNode)
+            CreateNamespace(ECSNode, Namespace, ObjectVPoolID)
+            print("Namespace: %s" %getNamespaces(ECSNode))
+            addUser(ECSNode, UserName,  Namespace)
+            addUserSecretKey(ECSNode, UserName)
+            getUserSecretKey(ECSNode, UserName)
+
         sys.exit()
 
 

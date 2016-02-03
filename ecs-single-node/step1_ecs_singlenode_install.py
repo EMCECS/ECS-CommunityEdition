@@ -22,6 +22,7 @@ import struct
 logging.config.dictConfig(settings.ECS_SINGLENODE_LOGGING)
 logger = logging.getLogger("root")
 
+DockerCommandLineFlags=[]
 
 def yum_func():
     """
@@ -101,8 +102,8 @@ def docker_cleanup_old_images():
 
         logger.info("Clean up Docker containers and images from the Host")
 
-        os.system("docker rm -f $(docker ps -a -q) 2>/dev/null")
-        os.system("docker rmi -f $(docker images -q) 2>/dev/null")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+"  rm -f $(docker "+' '.join(DockerCommandLineFlags)+" ps -a -q) 2>/dev/null")
+        #os.system("docker rmi -f $(docker images -q) 2>/dev/null")
 
     except Exception as ex:
         logger.exception(ex)
@@ -120,7 +121,9 @@ def docker_pull_func(docker_image_name):
         docker_arg = "pull"
         docker_file = docker_image_name
         logger.info("Executing a Docker Pull for image {}".format(docker_file))
-        subprocess.call([docker, docker_arg, docker_file])
+        command_line = [docker, docker_arg, docker_file]
+        command_line[1:1] = DockerCommandLineFlags
+        subprocess.call(command_line)
 
     except Exception as ex:
         logger.exception(ex)
@@ -341,6 +344,11 @@ def directory_files_conf_func():
         logger.info("Changing permissions to /data folder.")
         subprocess.call(["chown", "-R", "444", "/data"])
 
+        # Put flag that we're really community edition so SS startup doesn't think this
+        # is developer sanity build.
+        logger.info("Marking node as ECS Community Edition (for bootstrap scripts)")
+        subprocess.call(["touch", "/data/is_community_edition"])
+
     except Exception as ex:
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log")
@@ -378,14 +386,19 @@ def execute_docker_func(docker_image_name):
 
         # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecsstandalone:v2.0 --name=ecsstandalone
         logger.info("Execute the Docker Container.")
-        subprocess.call(["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/disks", "-v", "/host:/host", "-v",
+        command_line = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/dae", "-v", "/host:/host", "-v",
                          "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
                          "--name=ecsstandalone",
-                         "{}".format(docker_image_name)])
+                         "{}".format(docker_image_name)]
+        command_line[1:1] = DockerCommandLineFlags
+        logger.info(" ".join(command_line))
+        subprocess.call(command_line)
 
         # docker ps
         logger.info("Check the Docker processes.")
-        subprocess.call(["docker", "ps"])
+        command_line = ["docker", "ps"]
+        command_line[1:1] = DockerCommandLineFlags
+        subprocess.call(command_line)
 
     except Exception as ex:
         logger.exception(ex)
@@ -410,27 +423,35 @@ def modify_container_conf_func():
     try:
         logger.info("Backup object properties files")
         os.system(
-            "docker exec -t  ecsstandalone cp /opt/storageos/conf/cm.object.properties /opt/storageos/conf/cm.object.properties.old")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /opt/storageos/conf/cm.object.properties /opt/storageos/conf/cm.object.properties.old")
 
         logger.info("Backup application config file")
         os.system(
-            "docker exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /opt/storageos/ecsportal/conf/application.conf.old")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /opt/storageos/ecsportal/conf/application.conf.old")
 
         logger.info("Backup common-object properties file")
         os.system(
-            "docker exec -t  ecsstandalone cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /opt/storageos/conf/common.object.properties /opt/storageos/conf/common.object.properties.old")
+
+        logger.info("Backup ssm properties file")
+        os.system(
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /opt/storageos/conf/ssm.object.properties /opt/storageos/conf/ssm.object.properties.old")
 
         logger.info("Copy object properties files to host")
         os.system(
-            "docker exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
 
         logger.info("Copy application config file to host")
         os.system(
-            "docker exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /host/application.conf")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /host/application.conf")
 
         logger.info("Copy common-object properties files to host")
         os.system(
-            "docker exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
+
+        logger.info("Copy ssm properties files to host")
+        os.system(
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone cp /opt/storageos/conf/ssm.object.properties /host/ssm.object.properties1")
 
         logger.info("Modify BlobSvc config for single node")
         os.system(
@@ -443,24 +464,32 @@ def modify_container_conf_func():
         logger.info("Modify Portal config for to bypass validation")
         os.system("echo ecs.minimum.node.requirement=1 >> /host/application.conf")
 
+        logger.info("Modify SSM config for small footprint")
+        os.system(
+            "sed --expression='s/object.freeBlocksHighWatermarkLevels=1000,200/object.freeBlocksHighWatermarkLevels=100,50/' --expression='s/object.freeBlocksLowWatermarkLevels=0,100/object.freeBlocksLowWatermarkLevels=0,20/' < /host/ssm.object.properties1 > /host/ssm.object.properties")
+
+
         logger.info("Copy modified files to container")
         os.system(
-            "docker exec -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
 
         os.system(
-            "docker exec -t  ecsstandalone cp /host/application.conf /opt/storageos/ecsportal/conf/application.conf")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/application.conf /opt/storageos/ecsportal/conf/application.conf")
 
         os.system(
-            "docker exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
+
+        os.system(
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/ssm.object.properties /opt/storageos/conf/ssm.object.properties")
 
         logger.info("Flush VNeST data")
-        os.system("docker exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
 
         logger.info("Stop container")
-        os.system("docker stop ecsstandalone")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" stop ecsstandalone")
 
         logger.info("Start container")
-        os.system("docker start ecsstandalone")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" start ecsstandalone")
 
         logger.info("Clean up local files")
         os.system("rm -rf /host/cm.object.properties*")
@@ -506,8 +535,8 @@ def docker_cleanup_old_images():
 
         logger.info("Clean up Docker containers and images from the Host")
 
-        os.system("docker rm -f $(docker ps -a -q) 2>/dev/null")
-        os.system("docker rmi -f $(docker images -q) 2>/dev/null")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" rm -f $(docker ps -a -q) 2>/dev/null")
+        #os.system("docker rmi -f $(docker images -q) 2>/dev/null")
 
     except Exception as ex:
         logger.exception(ex)
@@ -523,7 +552,7 @@ def cleanup_installation(disks):
     try:
 
         logger.info("CleanUp Installation. Un-mount Drive and Delete Directories and Files from the Host")
-        
+
         for index, disk in enumerate(disks):
             disk_path = "/dev/{}".format(disk)
 
@@ -537,18 +566,18 @@ def cleanup_installation(disks):
             # rm -rf /ecs/uuid-1
             logger.info("Remove /ecs/{} Directory in attached Volume".format(uuid_name))
             subprocess.call(["rm", "-rf", "/ecs/{}".format(uuid_name)])
-            
+
             # dd if=/dev/zero of=/dev/sdc bs=512 count=1 conv=notrunc
             logger.info("Destroying partition table for {}".format(disk_path))
             subprocess.call(["dd", "if=/dev/zero", "of={}".format(disk_path), "bs=512", "count=1", "conv=notrunc"])
-                        
+
         # sudo rm -rf /data/*
-        logger.info("Remove /data/* Directory in attached Volume")
-        subprocess.call(["rm", "-rf", "/data/*"])
+        logger.info("Remove /data Directory")
+        subprocess.call(["rm", "-rf", "/data"])
 
         # sudo rm -rf /var/log/vipr/emcvipr-object/*
-        logger.info("Remove /var/log/vipr/emcvipr-object/* Directory ")
-        subprocess.call(["rm", "-rf", "/var/log/vipr/emcvipr-object/*"])
+        logger.info("Remove /var/log/vipr/emcvipr-object Directory ")
+        subprocess.call(["rm", "-rf", "/var/log/vipr/emcvipr-object"])
 
 
     except Exception as ex:
@@ -579,10 +608,10 @@ def main():
         description='EMC\'s Elastic Cloud Storage 2.0 Software Single Node Docker container installation script. ')
     parser.add_argument('--disks', nargs='+', help='The disk(s) name(s) to be prepared. Example: sda sdb sdc',
                         required=True)
-    parser.add_argument('--hostname', nargs='+',
+    parser.add_argument('--hostname',
                         help='Host VM hostname. Example: ECSNode1.mydomain.com',
                         required=True)
-    parser.add_argument('--ethadapter', nargs='+', help='The main Ethernet Adapter used by the Host VM to communicate with the internet. Example: eth0.',
+    parser.add_argument('--ethadapter', help='The main Ethernet Adapter used by the Host VM to communicate with the internet. Example: eth0.',
                         required=True)
     parser.add_argument('--onlyContainerConfig', dest='container_config', action='store_true',
                         help='If present, it will only run the container configuration. Example: True/False',
@@ -591,14 +620,14 @@ def main():
                         help='If present, run the Docker container/images Clean up and the /data Folder. Example: True/False',
                         required=False)
     parser.add_argument('--imagename', dest='imagename', nargs='?',
-                        help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-software',
+                        help='If present, pulls a specific image from DockerHub. Defaults to emccorp/ecs-software-2.2',
                         required=False)
     parser.add_argument('--imagetag', dest='imagetag', nargs='?',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
                         required=False)
     parser.set_defaults(container_config=False)
     parser.set_defaults(cleanup=False)
-    parser.set_defaults(imagename="emccorp/ecs-software-2.1")
+    parser.set_defaults(imagename="emccorp/ecs-software-2.2")
     parser.set_defaults(imagetag="latest")
     args = parser.parse_args()
 
@@ -607,6 +636,14 @@ def main():
     if not re.match("^[a-z0-9]+", "{}".format(args.hostname[0])):
         logger.info("Hostname must consist of alphanumeric (lowercase) characters.")
         sys.exit(2)
+
+    # Print configuration
+    print("--- Parsed Configuration ---")
+    print("Hostname: %s" % args.hostname)
+    print("Ethadapter: %s" % args.ethadapter)
+    print("Disk[s]: %s" % args.disks)
+    print("Docker Image Name: %s" % args.imagename)
+    print("Docker Image Tag: %s" % args.imagetag)
 
     # Check if only wants to run the Container Configuration section
     if args.container_config:
@@ -642,7 +679,7 @@ def main():
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
     docker_image_name = "{}:{}".format(args.imagename, args.imagetag)
 
-    ethernet_adapter_name = get_first(args.ethadapter)
+    ethernet_adapter_name = args.ethadapter
     # Get the IP address on Linux
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     ip_address = socket.inet_ntoa(fcntl.ioctl(s.fileno(),
