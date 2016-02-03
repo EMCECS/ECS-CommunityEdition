@@ -258,7 +258,7 @@ def prepare_data_disk_func(disks):
 
             # mount /dev/sdc1 /ecs/uuid-1
             logger.info("Mount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
-            subprocess.call(["mount", device_name, "/ecs/{}".format(uuid_name)])
+            subprocess.call(["mount", device_name, "/ecs/{}".format(uuid_name), "-o", "noatime,seclabel,attr2,inode64,noquota"])
 
     except Exception as ex:
         logger.exception(ex)
@@ -538,9 +538,13 @@ def main():
     parser.set_defaults(imagetag="latest")
     args = parser.parse_args()
 
+    # Check if hotname is valid
+    for hostname in args.hostnames: 
+        if not re.match("^[a-z0-9]+", hostname):
+            logger.info("Hostname must consist of alphanumeric (lowercase) characters.")
+            sys.exit(2)
 
-
-      # Check if only wants to run the Container Configuration section
+    # Check if only wants to run the Container Configuration section
     if args.cleanup:
         logger.info("Starting CleanUp: Removing Previous Docker containers and images. Deletes the created Directories.")
         docker_cleanup_old_images()

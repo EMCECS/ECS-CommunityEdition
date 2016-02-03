@@ -1,4 +1,4 @@
-# ECS 2.0 Software Container Deployment
+# ECS 2.x Software Container Deployment
 
 **Update November-30-2015:** Updated Docker Image to a [ECS Software v2.1 Hotfix 1](https://support.emc.com/docu62132_ECS_2.1_HF1_Readme.txt?language=en_US&language=en_US)
 - Users can now optionally specify docker image via command-line arguments in step1.
