@@ -1,8 +1,8 @@
-# ECS SW 2.2 Google Compute Engine Deployment
+# ECS SW 2.x Google Compute Engine Deployment
 
-ECS 2.2 Single Node installation on Google Compute Engine: 
+ECS 2.x Single Node installation on Google Compute Engine: 
 
-The following instructions will allow you to install ECS 2.2 software using a GCE Deployment Manager with a single command.
+The following instructions will allow you to install ECS 2.x software using a GCE Deployment Manager with a single command.
 
 ## Prerequisite -
 Google Compute Engine Tools, you can download and install it from the following link:
@@ -12,7 +12,7 @@ Google Compute Engine Template files that are located in this git repository und
 
 
 ## Evnvironment Requirements 
-The following are the base requirements for running ECS 2.2 software for a single node install, this will be created as part of the gcloud commands below:
+The following are the base requirements for running ECS 2.x software for a single node install, this will be created as part of the gcloud commands below:
 
 
 - **Operative system:** CentOS 7.1
