@@ -42,6 +42,8 @@ If you want to see if system is making progress:
 
 Ensure the following ports are open for communication.  Add these ports to the guide saying if a single node is used:
 
+`fwd_settings.sh` in the main directory will invoke the `firewalld` service and permanently open necessary ports.
+
 
 |Port Name-Usage=Port Number|
 |---------------------------|
