@@ -1,6 +1,6 @@
-# ECS SW 2.2 Single Node Deployments
+# ECS SW 2.x Single Node Deployments
 
-Welcome to the Single Node installation for ECS Software 2.0. We have provided the following deployment options: 
+Welcome to the Single Node installation for ECS Software 2.x. We have provided the following deployment options: 
 
 
 - **[ECS Single Node Docker Deployment](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-SingleNode-Instructions.md "ECS Single Node Deployment Information")**

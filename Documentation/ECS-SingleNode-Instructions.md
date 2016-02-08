@@ -17,7 +17,7 @@
 
 ## Introduction
 
-EMC's Elastic Cloud Storage (ECS) 2.0 Software Docker **single node** deployment is intended to be used by developers and has a range of deployment options for them. The most universal methods for deploying ECS software is through Docker applied across whichever means at your disposal (IaaS/PaaS/Hypervisor). In addition to this, you can leverage Vagrant for local VirtualBox instances.
+EMC's Elastic Cloud Storage (ECS) 2.2 Software Docker **single node** deployment is intended to be used by developers and has a range of deployment options for them. The most universal methods for deploying ECS software is through Docker applied across whichever means at your disposal (IaaS/PaaS/Hypervisor). In addition to this, you can leverage Vagrant for local VirtualBox instances.
 
 In terms of cloud deployments, there are a range of options here. The most compatible methods of deployment across any provider is the CentOS and CoreOS options to run the Docker instances. 
 
@@ -47,13 +47,13 @@ The installation script is composed by three main steps:
 
 |Step| Name | Description |Execution Time |
 |------|------|-----------|---------------|
-|1| Host & ECS Container Configuration  | Step 1 of the single node installation. This step controls the flow and contains the configuration changes required for the Host OS that will run the ECS 2.0 Software Docker container. In addition, this step updates the ECS Docker container so it can run as a single node and with limited resources|1-5 min|
+|1| Host & ECS Container Configuration  | Step 1 of the single node installation. This step controls the flow and contains the configuration changes required for the Host OS that will run the ECS 2.2 Software Docker container. In addition, this step updates the ECS Docker container so it can run as a single node and with limited resources|1-5 min|
 |2|ECS Object Configuration  |  Step 2 of the single node installation. This step performs the ECS configuration so it can start serving objects.|10-30 min|
 
 
 ## CentOS Installation
 
-[CentOS](http://www.centos.org/) is a well known Linux distribution that has the ability to deploy containers with Docker. Common public cloud platforms have CentOS templates ready to be used, so getting ECS 2.0 Software on a Docker container up is extremely easy!
+[CentOS](http://www.centos.org/) is a well known Linux distribution that has the ability to deploy containers with Docker. Common public cloud platforms have CentOS templates ready to be used, so getting ECS 2.2 Software on a Docker container up is extremely easy!
 
 [SLES](http://www.suse.com/products/server/) is a a versatile Linux server operating system for deploying highly available enterprise-class IT services in mixed IT environments with best-of-breed performance and reduced risk.
 
@@ -151,6 +151,7 @@ Both methods provide the same results, one of them walks you through the ECS's a
 |NameSpace | The objects' Namespace | ns1 |
 |ObjectVArray | The objects' Virtual Array | ova1 |
 |ObjectVPool | The objects' Virtual Pool | ov1 |
+|UserName | The name of the initial Object User | user1 |
 |DataStoreName | The name of the Data Store.| ds1 |
 |VDCName | The name of the Virtual Data Center.| vdc1 |
 |MethodName | The name of step to be executed. Leave blank for automated and add a value for a manual installation| [empty] |

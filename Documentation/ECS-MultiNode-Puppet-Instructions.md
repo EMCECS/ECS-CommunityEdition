@@ -1,4 +1,4 @@
-# ECS Software 2.0 - Multi-Node Puppet Configuration Instructions
+# ECS Software 2.x - Multi-Node Puppet Configuration Instructions
 
 
 **Table of Contents**
@@ -18,7 +18,7 @@
 
 ## Introduction
 
-EMC's Elastic Cloud Storage (ECS) 2.0 Software Puppet **Multiple node** deployment is intended to be used by developers and Ops Who are familiar with Puppet Enterprise as configuration management system.
+EMC's Elastic Cloud Storage (ECS) 2.x Software Puppet **Multiple node** deployment is intended to be used by developers and Ops Who are familiar with Puppet Enterprise as configuration management system.
 
 
 ## Global Requirements

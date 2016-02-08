@@ -1,8 +1,8 @@
-# ECS SW 2.0 Google Compute Engine Deployment
+# ECS SW 2.x Google Compute Engine Deployment
 
-ECS 2.0 Multi Node installation on Google Compute Engine: 
+ECS 2.x Multi Node installation on Google Compute Engine: 
 
-The following instructions will allow you to install ECS 2.0 software using a GCE Deployment Manager, using a simple template file.
+The following instructions will allow you to install ECS 2.x software using a GCE Deployment Manager, using a simple template file.
 
 ## Prerequisite -
 1. Google Compute Engine Tools, you can download and install it from the following link: **[gcloud Tools Install](https://cloud.google.com/sdk/gcloud/ "gcloud Tool Guide")**
@@ -11,7 +11,7 @@ The following instructions will allow you to install ECS 2.0 software using a GC
 
 
 ## Evnvironment Requirements 
-The following are the base requirements for running ECS 2.0 software for a mutli node install, this will be created as part of the gcloud commands below:
+The following are the base requirements for running ECS 2.2 software for a mutli node install, this will be created as part of the gcloud commands below:
 
 
 - **Operative system:** CentOS 7.1

@@ -271,7 +271,7 @@ def prepare_data_disk_func(disks):
 
             # mount /dev/sdc1 /ecs/uuid-1
             logger.info("Mount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
-            subprocess.call(["mount", device_name, "/ecs/{}".format(uuid_name)])
+            subprocess.call(["mount", device_name, "/ecs/{}".format(uuid_name), "-o", "noatime,seclabel,attr2,inode64,noquota"])
 
     except Exception as ex:
         logger.exception(ex)
@@ -630,6 +630,12 @@ def main():
     parser.set_defaults(imagename="emccorp/ecs-software-2.2")
     parser.set_defaults(imagetag="latest")
     args = parser.parse_args()
+
+
+    # Check if hotname is valid
+    if not re.match("^[a-z0-9]+", "{}".format(args.hostname[0])):
+        logger.info("Hostname must consist of alphanumeric (lowercase) characters.")
+        sys.exit(2)
 
     # Print configuration
     print("--- Parsed Configuration ---")
