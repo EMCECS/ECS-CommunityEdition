@@ -119,9 +119,8 @@ def docker_pull_func(docker_image_name):
 
         docker = "docker"
         docker_arg = "pull"
-        docker_file = docker_image_name
-        logger.info("Executing a Docker Pull for image {}".format(docker_file))
-        command_line = [docker, docker_arg, docker_file]
+        logger.info("Executing a Docker Pull for image {}".format(docker_image_name))
+        command_line = [docker, docker_arg, docker_image_name]
         command_line[1:1] = DockerCommandLineFlags
         subprocess.call(command_line)
 
@@ -322,6 +321,7 @@ def directory_files_conf_func():
 
         # cp seeds /host/files
         logger.info("Copying seeds file to /host/files.")
+
         subprocess.call(["cp", "seeds", "/host/files"])
 
         # chown -R 444 /host

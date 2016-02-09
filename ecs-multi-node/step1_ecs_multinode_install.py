@@ -119,9 +119,8 @@ def docker_pull_func(docker_image_name):
 
         docker = "docker"
         docker_arg = "pull"
-        docker_file = docker_image_name
-        logger.info("Executing a Docker Pull for image {}".format(docker_file))
-        subprocess.call([docker, docker_arg, docker_file])
+        logger.info("Executing a Docker Pull for image {}".format(docker_image_name))
+        subprocess.call([docker, docker_arg, docker_image_name])
 
     except Exception as ex:
         logger.exception(ex)
