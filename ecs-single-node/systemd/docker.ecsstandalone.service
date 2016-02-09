@@ -1,0 +1,13 @@
+[Unit]
+Description=ECS Standalone Container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start -a ecsstandalone
+ExecStop=/usr/bin/docker stop -t 60 ecsstandalone
+
+[Install]
+WantedBy=standalone-user.target
+
