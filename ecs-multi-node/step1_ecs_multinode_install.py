@@ -534,6 +534,19 @@ def modify_container_conf_func():
         os.system(
             "docker exec -t  ecsmultinode cp /host/ssm.object.properties /opt/storageos/conf/ssm.object.properties")
 
+        logger.info("Adding python setuptools to container")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode wget https://bootstrap.pypa.io/ez_setup.py")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode python ez_setup.py")
+
+        logger.info("Adding python requests library to container")
+        os.system(
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OL https://github.com/kennethreitz/requests/tarball/master")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode tar zxvf master -C /tmp")        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsstandalone bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode wget https://bootstrap.pypa.io/ez_setup.py")
+        logger.info("Cleaning up python packages")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm master")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm setuptools-20.0.zip")
+
         # Flush vNest to clear data and restart.
         logger.info("Flush VNeST data")
         os.system("docker exec -t ecsmultinode rm -rf /data/vnest/vnest-main/*")

@@ -494,6 +494,20 @@ def modify_container_conf_func():
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/ssm.object.properties /opt/storageos/conf/ssm.object.properties")
 
+        logger.info("Adding python setuptools to container")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone wget https://bootstrap.pypa.io/ez_setup.py")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone python ez_setup.py")
+
+        logger.info("Adding python requests library to container")
+        os.system(
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OL https://github.com/kennethreitz/requests/tarball/master")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone tar zxvf master -C /tmp")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsstandalone bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone wget https://bootstrap.pypa.io/ez_setup.py")
+        logger.info("Cleaning up python packages")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm master")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm setuptools-20.0.zip")
+
         logger.info("Flush VNeST data")
         os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
 
