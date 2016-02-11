@@ -272,6 +272,18 @@ def prepare_data_disk_func(disks):
             logger.info("Mount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
             subprocess.call(["mount", device_name, "/ecs/{}".format(uuid_name), "-o", "noatime,seclabel,attr2,inode64,noquota"])
 
+            # add entry to fstab if not pre-existing
+            fstab = "/etc/fstab"
+            p = subprocess.Popen(["grep", device_name, fstab], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = p.communicate()
+            if p.returncode == 0:
+                logger.info("Data disk already entered in fs table")
+            elif p.returncode == 1:
+                with open("/etc/fstab", 'a') as file:
+                    file.write("{} {} xfs rw,noatime,seclabel,attr2,inode64, noquota 0 0".format(device_name, uuid_name) )
+            else:
+                logger.info("Error in checking filesystem table: {}".format(err))
+
     except Exception as ex:
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log.")
@@ -570,6 +582,18 @@ def cleanup_installation(disks):
             # dd if=/dev/zero of=/dev/sdc bs=512 count=1 conv=notrunc
             logger.info("Destroying partition table for {}".format(disk_path))
             subprocess.call(["dd", "if=/dev/zero", "of={}".format(disk_path), "bs=512", "count=1", "conv=notrunc"])
+
+            logger.info("Remove {} from fs table".format(disk_path)
+            fstab = "/etc/fstab"
+            f = open(fstab, "r+")
+            rl = f.readlines()
+            f.seek(0)
+            for ln in rl:
+                if not disk_path in ln:
+                    f.write(ln)
+            f.truncate()
+            f.close()
+
 
         # sudo rm -rf /data/*
         logger.info("Remove /data Directory")
