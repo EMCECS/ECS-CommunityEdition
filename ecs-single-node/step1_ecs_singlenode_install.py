@@ -597,7 +597,7 @@ def cleanup_installation(disks):
             logger.info("Destroying partition table for {}".format(disk_path))
             subprocess.call(["dd", "if=/dev/zero", "of={}".format(disk_path), "bs=512", "count=1", "conv=notrunc"])
 
-            logger.info("Remove {} from fs table".format(disk_path)
+            logger.info("Remove {} from fs table".format(disk_path))
             fstab = "/etc/fstab"
             f = open(fstab, "r+")
             rl = f.readlines()
