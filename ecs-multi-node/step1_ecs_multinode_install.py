@@ -633,6 +633,7 @@ def main():
     # Check if only wants to run the Container Configuration section
     if args.cleanup:
         logger.info("Starting CleanUp: Removing Previous Docker containers and images. Deletes the created Directories.")
+        subprocess.call(["service","docker","start"])
         docker_cleanup_old_images()
         clean_data_disk_func(args.disks)
         sys.exit(4)
