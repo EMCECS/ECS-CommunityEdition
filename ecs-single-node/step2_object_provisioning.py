@@ -242,13 +242,14 @@ def getUserSecretKey(ECSNode, username):
 
 def main(argv):
     try:
-        opts, argv = getopt.getopt(argv, '', ["ECSNodes=","Namespace=","ObjectVArray=","ObjectVPool=","UserName=","DataStoreName=","VDCName=","MethodName="])
+        opts, argv = getopt.getopt(argv, '', ["ECSNodes=","Namespace=","ObjectVArray=","ObjectVPool=","UserName=","DataStoreName=","VDCName=","MethodName=","SkipVdcProvision"])
     except getopt.GetoptError, e:
         print e
-        print 'ObjectProvisioning.py --ECSNodes=<Coma separated list of datanodes> --Namespace=<namespace> --ObjectVArray=<Object vArray Name> --ObjectVPool=<Object VPool name> --UserName=<user name to be created> --DataStoreName=<Name of the datastore to be created> --VDCName=<Name of the VDC> --MethodName=<Operation to be performed> [--SkipVdcProvision]\n  --MethodName is required only when you need to run a particular step in Object Provisioning.If this option is not provided all the Object Provisioning steps will be run.\n Supported options for --MethodName are:\n UploadLicense \n CreateObjectVarray \n GetVarrayID \n CreateDataStore \n InsertVDC \n CreateObjectVpool \n CreateNamespace \n CreateUserAndSecretKey \n Use --SkipVdcProvision for non-primary VDCs'
+        print 'ObjectProvisioning.py --ECSNodes=<Coma separated list of datanodes> --Namespace=<namespace> --ObjectVArray=<Object vArray Name> --ObjectVPool=<Object VPool name> --UserName=<user name to be created> --DataStoreName=<Name of the datastore to be created> --VDCName=<Name of the VDC> --MethodName=<Operation to be performed> [--SkipVdcProvision]\n  --MethodName is required only when you need to run a particular step in Object Provisioning.If this option is not provided all the Object Provisioning steps will be run.\n Supported options for --MethodName are:\n UploadLicense \n CreateObjectVarray \n GetVarrayID \n CreateDataStore \n InsertVDC \n CreateObjectVpool \n CreateNamespace \n CreateUserAndSecretKey \n Use --SkipVdcProvision for non-primary VDCs \n'
         sys.exit(2)
     ECSNodes=""
     MethodName=""
+    SkipVdcProvision=False
     for opt, arg in opts:
         if opt == '-h':
             print 'ObjectProvisioning.py --ECSNodes=<Coma separated list of datanodes> --Namespace=<namespace> --ObjectVArray=<Object vArray Name> --ObjectVPool=<Object VPool name> --UserName=<user name to be created> --DataStoreName=<Name of the datastore to be created> --VDCName=<Name of the VDC> --MethodName=<Operation to be performed> [--SkipVdcProvision]\n  --MethodName is required only when you need to run a particular step in Object Provisioning.If this option is not provided all the Object Provisioning steps will be run.\n Supported options for --MethodName are:\n UploadLicense \n CreateObjectVarray \n GetVarrayID \n CreateDataStore \n InsertVDC \n CreateObjectVpool \n CreateNamespace \n CreateUserAndSecretKey \n Use --SkipVdcProvision for non-primary VDCs \n'
@@ -271,8 +272,7 @@ def main(argv):
             VDCName = arg
         elif opt in ("-MethodName", "--MethodName"):
             MethodName = arg
-            if not SkipVdcProvision:
-        elif opt in ("-SkipVdcProvision", "--SkipVdcProvision):
+        elif opt in ("-SkipVdcProvision", "--SkipVdcProvision"):
             SkipVdcProvision = True
 
     global AuthToken
