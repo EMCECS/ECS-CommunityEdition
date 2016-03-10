@@ -119,9 +119,8 @@ def docker_pull_func(docker_image_name):
 
         docker = "docker"
         docker_arg = "pull"
-        docker_file = docker_image_name
-        logger.info("Executing a Docker Pull for image {}".format(docker_file))
-        command_line = [docker, docker_arg, docker_file]
+        logger.info("Executing a Docker Pull for image {}".format(docker_image_name))
+        command_line = [docker, docker_arg, docker_image_name]
         command_line[1:1] = DockerCommandLineFlags
         subprocess.call(command_line)
 
@@ -273,6 +272,18 @@ def prepare_data_disk_func(disks):
             logger.info("Mount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
             subprocess.call(["mount", device_name, "/ecs/{}".format(uuid_name), "-o", "noatime,seclabel,attr2,inode64,noquota"])
 
+            # add entry to fstab if not pre-existing
+            fstab = "/etc/fstab"
+            p = subprocess.Popen(["grep", device_name, fstab], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = p.communicate()
+            if p.returncode == 0:
+                logger.info("Data disk already entered in fs table")
+            elif p.returncode == 1:
+                with open("/etc/fstab", 'a') as file:
+                    file.write("{} {} xfs rw,noatime,seclabel,attr2,inode64, noquota 0 0".format(device_name, uuid_name) )
+            else:
+                logger.info("Error in checking filesystem table: {}".format(err))
+
     except Exception as ex:
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log.")
@@ -322,6 +333,7 @@ def directory_files_conf_func():
 
         # cp seeds /host/files
         logger.info("Copying seeds file to /host/files.")
+
         subprocess.call(["cp", "seeds", "/host/files"])
 
         # chown -R 444 /host
@@ -482,6 +494,20 @@ def modify_container_conf_func():
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/ssm.object.properties /opt/storageos/conf/ssm.object.properties")
 
+        logger.info("Adding python setuptools to container")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone wget https://bootstrap.pypa.io/ez_setup.py")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone python ez_setup.py")
+
+        logger.info("Adding python requests library to container")
+        os.system(
+            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OL https://github.com/kennethreitz/requests/tarball/master")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone tar zxvf master -C /tmp")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsstandalone bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone wget https://bootstrap.pypa.io/ez_setup.py")
+        logger.info("Cleaning up python packages")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm master")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm setuptools-20.0.zip")
+
         logger.info("Flush VNeST data")
         os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
 
@@ -571,6 +597,18 @@ def cleanup_installation(disks):
             logger.info("Destroying partition table for {}".format(disk_path))
             subprocess.call(["dd", "if=/dev/zero", "of={}".format(disk_path), "bs=512", "count=1", "conv=notrunc"])
 
+            logger.info("Remove {} from fs table".format(disk_path))
+            fstab = "/etc/fstab"
+            f = open(fstab, "r+")
+            rl = f.readlines()
+            f.seek(0)
+            for ln in rl:
+                if not disk_path in ln:
+                    f.write(ln)
+            f.truncate()
+            f.close()
+
+
         # sudo rm -rf /data/*
         logger.info("Remove /data Directory")
         subprocess.call(["rm", "-rf", "/data"])
@@ -654,6 +692,7 @@ def main():
     # Check if only wants to run the Container Configuration section
     if args.cleanup:
         logger.info("Starting CleanUp: Removing Previous Docker containers and images. Deletes the created Directories.")
+        subprocess.call(["service","docker","start"])
         docker_cleanup_old_images()
         cleanup_installation(args.disks)
         sys.exit(7)

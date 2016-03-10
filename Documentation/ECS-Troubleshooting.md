@@ -22,7 +22,6 @@ Executing REST API command:
 {"secret_key_1":"UORQB9Xxx8OKmjplSgKHRIPeeWcR2bbiagC5/xT+","key_timestamp_1":"2015-06-21 07:31:48.515","key_expiry_timestamp_1":"","secret_key_2":"","key_timestamp_2":"","key_expiry_timestamp_2":"","link":{"rel":"self","href":"/object/secret-keys"}}`
 
 
-
 ### Checking Step 2 Object provisioning progress
 
 If you want to see if system is making progress:
@@ -42,9 +41,12 @@ If you want to see if system is making progress:
 
 To install ECS Community Edition under these conditions, please view the readme file under **/emc-ssl-cert** for further instructions in installing the necessary CA certificate.
 
+
 ### List of Open ports required on each ECS data node
 
 Ensure the following ports are open for communication.  Add these ports to the guide saying if a single node is used:
+
+`fwd_settings.sh` in the main directory will invoke the `firewalld` service and permanently open necessary ports. In the case of a failure in this setup referencing `iptables`, please ensure that your docker network bridge is running and installed using `yum install bridge-utils`.
 
 
 |Port Name-Usage=Port Number|

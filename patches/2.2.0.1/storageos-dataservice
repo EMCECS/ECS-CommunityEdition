@@ -1,0 +1,540 @@
+#!/bin/sh
+#
+# Copyright (c) 2012-2014 EMC Corporation
+# All Rights Reserved
+#
+# This software contains the intellectual property of EMC Corporation
+# or is licensed to EMC Corporation from third parties.  Use of this
+# software and the intellectual property contained therein is expressly
+# limited to the terms and conditions of the License Agreement under which
+# it is provided by or on behalf of EMC.
+#
+# /etc/init.d/storageos-dataservice
+#
+# System startup script for the ViPR services on data nodes
+#
+### BEGIN INIT INFO
+# Provides:          storageos-dataservice
+# Required-Start:    $network $local_fs $time $syslog $named SuSEfirewall2_setup
+# Required-Stop:     $network $local_fs $time $syslog $named SuSEfirewall2_setup
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 6
+# Description: Start ViPR services
+### END INIT INFO
+
+# Return values acc. to LSB for all commands but status:
+# 0 - success
+# 1 - generic or unspecified error
+# 2 - invalid or excess argument(s)
+# 3 - unimplemented feature (e.g. "reload")
+# 4 - insufficient privilege
+# 5 - program is not installed
+# 6 - program is not configured
+# 7 - program is not running
+# 
+# Note that starting an already running service, stopping
+# or restarting a not-running service as well as the restart
+# with force-reload (in case signalling is not supported) are
+# considered a success.
+
+# Source /etc/sysconfig/storageos and make the basic checks
+#
+STORAGEOS_SYSCONFIG=${STORAGEOS_SYSCONFIG:-'/etc/sysconfig/storageos'}
+test -r "${STORAGEOS_SYSCONFIG}"           || exit 6
+. ${STORAGEOS_SYSCONFIG}
+
+# If running not on a datanode, exit immediately
+#
+test "${STORAGEOS_NODETYPE}" = "datanode" || exit 0
+
+STORAGEOS_DIR=${STORAGEOS_DIR:-'/opt/storageos'}
+test -d "${STORAGEOS_DIR}"                 || exit 5
+
+STORAGEOS_LOGS=${STORAGEOS_LOGS:-"${STORAGEOS_DIR}/logs"}
+test -d "${STORAGEOS_LOGS}"                || exit 6
+
+STORAGEOS_SERVICE_STARTER=${STORAGEOS_SERVICE_STARTER:-'/opt/storageos/bin/monitor'}
+test -x "${STORAGEOS_SERVICE_STARTER}"     || exit 6
+
+DEPLOYMENT_TYPE=$(/etc/fabrictool --mode)
+
+# Source /etc/rc.status and reset status of this service
+#
+. /etc/rc.status
+
+rc_reset
+
+# Reset all unneeded environment variables
+#
+resetenv() {
+    env | while read var ; do
+        var="${var%%=*}"
+        case ${var} in '_'|HOME|PATH|SHELL|TERM|RUNLEVEL|PREVLEVEL) continue ;; esac
+        echo "unset ${var};"
+    done
+}
+
+eval $(resetenv)
+export PRODUCT_HOME="${STORAGEOS_DIR}"
+export PLATFORM="linux"
+export LD_LIBRARY_PATH=/opt/storageos/lib:/usr/local/lib:.${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+PMON="$STORAGEOS_DIR/tools/pmon.py"
+VNEST_BTREE_GC=$STORAGEOS_DIR/bin/btree_gc
+CRONTAB=/usr/bin/crontab
+
+# Set resource limits
+# - allow 30000 open file descriptors per process
+#
+ulimit -n 30000
+
+# enable core dump
+ulimit -c unlimited
+CORE_FILE_DIR=/opt/storageos/logs/cores
+mkdir -p $CORE_FILE_DIR
+chmod 777 $CORE_FILE_DIR
+# core file pattern = program_name.pid.timestamp.signal.core
+# echo $CORE_FILE_DIR/%e.%p.%t.%s.core > /proc/sys/kernel/core_pattern
+
+# program_name.signal.core. Only one core file per program(and signal_num
+# combination) is retained in order to prevent disk space from filling up.
+echo $CORE_FILE_DIR/%e.%s.core > /proc/sys/kernel/core_pattern
+
+# Standard LSB startproc, checkproc and killproc do not work for ViPR services
+# because symlinks /proc/<pid>/exe point to the "java" executable rather than to our
+# startup scripts.
+#
+# Also, we need to check for multiple processes.
+#
+_startproc() {
+    ${STORAGEOS_SERVICE_STARTER} ${STORAGEOS_USER} -c / -l ${STORAGEOS_LOGS}/${1}.out -p /var/run/${1}.pid ${STORAGEOS_DIR}/bin/${1} file:${STORAGEOS_DIR}/conf/${1%%svc}-conf.xml
+}
+
+_startproc_standalone() {
+    ${STORAGEOS_SERVICE_STARTER} ${STORAGEOS_USER} -c / -l ${STORAGEOS_LOGS}/${1}.out -p /var/run/${1}.pid ${STORAGEOS_DIR}/bin/${1} file:${STORAGEOS_DIR}/conf/${1%%svc}-standalone-conf.xml
+}
+
+_start_ss() {
+    SSNICESOFTLIMIT=40
+    SSNICEHARDLIMIT=40
+
+    STORAGESERVER=${1:-'storageserver'}
+    #try to configure configuration files
+    $STORAGEOS_DIR/bin/storageserver-partition-config.sh > /dev/null
+
+    if [ -f /data/partitions.json ]; then
+        PARTITIONS_JSON=" \"--partitionconfig\" /data/partitions.json"
+    fi
+
+    ${STORAGEOS_SERVICE_STARTER} ${STORAGEOS_USER} -c / -l ${STORAGEOS_LOGS}/${STORAGESERVER}.out -p /var/run/${STORAGESERVER}.pid -i ${SSNICESOFTLIMIT} -I ${SSNICEHARDLIMIT} ${STORAGEOS_DIR}/bin/${STORAGESERVER} \"--config\" ${STORAGEOS_DIR}/conf/storageserver.conf $PARTITIONS_JSON
+}
+
+
+
+_checkproc_init() {
+    _running=""; _pids=""; _status1=""; _status3=""
+}
+
+_checkproc_test() {
+    local pids=$(pgrep -f "^${STORAGEOS_DIR}/bin/${1} ")
+    local pidfile=/var/run/${1}.pid
+    if [ -e "${pidfile}" ] ; then
+        local pid=$(<${pidfile})
+        [ -z "${pids}"          ] && _status1="${_status1} ${1}" && return 1
+        [ "${pid}" != "${pids}" ] && echo "Warning: Found orphan instances of ${1}:" ${pids/${pid}/}
+    else
+        [ -z "${pids}"          ] && _status3="${_status3} ${1}" && return 3
+        echo "Warning: Found orphan instances of ${1}:" ${pids/${pid}/}
+    fi
+    _running="${_running} ${1}"
+    _pids="${_pids} ${pids}"
+    return 0
+}
+
+_checkproc_summary() {
+    [ -n "${_running}" ] && echo "Services running:${_running}" && return 0
+    [ -n "${_status1}" ] && return 1
+    return 3
+}
+
+_killproc() {
+    local pidfile=/var/run/${2}.pid
+    if [ -e "${pidfile}" ] ; then
+        local pid=$(<${pidfile})
+        if ( name=${2}; set -- `ps -p ${pid} -o cmd=` && [ "${1}" = "${STORAGEOS_DIR}/bin/${name}" ] ) ; then
+            if [ "${STORAGEOS_SERVICE_STARTER}" == "startproc" ] ; then
+                kill ${1} ${pid}
+            else
+                local pidfromcmd=`ps -ef | grep "${STORAGEOS_DIR}/bin/${2}" | grep -v grep | grep -v "${STORAGEOS_SERVICE_STARTER}" | awk '{print $2}'`
+                if [ ${pidfromcmd} == ${pid} ] ; then
+                    local ppid=`ps --pid $(cat $pidfile) h -o ppid`
+                    kill ${1} ${ppid}
+                fi
+            fi
+        else
+            rm -f ${pidfile}
+        fi
+    fi
+}
+
+_cleanServicesPidFile() {
+    local pidfile=/var/run/${1}.pid
+    rm -f ${pidfile}
+}
+
+_forceStopServices() {
+    _checkproc_init
+    _checkproc_test authsvc
+    _checkproc_test georeceiver
+    _checkproc_test eventsvc
+    _checkproc_test blobsvc
+    _checkproc_test dataheadsvc
+    _checkproc_test provisionsvc
+    _checkproc_test resourcesvc
+    _checkproc_test rm   
+    _checkproc_test cm
+    _checkproc_test ssm
+    _checkproc_test objcontrolsvc
+    _checkproc_test metering
+    _checkproc_test vnest
+    _checkproc_test coordinatorsvc
+    _checkproc_test dtquery
+    _checkproc_test stat
+    _checkproc_test ecsportalsvc
+    #_checkproc_test transformsvc
+    _checkproc_test monitor   # Make sure the above sequence of test is the same as these processes got terminated in the stop) clause, this leaves enough time for the process to shut down
+
+    for pid in ${_pids} ; do
+        kill -KILL ${pid}
+    done
+    _cleanServicesPidFile authsvc
+    _cleanServicesPidFile georeceiver
+    _cleanServicesPidFile eventsvc
+    _cleanServicesPidFile blobsvc
+    _cleanServicesPidFile dataheadsvc
+    _cleanServicesPidFile provisionsvc
+    _cleanServicesPidFile resourcesvc
+    _cleanServicesPidFile rm
+    _cleanServicesPidFile cm
+    _cleanServicesPidFile ssm
+    _cleanServicesPidFile objcontrolsvc
+    _cleanServicesPidFile metering
+    _cleanServicesPidFile vnest
+    _cleanServicesPidFile coordinatorsvc
+	_cleanServicesPidFile dtquery
+	_cleanServicesPidFile stat
+	_cleanServicesPidFile ecsportalsvc
+	#_cleanServicesPidFile transformsvc
+}
+
+_config_ssl() {
+    if [ -n "${STORAGEOS_SSL_SETUP}" ] ; then
+        echo -n "Setting up SSL certificates"
+        eval ${STORAGEOS_SSL_SETUP}
+        rc_status -v
+    fi
+}
+
+_setup_kerberos() {
+    if [ -f "/data/hdfs/krb5.conf" ]; then
+        ln -sf "/data/hdfs/krb5.conf" "/etc/krb5.conf"
+    fi
+    if [ -f "/data/hdfs/krb5.keytab" ]; then
+        ln -sf "/data/hdfs/krb5.keytab" "/etc/krb5.keytab"
+    fi
+    if [ -f "/data/hdfs/hdfssvc_machine_local.conf" ]; then 
+        ln -sf "/data/hdfs/hdfssvc_machine_local.conf" "/opt/storageos/conf/hdfssvc_machine_local.conf"
+    fi
+    if [ -d "/data/jce/unlimited" ]; then
+       /usr/sbin/update-alternatives --remove-all jce_1.8.0_oracle_local_policy
+       /usr/sbin/update-alternatives --install /usr/lib64/jvm/java-1.8.0-oracle/jre/lib/security/local_policy.jar jce_1.8.0_oracle_local_policy /data/jce/unlimited/local_policy.jar 10000 --slave /usr/lib64/jvm/java-1.8.0-oracle/jre/lib/security/US_export_policy.jar jce_1.8.0_oracle_us_export_policy /data/jce/unlimited/US_export_policy.jar
+    fi
+}
+
+
+_stop_dtquery() {
+    echo -n "Stopping Dataservice Dt Query"
+    for sig in TERM CONT CONT CONT CONT KILL ; do
+        if [ -z "${sig}" ] ; then
+            rc_failed 1
+            rc_status -v
+            rc_exit
+        fi
+        _killproc -${sig} dtquery
+        sleep 1
+    done
+    _checkproc_init
+    _checkproc_test dtquery
+    for pid in ${_pids} ; do
+        kill -KILL ${pid}
+    done
+    _cleanServicesPidFile dtquery
+    rc_status -v
+}
+
+_stop_authsvc() {
+    echo -n "Stopping dataservice authentication..."
+    for sig in TERM CONT CONT CONT CONT KILL ; do
+        if [ -z "${sig}" ] ; then
+            rc_failed 1
+            rc_status -v
+            rc_exit
+        fi
+        _killproc -${sig} authsvc
+        sleep 1
+    done
+    _checkproc_init
+    _checkproc_test authsvc
+    for pid in ${_pids} ; do
+        kill -KILL ${pid}
+    done
+    _cleanServicesPidFile authsvc
+    rc_status -v
+}
+
+# Do not start if already running!
+#
+case ${1} in
+start)
+    $0 status &>/dev/null
+    case $? in 
+        1) echo "Warning: Found stale pidfile(s) (unclean shutdown?)";;
+        0) echo "ViPR services already running!"
+           rc_failed 0
+           rc_status -v1
+           rc_exit
+    esac
+esac
+
+# Actions
+#
+case ${1} in
+start)
+    if [ "${DEPLOYMENT_TYPE}" != "fabric" ]; then
+    	/etc/ipchecktool --panic
+    fi
+    _config_ssl
+    echo -n "Starting ViPR services"
+
+    _startproc coordinatorsvc
+    _startproc vnest
+	_startproc stat
+    _startproc rm
+    _startproc cm
+    _start_ss
+    _startproc ssm
+    _startproc objcontrolsvc
+    _startproc metering
+    _startproc blobsvc
+    _startproc dataheadsvc
+    _startproc provisionsvc
+    _startproc resourcesvc
+    _startproc eventsvc
+    #enable the line if running standalone mode
+    #_startproc_standalone objcontrolsvc
+    _startproc georeceiver
+    _setup_kerberos
+    _startproc dtquery
+	_startproc ecsportalsvc
+	#_startproc transformsvc
+    _startproc authsvc
+    rc_status -v
+    # trigger vnest btree gc cron job every day during midnight
+    #echo -e " 00 00 * * * $VNEST_BTREE_GC" | crontab -
+    # run process memory monitor every 15 minutes
+    echo -e " */15 * * * * $PMON" | $CRONTAB -
+    # have observed that cron is not running inside container
+    # so explicitly start cron daemon.remove this when the cron
+    # daemon start up issue is fixed
+    service cron restart
+    ;;
+startperf)
+    _config_ssl
+    echo -n "Starting ViPR services with performance monitor"
+    _startproc coordinatorsvc
+    _startproc vnest
+	_startproc stat
+    _startproc rm
+    _startproc cm
+    _start_ss
+    _startproc ssm
+    _startproc objcontrolsvc
+    _startproc metering
+    _startproc blobsvc-perf
+    _startproc dataheadsvc-perf
+    _startproc provisionsvc-perf
+    _startproc resourcesvc-perf
+    _startproc georeceiver
+    _startproc authsvc
+    _startproc ecsportalsvc
+    #_startproc transformsvc
+    rc_status -v
+    ;;
+startfi)
+    _config_ssl
+    echo -n "Starting ViPR services with fault injection"
+    _startproc coordinatorsvc
+    _startproc vnest
+	_startproc stat
+    _startproc rm
+    _startproc cm
+    _start_ss
+    _startproc ssm
+    _startproc objcontrolsvc
+    _startproc blobsvc-fi
+    _startproc dataheadsvc
+    _startproc provisionsvc-fi
+    _startproc resourcesvc-fi
+    _startproc georeceiver
+    _startproc authsvc
+	_startproc ecsportalsvc
+	#_startproc transformsvc
+    rc_status -v
+    ;;
+stop)
+    # remove memory monitor from cron
+    CRON_FILE="/tmp/cron.bak"
+    $CRONTAB -l | grep -v '^#' > $CRON_FILE
+    sed -i '/'`basename $PMON`'/d' $CRON_FILE
+    $CRONTAB $CRON_FILE
+
+    echo -n "Stopping ViPR services"
+    for sig in TERM CONT CONT CONT CONT KILL ; do
+        if [ -z "${sig}" ] ; then
+            rc_failed 1
+            rc_status -v
+            rc_exit
+        fi
+        _killproc -${sig} authsvc
+        _killproc -${sig} georeceiver
+        _killproc -${sig} eventsvc
+        _killproc -${sig} blobsvc
+        _killproc -${sig} blobsvc-perf
+        _killproc -${sig} blobsvc-fi
+        _killproc -${sig} dataheadsvc
+        _killproc -${sig} provisionsvc
+        _killproc -${sig} provisionsvc-perf
+        _killproc -${sig} provisionsvc-fi
+        _killproc -${sig} resourcesvc
+        _killproc -${sig} resourcesvc-perf
+        _killproc -${sig} resourcesvc-fi
+        _killproc -${sig} rm
+        _killproc -${sig} cm
+        _killproc -${sig} ssm
+        _killproc -${sig} objcontrolsvc
+        _killproc -${sig} metering
+        _killproc -${sig} storageserver
+        _killproc -${sig} vnest
+        _killproc -${sig} coordinatorsvc
+        _killproc -${sig} dtquery
+		_killproc -${sig} stat
+		_killproc -${sig} ecsportalsvc
+		#_killproc -${sig} transformsvc
+        $0 status &>/dev/null || break
+        sleep 5
+    done
+    _forceStopServices
+    rc_status -v
+    ;;
+status)
+    _checkproc_init
+	_checkproc_test authsvc
+	_checkproc_test stat
+    _checkproc_test georeceiver
+    _checkproc_test eventsvc
+    _checkproc_test blobsvc
+    _checkproc_test dataheadsvc
+    _checkproc_test blobsvc-perf
+    _checkproc_test blobsvc-fi
+    _checkproc_test provisionsvc
+    _checkproc_test provisionsvc-perf
+    _checkproc_test provisionsvc-fi
+    _checkproc_test resourcesvc
+    _checkproc_test resourcesvc-perf
+    _checkproc_test resourcesvc-fi
+    _checkproc_test rm    
+    _checkproc_test cm
+    _checkproc_test ssm
+    _checkproc_test objcontrolsvc
+    _checkproc_test metering
+    _checkproc_test storageserver
+    _checkproc_test dtquery
+    _checkproc_test vnest
+    _checkproc_test coordinatorsvc
+	_checkproc_test ecsportalsvc
+	#_checkproc_test transformsvc
+    _checkproc_summary
+    rc_status
+    ;;
+reload|restart)
+    $0 stop
+    $0 start
+    rc_status
+    ;;
+restarthdfs)
+    echo -n "Stopping Hdfs ViPR services"
+    for sig in TERM CONT CONT CONT CONT KILL ; do
+        if [ -z "${sig}" ] ; then
+            rc_failed 1
+            rc_status -v
+            rc_exit
+        fi
+        _killproc -${sig} dataheadsvc
+        sleep 1
+    done
+    _checkproc_init
+    _checkproc_test dataheadsvc
+    for pid in ${_pids} ; do
+        kill -KILL ${pid}
+    done
+    _cleanServicesPidFile dataheadsvc
+    rc_status -v
+
+    # check if blobsvc running ?
+    _checkproc_test blobsvc
+    if [ $? == 0 ] ; then
+        _setup_kerberos
+        echo -n "Starting Hdfs ViPR services"
+        _startproc dataheadsvc
+        rc_status
+    else
+        echo -n "Not Starting Hdfs ViPR services due to blobsvc not running"
+    fi
+    ;;
+restartdtquery)
+    _stop_dtquery
+
+    # check if datasvc running ?
+    _checkproc_test blobsvc
+    if [ $? == 0 ] ; then
+        _setup_kerberos
+        echo -n "Starting Dataservice Dt Query"
+        _startproc dtquery
+        rc_status
+    else
+        echo -n "Not Starting Dataservice Dt Query due to datasvc not running"
+    fi
+    ;;
+stopdtquery)
+    _stop_dtquery
+    ;;
+startauth)
+    echo -n "Starting dataservice authentication..."
+    _startproc authsvc
+    rc_status -v
+    ;;
+stopauth)
+    _stop_authsvc
+    ;;
+restartauth)
+    _stop_authsvc
+    echo -n "Restarting dataservice authentication..."
+    _startproc authsvc
+    rc_status -v
+    ;;
+*)
+    echo "Usage: $0 [ start | startperf | startfi | stop | status | restart | restarthdfs ]"
+    rc_failed 2
+esac
+rc_exit
+
+
