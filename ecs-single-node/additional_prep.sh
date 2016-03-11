@@ -77,4 +77,4 @@ fi
 $MOUNT $device $mount_point -o rw,noatime,seclabel,attr2,inode64,noquota
 
 # Add the filesystem to /etc/fstab
-grep "$device" /etc/fstab || echo "$MOUNT $device $mount_point -o rw,noatime,seclabel,attr2,inode64,noquota" >> /etc/fstab
+grep "$device" /etc/fstab || echo "$MOUNT $device $mount_point -o rw,noatime,seclabel,attr2,inode64,noquota 0 0" >> /etc/fstab
