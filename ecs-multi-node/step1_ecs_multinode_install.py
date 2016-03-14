@@ -541,7 +541,8 @@ def modify_container_conf_func():
         logger.info("Adding python requests library to container")
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OL https://github.com/kennethreitz/requests/tarball/master")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode tar zxvf master -C /tmp")        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsstandalone bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode tar zxvf master -C /tmp")
+        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsstandalone bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
         os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode wget https://bootstrap.pypa.io/ez_setup.py")
         logger.info("Cleaning up python packages")
         os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm master")
