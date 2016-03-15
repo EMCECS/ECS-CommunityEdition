@@ -46,6 +46,7 @@ def package_install_func():
         yum_package_wget = "wget"
         yum_package_tar = "tar"
         yum_package_docker = "docker"
+        yum_package_xfsprogs = "xfsprogs"
         yum_auto_install = "-y"
 
         logger.info("Performing installation of the following package: {} .".format(yum_package_wget))
@@ -53,6 +54,9 @@ def package_install_func():
 
         logger.info("Performing installation of the following package: {} .".format(yum_package_tar))
         subprocess.call([yum, yum_arg, yum_package_tar, yum_auto_install])
+
+        logger.info("Performing installation of the following package: {} .".format(yum_package_xfsprogs))
+        subprocess.call([yum, yum_arg, yum_package_xfsprogs, yum_auto_install])
 
         logger.info("Performing installation of the following package: {} .".format(yum_package_docker))
         subprocess.call([yum, yum_arg, yum_package_docker, yum_auto_install])
@@ -268,7 +272,7 @@ def prepare_data_disk_func(disks):
                 logger.info("Data disk already entered in fs table")
             elif p.returncode == 1:
                 with open("/etc/fstab", 'a') as file:
-                    file.write("{} {} xfs rw,noatime,seclabel,attr2,inode64, noquota 0 0".format(device_name, uuid_name) )
+                    file.write("{} {} xfs rw,noatime,seclabel,attr2,inode64,noquota 0 0".format(device_name, uuid_name) )
             else:
                 logger.info("Error in checking filesystem table: {}".format(err))
 

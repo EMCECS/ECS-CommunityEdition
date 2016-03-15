@@ -36,7 +36,7 @@ fi
 num_files=`$DF -BG $mount_point | $GREP $mount_point | $AWK -v FGB=$FILE_SIZE_GB '{gsub("G", "", $4); print int($4 / FGB)}'`
 
 # Remove one block so we can account for XFS reserved space.
-$((num_files--))
+((num_files--))
 declare -a inodes
 for ((i=0;i<$num_files;i++)) {
     file=`printf "%04d\n" $i`
@@ -74,4 +74,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # mount again, the file system is now ready
-$MOUNT $device $mount_point -o noatime
+$MOUNT $device $mount_point -o rw,noatime,seclabel,attr2,inode64,noquota
+
+# Add the filesystem to /etc/fstab
+grep "$device" /etc/fstab || echo "$MOUNT $device $mount_point -o rw,noatime,seclabel,attr2,inode64,noquota 0 0" >> /etc/fstab
