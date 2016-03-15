@@ -370,18 +370,20 @@ def set_docker_configuration_func():
         logger.fatal("Aborting program! Please review log")
 
 
-def execute_docker_func(docker_image_name):
+def execute_docker_func(docker_image_name, use_urandom=False):
     '''
     Execute Docker Container
     '''
     try:
 
         # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecsstandalone:v2.0 --name=ecsstandalone
+	docker_command = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1"]
+        if use_urandom:
+            docker_command.extend(["-v", "/dev/urandom:/dev/random"])
+	docker_command.extend(["-v", "/ecs:/disks", "-v", "/host:/host", "-v", "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
+                         "--name=ecsstandalone", "{}".format(docker_image_name)])
         logger.info("Execute the Docker Container.")
-        subprocess.call(["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/disks", "-v", "/host:/host", "-v",
-                         "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
-                         "--name=ecsstandalone",
-                         "{}".format(docker_image_name)])
+        subprocess.call(docker_command)
 
         # docker ps
         logger.info("Check the Docker processes.")
@@ -612,6 +614,9 @@ def main():
     parser.add_argument('--imagetag', dest='imagetag', nargs='?',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
                         required=False)
+    parser.add_argument('--use-urandom', dest='use_urandom', action='store_true', default=False,
+                        help='If present, /dev/random will be mapped to /dev/urandom on the host.  If you container starts up slow the first time could help.',
+                        required=False)
     parser.set_defaults(container_config=False)
     parser.set_defaults(cleanup=False)
     parser.set_defaults(imagename="emccorp/ecs-software-2.1")
@@ -680,7 +685,7 @@ def main():
     run_additional_prep_file_func(args.disks)
     directory_files_conf_func()
     set_docker_configuration_func()
-    execute_docker_func(docker_image_name)
+    execute_docker_func(docker_image_name, args.use_urandom)
     modify_container_conf_func()
     getAuthToken(ip_address,"root","ChangeMe")
     logger.info(
