@@ -1,0 +1,132 @@
+/install.log
+/local_serial
+/ui/resources/futures
+/.idea
+/.projectKnowledge
+/patches
+/ecs-multi-node
+/examples
+/ecs-single-node
+/bootstrap_plugins
+/Documentation
+/README.md
+/bootstrap.sh
+/.gitignore
+/changelog.md
+/ECS-CommunityEdition.iml
+/.gitattributes
+/.dockerignore
+### Created by .ignore support plugin (hsz.mobi)
+### Linux template
+*~
+
+### KDE directory preferences
+.directory
+
+### Linux trash folder which might appear on any partition or disk
+.Trash-*
+### Emacs template
+### -*- mode: gitignore; -*-
+\###*\###
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\###*
+
+### Org-mode
+/.joblist
+/.drone.yml
+.org-id-locations
+*_archive
+
+### flymake-mode
+*_flymake.*
+
+### eshell files
+/eshell/history
+/eshell/lastdir
+
+### elpa packages
+/elpa/
+
+### reftex files
+*.rel
+
+### AUCTeX auto folder
+/auto/
+
+### cask packages
+.cask/
+### Vagrant template
+.vagrant/
+### SublimeText template
+### cache files for sublime text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+
+### workspace files are user-specific
+*.sublime-workspace
+
+/.idea/scratch
+### project files should be checked into the repository, unless a significant
+### proportion of contributors will probably not be using SublimeText
+### *.sublime-project
+
+### sftp configuration file
+sftp-config.json
+### Example user template template
+### Example user template
+
+### IntelliJ project files
+.idea
+*.iml
+out
+gen### Tags template
+### Ignore tags created by etags, ctags, gtags (GNU global) and cscope
+TAGS
+!TAGS/
+tags
+!tags/
+gtags.files
+GTAGS
+GRTAGS
+GPATH
+cscope.files
+cscope.out
+cscope.in.out
+cscope.po.out
+
+### Windows template
+### Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+### Folder config file
+Desktop.ini
+
+### Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+### Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+### Windows shortcuts
+*.lnk
+### Vim template
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+
+### NotepadPP template
+*.bak
+/virtualenv/
+/.idea/
+/.projectKnowledge/

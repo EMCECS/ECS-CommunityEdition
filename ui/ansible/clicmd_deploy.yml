@@ -1,0 +1,50 @@
+- name: Common | Ping data nodes before doing anything else
+  hosts: data_node
+  gather_facts: false
+  tasks:
+    - ping: "{{inventory_hostname}}"
+
+- name: Installer | Slice nodes into OS groups for package install
+  hosts: data_node
+  gather_facts: True
+  tasks:
+     - group_by: key=os_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}
+
+- name: CentOS 7 | Install cached packages
+  hosts: os_CentOS_7
+  vars:
+    os_tag: os_CentOS_7
+  roles:
+    - CentOS_7_sync_caches_prep
+    - common_sync_caches_by_torrent
+    - CentOS_7_baseline_install
+
+- name: Installer | Disable torrent ffx
+  hosts: ecs_install
+  tasks:
+    - file:
+        path: "{{ffx_sem}}"
+        state: absent
+
+- name: Common | Install ECS
+  gather_facts: True
+  vars:
+    num_hosts: "{{ groups['data_node'] | length }}"
+  hosts: data_node
+  roles:
+    - common_baseline_install
+    - common_deploy
+
+- name: Installer | Slice nodes into OS groups for init scripts
+  hosts: data_node
+  gather_facts: True
+  tasks:
+     - group_by: key=os_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}
+
+- name: CentOS 7 | Install init scripts
+  gather_facts: True
+  hosts: os_CentOS_7
+  roles:
+    - CentOS_7_service_policies
+
+

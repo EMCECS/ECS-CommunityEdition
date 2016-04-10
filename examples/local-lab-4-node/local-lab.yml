@@ -1,0 +1,72 @@
+facts:
+  install_node: 192.168.2.200
+  management_clients:
+    - 192.168.2.0/24
+    - 192.168.1.0/24
+  ecs_software_image: emccorp/ecs-software-3.0.0:latest
+  autonaming: moons
+  ansible_defaults:
+    ansible_user: 'admin'
+    ansible_ssh_pass: 'ChangeMe'
+    ansible_become_pass: 'ChangeMe'
+    ansible_password: 'ChangeMe'
+  node_defaults:
+    ecs_root_user: root
+    ecs_root_pass: ChangeMe
+    dns_domain: local
+    dns_servers:
+      - 192.168.2.2
+    ntp_servers:
+      - 192.168.2.2
+  storage_pool_defaults:
+    cold_storage_enabled: false
+    protected: false
+    description: Default storage pool description
+    ecs_block_devices:
+      - /dev/vda
+  virtual_data_center_defaults:
+    description: Default virtual data center description
+    secret_key: c7koRP3oXNKYkhxKRqsP
+  replication_group_defaults:
+    description: Default replication group description
+    enable_rebalancing: false
+    allow_all_namespaces: false
+    full_replication: false
+  storage_pools:
+    - name: sp1
+      members:
+        - 192.168.2.200
+        - 192.168.2.201
+      options:
+        description: My First SP
+        ecs_block_devices:
+          - /dev/vda
+    - name: sp2
+      members:
+        - 192.168.2.202
+        - 192.168.2.203
+      options:
+        protected: false
+        description: My Second SP
+        ecs_block_devices:
+          - /dev/vda
+  virtual_data_centers:
+    - name: vdc1
+      members:
+        - sp1
+      options:
+        secret_key: c7koRP3oXNKYkhxKRqsP
+        description: My First VDC
+    - name: vdc2
+      members:
+        - sp2
+      options:
+        secret_key: c7koRP3oXNKYkhxKRqsQ
+        description: My Second VDC
+  replication_groups:
+    - name: rg1
+      members:
+        - vdc1
+        - vdc2
+      options:
+        description: My RG

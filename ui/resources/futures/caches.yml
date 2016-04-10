@@ -1,0 +1,5 @@
+  python:
+    command: pip --no-cache-dir --disable-pip-version-check download {{ caches.python.src }} && touch success.sem
+    src: docker-py
+    dest: success.sem
+    applies_to: data_node

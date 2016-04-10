@@ -1,0 +1,4 @@
+- name: Installer | Testing
+  hosts: data_node
+  roles:
+    - CentOS_7_service_policies

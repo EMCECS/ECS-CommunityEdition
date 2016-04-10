@@ -1,0 +1,35 @@
+# DANGER: Rendered by installer - direct edits WILL be overwritten when ecsdeploy next runs!
+host_root_dir: {{ ui.host_root_dir }}
+cache_dir: {{ ui.cache_dir }}
+host_cache_dir: {{ ui.host_cache_dir }}
+host_state_file: {{ ui.host_state_file }}
+state_file: {{ ui.state_file }}
+deploy_file: {{ ui.deploy_file }}
+ssl_dir: {{ ui.ssl_dir }}
+host_ssl_dir: {{ ui.host_ssl_dir }}
+ssh_dir: {{ ui.ssh_dir }}
+host_ssh_dir: {{ ui.host_ssh_dir }}
+product_name: {{ product.name }}
+product_version: {{ product.version }}
+product_vendor: {{ product.vendor }}
+product_flavor: {{ product.flavor }}
+ffx_sem: {{ ui.ffx_sem }}
+#
+firewall_ports_service_clients:
+# CAS API
+  - 3218/tcp
+# S3_object_{http,https}, ATMOS_object_{http,https}, Swift_object_{http,https}
+  - 9020-9025/tcp
+# HDFS
+  - 9040/tcp
+firewall_ports_management_clients:
+# SSH
+  - 22/tcp
+# Portal HTTP
+  - 80/tcp
+# Portal HTTPS
+  - 443/tcp
+# Management API
+  - 4443/tcp
+
+#
