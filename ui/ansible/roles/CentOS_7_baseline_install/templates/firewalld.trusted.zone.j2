@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<zone target="ACCEPT">
+    <short>Trusted</short>
+    <description>All network connections are accepted.</description>
+    {# Round up all the IPv4 addresses Ansible knows about and whitelist them #}
+    {% for host in groups['all'] | map('extract', hostvars, 'ansible_all_ipv4_addresses') | list %}
+        <source address="{{ host }}/32"/>
+    {% endfor %}
+    {# Decorate arbitrary IPv4s with /32 masks as a convenience feature #}
+    {% for host in trusted_hosts %}
+        <source address="{{ host }}/32"/>
+    {% endfor %}
+    {# Add arbitrary prefixes #}
+    {% for cidr in trusted_networks %}
+        <source address="{{ cidr }}"/>
+    {% endfor %}
+</zone>

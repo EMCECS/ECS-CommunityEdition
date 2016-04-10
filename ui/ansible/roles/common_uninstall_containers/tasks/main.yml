@@ -1,0 +1,40 @@
+- name: Common | Stop and disable ECS service if running
+  service:
+    name: ecs
+    state: stopped
+    enabled: no
+  ignore_errors: true
+  failed_when: false
+
+- name: Common | Delete ECS Docker container ecs-storageos
+  shell: docker rm -fv ecs-storageos
+  ignore_errors: true
+  failed_when: false
+
+- name: Common | Delete ECS Docker container ecs-config
+  shell: docker rm -fv ecs-config
+  ignore_errors: true
+  failed_when: false
+
+- name: Common | Unmount ECS partitions
+  command: umount {{ item }}1
+  with_items:
+    - "{{ ecs_block_devices }}"
+  ignore_errors: true
+  failed_when: false
+
+- name: Common | Delete fstabs
+  mount:
+    src: "{{ item }}1"
+    state: absent
+  with_together:
+    - "{{ ecs_block_devices }}"
+  ignore_errors: true
+  failed_when: false
+
+- name: Common | Remove partition on ECS block devices
+  shell: parted {{item}} rm 1
+  with_items:
+    - "{{ ecs_block_devices }}"
+  ignore_errors: true
+  failed_when: false

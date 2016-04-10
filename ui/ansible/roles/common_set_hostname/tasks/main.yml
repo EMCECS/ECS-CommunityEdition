@@ -1,0 +1,11 @@
+- include_vars: autonames.yml
+
+- name: Common | Find node hostname
+  set_fact:
+    index_number: "{{ item.0 }}"
+    index_hostname: "{{ autonames[item.0] }}.{{dns_domain}}"
+  with_indexed_items: "{{groups.data_node}}"
+  when: "{{item.1 == inventory_hostname}}"
+
+- name: Common | Set node hostname
+  hostname: name="{{index_hostname}}"

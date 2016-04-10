@@ -1,0 +1,6 @@
+- name: Common | Disable ECS service and stop ECS
+  service:
+    enabled: no
+    name: ecs
+    sleep: 60
+    state: stopped

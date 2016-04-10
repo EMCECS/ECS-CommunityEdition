@@ -1,0 +1,25 @@
+---
+- name: CentOS 7 | Update CA trust chain
+  command: "update-ca-trust extract"
+
+- name: CentOS 7 | Restart Docker
+  service:
+    name: "{{ service_names.docker }}"
+    state: restarted
+    enabled: yes
+
+- name: CentOS 7 | Stop ntp
+  service:
+    name: "{{ service_names.ntp }}"
+    state: stopped
+    enabled: yes
+
+- name: CentOS 7 | Set the clock
+  command: ntpd -gq
+
+- name: CentOS 7 | Start ntp
+  service:
+    name: "{{ service_names.ntp }}"
+    state: started
+    enabled: yes
+

@@ -1,0 +1,6 @@
+- name: Common | Enable ECS service and start ECS
+  service:
+    enabled: yes
+    name: ecs
+    sleep: 60
+    state: started

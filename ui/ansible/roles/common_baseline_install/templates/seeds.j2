@@ -1,0 +1,4 @@
+{% set comma = joiner(",") %}
+{%- for host in groups.data_node -%}
+    {{ comma() }}{{ hostvars[host]['ansible_default_ipv4']['address'] }}
+{%- endfor %}

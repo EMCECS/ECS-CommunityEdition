@@ -1,0 +1,25 @@
+#      - name: Networks
+#        type: GatherForm
+#        title: Deployment Networks
+#        brief: Weave Networks Subnets
+#        help: *generic_help
+#        keys:
+#          - help
+#          - save
+#          - exit
+#          - color
+#        args:
+#          form:
+#            - statement: >
+#                The installer will connect deployed nodes with Docker Weave.
+#                It needs two different private subnets to connect everything.
+#                It is almost always safe to use the default RFC 3927 subnets because
+#                nodes on a Docker Weave network are effectively link-local.
+#            - question: Weave VPN Subnet
+#              type: edit_line
+#              var: weave_net_subnet
+#              default: 169.254.253.0/24
+#            - question: Weave DNS Subnet
+#              type: edit_line
+#              var: weave_dns_subnet
+#              default: 169.254.254.0/24

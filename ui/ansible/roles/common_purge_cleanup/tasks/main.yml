@@ -1,0 +1,30 @@
+- name: Common | Zero first 10MiB
+  shell: dd if=/dev/zero of={{item}} bs=1M count=10
+  with_items:
+    - "{{ ecs_block_devices }}"
+  ignore_errors: true
+  failed_when: false
+
+- name: Common | Remove ECS host directories
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /ecs
+    - /data
+    - /host
+  ignore_errors: true
+  failed_when: false
+
+- name: Common | Remove ecs-install directory
+  file:
+    path: "{{item}}"
+    state: absent
+  with_items:
+    - "{{host_root_dir}}"
+
+- name: Common | Remove /etc/fstab entries
+  lineinfile:
+    dest: /etc/fstab
+    state: absent
+    regexp: '/ecs/uuid'

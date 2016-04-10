@@ -1,3 +1,4 @@
+/.projectKnowledge
 /.compliance
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template
@@ -17,8 +18,9 @@ develop-eggs/
 dist/
 downloads/
 eggs/
+/.joblist
+/.drone.yml
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -114,3 +116,4 @@ atlassian-ide-plugin.xml
 com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
+/virtualenv/
