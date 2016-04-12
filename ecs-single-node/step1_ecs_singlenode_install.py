@@ -273,8 +273,8 @@ def prepare_data_disk_func(disks):
             subprocess.call(["mkdir", "-p", "/ecs/{}".format(uuid_name)])
 
             # mount /dev/sdc1 /ecs/uuid-1
-            logger.info("Mount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
-            subprocess.call(["mount", device_name, "/ecs/{}".format(uuid_name), "-o", "rw,noatime,seclabel,attr2,inode64,noquota"])
+            logger.info("Mount attached {} to /ecs/{} volume.".format(device_name, uuid_name))
+            subprocess.call(["mount", device_name, "/ecs/{}".format(uuid_name), "-o", "noatime,seclabel,attr2,inode64,noquota"])
 
             # add entry to fstab if not pre-existing
             fstab = "/etc/fstab"
@@ -394,21 +394,22 @@ def set_docker_configuration_func():
         logger.fatal("Aborting program! Please review log")
 
 
-def execute_docker_func(docker_image_name):
+def execute_docker_func(docker_image_name, use_urandom=False):
     '''
     Execute Docker Container
     '''
     try:
 
         # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecsstandalone:v2.0 --name=ecsstandalone
+	docker_command = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1"]
+        if use_urandom:
+            docker_command.extend(["-v", "/dev/urandom:/dev/random"])
+	docker_command.extend(["-v", "/ecs:/dae", "-v", "/host:/host", "-v", "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
+                         "--name=ecsstandalone", "{}".format(docker_image_name)])
         logger.info("Execute the Docker Container.")
-        command_line = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/dae", "-v", "/host:/host", "-v",
-                         "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
-                         "--name=ecsstandalone",
-                         "{}".format(docker_image_name)]
-        command_line[1:1] = DockerCommandLineFlags
-        logger.info(" ".join(command_line))
-        subprocess.call(command_line)
+        docker_command[1:1] = DockerCommandLineFlags
+        logger.info(" ".join(docker_command))
+        subprocess.call(docker_command)
 
         # docker ps
         logger.info("Check the Docker processes.")
@@ -435,7 +436,7 @@ def cmdline(command):
     return process.communicate()[0]
 
 
-def modify_container_conf_func():
+def modify_container_conf_func(no_internet):
     try:
         logger.info("Backup object properties files")
         os.system(
@@ -498,19 +499,21 @@ def modify_container_conf_func():
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/ssm.object.properties /opt/storageos/conf/ssm.object.properties")
 
-        logger.info("Adding python setuptools to container")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone wget https://bootstrap.pypa.io/ez_setup.py")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone python ez_setup.py")
 
-        logger.info("Adding python requests library to container")
-        os.system(
-            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OL https://github.com/kennethreitz/requests/tarball/master")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone tar zxvf master -C /tmp")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsstandalone bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone wget https://bootstrap.pypa.io/ez_setup.py")
-        logger.info("Cleaning up python packages")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm master")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm setuptools-20.0.zip")
+        if not no_internet:
+            logger.info("Adding python setuptools to container")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone wget https://bootstrap.pypa.io/ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone python ez_setup.py")
+    
+            logger.info("Adding python requests library to container")
+            os.system(
+                "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OL https://github.com/kennethreitz/requests/tarball/master")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone tar zxvf master -C /tmp")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsstandalone bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone wget https://bootstrap.pypa.io/ez_setup.py")
+            logger.info("Cleaning up python packages")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm master")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm setuptools-20.0.zip")
 
         logger.info("Flush VNeST data")
         os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
@@ -553,6 +556,19 @@ def getAuthToken(ECSNode, User, Password):
             # logger.info("Attempting to authenticate for {} minutes.".format(i%2))
 
     logger.fatal("Authentication service not yet started.")
+
+def docker_load_image(imagefile):
+    """
+    Loads the specified docker image file.
+    """
+    try:
+        logger.info("Loading docker image file %s" % imagefile)
+        res = subprocess.check_output("docker load -i \"%s\"" % imagefile, shell=True)
+    except Exception as ex:
+        logger.exception(ex)
+        logger.fatal("Error loading docker image file %s" % imagefile)
+        sys.exit(13)
+
 
 
 def docker_cleanup_old_images():
@@ -667,10 +683,21 @@ def main():
     parser.add_argument('--imagetag', dest='imagetag', nargs='?',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
                         required=False)
+    parser.add_argument('--use-urandom', dest='use_urandom', action='store_true', default=False,
+                        help='If present, /dev/random will be mapped to /dev/urandom on the host.  If you container starts up slow the first time could help.',
+                        required=False)
+    parser.add_argument('--no-internet', dest='no_internet', action='store_true', default=False,
+                        help='When specified, do not perform any actions that require an Internet connection.',
+                        required=False)
+    parser.add_argument('--load-image', dest='image_file', nargs='?',
+                        help='If present, gives the name of a docker image file to load.',
+                        required=False)
+
     parser.set_defaults(container_config=False)
     parser.set_defaults(cleanup=False)
     parser.set_defaults(imagename="emccorp/ecs-software-2.2")
     parser.set_defaults(imagetag="latest")
+    parser.set_defaults(image_file=False)
     args = parser.parse_args()
 
 
@@ -686,6 +713,16 @@ def main():
     print("Disk[s]: %s" % args.disks)
     print("Docker Image Name: %s" % args.imagename)
     print("Docker Image Tag: %s" % args.imagetag)
+    if(args.image_file):
+        print("Docker Image File: %s" % args.image_file)
+
+    print("Use Internet to download image and packages: %s" % (not args.no_internet))
+
+    # If loading an image, make sure it exists.
+    if args.image_file and not os.path.exists(args.image_file):
+        logger.error("The specified docker image file %s does not exist." % args.image_file)
+        sys.exit(12)
+
 
     # Check if only wants to run the Container Configuration section
     if args.container_config:
@@ -730,11 +767,15 @@ def main():
 
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container: {}".format(docker_image_name))
 
-    yum_func()
-    package_install_func()
+    if not args.no_internet:
+        yum_func()
+        package_install_func()
     update_selinux_os_configuration()
     prep_file_func()
-    docker_pull_func(docker_image_name)
+    if args.image_file:
+        docker_load_image(args.image_file)
+    if not args.no_internet:
+        docker_pull_func(docker_image_name)
     hosts_file_func(args.hostname, ethernet_adapter_name)
     network_file_func(ethernet_adapter_name)
     seeds_file_func(ethernet_adapter_name)
@@ -742,8 +783,8 @@ def main():
     run_additional_prep_file_func(args.disks)
     directory_files_conf_func()
     set_docker_configuration_func()
-    execute_docker_func(docker_image_name)
-    modify_container_conf_func()
+    execute_docker_func(docker_image_name, args.use_urandom)
+    modify_container_conf_func(args.no_internet)
     getAuthToken(ip_address,"root","ChangeMe")
     logger.info(
         "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \

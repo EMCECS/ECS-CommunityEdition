@@ -261,7 +261,7 @@ def prepare_data_disk_func(disks):
             subprocess.call(["mkdir", "-p", "/ecs/{}".format(uuid_name)])
 
             # mount /dev/sdc1 /ecs/uuid-1
-            logger.info("Mount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
+            logger.info("Mount attached {} to /ecs/{} volume.".format(device_name, uuid_name))
             subprocess.call(["mount", device_name, "/ecs/{}".format(uuid_name), "-o", "noatime,seclabel,attr2,inode64,noquota"])
 
             # add entry to fstab if not pre-existing
