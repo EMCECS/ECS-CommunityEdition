@@ -17,6 +17,7 @@ import re
 logging.config.dictConfig(settings.ECS_SINGLENODE_LOGGING)
 logger = logging.getLogger("root")
 
+DockerCommandLineFlags=[]
 
 def yum_update_func():
     """
@@ -125,6 +126,9 @@ def docker_pull_func(docker_image_name):
         docker_arg = "pull"
         logger.info("Executing a Docker Pull for image {}".format(docker_image_name))
         subprocess.call([docker, docker_arg, docker_image_name])
+        command_line = [docker, docker_arg, docker_image_name]
+        command_line[1:1] = DockerCommandLineFlags
+        subprocess.call(command_line)
 
     except Exception as ex:
         logger.exception(ex)
