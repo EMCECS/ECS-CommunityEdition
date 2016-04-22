@@ -774,7 +774,7 @@ def main():
     prep_file_func()
     if args.image_file:
         docker_load_image(args.image_file)
-    if not args.no_internet:
+    elif not args.no_internet:
         docker_pull_func(docker_image_name)
     hosts_file_func(args.hostname, ethernet_adapter_name)
     network_file_func(ethernet_adapter_name)
