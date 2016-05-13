@@ -1,4 +1,4 @@
-!/usr/bin/env python
+#!/usr/bin/env python
 # An installation program for ECS SW 2.1 Multiple Data nodes
 import argparse
 import getopt
@@ -468,7 +468,7 @@ def set_docker_configuration_func():
         logger.fatal("Aborting program! Please review log")
 
 
-def execute_docker_func(docker_image_name, use_urandom=false):
+def execute_docker_func(docker_image_name, use_urandom=False):
     """
     Execute Docker Container
     """
