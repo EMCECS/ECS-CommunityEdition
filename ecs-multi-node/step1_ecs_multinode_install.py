@@ -1,4 +1,4 @@
-!/usr/bin/env python
+#!/usr/bin/env python
 # An installation program for ECS SW 2.1 Multiple Data nodes
 import argparse
 import getopt
