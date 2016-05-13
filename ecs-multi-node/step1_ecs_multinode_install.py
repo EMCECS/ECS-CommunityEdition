@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+!/usr/bin/env python
 # An installation program for ECS SW 2.1 Multiple Data nodes
 import argparse
 import getopt
@@ -95,6 +95,20 @@ def prep_file_func():
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log.")
         sys.exit()
+
+
+def docker_load_image(imagefile):
+    """
+    Load the specified docker image file.
+    """
+    try:
+        logger.info("Loading docker image file %s" % imagefile)
+        res = subprocess.check_output("docker load -i \"%s\"" % imagefile, shell=True)
+    except Exception as ex:
+        logger.exception(ex)
+        logger.fatal("Error loading docker image file %s" % imagefile)
+        sys.exit(13)
+
 
 
 def docker_cleanup_old_images():
@@ -702,6 +716,8 @@ def main():
         package_install_func()
     prep_file_func()
     docker_cleanup_old_images()
+    if args.image_file:
+        docker_load_image(args.image_file)
     if not args.no_internet:
         docker_pull_func(docker_image_name)
     network_file_func(ethernet_adapter_name)
