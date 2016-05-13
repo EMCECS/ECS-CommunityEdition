@@ -503,7 +503,7 @@ def get_first(iterable, default=None):
     return default
 
 
-def modify_container_conf_func():
+def modify_container_conf_func(no_internet):
     try:
         #
         # Reduce number of partitions for each table from 128 to 32 to reduce memory/threads
@@ -544,19 +544,20 @@ def modify_container_conf_func():
         os.system(
             "docker exec -t  ecsmultinode cp /host/ssm.object.properties /opt/storageos/conf/ssm.object.properties")
 
-        logger.info("Adding python setuptools to container")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode wget https://bootstrap.pypa.io/ez_setup.py")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode python ez_setup.py")
+        if not no_internet:
+            logger.info("Adding python setuptools to container")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode wget https://bootstrap.pypa.io/ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode python ez_setup.py")
 
-        logger.info("Adding python requests library to container")
-        os.system(
-            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OL https://github.com/kennethreitz/requests/tarball/master")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode tar zxvf master -C /tmp")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsstandalone bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode wget https://bootstrap.pypa.io/ez_setup.py")
-        logger.info("Cleaning up python packages")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm master")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm setuptools-20.0.zip")
+            logger.info("Adding python requests library to container")
+            os.system(
+                "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OL https://github.com/kennethreitz/requests/tarball/master")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode tar zxvf master -C /tmp")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsstandalone bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode wget https://bootstrap.pypa.io/ez_setup.py")
+            logger.info("Cleaning up python packages")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm master")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm setuptools-20.0.zip")
 
         # Flush vNest to clear data and restart.
         logger.info("Flush VNeST data")
@@ -697,10 +698,12 @@ def main():
     # yum_update_func()
     precheck()
     update_selinux_os_configuration()
-    package_install_func()
+    if not args.no_internet:
+        package_install_func()
     prep_file_func()
     docker_cleanup_old_images()
-    docker_pull_func(docker_image_name)
+    if not args.no_internet:
+        docker_pull_func(docker_image_name)
     network_file_func(ethernet_adapter_name)
     seeds_file_func(args.ips)
     hosts_file_func(args.ips, args.hostnames)
@@ -709,7 +712,7 @@ def main():
     directory_files_conf_func()
     set_docker_configuration_func()
     execute_docker_func(docker_image_name, args.use_urandom)
-    modify_container_conf_func()
+    modify_container_conf_func(args.no_internet)
     getAuthToken(ip_address,"root","ChangeMe")
     logger.info(
         "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
