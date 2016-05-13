@@ -28,7 +28,7 @@ def executeRestAPI(url, method, filter, data, ECSNode,contentType='json',checkOu
     curlCommand = "curl -s -k -X %s -H 'Content-Type:application/%s' \
     -H 'X-SDS-AUTH-TOKEN:%s' \
     -H 'ACCEPT:application/%s' \
-    %s https://%s:9011%s" %(method, contentType, AuthToken, contentType,data, ECSNode, url)
+    %s https://%s:4443%s" %(method, contentType, AuthToken, contentType,data, ECSNode, url)
     print ("Executing REST API command: %s " % curlCommand)
 #print jsonResult
     if checkOutput:
