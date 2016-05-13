@@ -320,7 +320,7 @@ def clean_data_disk_func(disks):
 
         # sudo rm -rf /data/*
         logger.info("Remove /data/* Directory in attached Volume")
-        subprocess.call(["rm", "-rf", "/data/*"])
+        subprocess.call(["rm", "-rf", "/data"])
 
         # sudo rm -rf /var/log/vipr/emcvipr-object/*
         logger.info("Remove /var/log/vipr/emcvipr-object/* Directory ")
@@ -454,20 +454,22 @@ def set_docker_configuration_func():
         logger.fatal("Aborting program! Please review log")
 
 
-def execute_docker_func(docker_image_name):
+def execute_docker_func(docker_image_name, use_urandom=false):
     """
     Execute Docker Container
     """
     try:
 
         # docker run -d -e SS_GENCONFIG=1 -v /ecs:/dae -v /host:/host -v /var/log/vipr/emcvipr-object:/var/log -v /data:/data:rw --net=host emccorp/ecs-software --name=ecsmultinode
+        docker_command = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1"]
+        if use_urandom:
+            docker_command.extend(["-v", "/dev/urandom:/dev/random"])
+        docker_command.extend(["-v", "/ecs:/dae", "-v", "/host:/host", "-v", "/var/log/vipr/emcvipr-object:/var/log", "-v", "/data:/data:rw", "--net=host",
+                         "--name=ecsstandalone", "{}".format(docker_image_name)])
         logger.info("Execute the Docker Container.")
-        args = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/dae", "-v", "/host:/host", "-v",
-                         "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
-                         "--name=ecsmultinode",
-                         "{}".format(docker_image_name)]
-        logger.info(" ".join(args))
-        subprocess.call(args)
+        docker_command[1:1] = DockerCommandLineFlags
+        logger.info(" ".join(docker_command))
+        subprocess.call(docker_command)
 
         # docker ps
         logger.info("Check the Docker processes.")
@@ -627,9 +629,19 @@ def main():
     parser.add_argument('--imagetag', dest='imagetag', nargs='?',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
                         required=False)
+    parser.add_argument('--use-urandom', dest='use_urandom', action='store_true', default=False,
+                        help='If present, /dev/random will be mapped to /dev/urandom on the host.  If you container starts up slow the first time could help.',
+                        required=False)
+    parser.add_argument('--no-internet', dest='no_internet', action='store_true', default=False,
+                        help='When specified, do not perform any actions that require an Internet connection.',
+                        required=False)
+    parser.add_argument('--load-image', dest='image_file', nargs='?',
+                        help='If present, gives the name of a docker image file to load.',
+                        required=False)
     parser.set_defaults(cleanup=False)
     parser.set_defaults(imagename="emccorp/ecs-software-2.2")
     parser.set_defaults(imagetag="latest")
+    parser.set_defaults(image_file=False)
     args = parser.parse_args()
 
     # Check if hotname is valid
@@ -696,7 +708,7 @@ def main():
     run_additional_prep_file_func(args.disks)
     directory_files_conf_func()
     set_docker_configuration_func()
-    execute_docker_func(docker_image_name)
+    execute_docker_func(docker_image_name, args.use_urandom)
     modify_container_conf_func()
     getAuthToken(ip_address,"root","ChangeMe")
     logger.info(
