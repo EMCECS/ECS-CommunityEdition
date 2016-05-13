@@ -24,7 +24,7 @@ def executeRestAPI(url, method, filter, data, ECSNode,contentType='json',checkOu
         subprocess.call("echo %s > request_body.tmp" % data, shell=True)
         data="-d @request_body.tmp"
     if "license" in url:
-        data="-T license.xml"
+        data="-T license.lic"
     curlCommand = "curl -s -k -X %s -H 'Content-Type:application/%s' \
     -H 'X-SDS-AUTH-TOKEN:%s' \
     -H 'ACCEPT:application/%s' \
