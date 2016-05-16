@@ -194,14 +194,14 @@ def network_file_func(ethadapter):
         # Create the Network.json file
         logger.info("Creating the Network.json file with Ethernet Adapter: {} Hostname: {} and IP: {}:".format(ethadapter, hostname, ip_address))
         logger.info(
-            "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
-                ethadapter, ethadapter, hostname, ip_address))
+            "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"data_ip\":\"%s\",\"mgmt_ip\":\"%s\",\"replication_ip\":\"%s\"}" % (
+                ethadapter, ethadapter, hostname, ip_address, ip_address, ip_address))
 
         # Open a file
         network_file = open("network.json", "wb")
 
-        network_string = "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
-            ethadapter, ethadapter, hostname, ip_address)
+        network_string = "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"data_ip\":\"%s\",\"mgmt_ip\":\"%s\",\"replication_ip\":\"%s\"}" % (
+            ethadapter, ethadapter, hostname, ip_address, ip_address, ip_address)
 
         network_file.write(network_string)
 
@@ -404,7 +404,7 @@ def execute_docker_func(docker_image_name, use_urandom=False):
 	docker_command = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1"]
         if use_urandom:
             docker_command.extend(["-v", "/dev/urandom:/dev/random"])
-	docker_command.extend(["-v", "/ecs:/dae", "-v", "/host:/host", "-v", "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
+	docker_command.extend(["-v", "/ecs:/dae", "-v", "/host:/host", "-v", "/var/log/vipr/emcvipr-object:/var/log", "-v", "/data:/data:rw", "--net=host",
                          "--name=ecsstandalone", "{}".format(docker_image_name)])
         logger.info("Execute the Docker Container.")
         docker_command[1:1] = DockerCommandLineFlags
@@ -502,18 +502,18 @@ def modify_container_conf_func(no_internet):
 
         if not no_internet:
             logger.info("Adding python setuptools to container")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone wget https://bootstrap.pypa.io/ez_setup.py")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone python ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl --OLk https://bootstrap.pypa.io/ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone python ez_setup.py --insecure")
     
             logger.info("Adding python requests library to container")
             os.system(
-                "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OL https://github.com/kennethreitz/requests/tarball/master")
+                "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OLk https://github.com/kennethreitz/requests/tarball/master")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone tar zxvf master -C /tmp")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsstandalone bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone wget https://bootstrap.pypa.io/ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OLk https://bootstrap.pypa.io/ez_setup.py")
             logger.info("Cleaning up python packages")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm master")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm setuptools-20.0.zip")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm setuptools-*zip")
 
         logger.info("Flush VNeST data")
         os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
@@ -774,7 +774,7 @@ def main():
     prep_file_func()
     if args.image_file:
         docker_load_image(args.image_file)
-    if not args.no_internet:
+    elif not args.no_internet:
         docker_pull_func(docker_image_name)
     hosts_file_func(args.hostname, ethernet_adapter_name)
     network_file_func(ethernet_adapter_name)
