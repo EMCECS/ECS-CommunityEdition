@@ -654,7 +654,7 @@ def main():
                         help='If present, gives the name of a docker image file to load.',
                         required=False)
     parser.set_defaults(cleanup=False)
-    parser.set_defaults(imagename="emccorp/ecs-software-2.2")
+    parser.set_defaults(imagename="emccorp/ecs-software-2.2.1")
     parser.set_defaults(imagetag="latest")
     parser.set_defaults(image_file=False)
     args = parser.parse_args()
