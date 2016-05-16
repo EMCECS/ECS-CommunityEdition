@@ -284,7 +284,7 @@ def prepare_data_disk_func(disks):
                 logger.info("Data disk already entered in fs table")
             elif p.returncode == 1:
                 with open("/etc/fstab", 'a') as file:
-                    file.write("{} /ecs/{} xfs rw,noatime,seclabel,attr2,inode64,noquota 0 0".format(device_name, uuid_name) )
+                    file.write("{} /ecs/{} xfs rw,noatime,seclabel,attr2,inode64,noquota 0 0\n".format(device_name, uuid_name) )
             else:
                 logger.info("Error in checking filesystem table: {}".format(err))
 
