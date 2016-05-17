@@ -458,10 +458,6 @@ def modify_container_conf_func(no_internet):
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
 
-        logger.info("Copy application config file to host")
-        os.system(
-            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /host/application.conf")
-
         logger.info("Copy common-object properties files to host")
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
@@ -478,20 +474,13 @@ def modify_container_conf_func(no_internet):
         os.system(
             "sed --expression='s/object.NumDirectoriesPerCoSForSystemDT=128/object.NumDirectoriesPerCoSForSystemDT=32/' --expression='s/object.NumDirectoriesPerCoSForUserDT=128/object.NumDirectoriesPerCoSForUserDT=32/' < /host/common.object.properties1 > /host/common.object.properties")
 
-        logger.info("Modify Portal config for to bypass validation")
-        os.system("echo ecs.minimum.node.requirement=1 >> /host/application.conf")
-
         logger.info("Modify SSM config for small footprint")
         os.system(
             "sed --expression='s/object.freeBlocksHighWatermarkLevels=1000,200/object.freeBlocksHighWatermarkLevels=100,50/' --expression='s/object.freeBlocksLowWatermarkLevels=0,100/object.freeBlocksLowWatermarkLevels=0,20/' < /host/ssm.object.properties1 > /host/ssm.object.properties")
 
-
         logger.info("Copy modified files to container")
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
-
-        os.system(
-            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/application.conf /opt/storageos/ecsportal/conf/application.conf")
 
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
