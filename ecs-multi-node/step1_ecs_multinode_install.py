@@ -560,15 +560,15 @@ def modify_container_conf_func(no_internet):
 
         if not no_internet:
             logger.info("Adding python setuptools to container")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode wget https://bootstrap.pypa.io/ez_setup.py")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode python ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl --OLk https://bootstrap.pypa.io/ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode python ez_setup.py --insecure")
 
             logger.info("Adding python requests library to container")
             os.system(
-                "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OL https://github.com/kennethreitz/requests/tarball/master")
+                "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OLk https://github.com/kennethreitz/requests/tarball/master")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode tar zxvf master -C /tmp")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsmultinode bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode wget https://bootstrap.pypa.io/ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode -OLk https://bootstrap.pypa.io/ez_setup.py")
             logger.info("Cleaning up python packages")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm master")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm setuptools-20.0.zip")
@@ -718,7 +718,7 @@ def main():
     docker_cleanup_old_images()
     if args.image_file:
         docker_load_image(args.image_file)
-    if not args.no_internet:
+    elif not args.no_internet:
         docker_pull_func(docker_image_name)
     network_file_func(ethernet_adapter_name)
     seeds_file_func(args.ips)
