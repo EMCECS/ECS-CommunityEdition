@@ -9,7 +9,7 @@ systemctl start firewalld
 
 for port in "${tcpadd[@]}"; do
     firewall-cmd --permanent --add-port=$port/tcp
-for port in "&{udpadd[@]}"; do
+for port in "${udpadd[@]}"; do
     firewall-cmd --permanent --add-port=$port/udp
 
 firewall-cmd --reload
