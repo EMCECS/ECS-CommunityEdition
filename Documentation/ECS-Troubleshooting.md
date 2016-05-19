@@ -44,14 +44,21 @@ To install ECS Community Edition under these conditions, please view the readme 
 
 ### List of Open ports required on each ECS data node
 
-Ensure the following ports are open for communication.  Add these ports to the guide saying if a single node is used:
+Ensure the ports in the following table are open for communication. In the case of a multiple-node installation, additionally ensure that each node is trusted to itself and to other nodes in the system by using the following command on each node:
+
+`firewall-cmd --permanent --zone=trusted --add-source=<ECS-node-IP>/32`
+
+followed by `firewall-cmd --reboot` for each host.
 
 `fwd_settings.sh` in the main directory will invoke the `firewalld` service and permanently open necessary ports. In the case of a failure in this setup referencing `iptables`, please ensure that your docker network bridge is running and installed using `yum install bridge-utils`.
 
+In the case of a multiple node configuration, you may
 
 |Port Name-Usage=Port Number|
 |---------------------------|
+|port.ssh=22|
 |port.ecsportal=80|
+|port.rcpbind=111|
 |port.activedir=389|
 |port.ecsportalsvc=443|
 |port.activedirssl=636|
@@ -60,10 +67,14 @@ Ensure the following ports are open for communication.  Add these ports to the g
 |port.blob=1098|
 |port.provision=1198|
 |port.objhead=1298|
+|port.zookeeper=2181|
+|port.coordinator=2889|
 |port.cassvc=3218|
 |port.ecsmgmtapi=4443|
 |port.rmmvdcr=5120|
 |port.rmm=5123|
+|port.coordinator=7399|
+|port.coordinatorsvc=7400|
 |port.rmmcmd=7578|
 |port.objcontrolUnsecure=9010|
 |port.objcontrolSecure=9011|
@@ -95,6 +106,7 @@ Ensure the following ports are open for communication.  Add these ports to the g
 |port.vnestMinSecure=9206|
 |port.hdfs=9208|
 |port.event=9209|
+|port.objcontrolsvc=9212|
 |port.cas=9250|
 |port.resource=9888|
 |port.tcpIpcServer=9898|
