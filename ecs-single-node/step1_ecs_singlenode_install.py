@@ -194,14 +194,14 @@ def network_file_func(ethadapter):
         # Create the Network.json file
         logger.info("Creating the Network.json file with Ethernet Adapter: {} Hostname: {} and IP: {}:".format(ethadapter, hostname, ip_address))
         logger.info(
-            "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
-                ethadapter, ethadapter, hostname, ip_address))
+            "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"data_ip\":\"%s\",\"mgmt_ip\":\"%s\",\"replication_ip\":\"%s\"}" % (
+                ethadapter, ethadapter, hostname, ip_address, ip_address, ip_address))
 
         # Open a file
         network_file = open("network.json", "wb")
 
-        network_string = "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
-            ethadapter, ethadapter, hostname, ip_address)
+        network_string = "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"data_ip\":\"%s\",\"mgmt_ip\":\"%s\",\"replication_ip\":\"%s\"}" % (
+            ethadapter, ethadapter, hostname, ip_address, ip_address, ip_address)
 
         network_file.write(network_string)
 
@@ -284,7 +284,7 @@ def prepare_data_disk_func(disks):
                 logger.info("Data disk already entered in fs table")
             elif p.returncode == 1:
                 with open("/etc/fstab", 'a') as file:
-                    file.write("{} /ecs/{} xfs rw,noatime,seclabel,attr2,inode64,noquota 0 0".format(device_name, uuid_name) )
+                    file.write("{} /ecs/{} xfs rw,noatime,seclabel,attr2,inode64,noquota 0 0\n".format(device_name, uuid_name) )
             else:
                 logger.info("Error in checking filesystem table: {}".format(err))
 
@@ -404,7 +404,7 @@ def execute_docker_func(docker_image_name, use_urandom=False):
 	docker_command = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1"]
         if use_urandom:
             docker_command.extend(["-v", "/dev/urandom:/dev/random"])
-	docker_command.extend(["-v", "/ecs:/dae", "-v", "/host:/host", "-v", "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
+	docker_command.extend(["-v", "/ecs:/dae", "-v", "/host:/host", "-v", "/var/log/vipr/emcvipr-object:/var/log", "-v", "/data:/data:rw", "--net=host",
                          "--name=ecsstandalone", "{}".format(docker_image_name)])
         logger.info("Execute the Docker Container.")
         docker_command[1:1] = DockerCommandLineFlags
@@ -458,10 +458,6 @@ def modify_container_conf_func(no_internet):
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
 
-        logger.info("Copy application config file to host")
-        os.system(
-            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /host/application.conf")
-
         logger.info("Copy common-object properties files to host")
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
@@ -478,20 +474,13 @@ def modify_container_conf_func(no_internet):
         os.system(
             "sed --expression='s/object.NumDirectoriesPerCoSForSystemDT=128/object.NumDirectoriesPerCoSForSystemDT=32/' --expression='s/object.NumDirectoriesPerCoSForUserDT=128/object.NumDirectoriesPerCoSForUserDT=32/' < /host/common.object.properties1 > /host/common.object.properties")
 
-        logger.info("Modify Portal config for to bypass validation")
-        os.system("echo ecs.minimum.node.requirement=1 >> /host/application.conf")
-
         logger.info("Modify SSM config for small footprint")
         os.system(
             "sed --expression='s/object.freeBlocksHighWatermarkLevels=1000,200/object.freeBlocksHighWatermarkLevels=100,50/' --expression='s/object.freeBlocksLowWatermarkLevels=0,100/object.freeBlocksLowWatermarkLevels=0,20/' < /host/ssm.object.properties1 > /host/ssm.object.properties")
 
-
         logger.info("Copy modified files to container")
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
-
-        os.system(
-            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/application.conf /opt/storageos/ecsportal/conf/application.conf")
 
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
@@ -502,18 +491,18 @@ def modify_container_conf_func(no_internet):
 
         if not no_internet:
             logger.info("Adding python setuptools to container")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone wget https://bootstrap.pypa.io/ez_setup.py")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone python ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OLk https://bootstrap.pypa.io/ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone python ez_setup.py --insecure")
     
             logger.info("Adding python requests library to container")
             os.system(
-                "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OL https://github.com/kennethreitz/requests/tarball/master")
+                "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OLk https://github.com/kennethreitz/requests/tarball/master")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone tar zxvf master -C /tmp")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsstandalone bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone wget https://bootstrap.pypa.io/ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OLk https://bootstrap.pypa.io/ez_setup.py")
             logger.info("Cleaning up python packages")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm master")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm setuptools-20.0.zip")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm setuptools-*.zip")
 
         logger.info("Flush VNeST data")
         os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
@@ -695,7 +684,7 @@ def main():
 
     parser.set_defaults(container_config=False)
     parser.set_defaults(cleanup=False)
-    parser.set_defaults(imagename="emccorp/ecs-software-2.2")
+    parser.set_defaults(imagename="emccorp/ecs-software-2.2.1")
     parser.set_defaults(imagetag="latest")
     parser.set_defaults(image_file=False)
     args = parser.parse_args()
@@ -774,7 +763,7 @@ def main():
     prep_file_func()
     if args.image_file:
         docker_load_image(args.image_file)
-    if not args.no_internet:
+    elif not args.no_internet:
         docker_pull_func(docker_image_name)
     hosts_file_func(args.hostname, ethernet_adapter_name)
     network_file_func(ethernet_adapter_name)

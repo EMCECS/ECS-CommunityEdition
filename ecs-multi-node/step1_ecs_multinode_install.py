@@ -97,6 +97,20 @@ def prep_file_func():
         sys.exit()
 
 
+def docker_load_image(imagefile):
+    """
+    Load the specified docker image file.
+    """
+    try:
+        logger.info("Loading docker image file %s" % imagefile)
+        res = subprocess.check_output("docker load -i \"%s\"" % imagefile, shell=True)
+    except Exception as ex:
+        logger.exception(ex)
+        logger.fatal("Error loading docker image file %s" % imagefile)
+        sys.exit(13)
+
+
+
 def docker_cleanup_old_images():
     """
     Clean up images and containers from the Host Docker images repository
@@ -152,14 +166,14 @@ def network_file_func(ethadapter):
         # Create the Network.json file
         logger.info("Creating the Network.json file with Ethernet Adapter: {} Hostname: {} and IP: {}:".format(ethadapter, hostname, ip_address))
         logger.info(
-            "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
-                ethadapter, ethadapter, hostname, ip_address))
+            "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"data_ip\":\"%s\",\"mgmt_ip\":\"%s\",\"replication_ip\":\"%s\"}" % (
+                ethadapter, ethadapter, hostname, ip_address, ip_address, ip_address))
 
         # Open a file
         network_file = open("network.json", "wb")
 
-        network_string = "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
-            ethadapter, ethadapter, hostname, ip_address)
+        network_string = "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"data_ip\":\"%s\",\"mgmt_ip\":\"%s\",\"replication_ip\":\"%s\"}" % (
+            ethadapter, ethadapter, hostname, ip_address, ip_address, ip_address)
 
         network_file.write(network_string)
 
@@ -276,7 +290,7 @@ def prepare_data_disk_func(disks):
                 logger.info("Data disk already entered in fs table")
             elif p.returncode == 1:
                 with open("/etc/fstab", 'a') as file:
-                    file.write("{} /ecs/{} xfs rw,noatime,seclabel,attr2,inode64,noquota 0 0".format(device_name, uuid_name) )
+                    file.write("{} /ecs/{} xfs rw,noatime,seclabel,attr2,inode64,noquota 0 0\n".format(device_name, uuid_name) )
             else:
                 logger.info("Error in checking filesystem table: {}".format(err))
 
@@ -320,7 +334,7 @@ def clean_data_disk_func(disks):
 
         # sudo rm -rf /data/*
         logger.info("Remove /data/* Directory in attached Volume")
-        subprocess.call(["rm", "-rf", "/data/*"])
+        subprocess.call(["rm", "-rf", "/data"])
 
         # sudo rm -rf /var/log/vipr/emcvipr-object/*
         logger.info("Remove /var/log/vipr/emcvipr-object/* Directory ")
@@ -454,20 +468,22 @@ def set_docker_configuration_func():
         logger.fatal("Aborting program! Please review log")
 
 
-def execute_docker_func(docker_image_name):
+def execute_docker_func(docker_image_name, use_urandom=False):
     """
     Execute Docker Container
     """
     try:
 
-        # docker run -d -e SS_GENCONFIG=1 -v /ecs:/dae -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccorp/ecs-software --name=ecsmultinode
+        # docker run -d -e SS_GENCONFIG=1 -v /ecs:/dae -v /host:/host -v /var/log/vipr/emcvipr-object:/var/log -v /data:/data:rw --net=host emccorp/ecs-software --name=ecsmultinode
+        docker_command = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1"]
+        if use_urandom:
+            docker_command.extend(["-v", "/dev/urandom:/dev/random"])
+        docker_command.extend(["-v", "/ecs:/dae", "-v", "/host:/host", "-v", "/var/log/vipr/emcvipr-object:/var/log", "-v", "/data:/data:rw", "--net=host",
+                         "--name=ecsstandalone", "{}".format(docker_image_name)])
         logger.info("Execute the Docker Container.")
-        args = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/dae", "-v", "/host:/host", "-v",
-                         "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
-                         "--name=ecsmultinode",
-                         "{}".format(docker_image_name)]
-        logger.info(" ".join(args))
-        subprocess.call(args)
+        docker_command[1:1] = DockerCommandLineFlags
+        logger.info(" ".join(docker_command))
+        subprocess.call(docker_command)
 
         # docker ps
         logger.info("Check the Docker processes.")
@@ -501,7 +517,7 @@ def get_first(iterable, default=None):
     return default
 
 
-def modify_container_conf_func():
+def modify_container_conf_func(no_internet):
     try:
         #
         # Reduce number of partitions for each table from 128 to 32 to reduce memory/threads
@@ -542,19 +558,20 @@ def modify_container_conf_func():
         os.system(
             "docker exec -t  ecsmultinode cp /host/ssm.object.properties /opt/storageos/conf/ssm.object.properties")
 
-        logger.info("Adding python setuptools to container")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode wget https://bootstrap.pypa.io/ez_setup.py")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode python ez_setup.py")
+        if not no_internet:
+            logger.info("Adding python setuptools to container")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl --OLk https://bootstrap.pypa.io/ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode python ez_setup.py --insecure")
 
-        logger.info("Adding python requests library to container")
-        os.system(
-            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OL https://github.com/kennethreitz/requests/tarball/master")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode tar zxvf master -C /tmp")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsstandalone bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode wget https://bootstrap.pypa.io/ez_setup.py")
-        logger.info("Cleaning up python packages")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm master")
-        os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm setuptools-20.0.zip")
+            logger.info("Adding python requests library to container")
+            os.system(
+                "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OLk https://github.com/kennethreitz/requests/tarball/master")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode tar zxvf master -C /tmp")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsmultinode bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode -OLk https://bootstrap.pypa.io/ez_setup.py")
+            logger.info("Cleaning up python packages")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm master")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm setuptools-*.zip")
 
         # Flush vNest to clear data and restart.
         logger.info("Flush VNeST data")
@@ -627,9 +644,19 @@ def main():
     parser.add_argument('--imagetag', dest='imagetag', nargs='?',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
                         required=False)
+    parser.add_argument('--use-urandom', dest='use_urandom', action='store_true', default=False,
+                        help='If present, /dev/random will be mapped to /dev/urandom on the host.  If you container starts up slow the first time could help.',
+                        required=False)
+    parser.add_argument('--no-internet', dest='no_internet', action='store_true', default=False,
+                        help='When specified, do not perform any actions that require an Internet connection.',
+                        required=False)
+    parser.add_argument('--load-image', dest='image_file', nargs='?',
+                        help='If present, gives the name of a docker image file to load.',
+                        required=False)
     parser.set_defaults(cleanup=False)
-    parser.set_defaults(imagename="emccorp/ecs-software-2.2")
+    parser.set_defaults(imagename="emccorp/ecs-software-2.2.1")
     parser.set_defaults(imagetag="latest")
+    parser.set_defaults(image_file=False)
     args = parser.parse_args()
 
     # Check if hotname is valid
@@ -685,10 +712,14 @@ def main():
     # yum_update_func()
     precheck()
     update_selinux_os_configuration()
-    package_install_func()
+    if not args.no_internet:
+        package_install_func()
     prep_file_func()
     docker_cleanup_old_images()
-    docker_pull_func(docker_image_name)
+    if args.image_file:
+        docker_load_image(args.image_file)
+    elif not args.no_internet:
+        docker_pull_func(docker_image_name)
     network_file_func(ethernet_adapter_name)
     seeds_file_func(args.ips)
     hosts_file_func(args.ips, args.hostnames)
@@ -696,8 +727,8 @@ def main():
     run_additional_prep_file_func(args.disks)
     directory_files_conf_func()
     set_docker_configuration_func()
-    execute_docker_func(docker_image_name)
-    modify_container_conf_func()
+    execute_docker_func(docker_image_name, args.use_urandom)
+    modify_container_conf_func(args.no_internet)
     getAuthToken(ip_address,"root","ChangeMe")
     logger.info(
         "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
