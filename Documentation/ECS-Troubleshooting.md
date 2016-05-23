@@ -42,6 +42,15 @@ If you want to see if system is making progress:
 To install ECS Community Edition under these conditions, please view the readme file under **/emc-ssl-cert** for further instructions in installing the necessary CA certificate.
 
 
+### Restoring ECS after host shutdown/restart
+
+In the case that the ECS Community Edition container does not automatically start on boot, you can bring it up manually by ensuring that docker is running (`service docker start`) and issuing a start command for the container (`docker start <container-id>`, where the container-ID is `ecsstandalone` or `ecsmultinode`, viewable via the command `sudo docker ps -a`).
+
+Ensure that the Docker container restores itself on boot by executing the following:
+`systemctl enable docker.service`
+`echo "docker start <container-id>" >>/etc/rc.local`
+
+
 ### List of Open ports required on each ECS data node
 
 Ensure the ports in the following table are open for communication. In the case of a multiple-node installation, additionally ensure that each node is trusted to itself and to other nodes in the system by using the following command on each node:
