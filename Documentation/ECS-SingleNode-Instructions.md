@@ -1,4 +1,4 @@
-# ECS SW 2.2 - Single-Node Docker Configuration Instructions
+# ECS Software - Single-Node Docker Configuration Instructions
 
 **Table of Contents**
 - [Introduction](#introduction)
@@ -17,19 +17,21 @@
 
 ## Introduction
 
-EMC's Elastic Cloud Storage (ECS) 2.2 Software Docker **single node** deployment is intended to be used by developers and has a range of deployment options for them. The most universal methods for deploying ECS software is through Docker applied across whichever means at your disposal (IaaS/PaaS/Hypervisor). In addition to this, you can leverage Vagrant for local VirtualBox instances.
+EMC's Elastic Cloud Storage (ECS) Software Docker **single node** deployment is intended to be used by developers and has a range of deployment options for them. The most universal method for deploying ECS software is through Docker applied across whatever means are at your disposal (IaaS/PaaS/Hypervisor). In addition to this, you can leverage Vagrant for local VirtualBox instances.
 
-In terms of cloud deployments, there are a range of options here. The most compatible methods of deployment across any provider is the CentOS and CoreOS options to run the Docker instances. 
+In terms of cloud deployments, there are a range of options. The most compatible methods of deployment across any provider EW the CentOS and CoreOS options to run the Docker instances.
 
 
 ## Global Requirements
 
 All instances currently require to have the following minimum requirements: 
 
-- **Operating systems:** CentOS 7, and  SLES 12
+- **Operating systems:** CentOS 7
 - **CPU/Cores:** 4 Cores
 - **Memory:** Minimum of 16 GB RAM
-- **Disks:** An unpartitioned/Raw disk with at least 100 GB. 
+- **Disks:** An unpartitioned/raw disk with at least 100 GB.
+
+Installation also requires internet connectivity to recieve the requisite utility packages and Docker images.
 
 ### Supported Host Operative Systems and Docker Version
 
@@ -37,149 +39,139 @@ We have performed testing against the following platform(s):
 
 OS Name | Version | Docker Version |
 |-------|---------|----------------|
-|CentOS	| 7.1	    | (os bundled)          |
-|SLES   | 12      | 1.5.0-20.1     |
+|CentOS	| 7.1	    | 1.8.2 (latest)          |
 
 
 ## Installation Steps
 
-The installation script is composed by three main steps:
+The installation script is comprised of three main steps:
 
 |Step| Name | Description |Execution Time |
 |------|------|-----------|---------------|
-|1| Host & ECS Container Configuration  | Step 1 of the single node installation. This step controls the flow and contains the configuration changes required for the Host OS that will run the ECS 2.2 Software Docker container. In addition, this step updates the ECS Docker container so it can run as a single node and with limited resources|1-5 min|
-|2|ECS Object Configuration  |  Step 2 of the single node installation. This step performs the ECS configuration so it can start serving objects.|10-30 min|
+|1| Host & ECS Container Configuration  | This step controls the flow and contains the configuration changes required for the Host OS that will run the ECS Software Docker container. In addition, this step updates the ECS Docker container so it can run as a single node and with limited resources|3-15 min|
+|2|ECS Object Configuration  | This step performs the ECS configuration so it can start serving objects.|10-30 min|
 
 
 ## CentOS Installation
 
-[CentOS](http://www.centos.org/) is a well known Linux distribution that has the ability to deploy containers with Docker. Common public cloud platforms have CentOS templates ready to be used, so getting ECS 2.2 Software on a Docker container up is extremely easy!
+[CentOS](http://www.centos.org/) is a well-known Linux distribution with the ability to deploy containers with Docker. Common public cloud platforms have CentOS templates ready to be used, so getting ECS Software on a Docker container up is extremely easy.
 
-[SLES](http://www.suse.com/products/server/) is a a versatile Linux server operating system for deploying highly available enterprise-class IT services in mixed IT environments with best-of-breed performance and reduced risk.
-
-These are the installation steps to perform a CentOS or SLES installation: 
 
 ### Pre Installation Steps
 
-1. **Attach Data Disk(s):** ECS requires one or more disks to be attached to the host. The disk(s) will hold the object data store. The minimum is one data disk per data node. More disks can be added to increase total storage and performance. For testing purposes you can attach a disk above 512 GB. **The Disks will be formatted as XFS by the installation script**
+These steps are to be performed prior running the installation scripts on each of the ECS nodes:
 
-The Data Disk(s) attached to each host need to be **unpartitioned or RAW**. For example: We have a new host where we execute an `fdisk -l`:
+1. **Attach Data Disk(s):** ECS requires one or more disks to be attached to the host. The disk(s) will hold the object data store. **The Disks will be formatted as XFS by the installation script.**
+
+The data disk(s) attached to each host must be **unpartitioned or RAW**. For example: We have a new host where we execute the command `fdisk -l`:
 
 ![Fdisk in a new Host ](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step1.PNG)
 
-In the picture we can see two disks sda and sdb. A `mount -l` looks like this: 
+In the picture, we can see two disks: **sda** and **sdb**. A `mount -l` looks like this: 
 
 ![Mount in a new Host](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step2.PNG)
 
-Now, we attach a new disk to the Host VM. The new disk **/dev/sdc** looks like this after executing `fdisk -l` again:
+Now we attach a new disk to the host VM. The new disk **/dev/sdc** looks like this after executing `fdisk -l` again:
 
 ![Fdisk in New Host with a new disk attached](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step3.PNG)
 
-**Note:** Depending on the environment or the cloud provider you maybe using, the attached Disk(s) Name will be different. On this example the attached disk came as **/dev/sdc**.
-
-Once you execute the STEP 1 script,  the attached disk (**/dev/sdc** in our example) will be formatted and mounted:
+**Note:** Depending on the environment or the cloud provider you maybe using, the attached disk name(s) will be different. In this example, the attached disk came as **/dev/sdc**. The attached disk will be formatted and mounted during step 1, so do not mount the ECS data disk before executing step 1:
 
 ![Fdisk after the STEP 1 script has executed](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-disk-install-step4.PNG)
 
 
-2. **Open Ports:** ECS requires the following ports open:
+2. **Open Ports:** ECS requires the following ports to be open:
 
 |Port Number|Port Description|
 |-----------|----------------|
 |22| SSH, needed if using remote access |
-|443 | Port used for accessing the ECS management Website|
+|443 | Port used for accessing the ECS management website|
+|3218| Port used by the CAS service|
+|4443| ECS management API port |
 |9020| Port used for the S3 API|
+|9021| Port used for the S3 API on HTTPS|
+|9022| Port used for Atmos API|
+|9023| Port used for Atmos API on HTTPS|
 |9024| Port used for SWIFT API |
-|4443| ECS Management API Port *|
-|9011| ECS Management API Port *|
+|9025| Port used for SWIFT API on HTTPS|
+|9100| Port used for DT Query service|
 |9101| ECS Diagnostic Service Index |
 
-**Note:** There are more ports required to be open if you have a firewall running on the host. Please refer to [List of Ports to be Open](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md#list-of-open-ports-required-on-each-ecs-data-node) of the troubleshooting page.
-
-In addition, please refer to the [ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012 "ECS Security Configuration Guide") and our the [troubleshooting page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md "troubleshooting page") if you find any issues.
-
+**Note:** There are the most commonly-used ports by ECS; please refer to [List of Ports to be Open](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md#list-of-open-ports-required-on-each-ecs-data-node) of the troubleshooting page. In addition, please refer to the [ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012 "ECS Security Configuration Guide") and our the [troubleshooting page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md "troubleshooting page") if you find any issues.
 
 
 ### Host and Container Configuration
 #### :bangbang: WARNING: This is a destructive operation. Existing data on selected storage devices will be overwritten. Existing Docker installations AND images will be removed. 
 
-1. **Install Git:** `sudo yum install git`
+1. **Perform Updates:** Perform a Yum update using `sudo yum update` and download packages required for installation using `sudo yum install git tar wget`
 
 2. **Git Clone/Pull** the repository: [https://github.com/EMCECS/ECS-CommunityEdition ](https://github.com/EMCECS/ECS-CommunityEdition "https://github.com/EMCECS/ECS-CommunityEdition")
-3. **Find Ethernet Adapter** Find the main Host's Ethernet Adapter. You can run this command `netstat -ie | grep -B1 "<public ip address>" | head -n1 | awk '{print $1}'`  Replace "public ip address" with the Hosts public Address. **Note:** you can also can use the `ifconfig` command.  
 
-4. **Navigate** to the  **/ecs-single-node** folder.
+3. **Navigate** to the  **/ecs-single-node** folder.
 
-5. **Gather** the IP Address, hostname and  designated data disc(s). For Example:
+4. **Gather** the IP Address, desired hostname, ethernet adapter name (which can be obtained by executing `ifconfig` on the host) and designated data disk(s). For example:
 
-|Hostname | IP Address | Disk Name|Main Ethernet Adapter|  
+|Hostname | IP Address | Disk Name|Ethernet Adapter|  
 |---------|------------|----------|----------------|
 |ecstestnode1 | 10.0.1.10 |sdc    |eth0|
 
-6. **Run the step 1 script for single-node ECS.** For our example the command would look like like the one below, but your environment's details may differ. Remember, **the hostname can not be localhost**! The script usually completes within five minutes depending on how many packages need to be installed or updated.
+5. **Run the step 1 script for single-node ECS.** For our example values the command would be the one below, but your environment's specifics will differ. Be advised that **the hostname can not be localhost**. The execution of this script will take about 3-15 minutes depending on how many packages need to be installed or updated and the speed of certain services on the host:
 `# sudo python step1_ecs_singlenode_install.py --disks sdc --ethadapter eth0 --hostname ecssinglenode`
+For a list of all arguments with their full descriptions and including more detailed options, use the `--help` flag, e.g. `python step1_ecs_singlenode_install.py --help`
 
-6. Once the step 1 script has finished, **you may have to wait a few minutes** until the administrative web UI becomes available. The ECS Administrative portal can be accessed from any one of the ECS data nodes via HTTPS on port 443. For example: https://ecs-node-ip-address. Once you see the screen bellow, you are now ready to execute step 2.
+6. At the conclusion of step 1, **you may have to wait a few minutes** until the administrative web UI becomes available. ECS' administrative portal can be accessed from the data node on port 443 ( https://<ecs-node-ip-address> ). Once you see the screen bellow, you are ready to execute step 2.
 
 ![ECS UI](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-waiting-for-webserver.PNG)
 
 
-
 ### ECS Object Configuration 
 
-The next step, is the ECS Object configuration. This can be accomplished in two ways: 
+The next step is the ECS Object configuration. This can be accomplished in two ways: 
 
 - **ECS' Administration UI:** [Please follow these Instructions.](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Web-Interface.md "ECS UI Object Configuration via Administration website")
-
-or
-
 - **Automated script:** Follow the instructions in the section below.
 
-Both methods provide the same results, one of them walks you through the ECS's administrative web interface and the second uses the ECS's Management API (exposed on port 4443 and 9011)
+Both methods provide the same results; the first walks you through ECS's administrative web interface and the second uses ECS's Management API (exposed on port 4443 and 9011)
 
 
 **ECS Object Configuration via an automated script**
 
 
 1. **Navigate** to the  **/ecs-single-node** folder 
-2. **Verify** that for the execution of  `step2_object_provisioning.py` scrip the environment you are in, can access the 4443 and 9011 ports of the Host machine.
-2. Before executing the `step2_object_provisioning.py` please, please provide values for the following variables:
+2. **Verify** that the `step2_object_provisioning.py` script for the environment that you are in can access the 4443 and 9011 ports of the host machine, such as through the output of `nmap -sT -O localhost`
+. Before executing the `step2_object_provisioning.py`, decide upon values for the following variables:
 
 |Variable Name|Variable Description | Example Value|
 |-------------|---------------------|--------------|
-|ECSNodes | IP Address of the ECS Node. **For Single Node Deployment, only one IP is necessary**. | 10.0.1.10 |
+|ECSNodes | IP Address of the ECS Node. **For Single-Node deployment, only one IP is necessary**. | 10.0.1.10 |
 |NameSpace | The objects' Namespace | ns1 |
 |ObjectVArray | The objects' Virtual Array | ova1 |
 |ObjectVPool | The objects' Virtual Pool | ov1 |
 |UserName | The name of the initial Object User | user1 |
 |DataStoreName | The name of the Data Store.| ds1 |
 |VDCName | The name of the Virtual Data Center.| vdc1 |
-|MethodName | The name of step to be executed. Leave blank for automated and add a value for a manual installation| [empty] |
+|MethodName | The name of step to be executed. Leave blank to complete all provisioning steps.| *[empty]* |
 
-Once the variables are defined, they should be placed in the script. The command looks like this: 
-
-**step2_object_provisioning.py** --ECSNodes=`Coma seperated list of datanodes` --Namespace=`namespace` --ObjectVArray=`Object vArray Name` --ObjectVPool=`Object VPool name` --UserName=`user name to be created` --DataStoreName=`Name of the datastore to be created` --VDCName=`Name of the VDC` --MethodName=`Operation to be performed`
-
-Using the example values, the command would look like this: 
+Once the variables are defined, they should be placed in the script command. Using the example values, the command becomes: 
 
 sudo python step2_object_provisioning.py --ECSNodes=10.0.1.10 --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=
 
-For more granular way of executing the Object Configuration, you can follow the instructions on  **[this document](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Automation.md "ECS UI Automation Detailed")** that show how to run the process step by step. 
+For more granular way of executing the Object Configuration, you can follow the instructions on  **[this document](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-UI-Automation.md "ECS UI Automation Detailed")** showing how to run the process step by step. 
 
-**The execution of this script may take about 10 to 30 min to complete**
+**The execution of this script may take 10 to 30 minutes to complete.**
 
 
-### ECS Web Environment access and object testing
+### ECS Web Environment Access and Object Testing
 
-After the successful execution of the ECS Object Configuration, the system is ready to do read / write. Object users can read / write using free tools like **[S3 browser](http://s3browser.com/ "S3 browser")**
+After the successful execution of the ECS Object Configuration, the system is ready to begin serving objects. Object users can read and write using free tools like **[S3 browser](http://s3browser.com/ "S3 browser")**
 
-In addition, access to the ECS's admin panel is available via the HTTPS. Using our previous example for ECS deployed on 10.0.0.4. Access should be enabled for https://IP-Address-of-ECS-Node. Default login and password: `root/ChangeMe`
+In addition, access to the ECS's administrative panel is available via the `https://<ecs-node-ip-address>`. The default login and password for the portal is `root/ChangeMe` (which you will be prompted to change when first accessing the portal)
 
 
 ## Troubleshooting
-If you have any issues with the installation you can **[review this page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md#ecs-software-20---troubleshooting-tips "Troubleshooting page")** for troubleshooting tips and/or go to the support section bellow.
+If you have any issues with the installation, you can **[review this page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md#ecs-software-20---troubleshooting-tips "Troubleshooting page")** for troubleshooting tips and/or go to the support section bellow.
 
 
 ## Support
 
-Please file bugs and issues at the GitHub issues page. For more general discussions you can contact the EMC Code team at <a href="https://groups.google.com/forum/#!forum/emccode-users">Google Groups</a> or tagged with **EMC** on <a href="https://stackoverflow.com">Stack Overflow</a>. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community driven process.
+Please file bugs and issues at the GitHub issues page. For more general discussions you can contact the EMC Code team at <a href="https://groups.google.com/forum/#!forum/emccode-users">Google Groups</a> or tagged with **EMC** on <a href="https://stackoverflow.com">Stack Overflow</a>. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community-driven process.
