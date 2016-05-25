@@ -121,6 +121,9 @@ def docker_pull_func(docker_image_name):
     """
     try:
 
+        #Start docker service
+        subprocess.call(["service","docker","start"])
+
         docker = "docker"
         docker_arg = "pull"
         logger.info("Executing a Docker Pull for image {}".format(docker_image_name))
@@ -377,9 +380,9 @@ def set_docker_configuration_func():
 
     try:
 
-        # mv /etc/sysconfig/docker /etc/sysconfig/dockerold
-        logger.info("Move files /etc/sysconfig/docker to /etc/sysconfig/dockerold.")
-        subprocess.call(["mv", "/etc/sysconfig/docker", "/etc/sysconfig/dockerold"])
+        # cp /etc/sysconfig/docker /etc/sysconfig/dockerold
+        logger.info("Copy files /etc/sysconfig/docker to /etc/sysconfig/dockerold.")
+        subprocess.call(["cp", "/etc/sysconfig/docker", "/etc/sysconfig/dockerold"])
 
         # service docker restart
         logger.info("Restart Docker service.")
@@ -388,6 +391,11 @@ def set_docker_configuration_func():
         # service docker status
         logger.info("Check Docker service status.")
         subprocess.call(["service", "docker", "status"])
+
+        # set container to start on boot
+        logger.info("Set container to start on boot.")
+        subprocess.call(["systelctl", "enable", "docker.service"])
+        os.system("echo \"docker start ecsstandalone\" >>/etc/rc.local")
 
     except Exception as ex:
         logger.exception(ex)
@@ -652,7 +660,7 @@ def main():
         sys.exit(3)
 
     parser = argparse.ArgumentParser(
-        description='EMC\'s Elastic Cloud Storage 2.0 Software Single Node Docker container installation script. ')
+        description='EMC\'s Elastic Cloud Storage Software Single Node Docker container installation script. ')
     parser.add_argument('--disks', nargs='+', help='The disk(s) name(s) to be prepared. Example: sda sdb sdc',
                         required=True)
     parser.add_argument('--hostname',

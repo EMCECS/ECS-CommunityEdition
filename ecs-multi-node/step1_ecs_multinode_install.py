@@ -136,6 +136,9 @@ def docker_pull_func(docker_image_name):
     """
     try:
 
+        #Start docker service
+        subprocess.call(["service","docker","start"])
+
         docker = "docker"
         docker_arg = "pull"
         logger.info("Executing a Docker Pull for image {}".format(docker_image_name))
@@ -451,9 +454,9 @@ def set_docker_configuration_func():
 
     try:
 
-        # mv /etc/sysconfig/docker /etc/sysconfig/dockerold
-        logger.info("Move files /etc/sysconfig/docker to /etc/sysconfig/dockerold.")
-        subprocess.call(["mv", "/etc/sysconfig/docker", "/etc/sysconfig/dockerold"])
+        # cp /etc/sysconfig/docker /etc/sysconfig/dockerold
+        logger.info("Copy files /etc/sysconfig/docker to /etc/sysconfig/dockerold.")
+        subprocess.call(["cp", "/etc/sysconfig/docker", "/etc/sysconfig/dockerold"])
 
         # service docker restart
         logger.info("Restart Docker service.")
@@ -462,6 +465,11 @@ def set_docker_configuration_func():
         # service docker status
         logger.info("Check Docker service status.")
         subprocess.call(["service", "docker", "status"])
+
+        logger.info("Set container to start on boot.")
+        subprocess.call(["systelctl", "enable", "docker.service"])
+        os.system("echo \"docker start multinode\" >>/etc/rc.local")
+
 
     except Exception as ex:
         logger.exception(ex)
