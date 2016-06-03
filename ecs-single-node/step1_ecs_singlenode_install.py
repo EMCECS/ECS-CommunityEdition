@@ -394,7 +394,7 @@ def set_docker_configuration_func():
 
         # set container to start on boot
         logger.info("Set container to start on boot.")
-        subprocess.call(["systelctl", "enable", "docker.service"])
+        subprocess.call(["systemctl", "enable", "docker.service"])
         os.system("echo \"docker start ecsstandalone\" >>/etc/rc.local")
 
     except Exception as ex:
