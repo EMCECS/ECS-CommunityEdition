@@ -12,7 +12,6 @@ import os
 import time
 import settings
 import re
-from _weakref import proxy
 
 # Logging Initialization
 logging.config.dictConfig(settings.ECS_SINGLENODE_LOGGING)
