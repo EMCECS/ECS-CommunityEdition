@@ -88,7 +88,8 @@ Now we attach a new disk to the host VM. The new disk **/dev/sdc** looks like th
 2. **Open Ports:** ECS requires the following ports to be open:
 
 In addition, please refer to the [ECS Security Configuration Guide](https://community.emc.com/docs/DOC-45012 "ECS Security Configuration Guide") and our the [troubleshooting page](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-Troubleshooting.md "troubleshooting page") if you find any issues.
-rt Number|Port Description|
+
+|Port Number|Port Description|
 |-----------|----------------|
 |22| SSH, needed if using remote access |
 |443 | Port used for accessing the ECS management website|
@@ -98,7 +99,7 @@ rt Number|Port Description|
 |9021| Port used for the S3 API on HTTPS|
 |9022| Port used for Atmos API|
 |9023| Port used for Atmos API on HTTPS|
-|9024| Port used for SWIFT API |
+|9024| Port used for SWIFT API|
 |9025| Port used for SWIFT API on HTTPS|
 |9100| Port used for DT Query service|
 |9101| ECS Diagnostic Service Index |
