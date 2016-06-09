@@ -52,6 +52,7 @@ def package_install_func():
         yum_package_wget = "wget"
         yum_package_tar = "tar"
         yum_package_docker = "docker"
+        yum_package_xfsprogs = "xfsprogs"
         yum_auto_install = "-y"
 
         logger.info("Performing installation of the following package: {} .".format(yum_package_wget))
@@ -60,7 +61,10 @@ def package_install_func():
         logger.info("Performing installation of the following package: {} .".format(yum_package_tar))
         subprocess.call([yum, yum_arg, yum_package_tar, yum_auto_install])
 
-        logger.info("Performing installation of the following package: {}.".format(yum_package_docker))
+        logger.info("Performing installation of the following package: {} .".format(yum_package_xfsprogs))
+        subprocess.call([yum, yum_arg, yum_package_xfsprogs, yum_auto_install])
+
+        logger.info("Performing installation of the following package: {} .".format(yum_package_docker))
         subprocess.call([yum, yum_arg, yum_package_docker, yum_auto_install])
 
     except Exception as ex:
@@ -111,17 +115,24 @@ def docker_cleanup_old_images():
         sys.exit()
 
 
-def docker_pull_func(docker_image_name):
+def docker_pull_func(docker_image_name,proxy=None):
     """
     Getting the ECS Docker image from DockerHub. Using Docker Pull
     """
     try:
+        if proxy!=None:
+            os.system("echo http_proxy=" + proxy +" >>/etc/sysconfig/docker")
+            os.system("echo https_proxy=" + proxy +" >>/etc/sysconfig/docker")
+            os.system("echo HTTP_PROXY=" + proxy +" >>/etc/sysconfig/docker")
+            os.system("echo HTTPS_PROXY=" + proxy +" >>/etc/sysconfig/docker")
+            
+        #Start docker service
+        subprocess.call(["service","docker","start"])
 
         docker = "docker"
         docker_arg = "pull"
-        docker_file = docker_image_name
-        logger.info("Executing a Docker Pull for image {}".format(docker_file))
-        command_line = [docker, docker_arg, docker_file]
+        logger.info("Executing a Docker Pull for image {}".format(docker_image_name))
+        command_line = [docker, docker_arg, docker_image_name]
         command_line[1:1] = DockerCommandLineFlags
         subprocess.call(command_line)
 
@@ -191,14 +202,14 @@ def network_file_func(ethadapter):
         # Create the Network.json file
         logger.info("Creating the Network.json file with Ethernet Adapter: {} Hostname: {} and IP: {}:".format(ethadapter, hostname, ip_address))
         logger.info(
-            "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
-                ethadapter, ethadapter, hostname, ip_address))
+            "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"data_ip\":\"%s\",\"mgmt_ip\":\"%s\",\"replication_ip\":\"%s\"}" % (
+                ethadapter, ethadapter, hostname, ip_address, ip_address, ip_address))
 
         # Open a file
         network_file = open("network.json", "wb")
 
-        network_string = "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"public_ip\":\"%s\"}" % (
-            ethadapter, ethadapter, hostname, ip_address)
+        network_string = "{\"private_interface_name\":\"%s\",\"public_interface_name\":\"%s\",\"hostname\":\"%s\",\"data_ip\":\"%s\",\"mgmt_ip\":\"%s\",\"replication_ip\":\"%s\"}" % (
+            ethadapter, ethadapter, hostname, ip_address, ip_address, ip_address)
 
         network_file.write(network_string)
 
@@ -270,8 +281,20 @@ def prepare_data_disk_func(disks):
             subprocess.call(["mkdir", "-p", "/ecs/{}".format(uuid_name)])
 
             # mount /dev/sdc1 /ecs/uuid-1
-            logger.info("Mount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
+            logger.info("Mount attached {} to /ecs/{} volume.".format(device_name, uuid_name))
             subprocess.call(["mount", device_name, "/ecs/{}".format(uuid_name), "-o", "noatime,seclabel,attr2,inode64,noquota"])
+
+            # add entry to fstab if not pre-existing
+            fstab = "/etc/fstab"
+            p = subprocess.Popen(["grep", device_name, fstab], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = p.communicate()
+            if p.returncode == 0:
+                logger.info("Data disk already entered in fs table")
+            elif p.returncode == 1:
+                with open("/etc/fstab", 'a') as file:
+                    file.write("{} /ecs/{} xfs rw,noatime,seclabel,attr2,inode64,noquota 0 0\n".format(device_name, uuid_name) )
+            else:
+                logger.info("Error in checking filesystem table: {}".format(err))
 
     except Exception as ex:
         logger.exception(ex)
@@ -322,6 +345,7 @@ def directory_files_conf_func():
 
         # cp seeds /host/files
         logger.info("Copying seeds file to /host/files.")
+
         subprocess.call(["cp", "seeds", "/host/files"])
 
         # chown -R 444 /host
@@ -361,9 +385,9 @@ def set_docker_configuration_func():
 
     try:
 
-        # mv /etc/sysconfig/docker /etc/sysconfig/dockerold
-        logger.info("Move files /etc/sysconfig/docker to /etc/sysconfig/dockerold.")
-        subprocess.call(["mv", "/etc/sysconfig/docker", "/etc/sysconfig/dockerold"])
+        # cp /etc/sysconfig/docker /etc/sysconfig/dockerold
+        logger.info("Copy files /etc/sysconfig/docker to /etc/sysconfig/dockerold.")
+        subprocess.call(["cp", "/etc/sysconfig/docker", "/etc/sysconfig/dockerold"])
 
         # service docker restart
         logger.info("Restart Docker service.")
@@ -373,26 +397,34 @@ def set_docker_configuration_func():
         logger.info("Check Docker service status.")
         subprocess.call(["service", "docker", "status"])
 
+        # set container to start on boot
+        logger.info("Set container to start on boot.")
+        subprocess.call(["systemctl", "enable", "docker.service"])
+        os.system("echo \"docker start ecsstandalone\" >>/etc/rc.local")
+
     except Exception as ex:
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log")
 
 
-def execute_docker_func(docker_image_name):
+def execute_docker_func(docker_image_name, use_urandom=False,proxy=None):
     '''
     Execute Docker Container
     '''
     try:
 
         # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecsstandalone:v2.0 --name=ecsstandalone
+	docker_command = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1"]
+        if proxy!=None:
+            docker_command.extend(["-e", "HTTP_PROXY="+proxy, "-e", "HTTPS_PROXY="+proxy])
+        if use_urandom:
+            docker_command.extend(["-v", "/dev/urandom:/dev/random"])
+	docker_command.extend(["-v", "/ecs:/dae", "-v", "/host:/host", "-v", "/var/log/vipr/emcvipr-object:/var/log", "-v", "/data:/data:rw", "--net=host",
+                         "--name=ecsstandalone", "{}".format(docker_image_name)])
         logger.info("Execute the Docker Container.")
-        command_line = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1", "-v", "/ecs:/dae", "-v", "/host:/host", "-v",
-                         "/var/log/vipr/emcvipr-object:/opt/storageos/logs", "-v", "/data:/data:rw", "--net=host",
-                         "--name=ecsstandalone",
-                         "{}".format(docker_image_name)]
-        command_line[1:1] = DockerCommandLineFlags
-        logger.info(" ".join(command_line))
-        subprocess.call(command_line)
+        docker_command[1:1] = DockerCommandLineFlags
+        logger.info(" ".join(docker_command))
+        subprocess.call(docker_command)
 
         # docker ps
         logger.info("Check the Docker processes.")
@@ -419,7 +451,7 @@ def cmdline(command):
     return process.communicate()[0]
 
 
-def modify_container_conf_func():
+def modify_container_conf_func(no_internet):
     try:
         logger.info("Backup object properties files")
         os.system(
@@ -441,10 +473,6 @@ def modify_container_conf_func():
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone cp /opt/storageos/conf/cm.object.properties /host/cm.object.properties1")
 
-        logger.info("Copy application config file to host")
-        os.system(
-            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /opt/storageos/ecsportal/conf/application.conf /host/application.conf")
-
         logger.info("Copy common-object properties files to host")
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone cp /opt/storageos/conf/common.object.properties /host/common.object.properties1")
@@ -461,26 +489,35 @@ def modify_container_conf_func():
         os.system(
             "sed --expression='s/object.NumDirectoriesPerCoSForSystemDT=128/object.NumDirectoriesPerCoSForSystemDT=32/' --expression='s/object.NumDirectoriesPerCoSForUserDT=128/object.NumDirectoriesPerCoSForUserDT=32/' < /host/common.object.properties1 > /host/common.object.properties")
 
-        logger.info("Modify Portal config for to bypass validation")
-        os.system("echo ecs.minimum.node.requirement=1 >> /host/application.conf")
-
         logger.info("Modify SSM config for small footprint")
         os.system(
             "sed --expression='s/object.freeBlocksHighWatermarkLevels=1000,200/object.freeBlocksHighWatermarkLevels=100,50/' --expression='s/object.freeBlocksLowWatermarkLevels=0,100/object.freeBlocksLowWatermarkLevels=0,20/' < /host/ssm.object.properties1 > /host/ssm.object.properties")
-
 
         logger.info("Copy modified files to container")
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/cm.object.properties /opt/storageos/conf/cm.object.properties")
 
         os.system(
-            "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/application.conf /opt/storageos/ecsportal/conf/application.conf")
-
-        os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/common.object.properties /opt/storageos/conf/common.object.properties")
 
         os.system(
             "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone cp /host/ssm.object.properties /opt/storageos/conf/ssm.object.properties")
+
+
+        if not no_internet:
+            logger.info("Adding python setuptools to container")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OLk https://bootstrap.pypa.io/ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone python ez_setup.py --insecure")
+    
+            logger.info("Adding python requests library to container")
+            os.system(
+                "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OLk https://github.com/kennethreitz/requests/tarball/master")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone tar zxvf master -C /tmp")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsstandalone bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OLk https://bootstrap.pypa.io/ez_setup.py")
+            logger.info("Cleaning up python packages")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm master")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm setuptools-*.zip")
 
         logger.info("Flush VNeST data")
         os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
@@ -523,6 +560,19 @@ def getAuthToken(ECSNode, User, Password):
             # logger.info("Attempting to authenticate for {} minutes.".format(i%2))
 
     logger.fatal("Authentication service not yet started.")
+
+def docker_load_image(imagefile):
+    """
+    Loads the specified docker image file.
+    """
+    try:
+        logger.info("Loading docker image file %s" % imagefile)
+        res = subprocess.check_output("docker load -i \"%s\"" % imagefile, shell=True)
+    except Exception as ex:
+        logger.exception(ex)
+        logger.fatal("Error loading docker image file %s" % imagefile)
+        sys.exit(13)
+
 
 
 def docker_cleanup_old_images():
@@ -571,6 +621,18 @@ def cleanup_installation(disks):
             logger.info("Destroying partition table for {}".format(disk_path))
             subprocess.call(["dd", "if=/dev/zero", "of={}".format(disk_path), "bs=512", "count=1", "conv=notrunc"])
 
+            logger.info("Remove {} from fs table".format(disk_path))
+            fstab = "/etc/fstab"
+            f = open(fstab, "r+")
+            rl = f.readlines()
+            f.seek(0)
+            for ln in rl:
+                if not disk_path in ln:
+                    f.write(ln)
+            f.truncate()
+            f.close()
+
+
         # sudo rm -rf /data/*
         logger.info("Remove /data Directory")
         subprocess.call(["rm", "-rf", "/data"])
@@ -605,7 +667,7 @@ def main():
         sys.exit(3)
 
     parser = argparse.ArgumentParser(
-        description='EMC\'s Elastic Cloud Storage 2.0 Software Single Node Docker container installation script. ')
+        description='EMC\'s Elastic Cloud Storage Software Single Node Docker container installation script. ')
     parser.add_argument('--disks', nargs='+', help='The disk(s) name(s) to be prepared. Example: sda sdb sdc',
                         required=True)
     parser.add_argument('--hostname',
@@ -625,10 +687,24 @@ def main():
     parser.add_argument('--imagetag', dest='imagetag', nargs='?',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
                         required=False)
+    parser.add_argument('--use-urandom', dest='use_urandom', action='store_true', default=False,
+                        help='If present, /dev/random will be mapped to /dev/urandom on the host.  If you container starts up slow the first time could help.',
+                        required=False)
+    parser.add_argument('--no-internet', dest='no_internet', action='store_true', default=False,
+                        help='When specified, do not perform any actions that require an Internet connection.',
+                        required=False)
+    parser.add_argument('--load-image', dest='image_file', nargs='?',
+                        help='If present, gives the name of a docker image file to load.',
+                        required=False)
+    parser.add_argument('--proxy', dest='proxy',nargs='?',
+                        help='If present, use defined proxy to pull docker images and run docker',
+                        required=False)
     parser.set_defaults(container_config=False)
     parser.set_defaults(cleanup=False)
-    parser.set_defaults(imagename="emccorp/ecs-software-2.2")
+    parser.set_defaults(imagename="emccorp/ecs-software-2.2.1")
     parser.set_defaults(imagetag="latest")
+    parser.set_defualts(proxy=False)
+    parser.set_defaults(image_file=False)
     args = parser.parse_args()
 
 
@@ -644,6 +720,16 @@ def main():
     print("Disk[s]: %s" % args.disks)
     print("Docker Image Name: %s" % args.imagename)
     print("Docker Image Tag: %s" % args.imagetag)
+    if(args.image_file):
+        print("Docker Image File: %s" % args.image_file)
+
+    print("Use Internet to download image and packages: %s" % (not args.no_internet))
+
+    # If loading an image, make sure it exists.
+    if args.image_file and not os.path.exists(args.image_file):
+        logger.error("The specified docker image file %s does not exist." % args.image_file)
+        sys.exit(12)
+
 
     # Check if only wants to run the Container Configuration section
     if args.container_config:
@@ -654,6 +740,7 @@ def main():
     # Check if only wants to run the Container Configuration section
     if args.cleanup:
         logger.info("Starting CleanUp: Removing Previous Docker containers and images. Deletes the created Directories.")
+        subprocess.call(["service","docker","start"])
         docker_cleanup_old_images()
         cleanup_installation(args.disks)
         sys.exit(7)
@@ -687,11 +774,18 @@ def main():
 
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container: {}".format(docker_image_name))
 
-    yum_func()
-    package_install_func()
+    if not args.no_internet:
+        yum_func()
+        package_install_func()
     update_selinux_os_configuration()
     prep_file_func()
-    docker_pull_func(docker_image_name)
+    if args.image_file:
+        docker_load_image(args.image_file)
+    elif not args.no_internet:
+        if args.proxy:
+            docker_pull_func(docker_image_name,args.proxy)
+        else:
+            docker_pull_func(docker_image_name)
     hosts_file_func(args.hostname, ethernet_adapter_name)
     network_file_func(ethernet_adapter_name)
     seeds_file_func(ethernet_adapter_name)
@@ -699,8 +793,11 @@ def main():
     run_additional_prep_file_func(args.disks)
     directory_files_conf_func()
     set_docker_configuration_func()
-    execute_docker_func(docker_image_name)
-    modify_container_conf_func()
+    if args.proxy:
+        execute_docker_func(docker_image_name, args.use_urandom,args.proxy)
+    else:    
+        execute_docker_func(docker_image_name, args.use_urandom)
+    modify_container_conf_func(args.no_internet)
     getAuthToken(ip_address,"root","ChangeMe")
     logger.info(
         "Step 1 Completed.  Navigate to the administrator website that is available from any of the ECS data nodes. \
