@@ -1,0 +1,730 @@
+#!/bin/bash
+#
+# Copyright (c) 2014 EMC Corporation
+# All Rights Reserved
+#
+# This software contains the intellectual property of EMC Corporation
+# or is licensed to EMC Corporation from third parties.  Use of this
+# software and the intellectual property contained therein is expressly
+# limited to the terms and conditions of the License Agreement under which
+# it is provided by or on behalf of EMC.
+#
+# /etc/systool
+#
+
+export PATH=/bin:/bin:/sbin:/usr/bin:/usr/sbin
+
+. /etc/rc.status
+
+_usage() {
+    set +Ex
+    echo "Usage: $0 --list"             >&2
+    echo "   or: $0 --get-default"      >&2
+    echo "   or: $0 --set-default name" >&2
+    echo "   or: $0 --get-image name"   >&2
+    echo "   or: $0 --install file"     >&2
+    echo "   or: $0 --remove name"      >&2
+    echo "   or: $0 --getprops"         >&2
+    echo "   or: $0 --get-controller-ovfprops" >&2
+    echo "   or: $0 --set-controller-ovfprops file" >&2    
+    echo "   or: $0 --setoverrides file" >&2
+    echo "   or: $0 --reboot"           >&2
+    echo "   or: $0 --poweroff"         >&2
+    echo "   or: $0 --reconfig"         >&2
+    echo "   or: $0 --restart service"  >&2
+    echo "   or: $0 --test"             >&2
+    exit 2
+}
+
+_info() {
+    echo "$0: Info: $*" >&2
+}
+
+_warn() {
+    echo "$0: Warning: $*" >&2
+}
+
+_fatal() {
+    set +Ex
+    echo "$0: Error: $*" >&2
+    exit 1
+}
+
+_fatal2() {
+    local code=${1:-1} ; shift
+    set +Ex
+    echo "$0: Error: $*" >&2
+    exit ${code}
+}
+
+_err_handler() {
+    set +E
+    _fatal "Line ${LINENO}: $(eval echo \"${BASH_COMMAND}\")"
+}
+
+_exit_handler() {
+    set +E
+    for action in "${on_exit_actions[@]}" ; do
+        eval "${action}"
+    done
+}
+
+_set_on_exit() {
+    on_exit_actions=( "${@}" "${on_exit_actions[@]}" )
+}
+
+_exit_handler() {
+     set +E
+     for action in "${on_exit_actions[@]}" ; do 
+         eval "${action}"
+     done
+}
+
+_set_traps() {
+     declare -a on_exit_actions
+     trap '' SIGINT
+     trap '' SIGTERM
+     trap _exit_handler EXIT
+     trap 'set +Ex ; _fatal "Line ${LINENO}: $(eval echo \"${BASH_COMMAND}\")"' ERR
+     if [ -n "${*}" ] ; then set "${@}" ; fi
+}
+
+_is_appliance() {
+    [ -d "${bootfs_mntp}/boot/grub/i386-pc" ]
+}
+
+_get_deployment_mode() {
+    if [ -f "/etc/fabrictool" ]; then
+        mode=$(/etc/fabrictool --mode)
+        echo ${mode}
+    fi
+}
+
+deployment_mode=$(_get_deployment_mode)
+
+_ismounted() {
+    ( set +x ; while read dev mnt type flags dummy ; do case ${#} in
+        1) [ "${dev}" = "${1}" -o "${mnt}" = "${1}" ] && break ;;
+        2) [ "${dev}" = "${1}" -a "${mnt}" = "${2}" ] && break ;;
+    esac ; done </proc/mounts )
+}
+
+_ismounted_rw() {
+    ( set +x ; while read dev mnt type flags dummy ; do case ${#} in
+        1) [ "${dev}" = "${1}" -o "${mnt}" = "${1}" ] && { [[ "${flags}" =~ rw,.* ]] ; return $? ; } ;;
+        2) [ "${dev}" = "${1}" -a "${mnt}" = "${2}" ] && { [[ "${flags}" =~ rw,.* ]] ; return $? ; } ;;
+    esac ; done </proc/mounts )
+}
+
+_probe() {
+    local dev=${1}
+    udevadm settle # ; [ -e "${dev}" ] || return 1
+    local retry
+    for retry in 1 2 3 4 5 ; do
+        local err
+        err=$(dd if=${dev} of=/dev/zero count=1 2>&1) && return 0
+        case "${err}" in
+            *'No medium found') return 1;;
+            *)                  echo "${err}" >&2;;
+        esac
+        sleep 1
+    done
+    return 1
+}
+
+_mount() {
+    local dev=${@: -2: 1}
+    local mnt=${@: -1: 1}
+    if ! _ismounted "${dev}" "${mnt}" ; then
+        mkdir -p "${mnt}"
+        mount "${@}" && _set_on_exit "_umount ${mnt}"
+    fi
+}
+
+_umount() {
+    if _ismounted "${1}" ; then
+        umount "${1}" || return $?
+    fi
+}
+
+_bootfs_mount_ro() {
+    if [ "${deployment_mode}" == "fabric" ]; then
+	_warn "Fabric deployment. Skipping _bootfs_mount_ro()"
+    elif ! _is_appliance ; then
+       _warn "Not a real appliance. Skipping _bootfs_mount_ro()"
+    elif ! _ismounted    "${bootfs_dev}" "${bootfs_mntp}" ; then
+       mkdir -p "${bootfs_mntp}"
+       mount -n -t ext3 -o ro "${bootfs_dev}" "${bootfs_mntp}"
+    elif _ismounted_rw "${bootfs_dev}" "${bootfs_mntp}" ; then
+       mount -n -o remount,ro "${bootfs_dev}" "${bootfs_mntp}"
+    fi
+}
+
+_bootfs_mount_rw() {
+    [ "${bootfs_readonly}" != "true" ] || _fatal "Internal error: read-only bootfs"
+    if [ "${deployment_mode}" == "fabric" ]; then
+        _warn "Fabric deployment. Skipping _bootfs_mount_rw()"
+    elif ! _is_appliance ; then
+       _warn "Not a real appliance. Skipping _bootfs_mount_rw()"
+    elif ! _ismounted    "${bootfs_dev}" "${bootfs_mntp}" ; then
+       mkdir -p "${bootfs_mntp}"
+       mount -n -t ext3 -o rw,noatime,barrier=1 "${bootfs_dev}" "${bootfs_mntp}"
+       if [ "${1}" != "no" ] ; then _set_on_exit _bootfs_mount_ro ; fi
+    elif ! _ismounted_rw "${bootfs_dev}" "${bootfs_mntp}" ; then
+       mount -n -o remount,rw,noatime,barrier=1 "${bootfs_dev}" "${bootfs_mntp}"
+       if [ "${1}" != "no" ] ; then _set_on_exit _bootfs_mount_ro ; fi
+    fi
+}
+
+lock_file=/tmp/${0##*/}.lock
+lock_timeout=${lock_timeout:-30}
+
+_s() {
+    ( _set_traps -E && flock -s -w "${lock_timeout}" 200 && bootfs_readonly=true && _bootfs_mount_ro && "${@}" ) 200>${lock_file}
+}
+
+_x() {
+    ( _set_traps -E && flock -x -w "${lock_timeout}" 200 &&                         _bootfs_mount_ro && "${@}"  ) 200>${lock_file}
+}
+
+_filter_valid() {
+    local d ; while read d ; do
+        if [[ "${d}" =~ ^.*-[1-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[^.]+(\.[^.]+)?$  ]] && [ -d "${bootfs_mntp}/${d}" ] && [ -f "${bootfs_mntp}/${d}/${bootfs_rootimg}" ] ; then echo "${d}" ; fi
+    done
+}
+
+_list_all() {
+    local d ; ls -t "${bootfs_mntp}" | while read d ; do
+        [ -L "${bootfs_mntp}/${d}" -o "${d}" = "boot" ] || echo "${d}"
+    done
+}
+
+_add_dummy_version() {
+    if ! _is_appliance && [ "${deployment_mode}" != "fabric" ] ; then
+        echo "vipr-2.0.0.0.0"
+    fi
+}
+
+_list_valid() {
+    _list_all | _filter_valid
+    if [ "${DO_NOT_INCLUDE}" != "yes" ] ; then
+    	_add_dummy_version
+    fi
+}
+
+_get_default() {
+     local symlink="${bootfs_mntp}/${bootfs_default}"
+     local target=""
+     if [ -L "${symlink}" ] ; then
+         target=$(readlink "${symlink}")
+         local d=${target%%/*}
+         local v=$(echo "${d}" | _filter_valid)
+         [ -n "${v}"       ] || { _warn "Internal inconsistency: ${bootfs_default} -> ${d} (Invalid directory)" ; return 0 ; }
+         [ -f "${symlink}" ] || { _warn "Internal inconsistency: ${bootfs_default} -> ${d} (No such file)"      ; return 0 ; }
+         echo "${v}"
+     fi
+     _add_dummy_version
+}
+
+_set_default() {
+    local symlink="${bootfs_mntp}/${bootfs_default}"
+    local image="${1}/${bootfs_rootimg}"
+    [ -n "${1}"                     ] || _fatal "Invalid argument"
+    local d=$(echo "${1}" | _filter_valid)
+    [ -n "${d}"                     ] || _fatal "${1}: Invalid version"
+    [ -d "${bootfs_mntp}/${1}"      ] || _fatal "${1}: No such version (Internal error)"
+    [ -f "${bootfs_mntp}/${image}"  ] || _fatal "${1}: No such version (Corrupted?)"
+    [ "${1}" = "$(_get_default)"    ] && return 0
+    _bootfs_mount_rw
+    rm -f "${symlink}"
+    ln -s "${image}" "${symlink}"
+}
+
+_get_image() {
+    local image="${1}/${bootfs_rootimg}"
+    [ -n "${1}"                     ] || _fatal "Invalid argument"
+    local d=$(echo "${1}" | _filter_valid)
+    [ -n "${d}"                     ] || _fatal "${1}: Invalid version"
+    [ -d "${bootfs_mntp}/${1}"      ] || _fatal "${1}: No such version (Internal error)"
+    [ -f "${bootfs_mntp}/${image}"  ] || _fatal "${1}: No such version (Corrupted?)"
+    echo "${bootfs_mntp}/${image}"
+}
+
+_remove() {
+    [ -n "${1}"                   ] || _fatal "Invalid argument"
+    [ "${1}" != "$(_get_default)" ] || _fatal "${1}: Can't remove ${bootfs_default}"
+    _bootfs_mount_rw
+    local d="${bootfs_mntp}/${1}"
+    if [ -d "${d}" ] ; then  rm -r "${d}" ; fi
+}
+
+_read_file() {
+    [ -f "${1}" ] || _fatal "${1}: No such file"
+    echo "$(<${1})"
+}
+
+_read_override_file() {
+    if [ -f "${1}" ] ; then
+        cat "${1}"
+    fi
+}
+
+_install() {
+    local rootimg_file="${1}"
+    local rootimg_mntp="/.volumes/${rootimg_file##*/}"
+    if [ "${deployment_mode}" == "fabric" ]; then
+        _fatal "Upgrade implementation pending. Skipping deploying the file ${rootimg_file} "
+    else
+    	# Validate the root image and get its title
+    	_mount -t squashfs -o ro,loop      "${rootimg_file}"   "${rootimg_mntp}"
+    	local menuentry && menuentry==$(_read_file "${rootimg_mntp}/${bootfs_menuentry}")
+    	local title     && title=$(_read_file "${rootimg_mntp}/${bootfs_title}")
+    	umount "${rootimg_mntp}"
+
+    	# Mount rw
+    	# Remove this version if exists
+    	# Make sure we have one empty slot
+    	_bootfs_mount_rw
+    	_remove "${title}" 
+
+    	# Sanity checks
+    	local bootfs_dir="${bootfs_mntp}/${title}"
+    	[ ! -d "${bootfs_dir}"   ] || _fatal "${bootfs_dir}: Directory exists"
+    	[ ! -e "${bootfs_dir}"   ] || _fatal "${bootfs_dir}: File exists"
+
+    	# Install
+    	mkdir -p -m 755 "${bootfs_dir}"
+    	cp -p "${rootimg_file}" "${bootfs_dir}/${bootfs_rootimg}"
+    	echo ${title}
+    fi
+}
+
+_get_override_props_path() {
+    [ -e "${bootfs_override_props}" ] || _fatal "${bootfs_override_props}: No such file"
+    echo "${bootfs_override_props}"
+}
+
+_get_props() {
+    [ ! -f "${1}" ] || ovf_props_file="${1}"
+    [ ! -f "${2}" ] || override_link="${2}"
+    [ ! -f "${3}" ] || dflts_file="${3}"
+    _props_trymerge  
+}
+
+_get_override_props() {
+    _read_override_file "${bootfs_override_props}"
+}
+
+_get_controller_props() {
+    if [ -f "${bootfs_controller_props}" ] ; then
+        _read_file "${bootfs_controller_props}"
+    fi
+}
+
+_get_vdc_props() {
+    if [ -f "${bootfs_vdc_props}" ] ; then
+        _read_file "${bootfs_vdc_props}"
+    fi
+}
+
+_write_props_file() {
+    local s && s=$(<"${1}")
+    if [  -e "${2}" ] ; then
+        [ "${s}" != "$(<"${2}")" ] || return 0
+        _bootfs_mount_rw
+        mv "${2}" "${2}~"
+    else
+        _bootfs_mount_rw
+    fi
+    mkdir -p      "${2%/*}"
+    cp /dev/null  "${2}"
+    chmod 600     "${2}"
+    echo "${s}"  >"${2}"
+
+}
+
+_set_vdc_props() {
+    _write_props_file "${1}" "${bootfs_vdc_props}"
+}
+
+_get_ovf_props() {
+    _read_file "${ovf_props_file}"
+}
+
+_get_props_defaults() {
+    _read_file "${dflts_file}"
+}
+
+_write_file_and_set_permissions() {
+    mkdir -p "${1%/*}"
+    cp /dev/null "${1}"
+    chmod 600 "${1}"
+    echo "${2}" >"${1}"
+}
+
+_set_override_props() {
+    local s && s=$(<"${1}")
+    if [  -e "${bootfs_override_props}" ] ; then
+        [ "${s}" != "$(<"${bootfs_override_props}")" ] || return 0
+        _bootfs_mount_rw
+        mv "${bootfs_override_props}" "${bootfs_override_props}~"
+    else
+        _bootfs_mount_rw
+    fi
+
+    _write_file_and_set_permissions "${bootfs_override_props}" "${s}"   
+}
+
+_set_controller_props() {
+    local s && s=$(<"${1}")
+     if [  -e "${bootfs_controller_props}" ] ; then
+        [ "${s}" != "$(<"${bootfs_controller_props}")" ] || return 0
+        _bootfs_mount_rw
+        mv "${bootfs_controller_props}" "${bootfs_controller_props}~"
+    else
+        _bootfs_mount_rw
+    fi
+
+    _write_file_and_set_permissions "${bootfs_controller_props}" "${s}"
+}
+
+_reboot() {
+    if [ "${deployment_mode}" == "fabric" ]; then
+	echo "container reboot implementation pending"
+    elif ! _is_appliance ; then
+        _fatal2 66 "Not a real appliance. Reboot manually."
+    else 
+        exec /sbin/reboot
+        _fatal "Failed to exec /sbin/reboot"
+    fi
+}
+
+_poweroff() {
+    if [ "${deployment_mode}" == "fabric" ]; then
+	echo "container poweroff implementation pending"
+    elif ! _is_appliance ; then
+        _fatal2 66 "Not a real appliance. Poweroff manually."
+    else
+        exec /sbin/poweroff
+        _fatal "Failed to exec /sbin/poweroff"
+    fi
+}
+
+_reconfig() {
+    if ! _is_appliance && [ "${deployment_mode}" != "fabric" ] ; then
+        _fatal2 66 "Not a real appliance. Reconfig manually."
+    else
+        exec /etc/genconfig <<EOF
+$(_get_props)
+EOF
+        _fatal     "Failed to exec /etc/genconfig"
+    fi
+}
+
+_restart() {
+    ppid=$(pgrep -f '^\S*/monitor\s.*\s/opt/storageos/bin/'${1}'\s.*') || _fatal2 67 "monitor for ${1} is not running, Please reboot the node" 
+    exec pkill -9 -P ${ppid}  
+}
+
+_test_appliance() {
+    if [ "${deployment_mode}" == "fabric" ]; then
+	echo "Fabric" >&2
+    elif ! _is_appliance ; then
+        _fatal2 66 "Not a real appliance."
+    else
+        echo "Ok" >&2
+    fi
+}
+
+# This is only used for upgrade from 1.1.x to 2.x
+_migrate_props() {
+    if [ -f "${old_props}" ] ; then
+        local oprops=$(_get_old_mutated_props)
+        _props_write "${tmp_mutated_file}" "${oprops}" 
+        _set_override_props "${tmp_mutated_file}"
+        rm -f ${old_props} ${old_props}~ ${tmp_mutated_file} ${old_dflts_file}
+    fi
+}
+
+# This is only used for data nodes
+_extract_old_controller_ovf_props() {
+    #Print only relevant keys. Ignoring other properites stored in old files
+    sed -n 's/^\(network_.*_ipaddr\|network_vip\|network_vip6\|node_count\).*/\0/p'
+}
+
+_initialize_datasvc_overrides() {
+    local override_props_cdrom_file=${cdrom_mnt}/${override_props}
+    if [ ! -f  ${bootfs_override_props} -a -f ${override_props_cdrom_file} ] ; then
+        _set_override_props ${override_props_cdrom_file}
+    fi
+}
+
+_initialize_datasvc_controller_props() {
+    local controller_ovf_cdrom_file=${cdrom_mnt}/${controller_props}    
+    local old_controller_props_file=${cdrom_mnt}/ovf-env.defaults
+    if [ ! -f ${bootfs_controller_props} ] ; then
+        if [ -f ${controller_ovf_cdrom_file} ] ; then 
+            _set_controller_props ${controller_ovf_cdrom_file}
+        elif [ -f ${old_controller_props_file} ] ; then
+            local tmp_ovf_props="/tmp/${controller_props}"
+            local old_ovf_props="$(_extract_old_controller_ovf_props <"${old_controller_props_file}")"
+            _props_write "${tmp_ovf_props}" "${old_ovf_props}"
+           _set_controller_props ${tmp_ovf_props} 
+        fi
+    fi
+}
+
+_initialize_datasvc() {
+    local cdrom_mnt='/.volumes/cdrom1'
+    if [ "${deployment_mode}" == "fabric" ]; then
+        local cdrom_dev=$(/etc/fabrictool --fabric-mount-loc)'/config.iso'
+        _mount -o loop -t iso9660 "${cdrom_dev}" "${cdrom_mnt}"
+    else
+        local cdrom_dev='/dev/sr1'
+        _probe "${cdrom_dev}" 2>/dev/null || return 0
+        _mount -t iso9660 -o ro "${cdrom_dev}" "${cdrom_mnt}"
+    fi
+    _initialize_datasvc_controller_props
+    _initialize_datasvc_overrides
+}
+
+_initialize_ovfenv_props() {
+   /etc/getovfproperties --readCDROM &>/dev/null
+}
+
+_initialize_props() {
+    _migrate_props && 
+    _initialize_datasvc &&     
+    _props_symlink &&
+    _initialize_ovfenv_props
+    
+}
+
+_get_old_mutated_props() {
+    local dflts=$(<"${old_dflts_file}") 
+    local old_properties=$(<"${old_props}") 
+    local ifs="${IFS}"
+    IFS="${nl}"
+    local -a dlines=( ${dflts} )
+    local -a olines=( ${old_properties} )
+    IFS="${ifs}"
+    while [ ${#olines[@]} -gt 0 -o ${#dlines[@]} -gt 0 ] ; do
+        local oline=${olines[0]}
+        local dline=${dlines[0]}
+        local okey=${oline%%=*}
+        local dkey=${dline%%=*}
+        if [[ "${okey}" == "${dkey}" ]] ; then
+            if [[ "${oline}" != "${dline}" ]] ; then
+                ulines+=( "${oline}" )
+            fi
+            olines=( "${olines[@]:1}" )
+            dlines=( "${dlines[@]:1}" )
+        elif [[ -z "${okey}" || -z "${dkey}" ]] ; then
+            break
+        elif [[ "${okey}" < "${dkey}" ]] ; then
+            olines=( "${olines[@]:1}" )
+        else
+            dlines=( "${dlines[@]:1}" )
+        fi
+    done
+    local uline && for uline in "${ulines[@]}" ; do echo "${uline}" ; done
+}
+
+
+# Write the properties file with the write permissions
+#
+_props_write() {
+   rm -f "${1}" && cp /dev/null "${1}" && chmod 400 "${1}" && echo "${2}" >>"${1}"
+}
+
+_props_trymerge() {
+    _debug() {
+        [ -n "${DEBUG}" ] || return 0
+        local k=${1} && shift
+        local x && for x in "${@}" ; do echo "*** ${k} ${x}" >&2 ; done
+    }
+
+    _merge() {
+        local -a rlines=()
+        while [ ${#olines[@]} -gt 0 -o ${#clines[@]} -gt 0 -o ${#dlines[@]} -gt 0 ] ; do
+            _debug "*" "o=${#olines[@]} c=${#clines[@]} d=${#dlines[@]}"
+            _debug "o" "${olines[@]}"
+            _debug "c" "${clines[@]}"
+            _debug "d" "${dlines[@]}"
+            _debug "r" "${rlines[@]}"
+            _debug "-" "-----------------------------------------"
+            local oline=${olines[0]}
+            local cline=${clines[0]}
+            local dline=${dlines[0]}
+            local okey=${oline%%=*}
+            local ckey=${cline%%=*}
+            local dkey=${dline%%=*}
+            local key=
+            if [[ ! -z "${okey}" ]] ; then
+                key=${okey}
+            elif [[ ! -z "${ckey}" ]] ; then
+                key=${ckey}
+            elif [[ ! -z "${dkey}" ]] ; then
+                key=${dkey}
+            else
+                break
+            fi
+
+            if [[ "${ckey}" < "${key}" ]] ; then
+                if [[ ! -z "${ckey}" ]] ; then
+                    key=${ckey}
+                fi
+            fi
+            if [[ "${dkey}" < "${key}" ]] ; then
+                if [[ ! -z "${dkey}" ]] ; then
+                    key=${dkey}
+                fi
+            fi
+
+            if [[ "${key}" == "${okey}" ]] ; then
+                rlines+=( "${oline}" )
+                olines=( "${olines[@]:1}" )
+                if [[ "${key}" == "${ckey}" ]] ; then
+                    clines=( "${clines[@]:1}" )
+                fi
+                if [[ "${key}" == "${dkey}" ]] ; then
+                    dlines=( "${dlines[@]:1}" )
+                fi
+            elif [[ "${key}" == "${ckey}" ]] ; then
+                rlines+=( "${cline}" )
+                clines=( "${clines[@]:1}" )
+                if [[ "${key}" == "${dkey}" ]] ; then
+                    dlines=( "${dlines[@]:1}" )
+                fi
+            else
+                rlines+=( "${dline}" )
+                dlines=( "${dlines[@]:1}" )
+            fi
+        done
+        local rline && for rline in "${rlines[@]}" ; do echo "${rline}" ; done
+    }
+
+    # Three Way Merge of OVF Properties, Override Properties, and Defaults
+    # - Read the properties defaults into ${dflts}, OVF properties into ${ovf_props}, and Overrides into ${overrides}
+    # - The Overrides are simply cached properties that the user has mutated
+    # - The OVF props have priority 1, Overrides have priority 2, amd Defaults have priority 3
+    # - Echo the result of the merge
+    #
+    if [ ! -f "${override_link}" ] ; then
+        echo >> "${override_link}"
+    fi
+    local dflts && dflts=$(<"${dflts_file}") && local ovf_props && ovf_props=$(<"${ovf_props_file}") && local overrides && overrides=$(<"${override_link}") && {
+        local    ifs="${IFS}"
+        IFS="${nl}"
+        local -a dlines=( ${dflts} )
+        local -a olines=( ${ovf_props} )
+        local -a clines=( ${overrides} )
+        IFS="${ifs}"
+
+        echo "$(_merge)"
+ 
+        if [ -f "${bootfs_vdc_props}" ] ; then
+            cat  "${bootfs_vdc_props}"
+        fi
+    }
+}
+
+# Install ${override_link} -> $(/etc/systool --getoverrideprops-path)
+# - Get the bootfs target and the current ${override_link} target
+# - If the correct symlink is already in place do nothing
+#
+_props_symlink() {
+    local old_target && old_target=$(readlink "${override_link}") || old_target=""
+    local new_target=${bootfs_override_props}
+    if ! new_target=$(_get_override_props_path 2>/dev/null) ; then
+        :
+    elif [ "${old_target}" = "${new_target}" ] ; then
+        return 0
+    else
+        rm -f "${override_link}" && ln -s "${new_target}" "${override_link}"
+    fi
+}
+
+# Defaults
+bootfs_dev=${bootfs_dev:-'/dev/sda1'}
+bootfs_mntp=${bootfs_mntp:-'/.volumes/bootfs'}
+bootfs_vdc_props=${bootfs_props:-${bootfs_mntp}/etc/vdcconfig.properties}
+override_props='config-override.properties'
+bootfs_override_props=${bootfs_mntp}/etc/${override_props}
+override_link='/etc/'${override_props}
+bootfs_max_versions=${bootfs_max_versions:-3}
+bootfs_default="default"
+old_props='/.volumes/bootfs/etc/ovf-env.properties'
+old_dflts_file='/etc/patch-props.defaults'
+dflts_file='/etc/config.defaults'
+ovf_props_file='/etc/ovfenv.properties'
+props_temp='/tmp/config.properties'
+tmp_mutated_file='/tmp/mutated.properties'
+controller_props='controller-ovf.properties'
+bootfs_controller_props='/.volumes/bootfs/etc/'${controller_props}
+nl='
+'
+
+# These names must match mkrootfs.sh
+bootfs_title="label"
+bootfs_menuentry="boot"
+bootfs_rootimg="rootimg"
+
+DO_NOT_INCLUDE="no"
+
+rc_reset
+
+# Parse flags and hacks
+while [ $# -gt 0 ] ; do
+    case ${1} in
+        -x|--xtrace|--debug)
+            set -x                ; shift ; continue ;;
+        --bootfs-dev=*)
+            bootfs_dev="${1#*=}"  ; shift ; continue ;;
+        --bootfs-mntp=*)
+            bootfs_mntp="${1#*=}" ; shift ; continue ;;
+        --DO_NOT_INCLUDE=*)
+            DO_NOT_INCLUDE="${1#*=}" ; shift ; continue ;;
+        *)
+            break ;;
+    esac
+done
+
+# Parse options
+#_set_traps -E
+case ${#} in
+    1)  case ${1} in
+            --test)                   _test_appliance ;;
+            --reboot)                 _reboot ;;
+            --poweroff)               _poweroff ;;
+            --reconfig)               _x _reconfig ;;
+            --list)                   _s _list_valid ;;
+            --get-default)            _s _get_default ;;
+            --getprops)               _s _get_props   ;;
+            --getoverrides)           _s _get_override_props ;;
+            --get-controller-ovfprops) _s _get_controller_props ;;            
+            --getvdcprops)            _s _get_vdc_props ;;
+            --initializeprops)        _x _initialize_props ;;
+            --remount-rw)             _x _bootfs_mount_rw "no" ;;
+            --remount-ro)             _x true ;;
+            *)                        _usage
+        esac;;
+    2)  case ${1} in
+            --set-default)            _x _set_default          "${2}" ;;
+            --install)                _x _install              "${2}" ;;
+            --get-image)              _s _get_image            "${2}" ;;
+            --remove)                 _x _remove               "${2}" ;;
+            --setoverrides)           _x _set_override_props   "${2}" ;;
+            --set-controller-ovfprops) _x _set_controller_props "${2}" ;;            
+            --setvdcprops)            _x _set_vdc_props        "${2}" ;;
+            --restart)                _x _restart              "${2}" ;;
+            *)                        _usage
+        esac;;
+    4)  case ${1} in 
+            --getprops)               _s _get_props "${2}" "${3}" "${4}" ;;
+            *)
+        esac;;
+    *)  _usage
+esac
+
+rc_exit
