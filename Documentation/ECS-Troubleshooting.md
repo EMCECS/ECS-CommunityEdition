@@ -76,6 +76,7 @@ In the case of a multiple node configuration, you may
 |port.blob=1098|
 |port.provision=1198|
 |port.objhead=1298|
+|port.nfs=2049|
 |port.zookeeper=2181|
 |port.coordinator=2889|
 |port.cassvc=3218|
