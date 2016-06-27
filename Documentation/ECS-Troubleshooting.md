@@ -117,6 +117,7 @@ In the case of a multiple node configuration, you may
 |port.hdfs=9208|
 |port.event=9209|
 |port.objcontrolsvc=9212|
+|port.zkutils=9230|
 |port.cas=9250|
 |port.resource=9888|
 |port.tcpIpcServer=9898|
