@@ -401,7 +401,7 @@ def set_docker_configuration_func():
         logger.info("Set container to start on boot.")
         subprocess.call(["systemctl", "enable", "docker.service"])
         os.system("echo \"docker start ecsstandalone\" >>/etc/rc.local")
-
+ 	os.system("chmod +x /etc/rc.d/rc.local")
     except Exception as ex:
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log")
