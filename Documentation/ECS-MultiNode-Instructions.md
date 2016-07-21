@@ -114,7 +114,7 @@ rt Number|Port Description|
 ### Host Configuration
 #### :bangbang: WARNING: This is a destructive operation. Existing data on selected storage devices will be overwritten. Existing Docker installations AND images will be removed. 
 
-The following section needs to be performed on each one of the ECS nodes:
+**The following section needs to be performed on each one of the ECS nodes:**
 
 1. **Perform Updates:** Perform a Yum update using `sudo yum update` and download packages required for installation using `sudo yum install git tar wget`
 
