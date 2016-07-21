@@ -57,7 +57,7 @@ Ensure the ports in the following table are open for communication. In the case 
 
 `firewall-cmd --permanent --zone=trusted --add-source=<ECS-node-IP>/32`
 
-followed by `firewall-cmd --reboot` for each host.
+followed by `firewall-cmd --reload` for each host.
 
 `fwd_settings.sh` in the main directory will invoke the `firewalld` service and permanently open necessary ports. In the case of a failure in this setup referencing `iptables`, please ensure that your docker network bridge is running and installed using `yum install bridge-utils`.
 
