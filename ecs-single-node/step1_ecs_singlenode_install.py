@@ -16,6 +16,7 @@ import settings
 import socket
 import fcntl
 import struct
+import StringIO
 
 
 # Logging Initialization
@@ -270,12 +271,12 @@ def prepare_data_disk_func(disks):
             logger.info("Make File filesystem in '{}'".format(device_name))
             subprocess.call(["mkfs.xfs", "-f", device_name])
 
-            uuid_name = "uuid-{}".format(index + 1)
-            # mkdir -p /ecs/uuid-1
+            uuid_name = uuid_filename(device_name)
+            # mkdir -p /ecs/uuid-[uuid]
             logger.info("Make /ecs/{} Directory in attached Volume".format(uuid_name))
             subprocess.call(["mkdir", "-p", "/ecs/{}".format(uuid_name)])
 
-            # mount /dev/sdc1 /ecs/uuid-1
+            # mount /dev/sdc1 /ecs/uuid-[uuid]
             logger.info("Mount attached {} to /ecs/{} volume.".format(device_name, uuid_name))
             subprocess.call(["mount", device_name, "/ecs/{}".format(uuid_name), "-o", "noatime,seclabel,attr2,inode64,noquota"])
 
@@ -295,6 +296,11 @@ def prepare_data_disk_func(disks):
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log.")
         sys.exit()
+
+def uuid_filename(device_name):
+    blkd_id_process = subprocess.Popen(["blkid", "-s", "UUID", "-o", "value", device_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = blkd_id_process.communicate()
+    return "uuid-{}".format(stdout.strip())
 
 
 def run_additional_prep_file_func(disks):
@@ -600,13 +606,13 @@ def cleanup_installation(disks):
             disk_path = "/dev/{}".format(disk)
 
             device_name = disk_path + "1"
-            uuid_name = "uuid-{}".format(index + 1)
+            uuid_name = uuid_filename(device_name)
 
-            # umount /dev/sdc1 /ecs/uuid-1
+            # umount /dev/sdc1 /ecs/uuid-[uuid]
             logger.info("Umount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
             subprocess.call(["umount", device_name, "/ecs/{}".format(uuid_name)])
 
-            # rm -rf /ecs/uuid-1
+            # rm -rf /ecs/uuid-[uuid]
             logger.info("Remove /ecs/{} Directory in attached Volume".format(uuid_name))
             subprocess.call(["rm", "-rf", "/ecs/{}".format(uuid_name)])
 
