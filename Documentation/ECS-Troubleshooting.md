@@ -37,6 +37,11 @@ If you want to see if system is making progress:
 `curl -X GET "http://<YourIPAddress>:9101/stats/dt/DTInitStat”`
 
 
+### Docker Container immediately exits on startup
+
+If your docker instance immediately exits when started, please ensure that the entries in `/etc/hosts` on the host system and `network.json` in the install directory are correct (the latter should reflect the host's public IP and the corresponding network adapter).
+
+
 ### For those operating behind EMC firewall
 
 To install ECS Community Edition under these conditions, please view the readme file under **/emc-ssl-cert** for further instructions in installing the necessary CA certificate.
