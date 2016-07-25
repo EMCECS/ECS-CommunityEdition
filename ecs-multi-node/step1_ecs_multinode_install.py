@@ -659,7 +659,7 @@ def main():
     parser.add_argument('--imagetag', dest='imagetag', nargs='?',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
                         required=False)
-    parser.add_argument('--use-urandom', dest='use_urandom', action='store_true', default=False,
+    parser.add_argument('--use-urandom', dest='use_urandom', action='store_true', default=True,
                         help='If present, /dev/random will be mapped to /dev/urandom on the host.  If you container starts up slow the first time could help.',
                         required=False)
     parser.add_argument('--no-internet', dest='no_internet', action='store_true', default=False,
