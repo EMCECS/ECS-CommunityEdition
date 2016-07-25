@@ -474,8 +474,8 @@ def set_docker_configuration_func():
         subprocess.call(["service", "docker", "status"])
 
         logger.info("Set container to start on boot.")
-        subprocess.call(["systelctl", "enable", "docker.service"])
-        os.system("echo \"docker start multinode\" >>/etc/rc.local")
+        subprocess.call(["systemctl", "enable", "docker.service"])
+        os.system("echo \"docker start ecsmultinode\" >>/etc/rc.local")
         os.system("chmod +x /etc/rc.d/rc.local")
 
     except Exception as ex:
@@ -494,7 +494,7 @@ def execute_docker_func(docker_image_name, use_urandom=False):
         if use_urandom:
             docker_command.extend(["-v", "/dev/urandom:/dev/random"])
         docker_command.extend(["-v", "/ecs:/dae", "-v", "/host:/host", "-v", "/var/log/vipr/emcvipr-object:/var/log", "-v", "/data:/data:rw", "--net=host",
-                         "--name=ecsstandalone", "{}".format(docker_image_name)])
+                         "--name=ecsmultinode", "{}".format(docker_image_name)])
         logger.info("Execute the Docker Container.")
         docker_command[1:1] = DockerCommandLineFlags
         logger.info(" ".join(docker_command))
@@ -575,7 +575,7 @@ def modify_container_conf_func(no_internet):
 
         if not no_internet:
             logger.info("Adding python setuptools to container")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl --OLk https://bootstrap.pypa.io/ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OLk https://bootstrap.pypa.io/ez_setup.py")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode python ez_setup.py --insecure")
 
             logger.info("Adding python requests library to container")
@@ -583,7 +583,7 @@ def modify_container_conf_func(no_internet):
                 "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OLk https://github.com/kennethreitz/requests/tarball/master")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode tar zxvf master -C /tmp")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t -i ecsmultinode bash -c \"cd /tmp/kennethreitz-requests-* && python setup.py install\"")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode -OLk https://bootstrap.pypa.io/ez_setup.py")
+            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OLk https://bootstrap.pypa.io/ez_setup.py")
             logger.info("Cleaning up python packages")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm master")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm setuptools-*.zip")
