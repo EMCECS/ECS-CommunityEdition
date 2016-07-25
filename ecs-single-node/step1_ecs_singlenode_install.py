@@ -116,12 +116,17 @@ def docker_cleanup_old_images():
         sys.exit()
 
 
-def docker_pull_func(docker_image_name):
+def docker_pull_func(docker_image_name,proxy=None):
     """
     Getting the ECS Docker image from DockerHub. Using Docker Pull
     """
     try:
-
+        if proxy!=None:
+            os.system("echo http_proxy=" + proxy +" >>/etc/sysconfig/docker")
+            os.system("echo https_proxy=" + proxy +" >>/etc/sysconfig/docker")
+            os.system("echo HTTP_PROXY=" + proxy +" >>/etc/sysconfig/docker")
+            os.system("echo HTTPS_PROXY=" + proxy +" >>/etc/sysconfig/docker")
+            
         #Start docker service
         subprocess.call(["service","docker","start"])
 
@@ -409,7 +414,7 @@ def set_docker_configuration_func():
         logger.fatal("Aborting program! Please review log")
 
 
-def execute_docker_func(docker_image_name, use_urandom=False):
+def execute_docker_func(docker_image_name, use_urandom=False,proxy=None):
     '''
     Execute Docker Container
     '''
@@ -417,6 +422,8 @@ def execute_docker_func(docker_image_name, use_urandom=False):
 
         # docker run -d -e SS_GENCONFIG=1 -v /ecs:/disks -v /host:/host -v /var/log/vipr/emcvipr-object:/opt/storageos/logs -v /data:/data:rw --net=host emccode/ecsstandalone:v2.0 --name=ecsstandalone
 	docker_command = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1"]
+        if proxy!=None:
+            docker_command.extend(["-e", "HTTP_PROXY="+proxy, "-e", "HTTPS_PROXY="+proxy])
         if use_urandom:
             docker_command.extend(["-v", "/dev/urandom:/dev/random"])
 	docker_command.extend(["-v", "/ecs:/dae", "-v", "/host:/host", "-v", "/var/log/vipr/emcvipr-object:/var/log", "-v", "/data:/data:rw", "--net=host",
@@ -696,11 +703,14 @@ def main():
     parser.add_argument('--load-image', dest='image_file', nargs='?',
                         help='If present, gives the name of a docker image file to load.',
                         required=False)
-
+    parser.add_argument('--proxy', dest='proxy',nargs='?',
+                        help='If present, use defined proxy to pull docker images and run docker',
+                        required=False)
     parser.set_defaults(container_config=False)
     parser.set_defaults(cleanup=False)
     parser.set_defaults(imagename="emccorp/ecs-software-2.2.1")
     parser.set_defaults(imagetag="latest")
+    parser.set_defaults(proxy=False)
     parser.set_defaults(image_file=False)
     args = parser.parse_args()
 
@@ -779,7 +789,10 @@ def main():
     if args.image_file:
         docker_load_image(args.image_file)
     elif not args.no_internet:
-        docker_pull_func(docker_image_name)
+        if args.proxy:
+            docker_pull_func(docker_image_name,args.proxy)
+        else:
+            docker_pull_func(docker_image_name)
     hosts_file_func(args.hostname, ethernet_adapter_name)
     network_file_func(ethernet_adapter_name)
     seeds_file_func(ethernet_adapter_name)
@@ -787,7 +800,10 @@ def main():
     run_additional_prep_file_func(args.disks)
     directory_files_conf_func()
     set_docker_configuration_func()
-    execute_docker_func(docker_image_name, args.use_urandom)
+    if args.proxy:
+        execute_docker_func(docker_image_name, args.use_urandom,args.proxy)
+    else:    
+        execute_docker_func(docker_image_name, args.use_urandom)
     modify_container_conf_func(args.no_internet)
     getAuthToken(ip_address,"root","ChangeMe")
     logger.info(
