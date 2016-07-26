@@ -16,6 +16,7 @@ import settings
 import socket
 import fcntl
 import struct
+import StringIO
 
 
 # Logging Initialization
@@ -275,12 +276,12 @@ def prepare_data_disk_func(disks):
             logger.info("Make File filesystem in '{}'".format(device_name))
             subprocess.call(["mkfs.xfs", "-f", device_name])
 
-            uuid_name = "uuid-{}".format(index + 1)
-            # mkdir -p /ecs/uuid-1
+            uuid_name = uuid_filename(device_name)
+            # mkdir -p /ecs/uuid-[uuid]
             logger.info("Make /ecs/{} Directory in attached Volume".format(uuid_name))
             subprocess.call(["mkdir", "-p", "/ecs/{}".format(uuid_name)])
 
-            # mount /dev/sdc1 /ecs/uuid-1
+            # mount /dev/sdc1 /ecs/uuid-[uuid]
             logger.info("Mount attached {} to /ecs/{} volume.".format(device_name, uuid_name))
             subprocess.call(["mount", device_name, "/ecs/{}".format(uuid_name), "-o", "noatime,seclabel,attr2,inode64,noquota"])
 
@@ -300,6 +301,11 @@ def prepare_data_disk_func(disks):
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log.")
         sys.exit()
+
+def uuid_filename(device_name):
+    blkd_id_process = subprocess.Popen(["blkid", "-s", "UUID", "-o", "value", device_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = blkd_id_process.communicate()
+    return "uuid-{}".format(stdout.strip())
 
 
 def run_additional_prep_file_func(disks):
@@ -401,7 +407,8 @@ def set_docker_configuration_func():
         logger.info("Set container to start on boot.")
         subprocess.call(["systemctl", "enable", "docker.service"])
         os.system("echo \"docker start ecsstandalone\" >>/etc/rc.local")
- 	os.system("chmod +x /etc/rc.d/rc.local")
+        os.system("chmod +x /etc/rc.d/rc.local")
+
     except Exception as ex:
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log")
@@ -607,13 +614,13 @@ def cleanup_installation(disks):
             disk_path = "/dev/{}".format(disk)
 
             device_name = disk_path + "1"
-            uuid_name = "uuid-{}".format(index + 1)
+            uuid_name = uuid_filename(device_name)
 
-            # umount /dev/sdc1 /ecs/uuid-1
+            # umount /dev/sdc1 /ecs/uuid-[uuid]
             logger.info("Umount attached /dev{} to /ecs/{} volume.".format(device_name, uuid_name))
             subprocess.call(["umount", device_name, "/ecs/{}".format(uuid_name)])
 
-            # rm -rf /ecs/uuid-1
+            # rm -rf /ecs/uuid-[uuid]
             logger.info("Remove /ecs/{} Directory in attached Volume".format(uuid_name))
             subprocess.call(["rm", "-rf", "/ecs/{}".format(uuid_name)])
 
@@ -687,7 +694,7 @@ def main():
     parser.add_argument('--imagetag', dest='imagetag', nargs='?',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
                         required=False)
-    parser.add_argument('--use-urandom', dest='use_urandom', action='store_true', default=False,
+    parser.add_argument('--use-urandom', dest='use_urandom', action='store_true', default=True,
                         help='If present, /dev/random will be mapped to /dev/urandom on the host.  If you container starts up slow the first time could help.',
                         required=False)
     parser.add_argument('--no-internet', dest='no_internet', action='store_true', default=False,

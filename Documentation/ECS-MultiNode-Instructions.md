@@ -115,7 +115,7 @@ In addition, please refer to the [ECS Security Configuration Guide](https://comm
 ### Host Configuration
 #### :bangbang: WARNING: This is a destructive operation. Existing data on selected storage devices will be overwritten. Existing Docker installations AND images will be removed. 
 
-The following section needs to be performed on each one of the ECS nodes:
+**The following section needs to be performed on each one of the ECS nodes:**
 
 1. **Perform Updates:** Perform a Yum update using `sudo yum update` and download packages required for installation using `sudo yum install git tar wget`
 
@@ -132,7 +132,7 @@ The following section needs to be performed on each one of the ECS nodes:
 |ecstestnode3 | 10.0.1.12 |sdc sdd | eth0 |
 |ecstestnode4 | 10.0.1.13 |sdc sdd | eth0 |
 
-5. Use gathered values for each ECS node (IP addresses, hostnames, ethernet adapter name, disk names) to build the `step1_ecs_multinode_install.py` script, which will be the same across all nodes. For our example values, the command should look like this:
+5. Use gathered values for each ECS node (IP addresses, hostnames, ethernet adapter name, disk names) to build the `step1_ecs_multinode_install.py` script, which will be the same across all nodes. Be advised that **the hostname can not be localhost for any node**. For our example values, the command should look like this:
 
 `sudo python step1_ecs_multinode_install.py --ips 10.0.1.10 10.0.1.11 10.0.1.12 10.0.1.13 --hostnames ecstestnode1 ecstestnode2 ecstestnode3 ecstestnode4 --disks sdc sdd --ethadapter eth0`
 

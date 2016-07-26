@@ -37,6 +37,11 @@ If you want to see if system is making progress:
 `curl -X GET "http://<YourIPAddress>:9101/stats/dt/DTInitStat”`
 
 
+### Docker Container immediately exits on startup
+
+If your docker instance immediately exits when started, please ensure that the entries in `/etc/hosts` on the host system and `network.json` in the install directory are correct (the latter should reflect the host's public IP and the corresponding network adapter).
+
+
 ### For those operating behind EMC firewall
 
 To install ECS Community Edition under these conditions, please view the readme file under **/emc-ssl-cert** for further instructions in installing the necessary CA certificate.
@@ -57,7 +62,7 @@ Ensure the ports in the following table are open for communication. In the case 
 
 `firewall-cmd --permanent --zone=trusted --add-source=<ECS-node-IP>/32`
 
-followed by `firewall-cmd --reboot` for each host.
+followed by `firewall-cmd --reload` for each host.
 
 `fwd_settings.sh` in the main directory will invoke the `firewalld` service and permanently open necessary ports. In the case of a failure in this setup referencing `iptables`, please ensure that your docker network bridge is running and installed using `yum install bridge-utils`.
 
@@ -76,6 +81,7 @@ In the case of a multiple node configuration, you may
 |port.blob=1098|
 |port.provision=1198|
 |port.objhead=1298|
+|port.nfs=2049|
 |port.zookeeper=2181|
 |port.coordinator=2889|
 |port.cassvc=3218|
@@ -116,6 +122,7 @@ In the case of a multiple node configuration, you may
 |port.hdfs=9208|
 |port.event=9209|
 |port.objcontrolsvc=9212|
+|port.zkutils=9230|
 |port.cas=9250|
 |port.resource=9888|
 |port.tcpIpcServer=9898|
