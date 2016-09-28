@@ -589,7 +589,6 @@ def modify_container_conf_func(no_internet):
 
         if not no_internet:
             logger.info("Adding python setuptools to container")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OLk https://bootstrap.pypa.io/ez_setup.py")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode python ez_setup.py --insecure")
 
             logger.info("Adding python requests library to container")
@@ -600,7 +599,6 @@ def modify_container_conf_func(no_internet):
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OLk https://bootstrap.pypa.io/ez_setup.py")
             logger.info("Cleaning up python packages")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm master")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm setuptools-*.zip")
 
         # Flush vNest to clear data and restart.
         logger.info("Flush VNeST data")
