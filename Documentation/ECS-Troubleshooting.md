@@ -56,22 +56,7 @@ Ensure that the Docker container restores itself on boot by executing the follow
 `echo "docker start <container-id>" >>/etc/rc.local`
 
 
-### ECS web portal will not start
-
-The portal service will listen on ports 443 and 4443; check to make sure no other services (such as virtual hosts or additional instances of ECSCE) are not attempting to utilize these same ports. 
-
-For multiple-node installations, the `/etc/hosts` file on the host VM should include entries for each node and their hostname, for example:
-
-`127.0.0.1 ecs1`
-`127.0.0.2 ecs2`
-`127.0.0.3 ecs3`
-
-For multiple-node installations, many services including the ECS web portal will not start until all nodes specified to the installation step 1 script have been successfully installed and concurrently running; the installation script should be run on all nodes in a cluster before attempting authentication or use of the GUI.
-
-Additionally, review the below section and ensure all necessary ports are open on all ECS nodes in the cluster. 
-
-
-### List of open ports required on each ECS data node
+### List of Open ports required on each ECS data node
 
 Ensure the ports in the following table are open for communication. In the case of a multiple-node installation, additionally ensure that each node is trusted to itself and to other nodes in the system by using the following command on each node:
 
