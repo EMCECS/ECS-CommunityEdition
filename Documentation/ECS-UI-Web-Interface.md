@@ -8,7 +8,7 @@ You cannot add, change, or remove administrative users in this build. Use the de
 > Username: **root**<br/>Password: **ChangeMe**
 
 ## Input License
-Open *Settings*, then *Licensing* and upload the `license.lic` file located in the ecs-single-node / ecs-multi-node folder (*not* the `licence.txt` in the top folder). **The UI will not automatically update the license view in this release.** Navigating away from page and returning will prompt it to update. You may need to try a few times before it updates. Once it does, you should see something like this:
+Open *Settings*, then *Licensing* and upload the `license.xml` file located in the ecs-single-node / ecs-multi-node folder. **The UI will not automatically update the license view in this release.** Navigating away from page and returning will prompt it to update. You may need to try a few times before it updates. Once it does, you should see something like this:
 
 ![Upload License file](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/input_license.PNG)
 
