@@ -356,6 +356,11 @@ def clean_data_disk_func(disks):
         logger.info("Remove /var/log/vipr/emcvipr-object/* Directory ")
         subprocess.call(["rm", "-rf", "/var/log/vipr/emcvipr-object/*"])
 
+        # sudo rm -rf /ecs/*
+        logger.info("Remove /ecs directory on host")
+        subprocess.call(["rm", "-rf", "/ecs"])
+
+
     except Exception as ex:
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log.")
