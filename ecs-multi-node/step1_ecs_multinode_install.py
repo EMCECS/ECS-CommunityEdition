@@ -684,7 +684,7 @@ def main():
                         help='If present, use defined proxy to pull docker images and run docker',
                         required=False)
     parser.set_defaults(cleanup=False)
-    parser.set_defaults(imagename="emccorp/ecs-software-2.2.1")
+    parser.set_defaults(imagename="emccorp/ecs-software-3.0.0")
     parser.set_defaults(imagetag="latest")
     parser.set_defaults(proxy=False)
     parser.set_defaults(image_file=False)
