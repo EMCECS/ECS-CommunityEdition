@@ -356,6 +356,11 @@ def clean_data_disk_func(disks):
         logger.info("Remove /var/log/vipr/emcvipr-object/* Directory ")
         subprocess.call(["rm", "-rf", "/var/log/vipr/emcvipr-object/*"])
 
+        # sudo rm -rf /ecs/*
+        logger.info("Remove /ecs directory on host")
+        subprocess.call(["rm", "-rf", "/ecs"])
+
+
     except Exception as ex:
         logger.exception(ex)
         logger.fatal("Aborting program! Please review log.")
@@ -584,7 +589,6 @@ def modify_container_conf_func(no_internet):
 
         if not no_internet:
             logger.info("Adding python setuptools to container")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OLk https://bootstrap.pypa.io/ez_setup.py")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode python ez_setup.py --insecure")
 
             logger.info("Adding python requests library to container")
@@ -595,7 +599,6 @@ def modify_container_conf_func(no_internet):
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode curl -OLk https://bootstrap.pypa.io/ez_setup.py")
             logger.info("Cleaning up python packages")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm master")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsmultinode rm setuptools-*.zip")
 
         # Flush vNest to clear data and restart.
         logger.info("Flush VNeST data")
@@ -681,7 +684,7 @@ def main():
                         help='If present, use defined proxy to pull docker images and run docker',
                         required=False)
     parser.set_defaults(cleanup=False)
-    parser.set_defaults(imagename="emccorp/ecs-software-2.2.1")
+    parser.set_defaults(imagename="emccorp/ecs-software-3.0.0")
     parser.set_defaults(imagetag="latest")
     parser.set_defaults(proxy=False)
     parser.set_defaults(image_file=False)

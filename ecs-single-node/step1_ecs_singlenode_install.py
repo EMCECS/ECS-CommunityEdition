@@ -513,7 +513,6 @@ def modify_container_conf_func(no_internet):
 
         if not no_internet:
             logger.info("Adding python setuptools to container")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OLk https://bootstrap.pypa.io/ez_setup.py")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone python ez_setup.py --insecure")
     
             logger.info("Adding python requests library to container")
@@ -524,7 +523,6 @@ def modify_container_conf_func(no_internet):
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OLk https://bootstrap.pypa.io/ez_setup.py")
             logger.info("Cleaning up python packages")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm master")
-            os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone rm setuptools-*.zip")
 
         logger.info("Flush VNeST data")
         os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t ecsstandalone rm -rf /data/vnest/vnest-main/*")
@@ -648,6 +646,10 @@ def cleanup_installation(disks):
         logger.info("Remove /var/log/vipr/emcvipr-object Directory ")
         subprocess.call(["rm", "-rf", "/var/log/vipr/emcvipr-object"])
 
+        # sudo rm -rf /ecs/*
+        logger.info("Remove /data Directory")
+        subprocess.call(["rm", "-rf", "/ecs"])
+
 
     except Exception as ex:
         logger.exception(ex)
@@ -708,7 +710,7 @@ def main():
                         required=False)
     parser.set_defaults(container_config=False)
     parser.set_defaults(cleanup=False)
-    parser.set_defaults(imagename="emccorp/ecs-software-2.2.1")
+    parser.set_defaults(imagename="emccorp/ecs-software-3.0.0")
     parser.set_defaults(imagetag="latest")
     parser.set_defaults(proxy=False)
     parser.set_defaults(image_file=False)
