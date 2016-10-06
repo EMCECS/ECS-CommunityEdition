@@ -11,6 +11,8 @@ import socket
 import os
 import time
 import settings
+import fcntl
+import struct
 import re
 import StringIO
 
