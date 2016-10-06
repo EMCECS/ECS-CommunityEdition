@@ -167,8 +167,10 @@ def network_file_func(ethadapter):
 
     try:
 
-        # Get the IP address
-        ip_address = subprocess.check_output(['hostname', '-i']).rstrip('\r\n')
+        # Get the IP address on Linux
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        ip_address = socket.inet_ntoa(fcntl.ioctl(s.fileno(),
+                0x8915, struct.pack('256s', ethadapter[:15]))[20:24])
 
         # Get the hostname
         hostname = subprocess.check_output(['hostname']).rstrip('\r\n')
