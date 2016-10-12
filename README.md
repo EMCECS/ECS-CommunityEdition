@@ -93,7 +93,7 @@ EMC and Customer enter into this Agreement and this Agreement shall become effec
 
 # Support
 
-Please file bugs and issues at the [ECS's site in the EMC Community Network (ECS's support site) ](https://community.emc.com/community/products/vipr#support) and you can also use this GitHub's repository issues page. For more general discussions you can contact the EMC Code team at <a href="https://groups.google.com/forum/#!forum/emccode-users">Google Groups</a> or tagged with **EMC** on <a href="https://stackoverflow.com">Stack Overflow</a>. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community driven process.
+Please file bugs and issues at the [ECS's site in the EMC Community Network (ECS's support site) ](https://community.emc.com/community/products/ecs) and you can also use this GitHub's repository issues page. For more general discussions you can contact the EMC Code team at <a href="https://groups.google.com/forum/#!forum/emccode-users">Google Groups</a> or tagged with **EMC** on <a href="https://stackoverflow.com">Stack Overflow</a>. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community driven process.
 
 # Directory Structure
 
