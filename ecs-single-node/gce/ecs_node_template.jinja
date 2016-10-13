@@ -40,7 +40,7 @@ resources:
           echo "Starting ECS Install Script"
           python step1_ecs_singlenode_install.py --disks sdb --ethadapter eth0 --hostname ecs1
           echo "Upload License"
-          python step2_object_provisioning.py --ECSNodes=ecs1 --Namespace=ns1 --ObjectVArray=sp1 --ObjectVPool=rg1 --UserName=user1 --DataStoreName=ds1 --VDCName=vdc1
+          python step2_object_provisioning.py --ECSNodes=$(ip a | sed -n 's/\s*inet \(.*\)\/.*eth0.*/\1/p') --Namespace=ns1 --ObjectVArray=sp1 --ObjectVPool=rg1 --UserName=user1 --DataStoreName=ds1 --VDCName=vdc1
           echo "Done! Try it out"
     disks:
     - deviceName: boot
@@ -61,5 +61,3 @@ resources:
       accessConfigs:
       - name: External NAT
         type: ONE_TO_ONE_NAT
-
-
