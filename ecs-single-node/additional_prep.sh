@@ -20,11 +20,10 @@ function usage {
 }
 
 device=$1
-mount_point=`$MOUNT | $GREP $device | $AWK '{print $3}'`
-
-if [ -z "$device" -o -z "$mount_point" ]; then
+if [ -z "$device" ]; then
     usage
 fi
+mount_point=`$MOUNT | $GREP $device | $AWK '{print $3}'`
 
 # mount file system to create files on it
 $MOUNT | $GREP $device -q
