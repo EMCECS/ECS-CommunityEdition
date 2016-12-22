@@ -504,14 +504,14 @@ def execute_docker_func(docker_image_name, use_urandom=False,proxy=None):
     """
     try:
 
-        # docker run -d -e SS_GENCONFIG=1 -v /ecs:/dae -v /host:/host -v /var/log/vipr/emcvipr-object:/var/log -v /data:/data:rw --net=host emccorp/ecs-software --name=ecsmultinode
+        # docker run -d -e SS_GENCONFIG=1 -v /ecs:/dae:z -v /host:/host:z -v /var/log/vipr/emcvipr-object:/var/log:z -v /data:/data:z --net=host emccorp/ecs-software --name=ecsmultinode
         docker_command = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1"]
         if proxy!=None:
             docker_command.extend(["-e", "HTTP_PROXY="+proxy, "-e", "HTTPS_PROXY="+proxy])
        
         if use_urandom:
-            docker_command.extend(["-v", "/dev/urandom:/dev/random"])
-        docker_command.extend(["-v", "/ecs:/dae", "-v", "/host:/host", "-v", "/var/log/vipr/emcvipr-object:/var/log", "-v", "/data:/data:rw", "--net=host",
+            docker_command.extend(["-v", "/dev/urandom:/dev/random:z"])
+        docker_command.extend(["-v", "/ecs:/dae:z", "-v", "/host:/host:z", "-v", "/var/log/vipr/emcvipr-object:/var/log:z", "-v", "/data:/data:z", "--net=host",
                          "--name=ecsmultinode", "{}".format(docker_image_name)])
         logger.info("Execute the Docker Container.")
         docker_command[1:1] = DockerCommandLineFlags
