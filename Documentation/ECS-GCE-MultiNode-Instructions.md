@@ -42,7 +42,7 @@ gcloud deployment-manager deployments create ecs-deployment --config ./ecs-multi
 After the installation has completed wait 10 - 15 minutes, and then attempt to login into the ECS portal for any of the nodes.
 
 
-# Provisioning
+## Provisioning
 The automated provisioning may get stuck, login into the portal and start the manual provisioning. 
 
 1. Upload License
