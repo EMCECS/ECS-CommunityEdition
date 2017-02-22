@@ -35,3 +35,10 @@ ecs_docker_dirs:
     owner: 444
     group: 444
     state: touch
+ecs_docker_dirs_post:
+  - path: /ecs
+    mode: 755
+    owner: 444
+    group: 444
+    state: directory
+    recurse: yes

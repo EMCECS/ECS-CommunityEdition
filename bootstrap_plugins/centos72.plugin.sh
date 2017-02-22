@@ -23,7 +23,8 @@ list_prefix_packages='epel-release python-devel wget curl ntp git-perl'
 in_prefix_packages() {
     in_repo_pkg "$list_prefix_packages"
     curl -fsSL https://get.docker.com/ | sudo sh
-    sudo systemctl enable --now docker
+    sudo systemctl enable docker
+    sudo systemctl start docker
     sudo usermod -aG docker $(whoami)
 }
 

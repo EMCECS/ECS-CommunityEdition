@@ -19,10 +19,10 @@ facts:
   install_node: 192.168.2.200
 
   # IPs of machines that will be whitelisted in the firewall and allowed
-  # to access management ports of all nodes.  If this is set to the
-  # wildcard (0.0.0.0/0) then anyone can access management ports.
+  # to access management ports of all nodes.
   management_clients:
-    - 0.0.0.0/0
+    - 192.168.2.0/24
+    - 192.168.1.0/24
 
   # Full Docker path to ecs-software image to be deployed.
   # WARNING: If you have customized your image in release.conf, make sure this
@@ -67,18 +67,10 @@ facts:
     - name: sp1
       members:
         - 192.168.2.220
-        - 192.168.2.221
       options:
         description: My First SP
         ecs_block_devices:
           - /dev/vda
-    - name: sp2
-      members:
-        - 192.168.2.222
-      options:
-        protected: false
-        cold_storage_enabled: false
-        description: My Second SP
 
   # VDC defaults.  Configure to your liking.
   virtual_data_center_defaults:
@@ -93,12 +85,6 @@ facts:
       options:
         secret_key: c7koRP3oXNKYkhxKRqsP
         description: My First VDC
-    - name: vdc2
-      members:
-        - sp2
-      options:
-        secret_key: c7koRP3oXNKYkhxKRqsQ
-        description: My Second VDC
 
   # Replication group defaults.  Configure to your liking.
   replication_group_defaults:
@@ -114,18 +100,3 @@ facts:
         - vdc1
       options:
         description: My First RG
-    - name: rg2
-      members:
-        - vdc2
-      options:
-        description: My Second RG
-    - name: rg3
-      members:
-        - vdc1
-        - vdc2
-      options:
-        description: My Third RG is a geo-replicated RG
-
-  namespaces:
-    - name: ns1
-      replication_group: rg1
