@@ -82,6 +82,17 @@
       creates: "{{host_cache_dir}}/docker/{{caches.docker.unpack_sem}}"
   when: flag_install_node is not defined
 
+- name: Common | Update block storage path permissions
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state}}"
+    mode: "{{item.mode}}"
+    owner: "{{item.owner}}"
+    group: "{{item.group}}"
+    recurse: "{{item.recurse}}"
+  with_items: "{{ecs_docker_dirs_post}}"
+  tags: files
+
 #- name: Common | Tag ECS Docker image
 #  shell: /usr/bin/docker tag {{ecs_software_image}} {{ecs_software_image}}:latest
 #  when: flag_install_node is not defined

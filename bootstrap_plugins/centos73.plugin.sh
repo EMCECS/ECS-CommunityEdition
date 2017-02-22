@@ -25,7 +25,8 @@ in_prefix_packages() {
     if ! docker version; then
         curl -fsSL https://get.docker.com/ | sudo sh
     fi
-    sudo systemctl enable --now docker
+    sudo systemctl enable docker
+    sudo systemctl start docker
     sudo usermod -aG docker $(whoami)
 }
 

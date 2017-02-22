@@ -1,9 +1,13 @@
 - name: Installer | Build the package cache
+  vars:
+    num_data_nodes: "{{ groups['data_node'] | length }}"
   hosts: ecs_install
   roles:
     - installer_build_cache
 
 - name: Installer | Enable torrent ffx
+  vars:
+    num_data_nodes: "{{ groups['data_node'] | length }}"
   hosts: ecs_install
   tasks:
     - file:
