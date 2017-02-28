@@ -1,4 +1,4 @@
-# ECS 2.x Software Container Deployment
+# ECS 3.x Software Container Deployment
 
 **Note** See the changelog.md file for release notes.
 
