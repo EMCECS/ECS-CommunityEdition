@@ -74,7 +74,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # mount again, the file system is now ready
-$MOUNT $device $mount_point -o rw,noatime,seclabel,attr2,inode64,noquota
+$MOUNT $device $mount_point -o rw,noatime,attr2,inode64,noquota
 
 # Add the filesystem to /etc/fstab
-grep "$device" /etc/fstab || echo "$MOUNT $device $mount_point -o rw,noatime,seclabel,attr2,inode64,noquota 0 0" >> /etc/fstab
+grep "$device" /etc/fstab || echo "$MOUNT $device $mount_point -o rw,noatime,attr2,inode64,noquota 0 0" >> /etc/fstab
