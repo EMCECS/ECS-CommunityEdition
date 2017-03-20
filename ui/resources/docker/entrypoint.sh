@@ -9,7 +9,7 @@
 # limited to the terms and conditions of the License Agreement under which
 # it is provided by or on behalf of EMC.
 
-# I am a simple init replacement
+# I am a stupid simple init replacement
 
 prefix="/usr/local/src"
 root="${prefix}/ui"
@@ -123,9 +123,9 @@ simple_shutdown() {
 }
 
 we_get_signal() {
-    o "Caught signal; preventing zombie attack..."
+    # o "Caught signal; preventing zombie attack..."
     simple_shutdown aria2c opentracker
-    o "Phweew, that was close!"
+    # o "Phweew, that was close!"
     exit $rc
 }
 
