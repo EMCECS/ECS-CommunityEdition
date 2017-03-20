@@ -63,7 +63,7 @@
     name: "/ecs/uuid-{{ item.0.stdout }}"
     fstype: xfs
     state: mounted
-    opts: rw,noatime,seclabel,attr2,inode64,noquota
+    opts: rw,noatime,attr2,inode64,noquota
     dump: 0
     passno: 0
   with_together:
