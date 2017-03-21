@@ -31,8 +31,8 @@ FUN_FACTS = [INSTALL_NODE, MANAGEMENT_CLIENTS, AUTONAMING, ECS_SOFTWARE_IMAGE]
 SP = 'storage_pools'
 SP_D = SP[:-1] + '_defaults'
 DEFAULTS[SP] = {
-    'cold_storage_enabled': False,
-    'protected': False,
+    'is_cold_storage_enabled': False,
+    'is_protected': False,
     'description': None
 }
 
@@ -47,15 +47,16 @@ DEFAULTS[RG] = {
     'description': None,
     'enable_rebalancing': False,
     'allow_all_namespaces': False,
-    'full_replication': False
+    'is_full_rep': False
 }
 
 NS = 'namespaces'
 NS_D = NS[:-1] + '_defaults'
 DEFAULTS[NS] = {
-    'encryption_enabled': False,
-    'stale_allowed': False,
-    'compliance_enabled': False
+    'is_encryption_enabled': False,
+    'is_stale_allowed': False,
+    'is_compliance_enabled': False,
+    'namespace_admins': 'root'
 }
 
 AUTH = 'auth_providers'
@@ -71,6 +72,11 @@ OPTIONS = 'options'
 NAME = 'name'
 MEMBERS = 'members'
 
+DIRECTORY_TABLE = {
+    'small': 416,
+    'large': 1664
+}
+
 
 class ECSConf(object):
     """
@@ -80,6 +86,15 @@ class ECSConf(object):
     def __init__(self, deploymap):
 
         self.deploy = deploymap
+
+    @staticmethod
+    def get_dt_total(self, footprint):
+        """
+        Accessor for directory table data
+        :param footprint: small or large
+        :return: int
+        """
+        return DIRECTORY_TABLE[footprint]
 
     def get_attr(self, map_type, key=None, name=None):
         """
@@ -94,6 +109,17 @@ class ECSConf(object):
                 return [x[key] for x in self.deploy.facts[map_type] if x[NAME] == name][0]
         except KeyError:
             return None
+
+    def get_fun_facts(self):
+        """
+        Returns a dict of important general facts
+        :return: dict of facts
+        """
+        fun_facts = {}
+        for fact in FUN_FACTS:
+            fun_facts.update({fact: self.get_attr(fact)})
+            fun_facts.update(self.get_attr(ANSIBLE_DEFAULTS).toDict())
+        return fun_facts
 
     def get_names(self, map_type):
         """
@@ -279,7 +305,19 @@ class ECSConf(object):
         """
         Returns the configured VDC secret key, or None if no key is defined for the VDC
         """
-        return self.get_attr(VDC, VDC_KEY, vdc_name)
+        return self.get_attr(VDC, OPTIONS, vdc_name).secret_key
+
+    def get_vdc_options(self, vdc_name):
+        """
+        Returns the options dict for the rg
+        :param vdc_name: Name of the rg
+        :return: dict of rg options
+        """
+        opts = self.get_defaults(VDC)
+        vdc_opts = self.get_attr(VDC, OPTIONS, vdc_name)
+        if vdc_opts is not None:
+            opts.update(vdc_opts)
+        return opts
 
 # Replication Groups
     def get_rg_names(self):
@@ -294,13 +332,33 @@ class ECSConf(object):
         """
         return self.get_members(RG, rg_name)
 
-    def get_fun_facts(self):
+    def get_rg_options(self, rg_name):
         """
-        Returns a dict of important general facts
-        :return: dict of facts
+        Returns the options dict for the rg
+        :param rg_name: Name of the rg
+        :return: dict of rg options
         """
-        fun_facts = {}
-        for fact in FUN_FACTS:
-            fun_facts.update({fact: self.get_attr(fact)})
-            fun_facts.update(self.get_attr(ANSIBLE_DEFAULTS).toDict())
-        return fun_facts
+        opts = self.get_defaults(RG)
+        rg_opts = self.get_attr(RG, OPTIONS, rg_name)
+        if rg_opts is not None:
+            opts.update(rg_opts)
+        return opts
+
+# Namespaces
+    def get_ns_names(self):
+        return self.get_names(NS)
+
+    def get_ns_members(self, ns_name):
+        return self.get_members(NS, ns_name)[0]
+
+    def get_ns_options(self, ns_name):
+        """
+        Returns the options dict for the rg
+        :param rg_name: Name of the rg
+        :return: dict of rg options
+        """
+        opts = self.get_defaults(NS)
+        ns_opts = self.get_attr(NS, OPTIONS, ns_name)
+        if ns_opts is not None:
+            opts.update(ns_opts)
+        return opts

@@ -14,7 +14,8 @@ import logging
 import os
 import subprocess
 import sys
-
+import pager
+import textwrap
 import click
 import yaml
 from sarge import run, shell_format
@@ -119,6 +120,7 @@ def load(conf):
                 ('licensing' not in conf.config.toDict() or conf.config.licensing.license_accepted is not True):
 
             try:
+                # Replace this with textwrap and pager modules.
                 pager = subprocess.Popen(['less', '-~', '-M', '-I',
                                           conf.config.product.license_file],
                                          stdin=subprocess.PIPE, stdout=sys.stdout)

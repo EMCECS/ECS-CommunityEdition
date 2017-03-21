@@ -89,8 +89,15 @@ case "$(basename ${0})" in
         run ecsdeploy start || exit $?
     ;;
     step2|island-step3)
-        run ecsconfig check || exit $?
-        run ecsconfig apply || exit $?
+        run ecsconfig ping -c -x || exit $?
+        run ecsconfig licensing -a || exit $?
+        run ecsconfig ping -c -x || exit $?
+        run ecsconfig sp -a || exit $?
+        run ecsconfig ping -c -x || exit $?
+        run ecsconfig vdc -a || exit $?
+        run ecsconfig ping -c -x || exit $?
+        run ecsconfig rg -a || exit $?
+        run ecsconfig ping -c -x || exit $?
     ;;
     *)
         die "Invalid operation."

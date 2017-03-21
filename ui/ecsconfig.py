@@ -17,32 +17,28 @@ import logging
 import requests
 import httplib
 import os
-import subprocess
-import shutil
 import sys
 import click
 import tui
+import tui.tools
+from tui.tools import o, die
 import time
-import yaml
 import simplejson
 from sarge import Capture, run, shell_format, capture_both, get_both
-from ecsmgmt.ecs_admin_client import ECSAdminClient
 from tui.defaults import *
-from ecsmgmt.exception.ecsexception import ECSException
+from ecsclient.client import Client
+from ecsclient.common.exceptions import ECSClientException
 
 """
 # Logging
 """
 
-
 logging.basicConfig(filename=ui_log, level=logging.DEBUG)
 logging.debug('-' * 40 + os.path.abspath(__file__) + '-' * 40)
-
 
 """
 # Helpers
 """
-
 
 """
 # Config
@@ -60,6 +56,7 @@ class Conf(tui.Director):
     api_client = None
     api_timeout = API_TIMEOUT
     api_retries = API_RETRIES
+    api_verify_ssl = False
 
     def __init__(self):
         logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
@@ -67,12 +64,15 @@ class Conf(tui.Director):
         self.ecs = tui.ECSConf(self.deploy)
         self.api_root_user = self.ecs.get_root_user()
         self.api_root_pass = self.ecs.get_root_pass()
-        self.api_endpoint = self.ecs.get_any_endpoint()
+        # Default to the first data node listed
+        self.api_endpoint = self.ecs.list_all_sp_nodes()[0]
         self.api_client = self._api_get_client()
+        # self.expected_dt_total = self.ecs.get_expected_dts()
+        self.expected_dt_total = 416
 
     def api_set_endpoint(self, api_endpoint):
         """
-        Sets the API endpoint to use. Object default is random endpoint
+        Sets the API endpoint to use. default is random endpoint
         """
         self.api_endpoint = api_endpoint
 
@@ -85,47 +85,63 @@ class Conf(tui.Director):
 
     def _api_get_client(self):
         """
-        Returns an instance of ECSAdminClient
+        Returns an instance of ecsclient.client.Client
         """
         url = "{0}://{1}:{2}".format(API_PROTOCOL, self.api_endpoint, API_PORT)
-        return ECSAdminClient(url, self.api_root_user, self.api_root_pass)
 
-    def api_login(self):
-        """
-        Creates authentication session in ECSAdminClient object
-        """
-        self.api_token = self.api_client.login()
+        return Client('3',
+                      username=self.api_root_user,
+                      password=self.api_root_pass,
+                      token_endpoint=url + '/login',
+                      ecs_endpoint=url,
+                      verify_ssl=self.api_verify_ssl,
+                      request_timeout=self.api_timeout)
 
     def api_close(self):
         """
         Logs out and destroys the API instance
         """
-        self.api_client.logout()
+        self.api_client.authentication.logout()
         del self.api_client
 
     def api_reset(self):
         """
         Resets the APIAdminClient instance
         """
-        del self.api_client
         self.api_client = self._api_get_client()
 
-    def diag_dt_unready_count(self):
+    def diag_dt_get(self):
         """
-        Returns the count of dt_unready + dt_unknown
+        Returns the dt stats
+        total_dt_num
+        unknown_dt_num
+        unready_dt_num
         """
-        dt_diag = tui.ECSDiag(self.api_endpoint)
-        dt_status = dt_diag.get_dt_status()
-        return dt_status['unready_dt_num'] + dt_status['unknown_dt_num']
+        dt_diag_client = tui.ECSDiag(self.api_endpoint)
+        return dt_diag_client.get_dt_status()
 
-    def diag_dt_ready(self):
+    def diag_dt_ready(self, footprint='small'):
         """
         Returns True of no dt unready and dt unknown, False otherwise
         """
-        if self.diag_dt_unready_count() > 0:
+        dt_data = self.diag_dt_get()
+        if dt_data['unknown_dt_num'] > 0 \
+                or dt_data['total_dt_num'] < self.ecs.get_dt_total(footprint) \
+                or dt_data['unready_dt_num'] > 0:
             return False
         else:
             return True
+
+    def diag_dt_status_text(self):
+        """
+        Get a status string
+        :return: dt status string
+        """
+        dt_data = self.diag_dt_get()
+        return "dt_total={} dt_unready={} dt_unknown={}".format(
+            dt_data['total_dt_num'],
+            dt_data['unready_dt_num'],
+            dt_data['unknown_dt_num'])
 
     def wait_for_dt_ready(self):
         """
@@ -143,21 +159,13 @@ class Conf(tui.Director):
             tries -= 1
         return False
 
-    def api_create_sp(self, sp_name, sp_ecs_options):
-        # TODO: This is kinda hacky and gross
-        create_kwargs = {"name": sp_name}
-        create_kwargs.update(sp_ecs_options)
-        resp_json = self.api_client.storage_pool().create_storage_pool(create_kwargs)
-
-    def api_add_node_to_sp(self, sp_name, node):
+    def api_task_get_status(self, task_id):
         pass
 
-    def api_create_vdc(self, vdc_name, vdc_members):
-        pass
-
+    def get_vdc_id_by_name(self, vdc_name):
+        return self.api_client.vdc.get(name=vdc_name)['id']
 
 pass_conf = click.make_pass_decorator(Conf, ensure=True)
-
 
 """
 # Commands
@@ -186,147 +194,511 @@ def ecsconfig(conf, verbose):
 
 
 
-    # virtual_data_centers = conf.ecs.get_vdc_names()
-    # if virtual_data_centers is not None:
-    #     for vdc_name in virtual_data_centers:
-    #         vdc_members = conf.ecs.get_vdc_members(vdc_name)
-    #         conf.wait_for_dt_ready()
-    #         conf.api_create_vdc(vdc_name, vdc_members)
+# virtual_data_centers = conf.ecs.get_vdc_names()
+# if virtual_data_centers is not None:
+#     for vdc_name in virtual_data_centers:
+#         vdc_members = conf.ecs.get_vdc_members(vdc_name)
+#         conf.wait_for_dt_ready()
+#         conf.api_create_vdc(vdc_name, vdc_members)
 
-    # replication_groups = conf.ecs.rg_names()
-    # if replication_groups is not None:
-    #     for rg_name in replication_groups:
-    #         rg_members = conf.ecs.rg_members(rg_name)
-    #         conf.wait_for_dt_ready()
-    #         conf.api_create_rg(rg_name, rg_members)
+# replication_groups = conf.ecs.rg_names()
+# if replication_groups is not None:
+#     for rg_name in replication_groups:
+#         rg_members = conf.ecs.rg_members(rg_name)
+#         conf.wait_for_dt_ready()
+#         conf.api_create_rg(rg_name, rg_members)
 
 
-
-@ecsconfig.command('add-sp', short_help='Add Storage Pools to ECS')
-@click.option('-a', is_flag=True, default=False, help="Add all storage pools")
-@click.option('-l', is_flag=True, default=True, help='List known storage pool configs')
-@click.option('-n', default=None, help='The name of a storage pool to add')
+@ecsconfig.command('ping', short_help='Check ECS Management API Endpoint')
+@click.option('-c', is_flag=True, help='Continuous ping')
+@click.option('-w', default=10, help='(with -c) Seconds to wait between pings')
+@click.option('-x', is_flag=True, help='Exit upon successful PONG')
 @pass_conf
-def add_sp(conf, a, l, n):
+def ping(conf, c, w, x):
+    """
+    Ping ECS management API for connectivity
+    :param conf: Click config object with helpers
+    :param c: Click bool flag
+    :param w: Click argument
+    :param x: Click bool flag
+    :return:
+    """
+    pinging = True
+    while pinging is True:
+
+        o("Pinging endpoint {}... (CTRL-C to break)".format(conf.api_endpoint))
+        # click.echo("This can take a while during storage provisioning.")
+
+        try:
+            resp_dict = conf.api_client.user_info.whoami()
+            if resp_dict is not None:
+                if resp_dict['common_name'] is not None:
+                    o('PONG: username={} {}'.format(resp_dict['common_name'], conf.diag_dt_status_text()))
+                    if x:
+                        sys.exit(0)
+                else:
+                    raise ECSClientException("Unexpected response from API")
+        except requests.ConnectionError or httplib.HTTPException:
+            o("FAIL: API service unavailable {}".format(conf.diag_dt_status_text()))
+            try:
+                del conf.api_client
+                if not c:
+                    sys.exit(1)
+            except AssertionError:
+                if not c:
+                    sys.exit(1)
+        except ECSClientException as e:
+            if 'Connection refused' in e.message:
+                o('FAIL: API service is not alive. This is likely temporary.')
+            elif 'connection failed' in e.message:
+                o('FAIL: API service is alive but ECS is not. This is likely temporary.')
+            elif 'Invalid username or password' in e.message:
+                o('FAIL: Invalid username or password. If ECS authsvc is bootstrapping, this is likely temporary.')
+            else:
+                o('FAIL: Caught an unexpected exception in ECS API: {0}'.format(e))
+                if not c:
+                    raise
+        if not c:
+            pinging = False
+        if c:
+            time.sleep(w)
+
+
+@ecsconfig.command('licensing', short_help='Work with ECS Licenses')
+@click.option('-l', is_flag=True, help='List current license installed in ECS')
+@click.option('-a', is_flag=True, help='Install default ECS Community Edition license into ECS')
+@click.option('-c', help='Install custom license into ECS from file at given path')
+@pass_conf
+def licensing(conf, l, a, c):
+    def get_license():
+        return conf.api_client.licensing.get_license()['license_text']
+
+    def add_license(license_blob):
+        # license_text is a global variable from defaults.py which
+        # can be overridden.
+        # o(license_blob)
+        license_dict = {"license_text": license_blob.rstrip('\n')}
+        return conf.api_client.licensing.add_license(license_dict)
+
+    def add_default_license():
+        return add_license(license_text)
+
+    def add_custom_license(license_path):
+        with open('{}'.format(license_path), 'r') as fp:
+            license_blob = fp.read()
+        return add_license(license_blob)
+
+    # Select behavior
+    if l:
+        c = None
+        a = False
+        try:
+            license_blob = get_license()
+            o('Current license installed in ECS:')
+            o(license_blob)
+        except ECSClientException as e:
+            die("Could not get license from ECS", e)
 
     if a:
-        l = False
-        n = None
-        conf.api_login()
+        c = None
+        try:
+            license_blob = add_default_license()
+            o('Added default license to ECS')
+        except ECSClientException as e:
+            die("Could not add default license", e)
+
+    if c is not None:
+        try:
+            license_blob = add_custom_license(c)
+            o('Added custom license to ECS')
+        except IOError as e:
+            die('Could not read custom license file {}:'.format(c), e)
+        except ECSClientException as e:
+            die("Could not add custom license", e)
+
+
+@ecsconfig.command('trust', short_help='Work with ECS Certificates')
+@click.option('-l', is_flag=True, help='List current cert installed in ECS')
+@click.option('-x', is_flag=True, help='Generate and trust a new self-signed cert in ECS')
+@click.option('-t', is_flag=True, help='Fetch and trust the current ECS cert')
+@click.option('-c', help='Install custom x509 cert from file into ECS')
+@click.option('-k', help='(with -c) Private key to use for custom cert')
+@pass_conf
+def trust(conf, l, x, t, c, k):
+    def get_cert():
+        return conf.api_client.certificate.get_certificate_chain()['chain']
+
+    def install_cert(cert_chain=None, private_key=None, self_signed=False, ip_addresses=None):
+        kwargs = {
+            'cert_chain': cert_chain,
+            'private_key': private_key,
+            'selfsigned': self_signed,
+            'ip_addresses': ip_addresses
+        }
+        return conf.api_client.certificate.set_certificate_chain(kwargs)['chain']
+
+    def generate_self_signed_cert():
+        return install_cert(self_signed=True, ip_addresses=conf.ecs.list_all_sp_nodes())
+
+    def trust_cert(cert_chain):
+        if cert_chain is not None:
+            with open('{0}/ecscert.crt'.format(ssl_root), 'w') as fp:
+                fp.write(str(cert_chain))
+                stdout, stderr = get_both('update-ca-certificates')
+            return stdout + stderr
+
+    def install_custom_cert(cert_path, key_path):
+        with open('{}'.format(cert_path), 'r') as fp:
+            cert_blob = fp.read()
+
+        with open('{}'.format(key_path), 'r') as fp:
+            key_blob = fp.read()
+
+        install_cert(cert_chain=cert_blob, private_key=key_blob)
+
+    # Select behavior
+    if l:
+        try:
+            o('Current ECS Certificate:')
+            o(get_cert())
+        except ECSClientException as e:
+            die("Could not get certificate matter from ECS", e)
+
+    if x:
+        t = False
+        c = None
+        try:
+            trust_cert(generate_self_signed_cert())
+        except ECSClientException as e:
+            die('Could not generate self-signed cert on ECS', e)
+
+    if t:
+        c = None
+        o('Trusting current ECS certificate...')
+        try:
+            resp = trust_cert(get_cert())
+            o(resp)
+        except ECSClientException as e:
+            die('Could get cert from ECS', e)
+        except IOError as e:
+            die('Could not add ECS cert to local store', e)
+
+    if c is not None and k is not None:
+        try:
+            install_custom_cert(c, k)
+        except (IOError, ECSClientException) as e:
+            die("Could not install custom cert matter: {} {}:".format(c, k), e)
+
+
+@ecsconfig.command('sp', short_help='Work with ECS Storage Pools')
+@click.option('-l', is_flag=True, help='List known SP configs')
+@click.option('-r', is_flag=True, help='Get current SP configs from ECS')
+@click.option('-a', is_flag=True, help="Add all SPs to ECS")
+@click.option('-n', default=None, help='Add the given SP to ECS')
+@pass_conf
+def sp(conf, l, r, a, n):
+    def list_all():
+        return conf.ecs.get_sp_names()
+
+    def get_all():
+        return conf.api_client.storage_pool.list()
+
+    def sp_create(name, sp_ecs_options):
+        """
+        Create a storage pool
+        :param name:
+        :param sp_ecs_options: dict of kwargs
+        :return: Storage Pool ID as URN
+        """
+        kwargs = {"name": name}
+        kwargs.update(sp_ecs_options)
+        #o('kwargs: {}'.format(kwargs))
+
+        resp = conf.api_client.storage_pool.create(**kwargs)
+        return resp['id']
+
+    def sp_add_node(sp_id, node_ip):
+        """
+        Add given node to named storage pool
+        :param sp_id: Storage Pool URN
+        :param node_ip: IP address of node
+        :return: Task object
+        """
+
+        node_dict = conf.ecs.get_node_options(node_ip)
+
+        kwargs = {"name": node_ip,
+                  "description": node_dict['description'],
+                  "node_id": node_ip,
+                  "storage_pool_id": sp_id}
+        """
+        def create(self, name, description, node_id, storage_pool_id):
+        :param name: User provided name (not verified or unique)
+        :param description: User provided description (not verified or unique)
+        :param node_id: IP address for the commodity node
+        :param storage_pool_id: Desired storage pool ID for creating data store
+        :returns a task object
+        """
+        task = conf.api_client.data_store.create(**kwargs)
+        return task
+
+    def add_all():
         storage_pools = conf.ecs.get_sp_names()
         if storage_pools is not None:
-            for sp_name in storage_pools:
+            for name in storage_pools:
+                o('Adding SP {}'.format(name))
+                sp_id = sp_create(name, conf.ecs.sp_ecs_options(name))
 
-                conf.api_create_sp(sp_name, conf.ecs.sp_ecs_options(sp_name))
-
-                data_stores = conf.ecs.get_sp_members(sp_name)
-                if data_stores is not None:
-                    for data_store in data_stores:
+                nodes = conf.ecs.get_sp_members(name)
+                tasks = []
+                if nodes is not None:
+                    for node in nodes:
+                        o('Adding datastore node {} to {}'.format(node, name))
                         conf.wait_for_dt_ready()
+                        # def api_sp_add_node(self, node_ip, sp_id, node_name=None, node_description=None):
+                        tasks.append(sp_add_node(sp_id, node))
+                return tasks
 
-                        conf.api_add_node_to_sp(sp_name, data_store)
-
-    elif n is not None:
-        a = False
-        l = False
-        sp_name = n
-        conf.api_login()
-        conf.api_create_sp(sp_name, conf.ecs.sp_ecs_options(sp_name))
-
-        data_stores = conf.ecs.get_sp_members(sp_name)
+    def add_one(name):
+        sp_create(sp_name, conf.ecs.sp_ecs_options(name))
+        data_stores = conf.ecs.get_sp_members(name)
+        tasks = []
         if data_stores is not None:
             for data_store in data_stores:
                 conf.wait_for_dt_ready()
+                tasks.append(sp_add_node(name, data_store))
+        return tasks
 
-                conf.api_add_node_to_sp(sp_name, data_store)
-    else:
-        click.echo("Available Storage Pool configurations: ")
-        for sp in conf.ecs.get_sp_names():
-            click.echo("    {}".format(sp))
-        sys.exit(0)
+    if l:
+        o("Available Storage Pool configurations:")
+        for sp_name in list_all():
+            o("\t{}".format(sp_name))
+
+    if r:
+        o('Storage Pools currently configured:')
+        for sp_config in get_all():
+            o("\t{}".format(sp_config['name']))
+
+    if a:
+        n = None
+        conf.api_set_timeout(300)
+        conf.api_close()
+        conf.api_reset()
+        tasks = add_all()
+        #o(tasks)
+        conf.api_set_timeout(API_TIMEOUT)
+        conf.api_close()
+        conf.api_reset()
+
+    if n is not None:
+        conf.api_set_timeout(300)
+        conf.api_close()
+        conf.api_reset()
+        tasks = add_one(n)
+        #o(tasks)
+        conf.api_set_timeout(API_TIMEOUT)
+        conf.api_close()
+        conf.api_reset()
 
 
-
-@ecsconfig.command('add-license', short_help='Add license to ECS')
+@ecsconfig.command('vdc', short_help='Work with ECS Virtual Data Centers')
+@click.option('-l', is_flag=True, help='List known VDC configs')
+@click.option('-r', is_flag=True, help='Get current VDC configs from ECS')
+@click.option('-a', is_flag=True, help="Add all VDCs to ECS")
+@click.option('-n', default=None, help='Add the given VDC to ECS')
 @pass_conf
-def add_license(conf):
-    """
-    Adds a license to a running ECS instance
-    """
-    # Add license
-    click.echo('Updating ECS license...')
-    license_dict = {"license_text": license_text}
-    conf.api_login()
-    try:
-        if conf.api_client.license().add_license(license_dict):
-            click.echo('OK')
-    except ECSException or httplib.HTTPException:
-        click.echo('Exception caught in ECS API.')
+def vdc(conf, l, r, a, n):
+    def list_all():
+        return conf.ecs.get_vdc_names()
+
+    def get_all():
+        return conf.api_client.vdc.list()
+
+    def vdc_create(vdc_name):
+        vdc_secret = conf.ecs.get_vdc_secret(vdc_name)
+        if vdc_secret is None:
+            vdc_secret = conf.ecs.gen_secret()
+
+        endpoints = []
+        for sp in conf.ecs.get_vdc_members(vdc_name):
+            endpoints.extend(conf.ecs.get_sp_members(sp))
+        endpoints = ','.join(endpoints)
+
+        return conf.api_client.vdc.update('vdc',
+                                          inter_vdc_endpoints=endpoints,
+                                          secret_key=vdc_secret,
+                                          new_name=vdc_name,
+                                          management_endpoints=endpoints)
+
+    def add_all():
+        tasks = []
+        for vdc_name in conf.ecs.get_vdc_names():
+            o('\t{}'.format(vdc_name))
+            conf.wait_for_dt_ready()
+            tasks.append(vdc_create(vdc_name))
+        return tasks
+
+    def add_one(vdc_name):
+        pass
+
+    if l:
+        o('Available VDC configurations:')
+        for vdc_name in list_all():
+            o('\t{}'.format(vdc_name))
+
+    if r:
+        o('VDCs currently configured:')
+        for vdc_name in get_all():
+            o('\t{}'.format(vdc_name))
+
+    if a:
+        n = None
+        o('Creating all VDCs...')
+        # apparently doesn't return tasks
+        tasks = add_all()
+
+    if n is not None:
+        add_one(n)
 
 
-@ecsconfig.command('ping', short_help='Perform API endpoint check on ECS')
-@click.option('--wait', is_flag=True, default=False)
+@ecsconfig.command('rg', short_help='Work with ECS Replication Groups')
+@click.option('-l', is_flag=True, help='List known RG configs')
+@click.option('-r', is_flag=True, help='Get current RG configs from ECS')
+@click.option('-a', is_flag=True, help="Add all RGs to ECS")
+@click.option('-n', default=None, help='Add the given RG to ECS')
 @pass_conf
-def ping(conf, wait):
-    """
-    :param conf:
-    :type conf:
-    :return:
-    :rtype:
-    """
-    click.echo("Pinging random endpoint {}...".format(conf.api_endpoint))
-    # click.echo("This can take a while during storage provisioning.")
-    try:
-        conf.api_login()
-    except requests.ConnectionError or httplib.HTTPException:
-        click.echo("FAIL: API service unavailable dt_unready={0}".format(conf.diag_dt_unready_count()))
+def rg(conf, l, r, a, n):
+    def list_all():
+        return conf.ecs.get_rg_names()
+
+    def get_all():
+        return conf.api_client.replication_group.list()
+
+    def add_rg(rg_name):
+        o('Adding replication group {}'.format(rg_name))
+        zone_mappings = []
+        for vdc_name in conf.ecs.get_rg_members(rg_name):
+            o('Generating zone mappings for {}/{}'.format(rg_name, vdc_name))
+            vdc_id = conf.get_vdc_id_by_name(vdc_name)
+            sp_records = conf.api_client.storage_pool.list(vdc_id=vdc_id)['varray']
+            for sp_record in sp_records:
+                o('\t{}'.format(sp_record['name']))
+                zone_mappings.append((vdc_id, sp_record['id']))
+        rg_options = conf.ecs.get_rg_options(rg_name)
+        o('Applying mappings')
+        resp = conf.api_client.replication_group.create(rg_name,
+                                                        zone_mappings=zone_mappings,
+                                                        description=rg_options['description'],
+                                                        enable_rebalancing=rg_options['enable_rebalancing'],
+                                                        allow_all_namespaces=rg_options['allow_all_namespaces'],
+                                                        is_full_rep=rg_options['is_full_rep'])
+        return resp
+
+    def add_all():
+        results = []
+        for rg_name in conf.ecs.get_rg_names():
+            results.append(add_rg(rg_name))
+        return results
+
+    if l:
+        o('Available Replication Group Configurations:')
+        for name in list_all():
+            o('\t{}'.format(name))
+
+    if r:
         try:
-            del conf.api_client
-            sys.exit(1)
-        except AssertionError:
-            sys.exit(1)
-    except ECSException as e:
-        click.echo('Caught an unexpected exception in ECS API: {0}'.format(e))
-        raise
+            o('Replication Groups currently configured:')
+            for name in get_all():
+                o('\t{}'.format(name))
+        except ECSClientException as e:
+            die('')
 
-    if conf.api_token is not None:
-        click.echo('PONG: dt_unready={0} token={1}'.format(conf.diag_dt_unready_count(), conf.api_token))
-        sys.exit(0)
-    else:
-        click.echo('API could not be reached. Check exception.')
-        sys.exit(1)
+    if a:
+        n = None
+        results = add_all()
+        for result in results:
+            o('OK {} {}'.format(result['name'], result['id']))
+
+    if n is not None:
+        result = add_rg(n)
+        o('OK {} {}'.format(result['name'], result['id']))
 
 
-@ecsconfig.command('trust-ecs', short_help='Fetch and trust the current ECS cert')
+@ecsconfig.command('namespace', short_help='Work with ECS Namespaces')
+@click.option('-l', is_flag=True, help='List known namespace configs')
+@click.option('-r', is_flag=True, help='Get current namespace configs from ECS')
+@click.option('-a', is_flag=True, help="Add all namespaces to ECS")
+@click.option('-n', default=None, help='Add the given namespace to ECS')
 @pass_conf
-def trust_ecs(conf):
-    """
-    :param conf:
-    :type conf:
-    :return:
-    :rtype:
-    """
-    click.echo('Fetching ECS Certificate...')
-    conf.api_login()
-    cert_material = conf.api_client.certificate().getCertificateChain()['chain']
+def namespace(conf, l, r, a, n):
+    def list_all():
+        return conf.ecs.get_ns_names()
 
-    # click.echo(cert_material)
-    if cert_material is not None:
+    def get_all():
+        return conf.api_client.namespace.list()
 
-        try:
-            with open('{0}/ecscert.crt'.format(ssl_root), 'w') as fp:
-                fp.write(str(cert_material))
-        except IOError as e:
-            click.echo(e)
-            click.echo('Operation failed.')
-            conf.api_close()
-            sys.exit(1)
+    def add_namespace(namespace_name):
+        o('Adding namespace {}'.format(namespace_name))
+        ns_dict = conf.ecs.get_ns_options(namespace_name)
 
-        result = get_both('update-ca-certificates')
+        kwargs = {"is_stale_allowed": ns_dict['is_stale_allowed'],
+                  "is_compliance_enabled": ns_dict['is_compliance_enabled'],
+                  "is_encryption_enabled": ns_dict['is_encryption_enabled'],
+                  "namespace_admins": ns_dict['namespace_admins']}
 
-        click.echo("ECS certificate is now trusted.")
-    else:
-        click.echo('Could not get certificate from ECS. Try again later.')
+        return conf.api_client.namespace.create(namespace_name, **kwargs)
+
+    def add_all():
+        for namespace_name in list_all():
+            add_namespace(namespace_name)
+
+    if l:
+        o('Available Namespace configurations:')
+        for ns_name in list_all():
+            o('\t{}'.format(ns_name))
+    if r:
+        o('Namespaces currently configured:')
+        namespaces = get_all()
+        for ns_data in namespaces['namespace']:
+            o('\t{}'.format(ns_data['name']))
+    if a:
+        n = None
+        add_all()
+    if n is not None:
+        add_namespace(n)
+
+
+# @ecsconfig.command('bucket', short_help='Work with ECS Buckets')
+# @click.option('-l', is_flag=True, help='List known bucket configs')
+# @click.option('-r', is_flag=True, help='Get all current bucket configs from ECS')
+# @click.option('-s', is_flag=True, help='Get current bucket configs from ECS for given namespace')
+# @click.option('-a', is_flag=True, help="Add all buckets to ECS")
+# @click.option('-n', default=None, help='Add the given bucket to ECS')
+# @pass_conf
+# def bucket(conf, l, r, s, a, n):
+#     def list_all():
+#         pass
+#
+#     def get_all():
+#         pass
+#
+#     def get_one():
+#         pass
+#
+#     def add_all():
+#         pass
+#
+#     def add_one(bucket_name):
+#         pass
+#
+#     if l:
+#         list_all()
+#     if a:
+#         n = None
+#         add_all()
+#     if n is not None:
+#         add_one(n)
+
 
 if __name__ == '__main__':
     ecsconfig()

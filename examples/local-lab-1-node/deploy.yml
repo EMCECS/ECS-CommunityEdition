@@ -56,8 +56,8 @@ facts:
 
   # Storage pool defaults. Configure to your liking.
   storage_pool_defaults:
-    cold_storage_enabled: false
-    protected: false
+    is_cold_storage_enabled: false
+    is_protected: false
     description: Default storage pool description
     ecs_block_devices:
       - /dev/vda
@@ -91,7 +91,7 @@ facts:
     description: Default replication group description
     enable_rebalancing: false
     allow_all_namespaces: false
-    full_replication: false
+    is_full_rep: false
 
   # Replication group layout.  You MUST have at least ONE (1) RG for a successful install.
   replication_groups:
@@ -100,3 +100,18 @@ facts:
         - vdc1
       options:
         description: My First RG
+
+  # Namespace defaults.
+  namespace_defaults:
+    is_stale_allowed: false
+    compliance_enabled: false
+    is_encryption_enabled: false
+
+  # Namespace layout (optional)
+  namespaces:
+    - name: ns1
+      members:
+        - rg1
+      options:
+        description: My First Namespace
+
