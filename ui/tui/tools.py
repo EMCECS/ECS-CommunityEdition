@@ -14,6 +14,7 @@ import yaml
 import jinja2
 import sys
 import os
+import click
 from defaults import *
 
 logging.basicConfig(filename=ui_log, level=logging.DEBUG)
@@ -211,3 +212,24 @@ class DumpFacts(DataSet):
             logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name + ': ' + repr(e))
             # bigger fish to fry
             raise
+
+
+def o(message):
+    """
+
+    :param message:
+    :return:
+    """
+    click.echo('> {}'.format(message))
+
+
+def die(message, exception=None):
+    """
+
+    :param message:
+    :param exception:
+    :return:
+    """
+    o("FATAL: {}".format(message))
+    o(exception)
+    sys.exit(1)

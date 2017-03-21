@@ -213,5 +213,5 @@ else
 fi
 
 simple_shutdown aria2c opentracker
-o "Exit code: ${rc}"
+#o "Exit code: ${rc}"
 exit $rc
