@@ -204,7 +204,8 @@ class ECSConf(object):
         if ANSIBLE_DEFAULTS in self.deploy.facts:
             opts.update(self.deploy.facts[ANSIBLE_DEFAULTS].toDict())
 
-        if node not in self.deploy.facts[INSTALL_NODE]:
+        # do stuff if node belongs to a storage pool
+        if self.get_node_pool(node) is not None:
             opts.update(self.get_defaults(SP))
             node_pool = self.get_node_pool(node)
             pool_options = self.get_sp_options(node_pool)
