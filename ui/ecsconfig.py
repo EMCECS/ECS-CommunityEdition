@@ -165,6 +165,9 @@ class Conf(tui.Director):
     def get_vdc_id_by_name(self, vdc_name):
         return self.api_client.vdc.get(name=vdc_name)['id']
 
+    def get_vdc_secret(self, vdc_name):
+        return self.api_client.vdc.get_local_secret_key()['key']
+
 pass_conf = click.make_pass_decorator(Conf, ensure=True)
 
 """
@@ -439,35 +442,29 @@ def sp(conf, l, r, a, n):
         :param storage_pool_id: Desired storage pool ID for creating data store
         :returns a task object
         """
-        task = conf.api_client.data_store.create(**kwargs)
-        return task
+        return conf.api_client.data_store.create(**kwargs)
+
+    def add_one(name):
+        o('Adding SP {}'.format(name))
+        sp_id = sp_create(name, conf.ecs.sp_ecs_options(name))
+        sp_tasks = []
+        nodes = conf.ecs.get_sp_members(name)
+        if nodes is not None:
+            for node in nodes:
+                o('Adding datastore node {} to {}'.format(node, name))
+                conf.wait_for_dt_ready()
+                # def api_sp_add_node(self, node_ip, sp_id, node_name=None, node_description=None):
+                sp_tasks.append(sp_add_node(sp_id, node))
+        return sp_tasks
 
     def add_all():
         storage_pools = conf.ecs.get_sp_names()
         if storage_pools is not None:
+            sp_tasks = []
             for name in storage_pools:
-                o('Adding SP {}'.format(name))
-                sp_id = sp_create(name, conf.ecs.sp_ecs_options(name))
-
-                nodes = conf.ecs.get_sp_members(name)
-                tasks = []
-                if nodes is not None:
-                    for node in nodes:
-                        o('Adding datastore node {} to {}'.format(node, name))
-                        conf.wait_for_dt_ready()
-                        # def api_sp_add_node(self, node_ip, sp_id, node_name=None, node_description=None):
-                        tasks.append(sp_add_node(sp_id, node))
-                return tasks
-
-    def add_one(name):
-        sp_create(sp_name, conf.ecs.sp_ecs_options(name))
-        data_stores = conf.ecs.get_sp_members(name)
-        tasks = []
-        if data_stores is not None:
-            for data_store in data_stores:
-                conf.wait_for_dt_ready()
-                tasks.append(sp_add_node(name, data_store))
-        return tasks
+                sp_tasks.extend(add_one(name))
+            return sp_tasks
+        return None
 
     if l:
         o("Available Storage Pool configurations:")
@@ -515,9 +512,10 @@ def vdc(conf, l, r, a, n):
         return conf.api_client.vdc.list()
 
     def vdc_create(vdc_name):
-        vdc_secret = conf.ecs.get_vdc_secret(vdc_name)
+        vdc_secret = conf.get_vdc_secret(vdc_name)
         if vdc_secret is None:
-            vdc_secret = conf.ecs.gen_secret()
+            raise AssertionError
+            # vdc_secret = conf.ecs.gen_secret()
 
         endpoints = []
         for sp in conf.ecs.get_vdc_members(vdc_name):
