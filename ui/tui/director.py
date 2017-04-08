@@ -69,7 +69,7 @@ class Director(object):
             self.config_file = config_file
 
         if script_file is not None:
-            self.script_file = script_file
+            self.script_file = '{0}/{1}}'.format(ui_etc, script_file)
 
         if state_file is not None:
             self.state_file = state_file
@@ -199,7 +199,7 @@ class Director(object):
         """
         logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
         if self.deploy_file is None:
-            pass
+            raise AssertionError
         else:
             try:
                 self.update_template_vars()
