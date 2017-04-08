@@ -173,6 +173,11 @@ if ! [ -z "$*" ]; then
             ash "${ansible}/catfacts.sh" ${@}
             cond_incr_rc $?
             ;;
+        inventory)
+            shift
+            inventory | jq
+            cond_incr_rc $?
+            ;;
         pingnodes)
             shift
             cd "${ansible}"
