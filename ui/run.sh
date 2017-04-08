@@ -52,11 +52,22 @@ case "$(basename ${0})" in
         cd -
     ;;
     update_deploy)
+        if ! [ -z "${1}" ]; then
+            deploy_file="$(realpath ${1})" || die "deploy.yml path must be relative to ${root}"
+            deploy_flag=true
+            deploy_val="${deploy_file}"
+            export deploy_flag
+            export deploy_val
+            o "Updating bootstrap.conf to use deploy config from ${deploy_val}"
+            dump_bootstrap_config > "${root}/bootstrap.conf"
+        fi
+
         if ${deploy_flag}; then
             o "Updating /opt/emc/ecs-install/deploy.yml from ${deploy_val}"
+            diff ${deploy_val} /opt/emc/ecs-install/deploy.yml
             cd "${root}"
             sudo cp "${deploy_val}" /opt/emc/ecs-install/deploy.yml
-            ecsdeploy load
+            # ecsdeploy load
             cd -
         else
             o "No deploy.yml file was provided during bootstrap. To use this feature, do the following:"
@@ -65,7 +76,7 @@ case "$(basename ${0})" in
             o "     deploy_val=<path to your deploy.yml>"
         fi
     ;;
-    ecsdeploy|ecsconfig|ecsremove|catfacts|enter|pingnodes)
+    ecsdeploy|ecsconfig|ecsremove|catfacts|enter|pingnodes|inventory)
         run "$(basename ${0})" ${@} || exit $?
     ;;
     island-step1)
@@ -89,15 +100,20 @@ case "$(basename ${0})" in
         run ecsdeploy start || exit $?
     ;;
     step2|island-step3)
+        o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig licensing -a || exit $?
+        o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig sp -a || exit $?
+        o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig vdc -a || exit $?
+        o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig rg -a || exit $?
-        run ecsconfig ping -c -x || exit $?
+        # o "Pinging Management API Endpoint until ready"
+        # run ecsconfig ping -c -x || exit $?
     ;;
     *)
         die "Invalid operation."

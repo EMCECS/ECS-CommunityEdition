@@ -101,10 +101,14 @@ class ECSConf(object):
         Access common patterns within the ECSConf object
         """
         try:
+            # If only map_type provided, return the data at map_type in the yaml tree
             if key is None and name is None:
                 return self.deploy.facts[map_type]
+            # If map_type and key are provided, return the data at key of map_type in the yaml tree
             if key is not None and name is None:
                 return [x[key] for x in self.deploy.facts[map_type]]
+            # If map_type, key, and name are provided, then return the name field at key of
+            # map_type in the yaml tree
             if key is not None and name is not None:
                 return [x[key] for x in self.deploy.facts[map_type] if x[NAME] == name][0]
         except KeyError:
@@ -181,6 +185,18 @@ class ECSConf(object):
                 return sp
         return None
 
+    def get_node_vdc(self, node):
+        """
+        Returns the VDC name that the node belongs to
+        :param node: ansible_hostname of the node
+        :return: vdc name or None
+        """
+        pool = self.get_node_pool(node)
+        for vdc in self.get_vdc_names():
+            if pool in self.get_vdc_members(vdc):
+                return vdc
+        return None
+
     def get_node_defaults(self):
         """
 
@@ -229,7 +245,7 @@ class ECSConf(object):
         """
         nodes = []
         for sp in self.get_sp_names():
-            nodes += self.get_sp_members(sp)
+            nodes.extend(self.get_sp_members(sp))
         return nodes
 
     def get_any_endpoint(self):
@@ -237,15 +253,6 @@ class ECSConf(object):
         Returns a random node from the list of all known nodes
         """
         return random.SystemRandom().choice(self.list_all_sp_nodes())
-
-    def get_vdc_endpoint(self, vdc_name):
-        """
-        Returns a random node belonging to a storage pool in a specific VDC
-        """
-        nodes = []
-        for sp in self.get_vdc_members(vdc_name):
-            nodes += self.get_sp_members(sp)
-        return random.SystemRandom().choice(nodes)
 
 # Storage Pools
     def get_sp_names(self):
@@ -302,7 +309,19 @@ class ECSConf(object):
         """
         return self.get_members(VDC, vdc_name)
 
-    def get_vdc_secret(self, vdc_name):
+    def get_vdc_endpoint(self, vdc_name):
+        return self.get_sp_members(self.get_vdc_members(vdc_name)[0])[0]
+
+    # def get_vdc_endpoint(self, vdc_name):
+    #     """
+    #     Returns a random node belonging to a storage pool in a specific VDC
+    #     """
+    #     nodes = []
+    #     for sp in self.get_vdc_members(vdc_name):
+    #         nodes += self.get_sp_members(sp)
+    #     return random.SystemRandom().choice(nodes)
+
+    def get_new_vdc_secret(self, vdc_name):
         """
         Returns the configured VDC secret key, or None if no key is defined for the VDC
         """
@@ -310,9 +329,9 @@ class ECSConf(object):
 
     def get_vdc_options(self, vdc_name):
         """
-        Returns the options dict for the rg
-        :param vdc_name: Name of the rg
-        :return: dict of rg options
+        Returns the options dict for the vdc
+        :param vdc_name: Name of the vdc
+        :return: dict of vdc options
         """
         opts = self.get_defaults(VDC)
         vdc_opts = self.get_attr(VDC, OPTIONS, vdc_name)
