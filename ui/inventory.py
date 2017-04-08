@@ -13,6 +13,7 @@
 import tui
 import simplejson
 from tui.ecsconf import *
+from pprint import pprint
 
 """
 # Logging
@@ -32,10 +33,21 @@ logging.debug('-' * 40 + os.path.abspath(__file__) + '-' * 40)
 # Config
 """
 
+debug = False
 
 """
 # Commands
 """
+
+
+def d(obj):
+    """
+    pprint something when debug = True
+    :param obj:
+    :return: n/a
+    """
+    if debug is True:
+        pprint(obj)
 
 
 def inventory():
@@ -47,37 +59,61 @@ def inventory():
     conf.ecs = tui.ECSConf(conf.deploy)
 
     hostvars = {}
-
-    # Dump all the storage pools
-    pools = conf.ecs.get_sp_names()
     pool_groups = {}
 
-    # Dump all the data nodes
+    # Get all the storage pools
+    pools = conf.ecs.get_sp_names()
+
+    # Get install node
+    install_node = conf.deploy.facts.install_node
+
+    # Generate the data node group metadata
     for sp in pools:
-        pool_groups.update({sp: {"hosts": []}})
+        pool_groups[sp] = {}
+        pool_groups[sp]['hosts'] = []
         for node in conf.ecs.get_sp_members(sp):
             pool_groups[sp]["hosts"].append(node)
-        pool_groups[sp].update({"vars": {}})
+        pool_groups[sp]["vars"] = {}
         pool_groups[sp]["vars"].update(conf.ecs.get_node_defaults())
         pool_groups[sp]["vars"].update(conf.ecs.get_sp_options(sp))
 
+    # Dump all the VDCs
+    # vdcs = conf.ecs.get_vdc_names()
+    # vdc_groups = {}
+    # Dump all the VDC memberships
+    # for vdc in vdcs:
+    #     vdc_groups.update({vdc: {"hosts": []}})
+    #     for sp in conf.ecs.get_vdc_members(vdc):
+    #         for node in conf.ecs.get_sp_members(sp):
+    #             vdc_groups[vdc]["hosts"].append(node)
+    #             hostvars.update({"vdc": vdc})
+
     # Dump localhost
-    hostvars.update({"localhost": {}})
+    hostvars["localhost"] = {}
 
-    # Dump hostvars (this is where the ansible creds get put)
+    # Dump global node hostvars (this is where the ansible creds get put)
     fun_facts = conf.ecs.get_fun_facts()
-    #ansible_defaults = conf.ecs.get_attr(ANSIBLE_DEFAULTS)
+
     for node in conf.ecs.list_all_nodes():
-        hostvars.update({node: fun_facts})
+        hostvars[node] = fun_facts.copy()
 
-    # Dump install node
-    node = conf.deploy.facts.install_node
+    # Dump SP node hostvars
+    for node in conf.ecs.list_all_sp_nodes():
+        d(node)
+        d(hostvars[node])
+        d('add vdc')
+        hostvars[node]["vdc"] = conf.ecs.get_node_vdc(node)
+        d(hostvars[node])
 
+    d('--- new hostvars ---')
+    d(hostvars)
+
+    # Build the inventory tree
     inventory_list = {"data_node": {"children": pools,
                                     "vars": {}
                                     },
-                      "install_node": {"hosts": [node],
-                                       "vars": conf.ecs.get_node_options(node)
+                      "install_node": {"hosts": [install_node],
+                                       "vars": conf.ecs.get_node_options(install_node)
                                        },
                       "ecs_install": {"hosts": ["localhost"],
                                       "vars": {
@@ -88,22 +124,15 @@ def inventory():
                                       },
                       "_meta": {
                           "hostvars": hostvars
-                      }
+                                }
                       }
 
+    # Add the storage pool groups
     inventory_list.update(pool_groups)
     inventory_list["data_node"]["vars"].update(conf.ecs.get_node_defaults())
     inventory_list["data_node"]["vars"].update(conf.ecs.get_defaults(SP))
 
     print simplejson.dumps(inventory_list)
-
-# def main():
-#     parser = argparse.ArgumentParser(description='ecs-install dynamic inventory script')
-#     parser.add_argument('--list', dest='get_list', action='store_true', default=False)
-#     # parser.add_argument('--host', dest='host', action='store', default=None)
-#     args = parser.parse_args()
-#     print inventory(args)
-
 
 if __name__ == '__main__':
     inventory()
