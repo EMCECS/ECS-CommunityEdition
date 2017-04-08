@@ -1,0 +1,44 @@
+---
+ecs_docker_dirs:
+  - path: /ecs
+    mode: 755
+    owner: 444
+    group: 444
+    state: directory
+  - path: /host
+    mode: 755
+    owner: 444
+    group: 444
+    state: directory
+  - path: /host/data
+    mode: 755
+    owner: 444
+    group: 444
+    state: directory
+  - path: /host/files
+    mode: 755
+    owner: 444
+    group: 444
+    state: directory
+  - path: /data
+    mode: 755
+    owner: 444
+    group: 444
+    state: directory
+  - path: /var/log/vipr/emcvipr-object
+    mode: 755
+    owner: 444
+    group: 444
+    state: directory
+  - path: /data/is_community_edition
+    mode: 755
+    owner: 444
+    group: 444
+    state: touch
+ecs_docker_dirs_post:
+  - path: /ecs
+    mode: 755
+    owner: 444
+    group: 444
+    state: directory
+    recurse: yes
