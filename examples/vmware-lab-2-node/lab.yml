@@ -35,15 +35,13 @@ facts:
   storage_pools:
     - name: sp1
       members:
-        - 10.1.83.70
-        - 10.1.83.71
+        - 10.1.83.72
       options:
         description: My First SP
         ecs_block_devices:
           - /dev/sdb
     - name: sp2
       members:
-        - 10.1.83.72
         - 10.1.83.73
       options:
         protected: false
@@ -56,13 +54,11 @@ facts:
         - sp1
       options:
         description: My First VDC
-
     - name: vdc2
       members:
-        - sp2
+        - sp1
       options:
-        description: My Second VDC
-
+        description: My First VDC
   replication_groups:
     - name: rg1
       members:
@@ -94,3 +90,13 @@ facts:
         - rg1
       options:
         description: My First Namespace
+    - name: ns2
+      members:
+        - rg2
+      options:
+        description: My Second Namespace
+    - name: ns1
+      members:
+        - rg-global
+      options:
+        description: My Global Namespace
