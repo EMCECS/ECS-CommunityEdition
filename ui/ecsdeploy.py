@@ -25,21 +25,19 @@ from tui.defaults import *
 
 # TAG: DevTest
 from pprint import pprint
+
 # sys.dont_write_bytecode = True
 
 """
 Globals
 """
 
-
 """
 # Logging
 """
 
-
 logging.basicConfig(filename=ui_log, level=logging.DEBUG)
 logging.debug('-' * 40 + os.path.abspath(__file__) + '-' * 40)
-
 
 """
 # Helpers
@@ -47,7 +45,6 @@ logging.debug('-' * 40 + os.path.abspath(__file__) + '-' * 40)
 
 
 def play(playbook, verbosity=0):
-
     if verbosity > 0:
         verb = "-{0}".format('v' * verbosity)
         cmd = shell_format('ansible-playbook {0} {1}.yml', verb, playbook)
@@ -70,12 +67,12 @@ class Conf(tui.Director):
     """
     Subclass Director for ecs-install cli tools
     """
+
     def __init__(self):
         tui.Director.__init__(self)
 
 
 pass_conf = click.make_pass_decorator(Conf, ensure=True)
-
 
 """
 # Commands
@@ -98,7 +95,7 @@ def load(conf):
     """
     Initializes or resets the installer idempotently.
     WARNING: Any previous deployment configuration will be replaced with
-    the configuration in deploy.yml.
+    the contents of deploy.yml.
     """
     try:
         init_paths = "mkdir -p {0} {1} {2} {3} {4} {5}".format(
@@ -112,12 +109,28 @@ def load(conf):
         click.echo('Operation failed.')
         sys.exit(1)
 
+    # Load up all the interesting stuff we know about.
     conf.load_config()
     conf.load_state()
 
+    # Catch all the noise here caused by deploy.yml weirdness because we can fix some
+    # stuff later.
     try:
-        if ('licensing' not in conf.state.toDict() or conf.state.licensing.license_accepted is not True) and \
-                ('licensing' not in conf.config.toDict() or conf.config.licensing.license_accepted is not True):
+        conf.load_deploy()
+    except IOError as e:
+        logging.debug('IOError loading deploy.yml: {}'.format(e))
+    except AttributeError as e:
+        logging.debug('AttributeError loading deploy.yml: {}'.format(e))
+    except AssertionError as e:
+        logging.debug('AssertionError loading deploy.yml: {}'.format(e))
+
+    try:
+        if ('licensing' not in conf.state.toDict() or
+                    conf.state.licensing.license_accepted is not True) and \
+                ('licensing' not in conf.config.toDict() or
+                         conf.config.licensing.license_accepted is not True) and \
+                ('licensing' not in conf.deploy.toDict() or
+                         conf.deploy.licensing.license_accepted is not True):
 
             try:
                 # Replace this with textwrap and pager modules.
@@ -165,7 +178,7 @@ def load(conf):
     all_vars.update(conf.state.toDict())
     all_vars.update(conf.deploy.toDict())
 
-    #pprint(all_vars)
+    # pprint(all_vars)
 
     tui.JinjaCopy('{0}/caches.yml.j2'.format(ansible_setup_templates),
                   '{0}/caches.yml'.format(ansible_vars), all_vars)
