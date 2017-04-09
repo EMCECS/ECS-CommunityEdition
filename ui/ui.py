@@ -46,7 +46,7 @@ def main():
     # Initial State
     """
 
-    d = tui.Director(config_file='config.yml', script_file='install_script.yml', init_tui=True)
+    d = tui.Director(script_file='install_script.yml', init_tui=True)
 
     """
     # Mainloop

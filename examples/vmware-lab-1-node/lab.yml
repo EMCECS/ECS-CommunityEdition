@@ -1,5 +1,5 @@
 facts:
-  install_node: 10.1.83.70
+  install_node: 10.1.83.75
   management_clients:
     - 0.0.0.0/0
   ecs_software_image: emccorp/ecs-software-3.0.0:latest
@@ -11,7 +11,7 @@ facts:
     ansible_password: 'ChangeMe'
   node_defaults:
     ecs_root_user: root
-    ecs_root_pass: ChangeMe!
+    ecs_root_pass: ChangeMe
     dns_domain: local
     dns_servers:
       - 10.1.83.19
@@ -35,7 +35,7 @@ facts:
   storage_pools:
     - name: sp1
       members:
-        - 10.1.83.70
+        - 10.1.83.71
       options:
         description: My First SP
         ecs_block_devices:

@@ -69,7 +69,7 @@ class Director(object):
             self.config_file = config_file
 
         if script_file is not None:
-            self.script_file = '{0}/{1}}'.format(ui_etc, script_file)
+            self.script_file = '{0}/{1}'.format(ui_etc, script_file)
 
         if state_file is not None:
             self.state_file = state_file
