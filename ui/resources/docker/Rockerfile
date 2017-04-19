@@ -49,6 +49,7 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
 
 COPY {{ .UIArtifact }} /usr/local/src/ui.tgz
+# Currently using the Ansible apk.
 # COPY {{ .AnsibleArtifact }} /usr/local/src/ansible.tgz
 
 # Unset proxies after build

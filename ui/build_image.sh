@@ -66,13 +66,16 @@ o "Collecting artifacts"
 collect_artifacts
 
 Context="-var Context=${context}"
-Artifacts="-var AnsibleArtifact=${ansible_artifact}"
+Artifacts=""
+# Currently using the Ansible apk
+# Artifacts="${Artifacts} -var AnsibleArtifact=${ansible_artifact}"
 Artifacts="${Artifacts} -var UIArtifact=${ui_artifact}"
 Version="-var Version=${full_image_path}" # Yes, really
 Rockerfile="-f ui/resources/docker/Rockerfile"
 
 o "UI artifact is: ${ui_artifact}"
-o "Ansible artifact is: ${ansible_artifact}"
+# Currently using the Ansible apk
+# o "Ansible artifact is: ${ansible_artifact}"
 
 sudo /usr/local/bin/rocker build $Context $Version $Artifacts $FromImage $BuildPush $Rockerfile $HTTPProxy $PipProxy . || img_build_fail
 
