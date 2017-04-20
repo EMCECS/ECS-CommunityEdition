@@ -15,8 +15,13 @@ ENV ANSIBLE_HOSTS="/usr/local/src/ui/inventory.py"
 COPY ui/resources/docker/ecs-install-requirements.txt /etc/ecs-install-requirements.txt
 COPY ui/resources/docker/apk-repositories /etc/apk/repositories
 
+{{ if .HTTPProxy }}
 ENV http_proxy={{ .HTTPProxy }}
+{{ end }}
+
+{{ if .PipProxy }}
 ENV pip_proxy={{ .PipProxy }}
+{{ end }}
 
 RUN apk -q --no-cache upgrade \
     && apk -q --no-cache add openssh-client sshpass openssl ca-certificates libffi libressl@edge_main \
