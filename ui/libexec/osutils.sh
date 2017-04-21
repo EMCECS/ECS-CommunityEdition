@@ -26,7 +26,7 @@ ensure_string_matches() {
     local haystack="${1}"
     shift
     local message="${*}"
-    if ! echo "${haystack}" | grep "${needle}"; then
+    if ! echo "${haystack}" | grep "${needle}" >/dev/null; then
         die "${message}"
     fi
 }
