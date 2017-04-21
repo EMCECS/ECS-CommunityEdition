@@ -16,6 +16,14 @@ os_supported=true
 # Docker binary
 docker_binary='/bin/docker'
 
+# packages to clean up during preflight
+list_preflight_packages="git"
+
+# Do any OS-specific tasks that must be done prior to bootstrap
+do_preflight() {
+    rm_repo_pkg "$list_preflight_packages"
+}
+
 # packages to install before others
 list_prefix_packages='epel-release python-devel wget curl ntp'
 
@@ -66,6 +74,10 @@ in_repo_pkg() {
     while ! sudo yum -y install $*; do
         sleep 5
     done
+}
+
+rm_repo_pkg() {
+    sudo yum -y autoremove $*
 }
 
 # command to update all packages in the os package manager
