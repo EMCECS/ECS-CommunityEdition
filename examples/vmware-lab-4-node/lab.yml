@@ -54,14 +54,15 @@ facts:
     - name: vdc1
       members:
         - sp1
+        - sp2
       options:
         description: My First VDC
 
-    - name: vdc2
-      members:
-        - sp2
-      options:
-        description: My Second VDC
+#    - name: vdc2
+#      members:
+#        - sp2
+#      options:
+#        description: My Second VDC
 
   replication_groups:
     - name: rg1
@@ -69,17 +70,17 @@ facts:
         - vdc1
       options:
         description: My First RG
-    - name: rg2
-      members:
-        - vdc2
-      options:
-        description: My Second RG
-    - name: rg-global
-      members:
-        - vdc1
-        - vdc2
-      options:
-        description: My Global RG
+#    - name: rg2
+#      members:
+#        - vdc2
+#      options:
+#        description: My Second RG
+#    - name: rg-global
+#      members:
+#        - vdc1
+#        - vdc2
+#      options:
+#        description: My Global RG
 
   # Namespace defaults.
   namespace_defaults:
