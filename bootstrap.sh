@@ -347,6 +347,11 @@ v "Configuring system package manager to keep its cache so it can be used for ot
 p Setting package manager keepcache
 set_repo_keepcache_conf
 
+### Preflight cleaning
+v "Performing preflight checklist"
+p Performing preflight checklist
+do_preflight 2>&1 | log
+ping_sudo
 
 ### Update repo databases and all system packages
 v "Updating system package manager databases pass (1/2)"
