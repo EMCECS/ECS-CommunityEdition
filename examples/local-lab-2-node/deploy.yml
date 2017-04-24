@@ -36,10 +36,10 @@ facts:
 
   # Credentials ansible will use to configure ssh public key authentication and baseline sudo
   ansible_defaults:
-    ansible_user: 'admin'
-    ansible_ssh_pass: 'ChangeMe'
-    ansible_become_pass: 'ChangeMe'
-    ansible_password: 'ChangeMe'
+    ansible_user: admin
+    ansible_ssh_pass: ChangeMe
+    ansible_become_pass: ChangeMe
+    ansible_password: ChangeMe
 
   # Environment configuration for this deployment.
   # Unless you have a custom ECS for which the default credentials have been changed,

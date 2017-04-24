@@ -4,9 +4,9 @@
 /.idea
 /.projectKnowledge
 /patches
-/ecs-multi-node
+/legacy/ecs-multi-node
 /examples
-/ecs-single-node
+/legacy/ecs-single-node
 /bootstrap_plugins
 /Documentation
 /README.md

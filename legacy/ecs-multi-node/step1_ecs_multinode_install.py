@@ -1,20 +1,19 @@
 #!/usr/bin/env python
 # An installation program for ECS SW 2.2.1 Multiple Data nodes
 import argparse
-import getopt
-import subprocess
-from subprocess import PIPE, Popen
-import logging
 import logging.config
-import sys
-import socket
-import os
-import time
-import settings
-import fcntl
-import struct
 import re
-import StringIO
+import socket
+import struct
+import subprocess
+import sys
+import time
+from subprocess import PIPE, Popen
+
+import fcntl
+import os
+
+import settings
 
 # Logging Initialization
 logging.config.dictConfig(settings.ECS_SINGLENODE_LOGGING)
@@ -143,8 +142,8 @@ def docker_pull_func(docker_image_name,proxy=None):
             os.system("echo https_proxy=" + proxy +" >>/etc/sysconfig/docker")
             os.system("echo HTTP_PROXY=" + proxy +" >>/etc/sysconfig/docker")
             os.system("echo HTTPS_PROXY=" + proxy +" >>/etc/sysconfig/docker")
-        
-    
+
+
         #Start docker service
         subprocess.call(["service","docker","start"])
 
@@ -508,7 +507,7 @@ def execute_docker_func(docker_image_name, use_urandom=False,proxy=None):
         docker_command = ["docker", "run", "-d", "-e", "SS_GENCONFIG=1"]
         if proxy!=None:
             docker_command.extend(["-e", "HTTP_PROXY="+proxy, "-e", "HTTPS_PROXY="+proxy])
-       
+
         if use_urandom:
             docker_command.extend(["-v", "/dev/urandom:/dev/random:z"])
         docker_command.extend(["-v", "/ecs:/dae:z", "-v", "/host:/host:z", "-v", "/var/log/vipr/emcvipr-object:/var/log:z", "-v", "/data:/data:z", "--net=host",
@@ -695,7 +694,7 @@ def main():
     args = parser.parse_args()
 
     # Check if hotname is valid
-    for hostname in args.hostnames: 
+    for hostname in args.hostnames:
         if not re.match("^[a-z0-9]+", hostname):
             logger.info("Hostname must consist of alphanumeric (lowercase) characters.")
             sys.exit(2)
@@ -736,14 +735,14 @@ def main():
 
     docker_image_name = "{}:{}".format(args.imagename, args.imagetag)
     ethernet_adapter_name = get_first(args.ethadapter)
-    
-    
+
+
     #Pick the first node for test purposes
     ip_address = args.ips[0]
 
     # Step 1 : Configuration of Host Machine to run the ECS Docker Container
     logger.info("Starting Step 1: Configuration of Host Machine to run the ECS Docker Container: {}".format(docker_image_name))
-    
+
     # yum_update_func()
     precheck()
     update_selinux_os_configuration()

@@ -26,7 +26,6 @@ facts:
       - /dev/sdb
   virtual_data_center_defaults:
     description: Default virtual data center description
-    secret_key: c7koRP3oXNKYkhxKRqsP
   replication_group_defaults:
     description: Default replication group description
     enable_rebalancing: false
@@ -54,28 +53,12 @@ facts:
         - sp1
       options:
         description: My First VDC
-    - name: vdc2
-      members:
-        - sp1
-      options:
-        description: My First VDC
   replication_groups:
     - name: rg1
       members:
         - vdc1
       options:
         description: My First RG
-    - name: rg2
-      members:
-        - vdc2
-      options:
-        description: My Second RG
-    - name: rg-global
-      members:
-        - vdc1
-        - vdc2
-      options:
-        description: My Global RG
 
   # Namespace defaults.
   namespace_defaults:

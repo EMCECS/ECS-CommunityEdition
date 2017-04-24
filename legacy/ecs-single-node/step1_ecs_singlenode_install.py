@@ -1,23 +1,19 @@
 #!/usr/bin/env python
 # An installation program for ECS SW 2.1 Single Data node
 import argparse
-import string
-import subprocess
-import logging
 import logging.config
-import time
-import sys
 import re
-import shutil
-import getopt
-import os
-import json
-import settings
 import socket
-import fcntl
+import string
 import struct
-import StringIO
+import subprocess
+import sys
+import time
 
+import fcntl
+import os
+
+import settings
 
 # Logging Initialization
 logging.config.dictConfig(settings.ECS_SINGLENODE_LOGGING)

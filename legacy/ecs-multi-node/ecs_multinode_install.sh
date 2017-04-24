@@ -42,7 +42,7 @@ mkdir -p /ecs/uuid-1
 mount /dev/sdc1 /ecs/uuid-1
 
 # Executing Addtional Preparation Script
-./additional_prep.sh /dev/sdc1
+additional_prep.sh /dev/sdc1
 
 # Prepare Permisions for Directory and Copy files
 chown -R 444 /ecs
