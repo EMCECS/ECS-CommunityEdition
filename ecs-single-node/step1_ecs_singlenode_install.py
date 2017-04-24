@@ -126,7 +126,7 @@ def docker_pull_func(docker_image_name,proxy=None):
             os.system("echo https_proxy=" + proxy +" >>/etc/sysconfig/docker")
             os.system("echo HTTP_PROXY=" + proxy +" >>/etc/sysconfig/docker")
             os.system("echo HTTPS_PROXY=" + proxy +" >>/etc/sysconfig/docker")
-            
+
         #Start docker service
         subprocess.call(["service","docker","start"])
 
@@ -514,7 +514,7 @@ def modify_container_conf_func(no_internet):
         if not no_internet:
             logger.info("Adding python setuptools to container")
             os.system("docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone python ez_setup.py --insecure")
-    
+
             logger.info("Adding python requests library to container")
             os.system(
                 "docker "+' '.join(DockerCommandLineFlags)+" exec -t  ecsstandalone curl -OLk https://github.com/kennethreitz/requests/tarball/master")
@@ -696,7 +696,7 @@ def main():
     parser.add_argument('--imagetag', dest='imagetag', nargs='?',
                         help='If present, pulls a specific version of the target image from DockerHub. Defaults to latest',
                         required=False)
-    parser.add_argument('--use-urandom', dest='use_urandom', action='store_true', default=True,
+    parser.add_argument('--use-urandom', dest='use_urandom', action='store_true', default=False,
                         help='If present, /dev/random will be mapped to /dev/urandom on the host.  If you container starts up slow the first time could help.',
                         required=False)
     parser.add_argument('--no-internet', dest='no_internet', action='store_true', default=False,
@@ -804,7 +804,7 @@ def main():
     set_docker_configuration_func()
     if args.proxy:
         execute_docker_func(docker_image_name, args.use_urandom,args.proxy)
-    else:    
+    else:
         execute_docker_func(docker_image_name, args.use_urandom)
     modify_container_conf_func(args.no_internet)
     getAuthToken(ip_address,"root","ChangeMe")
