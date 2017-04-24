@@ -1,7 +1,7 @@
 # ECS 3.x Software Container Deployment
-**Note** See the changelog.md file for release notes.
+**Note** See the [changelog.md](changelog.md) file for release notes.
 
-There are two deployment options available:
+Deployment options:
 
 - **[ECS Docker Multiple Node Deployment (recommended)](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node "ECS Multiple Node Deployment Information")**
 - **[ECS Docker Single Node Deployment](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node "ECS Single Node Deployment Information")**
@@ -32,6 +32,27 @@ Hardware or virtual machine with:
 Deploy a stand-alone instance of a limited set of ECS kit to a single hardware or virtual machine.
 ### Multi-Node
 Deploy a multi-node ECS instance to three (3) or more hardware or virtual machines and enable all ECS features. Three nodes is the required minimum node footprint for ECS 3.0 and above.
+
+# Directory Structure
+
+|Directory Name|Description|
+|--------------|-----------|
+| [docs](docs) | Documentation sources; [read them online at Read the Docs](https://rtd.com/)
+| [examples](examples) | Deployment and configuration examples for common scenarios
+| [contrib](contrib) | Unsupported community-contributed scripts content related to ECS CE
+| [patches](patches) | Patches to the ECS Community Edition Docker image
+| [bootstrap.sh](bootstrap.sh) | Installer 2.0 bootstrap script
+| [release.conf](release.conf) | Installer 2.0 release information file
+| [ui](ui) | Installer 2.0 (`ecsdeploy`, `ecsconfig`, related utilities, and support files)
+| [bootstrap_plugins](bootstrap_plugins) | Installer 2.0 (`bootstrap.sh` support files)
+| [legacy](legacy) | Legacy deployment scripts
+| [legacy/ecs-single-node](legacy/ecs-single-node) | (Legacy) Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments|
+| [legacy/ecs-multi-node](legacy/ecs-multi-node) | (Legacy) Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment|
+| [legacy/Documentation](legacy/Documentation) | (Legacy) Contains documentation files and media|
+
+# Support
+
+Please file bugs and issues at the [ECS's site in the EMC Community Network (ECS's support site) ](https://community.emc.com/community/products/ecs) and you can also use this GitHub's repository issues page. For more general discussions you can contact the EMC Code team at <a href="https://groups.google.com/forum/#!forum/emccode-users">Google Groups</a> or tagged with **EMC** on <a href="https://stackoverflow.com">Stack Overflow</a>. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community driven process.
 
 # License Agreement
 
@@ -112,16 +133,4 @@ EMC and Customer enter into this Agreement and this Agreement shall become effec
 **9.7 - Independent Contractors** - The parties shall act as independent contractors for all purposes under this Agreement. Nothing contained herein shall be deemed to constitute either party as an agent or representative of the other party, or both parties as joint venturers or partners for any purpose. Neither party shall be responsible for the acts or omissions of the other party, and neither party will have authority to speak for, represent or obligate the other party in any way without an authenticated record indicating the prior approval of the other party.
 
 **9.8 - Separability** - If any provision of this Agreement shall be held illegal or unenforceable, such provision shall be deemed separable from, and shall in no way affect or impair the validity or enforceability of, the remaining provisions.
-
-# Support
-
-Please file bugs and issues at the [ECS's site in the EMC Community Network (ECS's support site) ](https://community.emc.com/community/products/ecs) and you can also use this GitHub's repository issues page. For more general discussions you can contact the EMC Code team at <a href="https://groups.google.com/forum/#!forum/emccode-users">Google Groups</a> or tagged with **EMC** on <a href="https://stackoverflow.com">Stack Overflow</a>. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community driven process.
-
-# Directory Structure
-
-|Directory Name|Description|
-|--------------|-----------|
-|ecs-single-node| Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments|
-|ecs-multi-node| Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment|
-|Documentation| Contains documentation files and media|
 
