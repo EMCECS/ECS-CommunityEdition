@@ -8,7 +8,7 @@
 /examples
 /legacy/ecs-single-node
 /bootstrap_plugins
-/Documentation
+/legacy/Documentation
 /README.md
 /bootstrap.sh
 /.gitignore
