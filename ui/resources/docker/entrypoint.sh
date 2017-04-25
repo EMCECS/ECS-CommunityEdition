@@ -194,7 +194,7 @@ if ! [ -z "$*" ]; then
             cd "${root}"
             echo "Waiting for nodes to become reachable... (CTRL-C to break)"
             until ansible data_node -o -m ping; do
-                sleep 1
+                sleep 10
             done
             ;;
         ecsdeploy)
