@@ -5,7 +5,7 @@
 # contained in the license.txt file included with this software
 # distribution.
 licensing:
-  license_accepted: true
+  license_accepted: false
 
 # Deployment facts reference
 facts:
@@ -33,18 +33,23 @@ facts:
   # Currently "moons" (default) and "cities" (ECS SKU-flavored) are available
   autonaming: moons
 
-  # Credentials ansible will use to configure ssh public key authentication and baseline sudo
+  # *** IMPORTANT ***
+  # These credentials must be the same across all nodes.  Ansible uses these credentials to
+  # gain initial access to each node in the deployment and set up ssh public key authentication.
+  # If these are not correct, the deployment WILL fail.
   ansible_defaults:
-    ansible_user: 'admin'
-    ansible_ssh_pass: 'ChangeMe'
-    ansible_become_pass: 'ChangeMe'
-    ansible_password: 'ChangeMe'
+    # Username to login as
+    ansible_user: admin
+    # Password to use with SSH login
+    ansible_ssh_pass: ChangeMe
+    # Password to use with other challenges
+    ansible_password: ChangeMe
+    # Password to use with sudo to become root
+    ansible_become_pass: ChangeMe
 
   # Environment configuration for this deployment.
   # Unless you have a custom ECS for which the default credentials have been changed,
   # ecs_root_user and ecs_root_pass must be set to "root" and "ChangeMe" respectively.
-  # All block devices that will be consumed by ECS must be listed under ecs_block_devices.
-  # At least ONE (1) block device is REQUIRED for a successful install.  More is better.
   node_defaults:
     ecs_root_user: root
     ecs_root_pass: ChangeMe
@@ -55,6 +60,9 @@ facts:
       - 192.168.2.2
 
   # Storage pool defaults. Configure to your liking.
+  # All block devices that will be consumed by ECS on ALL nodes must be listed under the
+  # ecs_block_devices option.  This can be overridden by the storage pool configuration.
+  # At least ONE (1) block device is REQUIRED for a successful install.  More is better.
   storage_pool_defaults:
     is_cold_storage_enabled: false
     is_protected: false
@@ -83,22 +91,16 @@ facts:
   # VDC defaults.  Configure to your liking.
   virtual_data_center_defaults:
     description: Default virtual data center description
-    secret_key: c7koRP3oXNKYkhxKRqsP
 
   # Virtual data center layout.  You MUST have at least ONE (1) VDC for a successful install.
+  # Multi-VDC deployments are not yet implemented
   virtual_data_centers:
     - name: vdc1
       members:
         - sp1
-      options:
-        secret_key: c7koRP3oXNKYkhxKRqsP
-        description: My First VDC
-    - name: vdc2
-      members:
         - sp2
       options:
-        secret_key: c7koRP3oXNKYkhxKRqsQ
-        description: My Second VDC
+        description: My First VDC
 
   # Replication group defaults.  Configure to your liking.
   replication_group_defaults:
@@ -114,29 +116,35 @@ facts:
         - vdc1
       options:
         description: My First RG
-    - name: rg2
-      members:
-        - vdc2
-      options:
-        description: My Second RG
-    - name: rg3
-      members:
-        - vdc1
-        - vdc2
-      options:
-        description: My Third RG is a geo-replicated RG
 
+# Namespace configuration is not yet implemented
   # Namespace defaults.
-  namespace_defaults:
-    is_stale_allowed: false
-    is_compliance_enabled: false
-    is_encryption_enabled: false
-    namespace_admins: root
+#  namespace_defaults:
+#    is_stale_allowed: false
+#    is_compliance_enabled: false
+#    is_encryption_enabled: false
+#    namespace_admins: root
 
   # Namespace layout (optional)
-  namespaces:
-    - name: ns1
-      members:
-        - rg1
-      options:
-        description: My First Namespace
+#  namespaces:
+#    - name: ns1
+#      members:
+#        - rg1
+#      options:
+#        description: My First Namespace
+
+# User configuration is not yet implemented
+  # User defaults.
+#  user_defaults:
+#    namespace: ns1
+#    tags:
+#      - my
+#      - default
+#      - usertags
+
+  # User layout (optional)
+#  users:
+#    - name: user1
+#      namespace: ns1
+#      tags:
+#        - iamauser
