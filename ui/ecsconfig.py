@@ -226,11 +226,15 @@ def ping(conf, c, w, x):
     :param x: Click bool flag
     :return:
     """
+
+    if c:
+        msg = " (CTRL-C to break)"
+    else:
+        msg = ""
+    o("Pinging endpoint {}...{}".format(conf.api_endpoint, msg))
+
     pinging = True
     while pinging is True:
-
-        o("Pinging endpoint {}... (CTRL-C to break)".format(conf.api_endpoint))
-        # click.echo("This can take a while during storage provisioning.")
 
         try:
             resp_dict = conf.api_client.user_info.whoami()
@@ -258,7 +262,7 @@ def ping(conf, c, w, x):
             elif 'Invalid username or password' in e.message:
                 o('FAIL: Invalid username or password. If ECS authsvc is bootstrapping, this is likely temporary.')
             else:
-                o('FAIL: Caught an unexpected exception in ECS API: {0}'.format(e))
+                o('FAIL: Unexpected response from API client: {0}'.format(e))
                 if not c:
                     raise
         if not c:
@@ -273,6 +277,7 @@ def ping(conf, c, w, x):
 @click.option('-c', help='Install custom license into ECS from file at given path')
 @pass_conf
 def licensing(conf, l, a, c):
+
     def get_license():
         return conf.api_client.licensing.get_license()['license_text']
 
@@ -328,6 +333,7 @@ def licensing(conf, l, a, c):
 @click.option('-k', help='(with -c) Private key to use for custom cert')
 @pass_conf
 def trust(conf, l, x, t, c, k):
+
     def get_cert():
         return conf.api_client.certificate.get_certificate_chain()['chain']
 
