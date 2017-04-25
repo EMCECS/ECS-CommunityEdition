@@ -4,7 +4,6 @@
 # distribution.
 licensing:
   license_accepted: true
-
 facts:
   install_node: 10.1.83.75
   management_clients:

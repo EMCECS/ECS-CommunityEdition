@@ -1,3 +1,9 @@
+# By changing the license_accepted boolean value to "true" you are
+# declaring your agreement to the terms of the license agreement
+# contained in the license.txt file included with this software
+# distribution.
+licensing:
+  license_accepted: true
 facts:
   install_node: 10.1.83.75
   management_clients:
@@ -34,7 +40,7 @@ facts:
   storage_pools:
     - name: sp1
       members:
-        - 10.1.83.71
+        - 10.1.83.70
       options:
         description: My First SP
         ecs_block_devices:
