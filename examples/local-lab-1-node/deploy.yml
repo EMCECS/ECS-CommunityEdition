@@ -35,10 +35,10 @@ facts:
 
   # Credentials ansible will use to configure ssh public key authentication and baseline sudo
   ansible_defaults:
-    ansible_user: 'admin'
-    ansible_ssh_pass: 'ChangeMe'
-    ansible_become_pass: 'ChangeMe'
-    ansible_password: 'ChangeMe'
+    ansible_user: admin
+    ansible_ssh_pass: ChangeMe
+    ansible_become_pass: ChangeMe
+    ansible_password: ChangeMe
 
   # Environment configuration for this deployment.
   # Unless you have a custom ECS for which the default credentials have been changed,
@@ -75,7 +75,6 @@ facts:
   # VDC defaults.  Configure to your liking.
   virtual_data_center_defaults:
     description: Default virtual data center description
-    secret_key: c7koRP3oXNKYkhxKRqsP
 
   # Virtual data center layout.  You MUST have at least ONE (1) VDC for a successful install.
   virtual_data_centers:
@@ -83,7 +82,6 @@ facts:
       members:
         - sp1
       options:
-        secret_key: c7koRP3oXNKYkhxKRqsP
         description: My First VDC
 
   # Replication group defaults.  Configure to your liking.

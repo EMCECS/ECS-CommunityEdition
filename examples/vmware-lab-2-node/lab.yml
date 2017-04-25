@@ -5,10 +5,10 @@ facts:
   ecs_software_image: emccorp/ecs-software-3.0.0:latest
   autonaming: moons
   ansible_defaults:
-    ansible_user: 'admin'
-    ansible_ssh_pass: 'ChangeMe'
-    ansible_become_pass: 'ChangeMe'
-    ansible_password: 'ChangeMe'
+    ansible_user: admin
+    ansible_ssh_pass: ChangeMe
+    ansible_become_pass: ChangeMe
+    ansible_password: ChangeMe
   node_defaults:
     ecs_root_user: root
     ecs_root_pass: ChangeMe
@@ -51,6 +51,7 @@ facts:
     - name: vdc1
       members:
         - sp1
+        - sp2
       options:
         description: My First VDC
   replication_groups:

@@ -77,7 +77,6 @@ facts:
   # VDC defaults.  Configure to your liking.
   virtual_data_center_defaults:
     description: Default virtual data center description
-    secret_key: c7koRP3oXNKYkhxKRqsP
 
   # Virtual data center layout.  You MUST have at least ONE (1) VDC for a successful install.
   virtual_data_centers:
@@ -85,7 +84,6 @@ facts:
       members:
         - sp1
       options:
-        secret_key: c7koRP3oXNKYkhxKRqsP
         description: My First VDC
 
   # Replication group defaults.  Configure to your liking.
