@@ -32,10 +32,18 @@ if data_container_missing; then
     make_new_data_container
 fi
 
+registry_flag=${registry_flag:-false}
+
+if $registry_flag; then
+    repo_path="${registry_val}/${image_release}"
+else
+    repo_path="${image_release}"
+fi
+
 run() {
     run="${1}"
     shift
-    sudo docker run --rm -it --privileged --net=host ${default_mount_opts[@]} ${latest_image_path} ${run} ${@}
+    sudo docker run --rm -it --privileged --net=host ${default_mount_opts[@]} ${repo_path} ${run} ${@}
     return $?
 }
 

@@ -76,7 +76,7 @@ Rockerfile="-f ui/resources/docker/Rockerfile"
 o "UI artifact is: ${ui_artifact}"
 # Currently using the Ansible apk
 # o "Ansible artifact is: ${ansible_artifact}"
-
+o "sudo /usr/local/bin/rocker build $Context $Version $Artifacts $FromImage $BuildPush $Rockerfile $HTTPProxy $PipProxy ."
 sudo /usr/local/bin/rocker build $Context $Version $Artifacts $FromImage $BuildPush $Rockerfile $HTTPProxy $PipProxy . || img_build_fail
 
 exit 0
