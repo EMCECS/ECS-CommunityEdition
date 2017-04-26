@@ -261,6 +261,8 @@ def ping(conf, c, w, x):
                 o('FAIL: API service is alive but ECS is not. This is likely temporary.')
             elif 'Invalid username or password' in e.message:
                 o('FAIL: Invalid username or password. If ECS authsvc is bootstrapping, this is likely temporary.')
+            elif 'Non-200' in e.message:
+                o('FAIL: ECS API internal error. If ECS services are still bootstrapping, this is likely temporary.')
             else:
                 o('FAIL: Unexpected response from API client: {0}'.format(e))
                 if not c:
