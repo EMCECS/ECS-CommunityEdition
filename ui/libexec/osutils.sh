@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+
+# Copyright (c) 2015 EMC Corporation
+# All Rights Reserved
+#
+# This software contains the intellectual property of EMC Corporation
+# or is licensed to EMC Corporation from third parties.  Use of this
+# software and the intellectual property contained therein is expressly
+# limited to the terms and conditions of the License Agreement under which
+# it is provided by or on behalf of EMC.
+
+# Die if a file doesn't exist (with description)
+ensure_file_exists() {
+    local filepath="${1}"
+    shift
+    local filedesc="${*}"
+
+    if ! [ -f "${filepath}" ]; then
+        die "Can't find ${filedesc} file at ${filepath}"
+    fi
+}
+
+ensure_string_matches() {
+    local needle="${1}"
+    shift
+    local haystack="${1}"
+    shift
+    local message="${*}"
+    if ! echo "${haystack}" | grep "${needle}" >/dev/null; then
+        die "${message}"
+    fi
+}
+
+# The missing privileged file "redirection" command
+append() {
+    sudo dd status=none oflag=append conv=notrunc of="${1}"
+}
+
+collect_environment_info() {
+#    if $container_flag; then
+#        o "Running in a container, skipping collection"
+#    else
+
+        log "GET-HWINFO"
+        sudo dmesg 2>&1 | log
+        log "END-DMESG"
+        sudo uname -a 2>&1 | log
+        log "END-UNAME"
+        env 2>&1 | log
+        log "END-ENV"
+        sudo lsmod 2>&1 | log
+        log "END-LSMOD"
+        sudo lscpu 2>&1 | log
+        log "END-LSCPU"
+        sudo lspci 2>&1 | log
+        log "END-LSPCI"
+        sudo lsscsi 2>&1 | log
+        log "END-LSSCSI"
+        sudo lsusb 2>&1 | log
+        log "END-LSUSB"
+        sudo lshw 2>&1 | log
+        log "END-LSHW"
+        sudo hwinfo 2>&1 | log
+        log "END-HWINFO"
+        sudo dmidecode 2>&1 | log
+        log "END-DMIDECODE"
+        sudo free -h 2>&1 | log
+        log "END-FREE"
+        sudo df -h 2>&1 | log
+        log "END-DF"
+        sudo mount 2>&1 | log
+        log "END-MOUNT"
+        sudo fdisk -l 2>&1 | log
+        log "END-FDISK"
+        sudo parted -l 2>&1 | log
+        log "END-PARTED"
+        sudo pvs 2>&1 | log
+        log "END-PVS"
+        sudo vgs 2>&1 | log
+        log "END-GVS"
+        sudo lvs 2>&1 | log
+        log "END-LVS"
+        log "END-COLLECT-ENVIRONMENT-INFO"
+#    fi
+}
+
+proxy_http_ping() {
+
+    echo "curl -sSLfI -w '%{http_code}' -x ${1} --proxytunnel ${2} -o /dev/null -m 10" | log
+    curl -sSLfI -w '%{http_code}' -x ${1} --proxytunnel ${2} -o /dev/null -m 10
+    return ${?}
+}
+
+ping_sudo() {
+    sudo -v
+}
+
+quit_sudo() {
+    sudo -k
+}
+
+dump_bootstrap_config() {
+    _vars="override_flag"
+    _vars="$_vars override_val"
+    _vars="$_vars mitm_flag"
+    _vars="$_vars mitm_val"
+    _vars="$_vars proxy_flag"
+    _vars="$_vars proxy_val"
+    _vars="$_vars proxy_test_flag"
+    _vars="$_vars proxy_test_val"
+    _vars="$_vars build_image_flag"
+    _vars="$_vars registry_flag"
+    _vars="$_vars registry_val"
+    _vars="$_vars regcert_flag"
+    _vars="$_vars regcert_val"
+    _vars="$_vars vm_flag"
+    _vars="$_vars docker_flag"
+    _vars="$_vars verbose_flag"
+    _vars="$_vars quiet_flag"
+    _vars="$_vars minimal_flag"
+    _vars="$_vars deploy_flag"
+    _vars="$_vars deploy_val"
+    _vars="$_vars DEVEL"
+    _vars="$_vars DRONE"
+    _vars="$_vars BUILD"
+    _vars="$_vars INSTALL_ROOT"
+
+    for _var in $_vars; do
+        eval echo "export $_var=\$$_var"
+    done
+}

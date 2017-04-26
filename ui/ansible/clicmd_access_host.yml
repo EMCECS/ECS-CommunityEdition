@@ -1,0 +1,20 @@
+- name: Installer | Setup access between ecs-install and install node
+  hosts: install_node
+  vars:
+    ansible_ssh_pipelining: false
+    ansible_ssh_common_args: -o PreferredAuthentications=password -o PubkeyAuthentication=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=60s
+  tasks:
+     - group_by: key=os_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}
+
+- name: Installer | Create SSH keys
+  hosts: ecs_install
+  roles:
+    - installer_generate_ssh_keys
+
+- name: CentOS 7 | Setup SSH on install node
+  hosts: os_CentOS_7
+  vars:
+    ansible_ssh_pipelining: false
+    ansible_ssh_common_args: -o PreferredAuthentications=password -o PubkeyAuthentication=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=60s
+  roles:
+    - CentOS_7_configure_ssh

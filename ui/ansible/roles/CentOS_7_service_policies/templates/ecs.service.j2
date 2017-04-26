@@ -1,0 +1,12 @@
+[Unit]
+Description={{ product_vendor }} {{ product_name }} {{ product_flavor }} {{ product_version }}
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start -a ecs-storageos
+ExecStop=/usr/bin/docker stop -t 60 ecs-storageos
+
+[Install]
+WantedBy=multi-user.target

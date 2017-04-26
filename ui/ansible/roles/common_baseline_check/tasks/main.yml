@@ -1,0 +1,76 @@
+---
+# Check hardware requirements
+- name: Common | Check RAM size
+  # TAG: DevTest
+  debug: msg="ECS data nodes must have at least 15000MiB RAM ({{ansible_memtotal_mb}}MiB reported)"
+  # some fudge for various interpretations of "16GB"?
+  when: ansible_memtotal_mb < 15000
+
+- name: Common | Check CPU architecture
+  fail: msg="ECS data nodes require a 64-bit CPU and OS"
+  when: ansible_architecture != "x86_64" or ansible_machine != "x86_64" or
+        ansible_userspace_architecture != "x86_64" or ansible_userspace_bits != "64"
+
+# Check software requirements
+- name: Common | Validate OS distribution
+  fail: msg="OS must be a supported distribution"
+  when: ((ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
+        and ansible_distribution_major_version < "7")
+#         or
+#        (ansible_distribution == "Ubuntu" and ansible_distribution_major_version < "14") or
+#        (ansible_distribution == "Debian" and ansible_distribution_major_version < "8")
+
+# Check network requirements
+# [X]Make sure ethernet adapter is setup -- implied if installer can see it.
+
+# Check environment requirements
+- name: Common | (Optional) Check UTC Timezone
+  debug: msg="Timezone is not set to UTC - It is recommended to use the UTC timezone"
+  when: ansible_date_time.tz != "UTC"
+
+# [X]Make sure /data directory is empty
+- name: Common | Make sure /data directory does not exist
+  stat: path=/data
+  register: data_dir
+- fail: msg="There is already a /data directory on this data node. If this data node is not already provisined, please remove /data and re-run the deployment."
+  when: data_dir.stat.exists == "True"
+
+# [X]Make sure /host directory is empty
+- name: Common | Make sure /host directory does not exist
+  stat: path=/host
+  register: host_dir
+- fail: msg="There is already a /host directory on this data node. If this data node is not already provisined, please remove /host and re-run the deployment."
+  when: host_dir.stat.exists == "True"
+
+# [X]Make sure block device(s) exist
+- name: Common | Make sure block device(s) exist on node
+  stat: path="{{ item }}"
+  with_items: "{{ ecs_block_devices }}"
+  register: checkbdevs
+- fail:
+    msg: "A block device configured in deploy.yml does not exist on the node."
+  when: item.stat.isblk is not defined
+  with_items: "{{ checkbdevs.results }}"
+
+# [X]Make sure block device partition(s) do NOT exist
+- name: Common | Make sure block device(s) are unpartitioned
+  stat: path="{{ item }}1"
+  with_items: "{{ ecs_block_devices }}"
+  register: checkbparts
+- fail:
+    msg: "A block device configured in deploy.yml for data nodes is already partitioned."
+  when: item.stat.isblk is defined
+  with_items: "{{ checkbparts.results }}"
+
+# [X]Make sure block devices are at least 100GiB
+- name: Common | Make sure block device(s) are at least 100GiB (100GiB = 2^30B = 107,374,182,400 bytes)
+  # TAG: DevTest
+  shell: (( $(lsblk -dbn --output SIZE {{ item }}) >= 107374182400 ))
+  #shell: (( $(lsblk -dbn --output SIZE {{item}}) >= 1 ))
+  with_items: "{{ ecs_block_devices }}"
+  changed_when: False
+
+# Dump vars for future debugging
+#- name: Common | Dump hostvars for debug
+#  template: src=dumpvars.yml.j2 dest="/root/{{ansible_hostname}}.vars.yml"
+#  delegate_to: localhost

@@ -1,0 +1,511 @@
+# Copyright (c) 2015 EMC Corporation
+# All Rights Reserved
+#
+# This software contains the intellectual property of EMC Corporation
+# or is licensed to EMC Corporation from third parties.  Use of this
+# software and the intellectual property contained therein is expressly
+# limited to the terms and conditions of the License Agreement under which
+# it is provided by or on behalf of EMC.
+
+# Jinja2 templated YAML
+# One level of recursion is supported. If you need more, use aliases or refactor.
+# http://pyyaml.org/wiki/PyYAMLDocumentation#Aliases
+---
+hotkeys:
+  help:
+    key: f1
+    text: "[F1] Help"
+    call: help_popup
+  save:
+    key: f5
+    text: "[F5] Save Progress"
+    call: save
+  exit:
+    key: ctrl x
+    text: "[C-X] Exit"
+    call: exit
+  color:
+    key: f12
+    text: "[F12] Switch Color Mode"
+    call: color_mode
+  logs:
+    key: f9
+    text: "[F9] Watch Logs"
+    call: watch_logs
+setlist:
+  - licensing:
+      - name: Overview
+        type: InfoOverlay
+        title: "{{product.vendor}} {{product.name}} {{product.version}} {{product.flavor}}"
+        brief: "{{product.slogan}} Overview"
+        body: >-
+          Thank you for checking out {{product.name}}! We will guide you
+          through the setup process for {{product.vendor}} {{product.name}}
+          {{product.flavor}}. Once you have reviewed the {{product.name}}
+          requirements and accepted our license agreement, we can gather some facts
+          to help you deploy, configure, and use {{product.name}}.
+        help: *generic_help
+        keys:
+          - help
+          - exit
+          - color
+        args:
+          prev_button: EmptyWidget
+      - name: License Agreement
+        type: LicenseConfirm
+        title: License Agreement
+        help: *generic_help
+        keys:
+          - help
+          - exit
+          - color
+        args:
+          license_file: "{{product.license_file}}"
+          next_button: NextSet
+  - requirements:
+      - name: Requirements
+        type: InfoOverlay
+        title: Requirements
+        brief: Please review the minimum requirements for a successful deployment.
+        body: |-
+          1. Operating System is a supported Linux distribution with kernel 3.10+
+          2. Nodes have at least 16GB memory and 32GB root storage
+          3. Nodes have at least 500GB additional block storage in a separate partition
+          4. The install node meets the above requirements plus an additional 16GB root storage
+          5. The install node has Internet access during the initial install steps
+        help: *generic_help
+        keys:
+          - help
+          - exit
+          - color
+        args:
+          prev_button: EmptyWidget
+      - name: Finish
+        type: InfoOverlay
+        title: Next Steps
+        brief: "Next Up: Collecting Deployment Facts"
+        body: >-
+          Okay, let us move on to collecting facts for your deployment so
+          we can make the experience as smooth as possible. We are saving
+          a settings file for your deployment so you can resume at any time.
+          Click the Continue button now or exit and come back when you are
+          ready to proceed.
+        help: *generic_help
+        keys:
+          - help
+          - exit
+          - color
+        args:
+          next_button: NextSet
+  - facts:
+      - name: Overview
+        type: InfoOverlay
+        title: "{{product.vendor}} {{product.name}} {{product.version}} {{product.flavor}}"
+        brief: "Deployment Facts Overview"
+        body: >-
+          Time to bake the donuts.
+        help: *generic_help
+        keys:
+          - help
+          - save
+          - exit
+          - color
+        args:
+          prev_button: PrevSet
+      - name: Environment
+        type: GatherForm
+        title: Deployment Environment
+        brief: "{{ipsum_short}}"
+        help: *generic_help
+        keys:
+          - help
+          - save
+          - exit
+          - color
+        args:
+          - form:
+            - question: This deployment will be isolated from the Internet
+              type: checkbox
+              var: island_environment
+              default: false
+            - question: Cache all packages necessary for deployment (automatic for isolated environments)
+              type: checkbox
+              var: cache_everything
+              follows: island_environment
+              default: false
+            - question: HTTP Proxy (eg. http://cache.local:3128/)
+              type: edit_line
+              var: http_proxy_endpoint
+              default: !!null
+            - question: If the installer is behind a corporate HTTPS proxy, paste the cert here
+              type: edit_box
+              var: mitm_proxy_cert
+              default: !!null
+      - name: Services
+        type: GatherForm
+        title: Core Services
+        brief: "{{ipsum_short}}"
+        help: *generic_help
+        keys:
+          - help
+          - save
+          - exit
+          - color
+        args:
+          form:
+            - question: DNS Domain Name
+              type: edit_line
+              var: dns_domain
+              default: weave.local
+            - question: DNS Servers (one per line)
+              type: edit_box
+              var: dns_servers
+              default: |-
+                8.8.8.8
+                8.8.4.4
+            - question: NTP Servers (one per line)
+              type: edit_box
+              var: ntp_servers
+              default: |-
+                0.pool.ntp.org
+                1.pool.ntp.org
+                2.pool.ntp.org
+                3.pool.ntp.org
+      - name: Nodes
+        type: GatherForm
+        title: "{{product.name}} Data Nodes"
+        brief: "{{ipsum_short}}"
+        help: *generic_help
+        keys:
+          - help
+          - save
+          - exit
+          - color
+        args:
+          form:
+            - statement: |-
+                Enter nodes (one per line) in the format:
+                  <ip address or hostname>
+                Hostnames must be resolvable by the install node.
+            - statement: >-
+                Be sure to refer to the installer node by the IP address
+                and hostname other nodes will know it by when it is located in
+                the real deployment environment. DO NOT use "localhost"
+                or a loopback IP address (eg. 127.0.0.1).
+            - question: "{{product.name}} Data Nodes"
+              type: edit_box
+              var: data_nodes
+              default: |-
+                192.168.2.200
+      - name: Operating Systems
+        type: GatherForm
+        title: "Select Operating Systems"
+        brief: "{{ipsum_short}}"
+        help: *generic_help
+        keys:
+          - help
+          - save
+          - exit
+          - color
+        args:
+          form:
+            - statement: >-
+                Select all the operating systems on which you intend to deploy {{product.name}}.
+                It is important that this is accurate or the deployment may fail if the installer
+                node cannot find a correct installation package for one or more nodes.
+            - question: "Select all that apply"
+              type: checkbox_box
+              var: operating_systems
+              defaults:
+                os_CentOS_7: true
+      - name: Credentials
+        type: GatherForm
+        title: Access Credentials
+        brief: "{{ipsum_short}}"
+        help: *generic_help
+        keys:
+          - help
+          - save
+          - exit
+          - color
+        args:
+          form:
+            - statement: >
+                The installer uses SSH to access and configure each data node.
+                If you have root SSH logins disabled (recommended security practice),
+                we will need to know which user to connect as. This user must have
+                access to the sudo(8) command to perform tasks as root.
+            - question: What username should we use?
+              type: edit_line
+              var: ansible_user
+            - question: What is this user's password?
+              type: edit_line
+              var: ansible_ssh_pass
+            - question: If this user must enter a password to use sudo, what is it?
+              type: edit_line
+              var: ansible_become_pass
+      - name: Finish
+        type: InfoOverlay
+        title: Next Steps
+        brief: "Next Up: Configuring {{product.name}}"
+        body: >
+         {{ipsum_long}}
+        help: *generic_help
+        keys:
+          - help
+          - save
+          - exit
+          - color
+        args:
+          next_button: NextSet
+  - product:
+      - name: Overview
+        type: InfoOverlay
+        title: "{{product.vendor}} {{product.name}} {{product.version}} {{product.flavor}}"
+        brief: "{{product.name}} Configuration Overview"
+        body: >
+          Time to bake the donuts.
+        help: *generic_help
+        keys:
+          - help
+          - save
+          - exit
+          - color
+        args:
+          prev_button: PrevSet
+      - name: Storage Pools
+        type: GatherForm
+        title: "{{product.name}} Storage Pools"
+        brief: "{{ipsum_short}}"
+        help: *generic_help
+        keys:
+          - help
+          - save
+          - exit
+          - color
+        args:
+          form:
+            - statement: >
+                {{ipsum_long}}
+      - name: Virtual Data Centers
+        type: GatherForm
+        title: "{{product.name}} Virtual Data Centers"
+        brief: "{{ipsum_short}}"
+        help: *generic_help
+        keys:
+          - help
+          - save
+          - exit
+          - color
+        args:
+          form:
+            - statement: >
+                {{ipsum_long}}
+      - name: Users
+        type: GatherForm
+        title: "{{product.name}} Users"
+        brief: "{{ipsum_short}}"
+        help: *generic_help
+        keys:
+          - help
+          - save
+          - exit
+          - color
+        args:
+          form:
+            - statement: >
+                {{ipsum_long}}
+      - name: Name Spaces
+        type: GatherForm
+        title: "{{product.name}} Name Spaces"
+        brief: "{{ipsum_short}}"
+        help: *generic_help
+        keys:
+          - help
+          - save
+          - exit
+          - color
+        args:
+          form:
+            - statement: >
+                {{ipsum_long}}
+      - name: Buckets
+        type: GatherForm
+        title: "{{product.name}} Name Spaces"
+        brief: "{{ipsum_short}}"
+        help: *generic_help
+        keys:
+          - help
+          - save
+          - exit
+          - color
+        args:
+          form:
+            - statement: >
+                {{ipsum_long}}
+      - name: Finish
+        type: InfoOverlay
+        title: Next Steps
+        brief: "Next Up: Caching Deployment Artifacts"
+        body: >
+         {{ipsum_long}}
+        help: *generic_help
+        keys:
+          - help
+          - save
+          - exit
+          - color
+        args:
+          next_button: NextSet
+  - cache:
+      - name: Overview
+        type: InfoOverlay
+        title: "{{product.vendor}} {{product.name}} {{product.version}} {{product.flavor}}"
+        brief: "{{product.name}} Configuration Overview"
+        body: >
+          Time to bake the donuts.
+        help: *generic_help
+        keys:
+          - help
+          - exit
+          - color
+          - logs
+        args:
+          prev_button: PrevSet
+      - name: Build Cache
+        type: BuildCacheWidget
+        title: Building the Cache
+        brief: This may take a while. Now is a good time for tea and coffee.
+        body: >
+          Time to bake the donuts.
+        help: *generic_help
+        keys:
+          - help
+          - exit
+          - color
+          - logs
+      - name: Finish
+        type: InfoOverlay
+        title: Next Steps
+        brief: "Next Up: Deploying {{product.name}}"
+        body: >
+         {{ipsum_long}}
+        help: *generic_help
+        keys:
+          - help
+          - exit
+          - color
+          - logs
+        args:
+          next_button: NextSet
+  - deployment:
+      - name: Overview
+        type: InfoOverlay
+        title: "{{product.vendor}} {{product.name}} {{product.version}} {{product.flavor}}"
+        brief: "{{product.name}} Configuration Overview"
+        body: >
+          Time to bake the donuts.
+        help: *generic_help
+        keys:
+          - help
+          - exit
+          - color
+          - logs
+        args:
+          prev_button: PrevSet
+      - name: Gather Node Facts
+        type: AnsibleRunnerWidget
+        title: Gather Node Facts
+        brief: Gather node facts to complete the deployment profile
+        body: >
+          Time to bake the donuts.
+        help: *generic_help
+        keys:
+          - help
+          - exit
+          - color
+          - logs
+        args:
+          playbook: installer_gather_facts
+          playbook: installer_compile_facts
+      - name: Review Configuration
+        type: ReviewConfigWidget
+        title: Review and Verify Configuration
+        brief: Review the configuration and verify it is still correct
+        body: >
+          Sometimes things can change in the time between configuring a deployment
+          and actually deploying the software. Life happens. Please Rreview the
+          configuration one last time and verify it is still correct. Thanks!
+        help: *generic_help
+        keys:
+          - help
+          - exit
+          - color
+          - logs
+      - name: Sanity Check Nodes
+        type: AnsibleRunnerWidget
+        title: Sanity-checking Data Nodes
+        brief: This may take a while. Now is a good time for tea and coffee.
+        body: >
+          This step ensures the nodes meet minimum requirements and match up
+          with the deployment configuraion.
+        help: *generic_help
+        keys:
+          - help
+          - exit
+          - color
+          - logs
+        args:
+          playbook: installer_sanity_check_self
+          playbook: installer_sanity_check_data_nodes
+      - name: Deploy {{product.name}} to Nodes
+        type: AnsibleRunnerWidget
+        title: Building the Cache
+        brief: This may take a while. Now is a good time for tea and coffee.
+        body: >
+          Time to bake the donuts.
+        help: *generic_help
+        keys:
+          - help
+          - exit
+          - color
+          - logs
+        args:
+          playbook: deploy_all_nodes
+      - name: Apply {{product.name}} Configuration
+        type: AnsibleRunnerWidget
+        title: Applying {{product.name}} Configuration
+        brief: This may take a while. Now is a good time for tea and coffee.
+        body: >
+          time to bake the donuts.
+        help: *generic_help
+        keys:
+          - help
+          - exit
+          - color
+          - logs
+        args:
+          playbook: configure_product
+      - name: Finish
+        type: InfoOverlay
+        title: Next Steps
+        brief: "Next Up: Deploying {{product.name}}"
+        body: >
+         {{ipsum_long}}
+        help: *generic_help
+        keys:
+          - help
+          - exit
+          - color
+          - logs
+        args:
+          next_button: AllDone
+ipsum_short: >
+  Beautiful Soup, so rich and green
+ipsum_long: >
+  'Oh, a song, please, if the Mock Turtle would be so kind,' Alice replied,
+  so eagerly that the Gryphon said, in a rather offended tone, 'Hm! No accounting
+  for tastes! Sing her "Turtle Soup," will you, old fellow?' The Mock Turtle
+  sighed deeply, and began, in a voice sometimes choked with sobs, to sing
+  this:— 'Beautiful Soup, so rich and green, Waiting in a hot tureen! Who
+  for such dainties would not stoop? Soup of the evening, beautiful Soup!

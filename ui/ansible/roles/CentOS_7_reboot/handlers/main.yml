@@ -1,0 +1,3 @@
+- name: CentOS 7 | Reboot required
+  debug:
+    msg: "!!! SYSTEM {{ inventory_hostname }} MUST BE REBOOTED TO CONTINUE INSTALLATION !!!"

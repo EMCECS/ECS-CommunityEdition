@@ -1,0 +1,19 @@
+- include_vars: caches.yml
+
+- name: Installer | Create cache directories
+  file: state=directory path={{ cache_dir }}/{{ item }}
+  with_items: "{{ caches.keys() }}"
+
+- name: Installer | Create compressed cache files
+  shell: "{{ item.value.pack_cmd }}"
+  args:
+    chdir: "{{ host_cache_dir }}/{{ item.key }}"
+    creates: "{{ host_cache_dir }}/{{ item.key }}/{{ item.value.dest }}"
+  with_dict: "{{ caches }}"
+  delegate_to: "{{ groups['install_node'][0] }}"
+  register: cacheresults
+
+- name: Installer | Create cache distribution torrent file
+  shell: mktorrent-borg -ig 'facts*' -a udp://{{ groups['install_node'][0] }}:6881 -a http://{{ groups['install_node'][0] }}:6881/announce -o {{ cache_dir }}/cache.torrent -pub {{ cache_dir }}
+  args:
+    creates: "{{ cache_dir }}/cache.torrent"

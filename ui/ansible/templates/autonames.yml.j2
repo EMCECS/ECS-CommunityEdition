@@ -1,0 +1,6 @@
+autonames:
+{%- set autonaming = facts['autonaming'] | default('moons') -%}
+{%- for name in autonames[autonaming] %}
+  - {{ name -}}
+{% endfor %}
+#

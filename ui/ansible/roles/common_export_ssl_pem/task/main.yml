@@ -1,0 +1,3 @@
+- name: Common | Export ECS API SSL certificate
+  shell: echo | openssl s_client -connect {{item}}:4443 2>/dev/null | openssl x509 -text >/opt/emc/ecs-install/ssl/{{item}}.crt
+

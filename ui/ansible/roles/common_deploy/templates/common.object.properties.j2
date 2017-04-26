@@ -1,0 +1,65 @@
+#
+# common configs for dataservice across processes
+#
+
+#
+# ownership module
+#
+
+# num of directories per cos
+object.NumDirectoriesPerCoSForSystemDT={{ '32' if ansible_memtotal_mb < 65536 else '128' }}
+object.NumDirectoriesPerCoSForUserDT={{ '32' if ansible_memtotal_mb < 65536 else '128' }}
+# total # of hashes used
+object.TotalNumOfHashesForSystemDT=8192
+object.TotalNumOfHashesForUserDT=8192
+# max # of hashes used for spreading listing entries.
+# changing this number will require to redistribute the existing list keys.
+# Please DON'T change it.
+object.MaxHashesForListingPerParentForSystemDT=32
+object.MaxHashesForListingPerParentForUserDT=32
+
+
+object.LbEnabled=true
+object.FailoverEnabled=true
+
+#the period between successive executions of LivenessMonitor
+object.LivenessMonitorFrequencyMillis=7500
+
+# frequency of LB runs
+object.LoadBalanceFrequencyMillis=300000
+
+#frequency of ownership refresher runs
+object.OwnershipRefresherFrequencyMillis=1800000
+
+# max interval time between LB runs
+object.LoadBalanceMaxIntervalMillis=600000
+
+# initial delay of LB run after service starts up
+object.LoadBalanceInitDelayMillis=600000
+
+# num of LB runs per round
+object.MaxLbRunsPerRound=3
+
+# time out of ownership ping
+object.OwnershipPingTimeOutMillis=5000
+
+#default stale flag for bucket
+object.IsStaleAllowed=false
+
+
+object.Level2DTReInitWaitMinMillis = 10000
+object.Level2DTReInitWaitMaxMillis = 20000
+
+object.ChunkBroadcastQueryLimit = 500
+
+object.ChunkGcScanStatusBatchSize = 500
+object.ChunkGcScanStatusBatchPauseMillis = 500
+object.ChunkGcScanStatusGeoBatchSize = 1000
+object.ChunkGcScanStatusGeoBatchPauseMillis = 200
+object.ChunkGcScanStatusBatchChunkNumberMax = 20000
+object.ChunkGcScanStatusBatchChunkNumberMin = 1
+
+object.DtLockTimeOutMillis = 300000
+object.JournalLockTimeOutMillis = 1800000
+object.DtDumpThresholdForLB = 180
+object.MaxDumpTryBeforeForceLB = 2
