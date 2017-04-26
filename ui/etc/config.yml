@@ -1,0 +1,52 @@
+# Copyright (c) 2015 EMC Corporation
+# All Rights Reserved
+#
+# This software contains the intellectual property of EMC Corporation
+# or is licensed to EMC Corporation from third parties.  Use of this
+# software and the intellectual property contained therein is expressly
+# limited to the terms and conditions of the License Agreement under which
+# it is provided by or on behalf of EMC.
+
+# Jinja2 templated YAML
+# One level of recursion is supported. If you need more, use aliases or refactor.
+# http://pyyaml.org/wiki/PyYAMLDocumentation#Aliases
+---
+ui:
+  name: Install
+  version: 2.301.1
+  host_root_dir: /opt/emc/ecs-install
+  state_file: /opt/state.yml
+  deploy_file: /opt/deploy.yml
+  host_state_file: /opt/emc/ecs-install/deploy.yml
+  log: /var/log/ecs-install.ui.log
+  host_log: /var/log/emc/ecs-install.ui.log
+  cache_dir: /var/cache/emc/ecs-install
+  host_cache_dir: /var/cache/emc/ecs-install
+  ssl_dir: /opt/ssl
+  host_ssl_dir: /opt/emc/ecs-install/ssl
+  ssh_dir: /opt/ssh
+  host_ssh_dir: /opt/emc/ecs-install/ssh
+  ansible_templates: /usr/local/src/ui/ansible/templates
+  ansible_resources: /usr/local/src/ui/resources/
+  ffx_sem: /opt/ffx.sem
+product:
+  name: ECS
+  version: 3.0.1
+  vendor: EMC
+  flavor: Community Edition
+  slogan: "Free and Frictionless"
+  license_file: /usr/local/src/license.txt
+help_refs:
+  - name: GitHub ECS Community and Help
+    url: "http://github.com/EMCECS/ECS-CommunityEdition"
+  - name: "@EMCECS on Twitter"
+    url: "http://twitter.com/EMCECS"
+  - name: ECS Resources at EMC
+    url: "http://community.emc.com/community/products/vipr"
+generic_help: &generic_help |-
+  Use the arrow and page keys to navigate and [ENTER] or [SPACE] to select.
+  If your terminal has mouse support, you can point and click around most pages.
+  If you need more help, there are several resources to assist you.
+
+  {% for ref in help_refs %}{{ ref.name }}: {{ref.url}}
+  {% endfor %}

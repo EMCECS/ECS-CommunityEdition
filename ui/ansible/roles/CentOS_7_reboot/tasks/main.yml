@@ -1,0 +1,32 @@
+
+- name: CentOS 7 | Check needs-restarting
+  command: /bin/needs-restarting
+  register: needs_restarting
+
+- name: CentOS 7 | Set reboot action on nodes that need restarting
+  debug: msg="Node flagged for reboot by package manager"
+  changed_when: ( needs_restarting.stdout.find('/') != -1 ) and flag_install_node is not defined
+
+- name: CentOS 7 | Check if install node also needs restarting
+  debug: msg="The install node also needs restarting, but we can't reboot right now."
+  notify:
+    - CentOS 7 | Reboot required
+  when: ( needs_restarting.stdout.find('/') != -1 ) and flag_install_node is defined
+
+- name: CentOS 7 | Reboot node
+  shell: sleep 5 && shutdown -r now "Reboot triggered by Ansible"
+  async: 1
+  poll: 0
+  ignore_errors: True
+  failed_when: False
+  when: ( needs_restarting.stdout.find('/') != -1 ) and flag_install_node is not defined
+
+- name: CentOS 7 | Wait for node to reboot
+  wait_for:
+    port: 22
+    host: "{{ ansible_host | default(inventory_hostname) }}"
+    delay: 10
+    connect_timeout: 10
+    timeout: 300
+    state: started
+  delegate_to: "{{ groups['install_node'][0] }}"

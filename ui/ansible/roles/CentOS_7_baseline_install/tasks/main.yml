@@ -1,0 +1,69 @@
+- include_vars: caches.yml
+
+- name: CentOS 7 | Set selinux permissive
+  selinux: policy=targeted state=permissive
+
+# BUG: This is currently a NOOP because importing cert from bootstrap system into
+# deploy system has not been implemented.
+#
+- name: CentOS 7 | Add SSL proxy cert
+  template: src=emcecs_ssl_proxy.pem.j2 dest=/etc/pki/ca-trust/source/anchors/emcecs_ssl_proxy.pem
+  notify:
+    - CentOS 7 | Update CA trust chain
+  when: mitm_proxy_cert is defined
+  tags: ssl-proxy
+
+- name: CentOS 7 | Stop and disable unused services
+  service: name="{{ service_names[item] }}" state=stopped enabled=no
+  with_items: "{{ disable_services }}"
+  tags: services
+
+- name: CentOS 7 | Configure DNS
+  template: src=resolv.conf.j2 dest=/etc/resolv.conf
+  tags: dns
+
+- name: CentOS 7 | Unpack package_cache.tgz
+  unarchive:
+    copy: no
+    src: "{{host_cache_dir}}/{{os_tag}}/package_cache.tgz"
+    dest: /
+    creates: /var/cache/yum/x86_64/7/extras/packages/epel-release-7-5.noarch.rpm
+
+# TODO: Improve this
+# This is suuuuuper hacky - There should be a better way using the yum module,
+# but feeding it a list of specific package names when not connected to the
+# Internet is... trying.
+# BUG: If two different versions of the same package manage to wind up in the cache
+# it will cause this whole thing to fail. There is a race condition during the
+# two different runs of `yum update` during bootstrap.sh that causes it.
+# BUG: workaround for above the "--exclude epel-release-7-6.noarch" argument.
+- name: CentOS 7 | Install all packages in the cache
+  shell: yum -y -t -e0 -C --nogpgcheck --exclude epel-release-7-6.noarch install $(find /var/cache/yum -type f -name '*.rpm')
+  args:
+    creates: /etc/ntp
+
+- name: CentOS 7 | Configure ntp
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf
+  notify:
+    - CentOS 7 | Stop ntp
+    - CentOS 7 | Set the clock
+    - CentOS 7 | Start ntp
+  tags: ntp
+
+# DEPRECATED: below
+# The only node that needs this is the install node, and bootstrap.sh took care of that.
+# - name: Configure system-wide proxies
+#  lineinfile:
+#    create: yes
+#    state: present
+#    dest: /etc/environment
+#    line: "{{item.key}}={{item.value}}"
+#  with_dict: "{{proxies}}"
+#  when: item is defined
+#  tags: proxies
+
+- name: CentOS 7 | Start and enable services
+  service: name="{{ service_names[item] }}" state=started enabled=yes
+  with_items: "{{ enable_services }}"
+  tags: services
+

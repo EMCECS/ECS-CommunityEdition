@@ -1,0 +1,10 @@
+---
+caches:
+{%- for dir, cache in caches.items() %}
+  {{ dir }}:
+  {%- for key, value in cache.items() %}
+    {{key}}: {{ value }}
+  {%- endfor %}
+{%- endfor %}
+
+#

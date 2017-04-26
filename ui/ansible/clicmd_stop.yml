@@ -1,0 +1,10 @@
+- name: Common | Ping data nodes before doing anything else
+  hosts: data_node
+  gather_facts: false
+  tasks:
+    - ping: "{{inventory_hostname}}"
+
+- name: Common | Stop and disable ECS services
+  hosts: data_node
+  roles:
+    - common_stop_disable_service

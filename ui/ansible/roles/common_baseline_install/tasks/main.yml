@@ -1,0 +1,98 @@
+- include_vars: main.yml
+- include_vars: caches.yml
+
+#- name: Install all pip packages
+#  pip:
+#    name: "file://{{item}}"
+#    editable: false
+#    state: present
+#    extra_args: "--disable-pip-version-check"
+#  with_lines: find "{{host_cache_dir}}/python" -type f
+#  when: flag_install_node is not defined
+
+- name: Common | Create and modify paths and semaphores for docker containers
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state}}"
+    mode: "{{item.mode}}"
+    owner: "{{item.owner}}"
+    group: "{{item.group}}"
+  with_items: "{{ecs_docker_dirs}}"
+  tags: files
+
+### Generate network.json
+- name: Common | Generate network.json
+  template: src=network-json.j2 dest=/host/data/network.json owner=444 group=444 force=no
+  tags: files
+
+### Generate seeds file
+- name: Common | Generate seeds file
+  template: src=seeds.j2 dest=/host/files/seeds owner=444 group=444 force=no
+  tags: files
+
+- name: Common | Create GPT partition table(s) on ECS block device(s)
+  command: /sbin/parted -s {{ item }} mklabel gpt
+  with_items: "{{ecs_block_devices}}"
+
+- name: Common | Partition ECS block device(s)
+  command: /sbin/parted -s {{ item }} mkpart xfs 0% 100%
+  with_items: "{{ecs_block_devices}}"
+
+- name: Common | Check alignment of ECS partitions(s)
+  command: /sbin/parted -s {{ item }} align-check opt 1
+  with_items: "{{ecs_block_devices}}"
+
+- name: Common | Format ECS partition(s)
+  filesystem: fstype=xfs dev="{{ item }}1" force=yes
+  with_items: "{{ ecs_block_devices }}"
+  tags: disks
+
+- name: Common | Gather block device UUIDs
+  shell: blkid -s UUID -o value {{item}}1
+  with_items: "{{ecs_block_devices}}"
+  register: uuid
+
+- name: Common | Make mountpoints for ECS block devices
+  file: path="/ecs/uuid-{{ item.stdout }}" state=directory recurse=yes owner=444 group=444
+  with_items: "{{ uuid.results }}"
+  tags: disks
+
+- name: Common | Mount partitions and create fstabs
+  mount:
+    src: "{{ item.1 }}1"
+    name: "/ecs/uuid-{{ item.0.stdout }}"
+    fstype: xfs
+    state: mounted
+    opts: rw,noatime,attr2,inode64,noquota
+    dump: 0
+    passno: 0
+  with_together:
+    - "{{ uuid.results }}"
+    - "{{ ecs_block_devices }}"
+  tags: disks
+
+- name: Common | Preallocate XFS extents for chunk storage
+  script: additional_prep.sh {{ item }}1
+  with_items: "{{ ecs_block_devices }}"
+
+- name: Common | Import ECS docker image (This takes a few minutes.)
+  shell: "{{caches.docker.unpack_cmd}} && touch {{host_cache_dir}}/docker/{{caches.docker.unpack_sem}}"
+  args:
+      chdir: "{{host_cache_dir}}/docker"
+      creates: "{{host_cache_dir}}/docker/{{caches.docker.unpack_sem}}"
+  when: flag_install_node is not defined
+
+- name: Common | Update block storage path permissions
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state}}"
+    mode: "{{item.mode}}"
+    owner: "{{item.owner}}"
+    group: "{{item.group}}"
+    recurse: "{{item.recurse}}"
+  with_items: "{{ecs_docker_dirs_post}}"
+  tags: files
+
+#- name: Common | Tag ECS Docker image
+#  shell: /usr/bin/docker tag {{ecs_software_image}} {{ecs_software_image}}:latest
+#  when: flag_install_node is not defined

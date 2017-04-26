@@ -1,0 +1,138 @@
+# cc properties
+object.isCcEnabled=true
+object.DefaultConcurrentCcJobCount=1
+object.CcBatchPauseMills=180000
+object.CcJobPauseMills=10000
+object.CcReadPauseMills=10000
+
+
+# cmcc properties
+object.isCmccEnabled=true
+object.CmccBatchPauseMills=180000
+
+# ss selector refresh interval when only get partial result
+object.SsSelectorRefreshIntervalPartialMillis=60000
+# ss selector refresh interval when get full result
+object.SsSelectorRefreshIntervalFullMillis=180000
+
+# enforce number of required resources
+object.MustHaveEnoughResources=false
+object.SuicidePreventionEnabled=true
+object.UserNoWriteThreshold=90
+object.ReplicationNoWriteThreshold=90
+object.RecoveryNoWriteThreshold=95
+
+# enable/disable xor encoding
+object.XorEncodeEnabled=true
+
+object.XorEncodeConcurrentJobCount=2
+object.XorDecodeConcurrentJobCount=2
+# read buffer count: 2 per encode job, 2 per decode job
+object.XorEcReadBufferCount=4
+# write buffer count: 1 per encode job, 1 per decode job
+object.XorEcWriteBufferCount=2
+# xor encode task expiration period
+object.XorEncodeTaskExpirationSeconds=300
+# xor decode task expiration period
+object.XorDecodeTaskExpirationSeconds=1200
+
+
+# enable/disable ec encoding
+object.EcEncodeEnabled=true
+object.EcJobPauseMills=1000
+object.EcWorkerConcurrentJobCount=8
+object.CopyChunkEcTaskPostponeMins=2880
+
+# enable/disable ec retiring
+object.EcRetiringEnabled=true
+
+# ec encode delay safe guard time window (15 mins)
+object.EcTaskDelaySeconds=900
+
+# if remove type II chunk in ec scanner
+object.RemoveTypeIIChunkInEcScanner=true
+
+# memory pool size of fragment buffers for each EC scheme when do decode
+object.EcDecodeBufferAsyncPoolSize=36
+object.EcDecodeBufferSyncPoolSize=16
+
+# enable repair task scanner
+object.RepairEnabled=true
+object.EcRecoverParallelReadTasks=3
+
+# Values for remote chunk caching
+object.LruGeoChunkCacheSyncIntervalSeconds=300
+object.LruGeoChunkCacheSyncDelaySeconds=60
+object.GeoChunkCacheWorkerIntervalSeconds=60
+object.NumberOfParallelTasksForGeoChunkCaching=5
+object.PrimeGeoChunkCacheTaskDelaySeconds=30
+object.GeoChunkCachePrimeRetryCount=20
+object.GeoChunkCacheSleepBetweenRemoteBufferReadsMs=100
+# half of the expected 32 CT DTs in 4 node VDC
+object.GeoChunkCacheExpectedDTs=16
+
+# RPO stats reporting
+object.RpoStatReportingIntervalSeconds=60
+
+#
+# DT memory table properties
+#
+# Max total table capacity: 768MB
+object.DTMaxTotalTableCapacityBytes=402653184
+# Reserved table capacity: 16MB
+object.DTReservedTableCapacityBytes=8388608
+# Initial table capacity : 512KB
+object.DTInitTableCapacityBytes=262144
+# DT max table capacity : 4M
+object.DTTableCapacityBytes=2097152
+
+# this limitation after btree flush could handle buffer writer queue full.
+object.BPlusTreeWriterCacheSize=100
+# The maximum reader cache size for off-heap size. unit: MB.
+object.BPlusTreeReaderOffHeapCacheSizeMB=128
+# The maximum reader cache size for on-heap size. unit: MB.
+object.BPlusTreeReaderCacheSizeMB=64
+# The sizes of shared cache pools for writer and prefetch, unit MB.
+object.BPlusTreeSharedWriterCachePoolSizeMB=64
+object.BPlusTreeSharedPrefetchCachePoolSizeMB=32
+# whether enable the page prefetch for next keys
+object.BPlusTreePrefetchEnabled=false
+
+
+# Values for cm jobs
+object.JobSchedulerDefaultExecutors=10
+object.JobSchedulerEcEncodeExecutors=8
+object.JobSchedulerEcRecoverExecutors=8
+object.JobSchedulerGeoExecutors=15
+object.JobSchedulerCcExecutors=1
+
+object.JobSchedulerMaxPendingJobs=300
+object.JobSchedulerLowVacancyThreshold=30
+
+object.JobSenderQueueSize=50
+
+object.ForegroundJobTimeoutMills=60000
+object.EcEncodeJobMaxExecSeconds=3600
+object.EcEncodeJobSafeguardMills=300000
+object.LocalCopyJobMaxExecSeconds=1200
+object.LocalCopyJobSafeguardMills=300000
+object.EcRecoverJobMaxExecSeconds=1200
+object.EcRecoverJobSafeguardMills=300000
+object.ecTaskExpireSeconds = 300
+object.maxECRetryCount = 5
+
+# Time window for sweep schunk task
+object.SweepChunkTaskTimeoutMillis=300000
+object.SweepChunkTaskExtendedTimeoutMillis=172800000
+
+# list gc task
+object.ListGcScanTasksMaxSize=5120
+
+# memory allocate weight
+object.MemoryAllocateTimeoutMilli=60000
+object.SyncRecoveryAllocWeight=8
+object.AsyncRecoveryAllocWeight=2
+object.EcEncodeAllocWeight=1
+object.XORAllocWeight=1
+object.totalDataBufferNumber=8
+object.totalCodeBufferNumber=16
