@@ -29,6 +29,18 @@ source ${lib}/versioning.sh
 if ! [ -z "$1" ] && [ "$1" == "--clean" ]; then
     docker_clean
     exit 0
+elif ! [ -z "$1" ] && [ "$1" == "--update-mirror" ]; then
+    if [ -z "$2" ]; then
+        die "You must provide a valid Alpine Linux mirror URL."
+    else
+        alpine_mirror="${2}"
+        build_image_flag=true
+        export build_image_flag
+        export alpine_mirror
+        o "Updating bootstrap.conf to use Alpine Linux mirror ${alpine_mirror}"
+        dump_bootstrap_config > "${root}/bootstrap.conf"
+        exit 0
+    fi
 fi
 
 o "Building image ${image_name}"
@@ -62,6 +74,23 @@ case $context in
 
 esac
 
+o "Checking Alpine Linux mirror"
+alpine_mirror_test="${alpine_mirror}/MIRRORS.txt"
+if ! is_file_http_accessible "${alpine_mirror_test}" 2>&1 >/dev/null; then
+    error "We couldn't validate the provided Alpine Linux mirror my checking that"
+    error "the following file is accessible:"
+    error ""
+    error "${alpine_mirror_test}"
+    error ""
+    error "Please check the mirror URL and try again.  You may need to update the"
+    error "configured Alpine Linux mirror by running the following command:"
+    error "'${0} --update-mirror <mirror URL>'"
+    die "If you still have troubles, please reach out to us us on GitHub."
+fi
+
+o "Generating Alpine Linux repositories file"
+create_apk_repositories
+
 o "Collecting artifacts"
 collect_artifacts
 
@@ -76,7 +105,9 @@ Rockerfile="-f ui/resources/docker/Rockerfile"
 o "UI artifact is: ${ui_artifact}"
 # Currently using the Ansible apk
 # o "Ansible artifact is: ${ansible_artifact}"
-o "sudo /usr/local/bin/rocker build $Context $Version $Artifacts $FromImage $BuildPush $Rockerfile $HTTPProxy $PipProxy ."
 sudo /usr/local/bin/rocker build $Context $Version $Artifacts $FromImage $BuildPush $Rockerfile $HTTPProxy $PipProxy . || img_build_fail
+
+o "Tagging ${full_image_path} -> ${image_release}"
+sudo docker tag "${full_image_path}" "${image_release}" || img_pull_fail
 
 exit 0

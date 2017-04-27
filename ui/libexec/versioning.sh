@@ -22,7 +22,7 @@ elif [ -f "build/serial" ]; then
 
     serial="$(cat build/serial)"
     echo "$((++serial))" > build/serial
-    ver_tag="build.${serial}"
+    ver_tag="${serial}.${ver_tag}"
     context='release'
 
 elif [ -f local_serial ]; then
