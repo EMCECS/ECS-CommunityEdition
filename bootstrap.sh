@@ -19,7 +19,7 @@ set -o pipefail
 ############################################################################
 
 ### How to
-# TODO: Add github URLs to help text (bottom)
+# TODO: Add GitHub URLs to help text (bottom)
 usage() {
     log "providing usage info"
 cat <<EOH
@@ -256,9 +256,9 @@ o ""
 o "We collect some hardware and OS info into a log file on the"
 o "install node in case something fails and you want help trouble-"
 o "shooting. HOWEVER, absolutely nothing is transmitted over the"
-o "Internet or shared with EMC, github, or anyone else unless or"
+o "Internet or shared with EMC, GitHub, or anyone else unless or"
 o "until you decide to attach the log file or copy & paste its"
-o "content into a help request on github (or where ever)."
+o "content into a help request on GitHub (or where ever)."
 o ""
 o "If you are curious to see what's collected, the log is here:"
 o "    $log_file"
@@ -487,7 +487,6 @@ fi
 ### ECS-Install Docker image
 if $build_image_flag; then
 p Building ecs-install image
-    create_apk_repositories
     if ! ui/build_image.sh 2>&1 | log; then
         error "We couldn't build the ecs-install image for some reason. Please check the logs."
         error "If it's something simple, such as a missing base image (we use python:2.7-alpine),"
@@ -495,7 +494,7 @@ p Building ecs-install image
         error "a reliable source, such as DockerHub. If you specified a custom registry, then you"
         error "may need to first push the image into your registry to ensure it is available for"
         error "the build tool."
-        die "If you still need more help after trying the above, you can reach us on github."
+        die "If you still need more help after trying the above, you can reach us on GitHub."
     fi
 else
     p Pulling ecs-install image
@@ -504,7 +503,7 @@ else
         error "If it's something simple, such as the ecs-install:latest image missing from"
         error "your custom Docker registry, or if your Internet access isn't working, then"
         error "you may be able to solve the problem by first solving one of the above issues."
-        die "If you still need more help after trying the above, you can reach us on github."
+        die "If you still need more help after trying the above, you can reach us on GitHub."
     fi
 fi
 ping_sudo
@@ -524,7 +523,7 @@ if $registry_flag; then
         error "registry, it may be that the image does not exist in your registry. Please ensure"
         error "the '${release_artifact}' image is present on your registry before trying again, or"
         error "perhaps you can simply pull the image directly from DockerHub."
-        die "If you still need more help after trying the above, you can reach us on github."
+        die "If you still need more help after trying the above, you can reach us on GitHub."
         # This has to be tagged for the cache generator in Ansible
     fi
     v "Tagging ${registry_val}/${release_artifact}:${release_tag} -> ${release_artifact}:latest"
@@ -535,7 +534,7 @@ else
         error "or there may be an issue with your Internet access. You'll likely need to check"
         error "the error message from the Docker pull output (above) to see what's specifically"
         error "the problem."
-        die "If you still need more help after trying the above, you can reach us on github."
+        die "If you still need more help after trying the above, you can reach us on GitHub."
     fi
 fi
 

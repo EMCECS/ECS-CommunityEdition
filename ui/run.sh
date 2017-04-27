@@ -19,7 +19,7 @@ cd ${root}
 #
 # Imports and import configs
 source ${lib}/includes.sh
-source ${lib}/versioning.sh
+# source ${lib}/versioning.sh
 #
 ##############################################################################
 
@@ -35,7 +35,7 @@ fi
 run() {
     run="${1}"
     shift
-    sudo docker run --rm -it --privileged --net=host ${default_mount_opts[@]} ${latest_image_path} ${run} ${@}
+    sudo docker run --rm -it --privileged --net=host ${default_mount_opts[@]} ${image_release} ${run} ${@}
     return $?
 }
 
@@ -64,11 +64,16 @@ case "$(basename ${0})" in
 
         if ${deploy_flag}; then
             o "Updating /opt/emc/ecs-install/deploy.yml from ${deploy_val}"
-            diff ${deploy_val} /opt/emc/ecs-install/deploy.yml
+            if [ -f /opt/emc/ecs-install/deploy.yml ]; then
+                diff ${deploy_val} /opt/emc/ecs-install/deploy.yml
+            fi
             cd "${root}"
             sudo cp "${deploy_val}" /opt/emc/ecs-install/deploy.yml
+            o "Recreating ecs-install data container"
+            remove_data_container
+            make_new_data_container
             # ecsdeploy load
-            cd -
+            cd - 2>&1 >/dev/null
         else
             o "No deploy.yml file was provided during bootstrap. To use this feature, do the following:"
             o "Modify ${root}/bootstrap.conf by adjusting the following lines:"

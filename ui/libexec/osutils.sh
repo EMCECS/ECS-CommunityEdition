@@ -85,10 +85,21 @@ collect_environment_info() {
 }
 
 proxy_http_ping() {
-
     echo "curl -sSLfI -w '%{http_code}' -x ${1} --proxytunnel ${2} -o /dev/null -m 10" | log
     curl -sSLfI -w '%{http_code}' -x ${1} --proxytunnel ${2} -o /dev/null -m 10
     return ${?}
+}
+
+is_file_http_accessible() {
+    if $proxy_flag; then
+        echo "curl -sSLfI -w '%{http_code}' -x ${proxy_val} --proxytunnel ${1} -o /dev/null -m 10" | log
+        curl -sSLfI -w '%{http_code}' -x ${proxy_val} --proxytunnel ${1} -o /dev/null -m 10
+        return ${?}
+    else
+        echo "curl -sSLfI -w '%{http_code}' ${1} -o /dev/null -m 10" | log
+        curl -sSLfI -w '%{http_code}' ${1} -o /dev/null -m 10
+        return ${?}
+    fi
 }
 
 ping_sudo() {
@@ -109,6 +120,7 @@ dump_bootstrap_config() {
     _vars="$_vars proxy_test_flag"
     _vars="$_vars proxy_test_val"
     _vars="$_vars build_image_flag"
+    _vars="$_vars alpine_mirror"
     _vars="$_vars registry_flag"
     _vars="$_vars registry_val"
     _vars="$_vars regcert_flag"

@@ -33,12 +33,15 @@ fi
 registry_flag=${registry_flag:-false}
 
 if $registry_flag; then
-    repo_path="${registry_val}/${repo_name}"
+    repo_path="${registry_val}/${image_release}"
 else
-    repo_path="${repo_name}"
+    repo_path="${image_release}"
 fi
 
-o "Pulling image ${image_release}"
-sudo docker pull ${image_release} 2>&1 | log || die img_pull_fail
+o "Pulling image ${repo_path}"
+sudo docker pull ${repo_path} || img_pull_fail
+
+o "Tagging ${repo_path} -> ${image_release}"
+sudo docker tag "${repo_path}" "${image_release}" || img_pull_fail
 
 exit 0

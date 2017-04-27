@@ -113,9 +113,12 @@ docker_clean() {
         sudo docker rm -vf $(sudo docker ps -q -f status=exited) >/dev/null
     fi
 
-    o "     [build images] "
-    if ! [ -z "$(sudo docker images -q ${image_name})" ]; then
-        sudo docker rmi -f $(sudo docker images -q ${image_name}) >/dev/null
+    o "     [local build images] "
+    if ! [ -z "$(sudo docker images | grep local.$(hostname -s) | awk '{print $3}')" ]; then
+        sudo docker rmi -f $(sudo docker images | grep local.$(hostname -s) | awk '{print $3}') >/dev/null
+    fi
+    if ! [ -z "$(sudo docker images | grep local.$(hostname -s) | awk '{print $3}')" ]; then
+        sudo docker rmi -f $(sudo docker images | grep local.$(hostname -s) | awk '{print $3}') >/dev/null
     fi
 
     o "     [dangling layers] "
@@ -128,9 +131,15 @@ data_container_missing() {
     [ -z "$(sudo docker ps -a | grep ecs-install-data)" ]
 }
 
+remove_data_container() {
+    if ! [ -z "$(sudo docker ps -a | grep ecs-install-data)" ]; then
+        sudo docker rm -vf ecs-install-data >/dev/null
+    fi
+}
+
 make_new_data_container() {
     sudo docker run -d --name "${data_container_name}" \
-        --entrypoint /bin/echo ${latest_image_path} \
+        --entrypoint /bin/echo ${image_release} \
         echo "Data container for ecs-install" >/dev/null
 }
 
