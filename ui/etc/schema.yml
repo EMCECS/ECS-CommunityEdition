@@ -1,6 +1,4 @@
 ---
-extensions:
-  - ext.py
 type: map
 mapping:
 
