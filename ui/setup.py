@@ -29,7 +29,8 @@ setup(
         'urwid',
         'urwid-timed-progress',
         'pyopenssl',
-        'sarge'
+        'sarge',
+        'pykwalify'
     ],
     entry_points='''
     [console_scripts]
@@ -40,4 +41,3 @@ setup(
     inventory=inventory:inventory
     ''',
 )
-

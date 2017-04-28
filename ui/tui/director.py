@@ -20,6 +20,9 @@ from tools import DataSet, logobj
 from tui import KeyBind, TuiConfig
 from defaults import *
 from pprint import pprint
+import pykwalify
+from pykwalify.core import Core
+from pykwalify.errors import SchemaError, CoreError
 
 logging.basicConfig(filename=ui_log, level=logging.DEBUG)
 logging.debug('-' * 40 + os.path.abspath(__file__) + '-' * 40)
@@ -29,10 +32,15 @@ class Director(object):
     """
     Directs traffic and tabs
     """
+
+
     # Defaults
-    config_file = '{0}/config.yml'.format(ui_etc)
-    caches_file = '{0}/caches.yml'.format(ui_etc)
-    autonames_file = '{0}/autonames.yml'.format(ui_etc)
+    config_file = os.path.join(ui_etc, 'config.yml')
+    caches_file = os.path.join(ui_etc, 'caches.yml')
+    autonames_file = os.path.join(ui_etc, 'autonames.yml')
+    schema_file = os.path.join(ui_etc, 'schema.yml')
+    schema_functions_file = os.path.join(ui_tui, "schema_functions.py")
+
     # state_file = '{0}/state.yml'.format(cache_root)
     state_file = None
     script_file = None
@@ -90,6 +98,7 @@ class Director(object):
             self.load_state()
 
         if self.deploy_file is not None:
+            self.validate_deploy()
             self.load_deploy()
 
         if self.script_file is not None:
@@ -192,36 +201,59 @@ class Director(object):
                 print("Unable to locate script: " + repr(e))
                 raise
 
+    def validate_deploy(self):
+        """
+        Validates the deployment yaml file with the schema
+        :raises AssertionError: if validation fails
+        """
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
+        if not self.deploy_file:
+            raise AssertionError
+
+        try:
+            c = Core(source_file=self.deploy_file,
+                     schema_files=[self.schema_file],
+                     extensions=[self.schema_functions_file])
+            c.validate()
+        except CoreError as e:
+            # Most probably there is something wrong with the source files
+            logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name + ': ' + e.msg)
+            raise
+        except SchemaError as e:
+            # The deploy file is not valid
+            logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name + ': ' + e.msg)
+            raise
+
     def load_deploy(self):
         """
         Loads the deployment map
         :raises IOError: if can't read map
         """
         logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
-        if self.deploy_file is None:
+        if not self.deploy_file:
             raise AssertionError
-        else:
-            try:
-                self.update_template_vars()
-                self.deploy_dataset = DataSet(self.deploy_file,
-                                              additional_template_vars=self.template_vars)
-                logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
-                logobj(self.deploy_dataset.content)
-                self.deploy = DotMap(self.deploy_dataset.content)
-                logobj(self.deploy)
-                self.update_template_vars()
 
-            except IOError as e:
-                logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name + ': ' + repr(e))
-                # must be a new install or else we don't have permissions.
+        try:
+            self.update_template_vars()
+            self.deploy_dataset = DataSet(self.deploy_file,
+                                          additional_template_vars=self.template_vars)
+            logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
+            logobj(self.deploy_dataset.content)
+            self.deploy = DotMap(self.deploy_dataset.content)
+            logobj(self.deploy)
+            self.update_template_vars()
 
-            autonames_dataset = DataSet(self.autonames_file, additional_template_vars=self.template_vars)
-            autonames = DotMap(autonames_dataset.content)
-            self.config.update(autonames)
+        except IOError as e:
+            logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name + ': ' + repr(e))
+            # must be a new install or else we don't have permissions.
 
-            caches_dataset = DataSet(self.caches_file, additional_template_vars=self.template_vars)
-            caches = DotMap(caches_dataset.content)
-            self.config.update(caches)
+        autonames_dataset = DataSet(self.autonames_file, additional_template_vars=self.template_vars)
+        autonames = DotMap(autonames_dataset.content)
+        self.config.update(autonames)
+
+        caches_dataset = DataSet(self.caches_file, additional_template_vars=self.template_vars)
+        caches = DotMap(caches_dataset.content)
+        self.config.update(caches)
 
     def update_template_vars(self):
         """
@@ -463,4 +495,3 @@ class Director(object):
         else:
             logging.debug(sys._getframe().f_code.co_name + ': unhandled: ' + repr(type(key)) + ' ' + str(key))
             return True
-

@@ -1,0 +1,217 @@
+---
+extensions:
+  - ext.py
+type: map
+mapping:
+
+  licensing:
+    type: map
+    mapping:
+      license_accepted:
+        type: bool
+
+  facts:
+    type: map
+    required: True
+    mapping:
+      install_node:
+        type: str
+        required: True
+        func: ipv4_address
+
+      management_clients:
+        type: seq
+        required: True
+        sequence:
+          - type: str
+            func: ipv4_cidr
+
+      ecs_software_image:
+        type: str
+        required: True
+        func: docker_image
+
+      autonaming:
+        type: str
+        required: True
+
+      ansible_defaults:
+        type: map
+        required: True
+        mapping:
+          ansible_user:
+            type: str
+            func: alphanumeric
+          ansible_ssh_pass:
+            type: str
+          ansible_become_pass:
+            type: str
+          ansible_password:
+            type: str
+
+      node_defaults:
+        type: map
+        required: True
+        mapping:
+          ecs_root_user:
+            type: str
+            func: alphanumeric
+          ecs_root_pass:
+            type: str
+          dns_domain:
+            type: str
+          dns_servers:
+            type: seq
+            sequence:
+              - type: str
+          ntp_servers:
+            type: seq
+            sequence:
+              - type: str
+
+      storage_pool_defaults:
+        type: map
+        required: True
+        mapping:
+          is_cold_storage_enabled:
+            type: bool
+          is_protected:
+            type: bool
+          description:
+            type: str
+          ecs_block_devices:
+            type: seq
+            sequence:
+              - type: str
+                func: unix_path
+
+      virtual_data_center_defaults:
+        type: map
+        required: True
+        mapping:
+          description:
+            type: str
+
+      replication_group_defaults:
+        type: map
+        required: True
+        mapping:
+          description:
+            type: str
+          enable_rebalancing:
+            type: bool
+          allow_all_namespaces:
+            type: bool
+          is_full_rep:
+            type: bool
+
+      namespace_defaults:
+        type: map
+        allowempty: True
+        mapping:
+          description:
+            type: str
+          is_stale_allowed:
+            type: bool
+          is_compliance_enabled:
+            type: bool
+          is_encryption_enabled:
+            type: bool
+          namespace_admins:
+            type: str
+
+      storage_pools:
+        type: seq
+        required: True
+        sequence:
+          - type: map
+            mapping:
+              name:
+                type: str
+                func: alphanumeric
+              members:
+                type: seq
+                sequence:
+                  - type: str
+                    func: ipv4_address
+              options:
+                type: map
+                mapping:
+                  cold_storage_enabled:
+                    type: bool
+                  protected:
+                    type: bool
+                  description:
+                    type: str
+                  ecs_block_devices:
+                    type: seq
+                    sequence:
+                      - type: str
+                        func: unix_path
+
+      virtual_data_centers:
+        type: seq
+        required: True
+        sequence:
+          - type: map
+            mapping:
+              name:
+                type: str
+                func: alphanumeric
+              members:
+                type: seq
+                sequence:
+                  - type: str
+                    func: alphanumeric
+              options:
+                type: map
+                mapping:
+                  description:
+                    type: str
+
+      replication_groups:
+        type: seq
+        required: True
+        sequence:
+          - type: map
+            mapping:
+              name:
+                type: str
+                func: alphanumeric
+              members:
+                type: seq
+                sequence:
+                  - type: str
+                    func: alphanumeric
+              options:
+                type: map
+                mapping:
+                  description:
+                    type: str
+      namespaces:
+        type: seq
+        allowempty: True
+        sequence:
+          - type: map
+            mapping:
+              name:
+                type: str
+                func: alphanumeric
+              members:
+                type: seq
+                sequence:
+                  - type: str
+                    func: alphanumeric
+              options:
+                type: map
+                mapping:
+                  description:
+                    type: str
+                  is_stale_allowed:
+                    type: bool
+                  is_compliance_enabled:
+                    type: bool
+                  is_encryption_enabled:
+                    type: bool
+                  namespace_admins:
+                    type: str

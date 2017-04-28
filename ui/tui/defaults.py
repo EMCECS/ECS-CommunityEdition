@@ -24,6 +24,7 @@ ansible_log = '{0}/ecs-install.ansible.log'.format(log_root)
 ui_src_root = '{0}/ui'.format(src_root)
 ui_log = '{0}/ecs-install.ui.log'.format(log_root)
 ui_etc = '{0}/etc'.format(ui_src_root)
+ui_tui = '{0}/tui'.format(ui_src_root)
 ansible_conf = '/etc/ansible'
 ansible_root = "{0}/ansible".format(ui_src_root)
 ansible_setup_templates = "{0}/templates".format(ansible_root)
@@ -88,4 +89,3 @@ INCREMENT ViPR_Controller EMCLM 2.0 permanent uncounted \
         PTA06JUN20131086059" SN=2162734 SIGN="00EC 6B99 FB75 280D B932 \
         75DD 21D1 EC00 5634 5848 462F 7ACD 0032 5081 2923"
 '''
-
