@@ -277,7 +277,7 @@ class ECSConf(object):
         :return: dict of pool options
         """
         opts = self.get_defaults(SP)
-        sp_opts = self.get_attr(SP, OPTIONS, pool_name)
+        sp_opts = self.get_attr(SP, OPTIONS, pool_name).toDict()
         if sp_opts is not None:
             opts.update(sp_opts)
         return opts

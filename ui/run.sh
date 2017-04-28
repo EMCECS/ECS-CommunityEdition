@@ -43,13 +43,13 @@ case "$(basename ${0})" in
     update_image)
         cd "${root}"
         "${root}/ui/update_image.sh"
-        cd -
+        cd - 2>&1 >/dev/null
     ;;
     rebuild_image)
         cd "${root}"
         "${root}/ui/build_image.sh" --clean
         "${root}/ui/build_image.sh"
-        cd -
+        cd - 2>&1 >/dev/null
     ;;
     update_deploy)
         if ! [ -z "${1}" ]; then

@@ -13,3 +13,4 @@ service_names:
     nm: NetworkManager
     mta: postfix
     firewall: firewalld
+host_package_dir: /var/cache/yum

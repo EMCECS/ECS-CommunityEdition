@@ -1,0 +1,17 @@
+- name: Common | Stop and disable ECS service if running
+  service:
+    name: ecs
+    state: stopped
+    enabled: no
+  ignore_errors: true
+  failed_when: false
+
+- name: Common | Delete ECS Docker container ecs-storageos
+  shell: docker rm -fv ecs-storageos
+  ignore_errors: true
+  failed_when: false
+
+- name: Common | Delete ECS Docker container ecs-config
+  shell: docker rm -fv ecs-config
+  ignore_errors: true
+  failed_when: false
