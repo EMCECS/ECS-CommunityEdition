@@ -1,15 +1,6 @@
 - include_vars: main.yml
 - include_vars: caches.yml
 
-#- name: Install all pip packages
-#  pip:
-#    name: "file://{{item}}"
-#    editable: false
-#    state: present
-#    extra_args: "--disable-pip-version-check"
-#  with_lines: find "{{host_cache_dir}}/python" -type f
-#  when: flag_install_node is not defined
-
 - name: Common | Create and modify paths and semaphores for docker containers
   file:
     path: "{{item.path}}"

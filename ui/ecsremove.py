@@ -53,6 +53,25 @@ def play(playbook, verbosity=0):
         return True
 
 
+def purge_install_node():
+    """
+    Purges the install node cache
+    """
+    click.echo("Purging install node caches")
+    sh = run('rm -rf {0}'.format(cache_root))
+    sh = run('mkdir -p {0} {1}'.format(cache_root, ansible_facts))
+    click.echo("OK")
+
+
+def purge_data_nodes(conf):
+    """
+    Uninstalls ECS and purges the data node cache
+    """
+    playbook = 'clicmd_purge'
+    if not play(playbook, conf.config.verbosity):
+        sys.exit(1)
+
+
 """
 # Config
 """
@@ -84,37 +103,24 @@ def ecsremove(conf, verbose):
     conf.config.verbosity = verbose
 
 
-@ecsremove.command('uninstall', short_help='Uninstall the current ECS deployment')
+@ecsremove.command('purge-nodes', short_help='Uninstall ECS and purge artifacts from data nodes')
 @pass_conf
-def uninstall(conf):
-    """
-    Uninstall the current deployment
-    """
-    playbook = 'clicmd_uninstall'
-    if not play(playbook, conf.config.verbosity):
-        sys.exit(1)
+def purge_nodes(conf):
+    purge_data_nodes(conf)
 
 
-@ecsremove.command('purge', short_help='Uninstall ECS and purge artifacts on all nodes')
+@ecsremove.command('purge-installer', short_help='Purge caches from install node')
 @pass_conf
-def purge(conf):
-    """
-    Purges the install node cache
-    """
-    playbook = 'clicmd_purge'
-    if not play(playbook, conf.config.verbosity):
-        sys.exit(1)
+def purge_installer(conf):
+    purge_install_node()
 
 
-@ecsremove.command('cache-purge', short_help='Purge the install node cache')
+@ecsremove.command('purge-all', short_help='Uninstall ECS and purge artifacts from all nodes')
 @pass_conf
-def cache_purge(conf):
-    """
-    Purges the install node cache
-    """
-    sh = run('rm -rf {0}'.format(cache_root))
-    sh = run('mkdir -p {0} {1}'.format(cache_root, ansible_facts))
-    click.echo("OK")
+def purge_all(conf):
+    purge_install_node()
+    purge_data_nodes(conf)
+
 
 if __name__ == '__main__':
     ecsremove()

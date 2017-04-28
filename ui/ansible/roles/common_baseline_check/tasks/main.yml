@@ -2,7 +2,7 @@
 # Check hardware requirements
 - name: Common | Check RAM size
   # TAG: DevTest
-  debug: msg="ECS data nodes must have at least 15000MiB RAM ({{ansible_memtotal_mb}}MiB reported)"
+  fail: msg="ECS data nodes must have at least 15000MiB RAM ({{ansible_memtotal_mb}}MiB reported)"
   # some fudge for various interpretations of "16GB"?
   when: ansible_memtotal_mb < 15000
 

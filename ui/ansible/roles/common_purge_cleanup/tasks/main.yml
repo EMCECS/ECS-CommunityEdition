@@ -1,9 +1,57 @@
-- name: Common | Zero first 10MiB
+- include_vars: caches.yml
+
+- name: Common | Gather block device UUIDs
+  shell: blkid -s UUID -o value {{item}}1
+  with_items: "{{ecs_block_devices}}"
+  register: uuid
+  ignore_errors: true
+  failed_when: false
+  tags: disks
+
+- name: Common | Unmount partitions
+  mount:
+    src: "{{ item.1 }}1"
+    name: "/ecs/uuid-{{ item.0.stdout }}"
+    fstype: xfs
+    opts: rw,noatime,attr2,inode64,noquota
+    dump: 0
+    passno: 0
+    state: unmounted
+  with_together:
+    - "{{ uuid.results }}"
+    - "{{ ecs_block_devices }}"
+  ignore_errors: true
+  failed_when: false
+  tags: disks
+
+- name: Common | Remove /etc/fstab entries
+  lineinfile:
+    dest: /etc/fstab
+    state: absent
+    regexp: '/ecs/uuid'
+  tags: disks
+
+- name: Common | Remove partition on ECS block devices
+  shell: parted {{item}} rm 1
+  with_items:
+    - "{{ ecs_block_devices }}"
+  ignore_errors: true
+  failed_when: false
+
+- name: Common | Reread partition partition tables of block devices
+  shell: partprobe
+  with_items:
+    - "{{ ecs_block_devices }}"
+  ignore_errors: true
+  failed_when: false
+
+- name: Common | Zero first 10MiB of ECS block devices
   shell: dd if=/dev/zero of={{item}} bs=1M count=10
   with_items:
     - "{{ ecs_block_devices }}"
   ignore_errors: true
   failed_when: false
+  tags: disks
 
 - name: Common | Remove ECS host directories
   file:
@@ -15,16 +63,13 @@
     - /host
   ignore_errors: true
   failed_when: false
+  tags: ecs
 
-- name: Common | Remove ecs-install directory
+- name: Common | Purge node caches
   file:
     path: "{{item}}"
     state: absent
   with_items:
-    - "{{host_root_dir}}"
-
-- name: Common | Remove /etc/fstab entries
-  lineinfile:
-    dest: /etc/fstab
-    state: absent
-    regexp: '/ecs/uuid'
+    - "{{host_cache_dir}}"
+    - "{{host_package_dir}}"
+  tags: cache

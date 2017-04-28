@@ -12,15 +12,14 @@
 - name: Common | Remove containers
   hosts: data_node
   roles:
-    - common_uninstall_containers
+    - common_purge_containers
 
-- name: CentOS 7 | Remove disks
-  hosts: data_node:&os_CentOS_7
-  roles:
-    - CentOS_7_uninstall
-
-- name: Common | Cleanup
+- name: Common | Cleanup Common items
   hosts: data_node
   roles:
     - common_purge_cleanup
 
+#- name: CentOS 7 | Cleanup OS-specific items
+#  hosts: data_node:&os_CentOS_7
+#  roles:
+#    - CentOS_7_purge

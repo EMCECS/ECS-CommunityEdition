@@ -44,7 +44,10 @@ facts:
       options:
         description: My First SP
         ecs_block_devices:
-          - /dev/sdb
+          - /dev/sdc
+          - /dev/sdd
+          - /dev/sde
+          - /dev/sdf
   virtual_data_centers:
     - name: vdc1
       members:

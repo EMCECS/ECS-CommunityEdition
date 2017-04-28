@@ -43,13 +43,13 @@ case "$(basename ${0})" in
     update_image)
         cd "${root}"
         "${root}/ui/update_image.sh"
-        cd -
+        cd - 2>&1 >/dev/null
     ;;
     rebuild_image)
         cd "${root}"
         "${root}/ui/build_image.sh" --clean
         "${root}/ui/build_image.sh"
-        cd -
+        cd - 2>&1 >/dev/null
     ;;
     update_deploy)
         if ! [ -z "${1}" ]; then
@@ -68,7 +68,7 @@ case "$(basename ${0})" in
             cd "${root}"
             sudo cp "${deploy_val}" /opt/emc/ecs-install/deploy.yml
             # ecsdeploy load
-            cd -
+            cd - 2>&1 >/dev/null
         else
             o "No deploy.yml file was provided during bootstrap. To use this feature, do the following:"
             o "Modify ${root}/bootstrap.conf by adjusting the following lines:"
