@@ -25,8 +25,8 @@ facts:
       - mickey.lss.emc.com
       - minnie.lss.emc.com
   storage_pool_defaults:
-    cold_storage_enabled: false
-    protected: false
+    is_cold_storage_enabled: false
+    is_protected: false
     description: Default storage pool description
     ecs_block_devices:
       - /dev/sdb
@@ -42,24 +42,16 @@ facts:
       members:
         - 10.1.83.70
         - 10.1.83.71
-      options:
-        description: My First SP
-        ecs_block_devices:
-          - /dev/sdb
-    - name: sp2
-      members:
         - 10.1.83.72
         - 10.1.83.73
       options:
-        protected: false
-        description: My Second SP
+        description: My First SP
         ecs_block_devices:
           - /dev/sdb
   virtual_data_centers:
     - name: vdc1
       members:
         - sp1
-        - sp2
       options:
         description: My First VDC
 
