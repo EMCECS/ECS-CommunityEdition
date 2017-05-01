@@ -22,8 +22,6 @@ facts:
   # to access management ports of all nodes.
   management_clients:
     - 192.168.2.0/24
-    - 192.168.1.0/24
-    - 0.0.0.0/0
 
   # Full Docker path to ecs-software image to be deployed.
   # WARNING: If you have customized your image in release.conf, make sure this
@@ -69,6 +67,7 @@ facts:
       members:
         - 192.168.2.220
         - 192.168.2.221
+        - 192.168.2.222
       options:
         description: My First SP
         ecs_block_devices:

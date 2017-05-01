@@ -27,7 +27,7 @@ facts:
   # Full Docker path to ecs-software image to be deployed.
   # WARNING: If you have customized your image in release.conf, make sure this
   # line matches your custom value or you'll have a troubleshooting headache!
-  ecs_software_image: cache.local:5000/emccorp/ecs-software-3.0.0:latest
+  ecs_software_image: emccorp/ecs-software-3.0.0:latest
 
   # Picklist for node names.
   # Currently "moons" (default) and "cities" (ECS SKU-flavored) are available
