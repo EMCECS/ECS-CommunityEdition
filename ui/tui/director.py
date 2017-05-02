@@ -98,7 +98,11 @@ class Director(object):
             self.load_state()
 
         if self.deploy_file is not None:
-            self.validate_deploy()
+            try:
+                self.validate_deploy()
+            except RuntimeError as e:
+                print(e.msg)
+                sys.exit(1)
             self.load_deploy()
 
         if self.script_file is not None:
@@ -177,7 +181,7 @@ class Director(object):
             self.deploy_file = self.config.ui.deploy_file
             logging.debug(self.__class__.__name__ + ': ' +
                           sys._getframe().f_code.co_name +
-                          ': will look for deploy in: ' + repr(self.state_file))
+                          ': will look for deploy in: ' + repr(self.deploy_file))
 
     def load_script(self):
         """
@@ -222,6 +226,7 @@ class Director(object):
         except SchemaError as e:
             # The deploy file is not valid
             logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name + ': ' + e.msg)
+            print("The deployment file at '%s' is not valid." % (self.deploy_file,))
             raise
 
     def load_deploy(self):

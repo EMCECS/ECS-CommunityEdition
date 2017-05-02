@@ -116,7 +116,7 @@ def load(conf):
     # Validate the deployment config file to before loading it
     try:
         conf.validate_deploy()
-    except Exception as e:
+    except RuntimeError as e:
         click.echo(e.msg)
         click.echo('Operation failed.')
         sys.exit(1)
