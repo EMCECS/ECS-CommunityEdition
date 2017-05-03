@@ -29,6 +29,7 @@
     dest: "{{host_cache_dir}}/cache.torrent"
     force: yes
   when: "{{flag_install_node is not defined}}"
+  creates: "{{host_cache_dir}}/os_{{ansible_distribution}}_{{ansible_distribution_major_version}}/disable_package_cache.sem"
 
 - name: Common | Torrent sync caches with nodes
   vars:
@@ -36,5 +37,6 @@
   shell: aria2c --file-allocation=trunc -T {{host_cache_dir}}/cache.torrent --bt-tracker-connect-timeout=1 --bt-tracker-interval=1 --bt-tracker-timeout=2 --listen-port=6883-6999 --enable-dht=true --dht-entry-point={{ groups['install_node'][0] }}:6882 --dht-message-timeout=2 --dht-listen-port=6882 --seed-time=0 --allow-overwrite=true --check-integrity --bt-enable-lpd=false && touch {{host_cache_dir}}/cache_control.sem
   args:
     chdir: "{{host_cache_dir}}/.."
-    creates: "{{host_cache_dir}}/cache_control.sem"
+    # creates: "{{host_cache_dir}}/cache_control.sem"
+    creates: "{{host_cache_dir}}/os_{{ansible_distribution}}_{{ansible_distribution_major_version}}/disable_package_cache.sem"
   when: "{{flag_install_node is not defined}}"

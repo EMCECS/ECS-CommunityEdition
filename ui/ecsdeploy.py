@@ -289,5 +289,27 @@ def stop(conf):
         sys.exit(1)
 
 
+@ecsdeploy.command('disable-cache', short_help='Disable datanode package cache handling')
+@pass_conf
+def disable_cache(conf):
+    """
+    Disable datanode package cache handling.
+    """
+    playbook = 'clicmd_disable_cache'
+    if not play(playbook, conf.config.verbosity):
+        sys.exit(1)
+
+
+@ecsdeploy.command('enable-cache', short_help='Enable datanode package cache handling')
+@pass_conf
+def enable_cache(conf):
+    """
+    Enable datanode package cache handling.
+    """
+    playbook = 'clicmd_enable_cache'
+    if not play(playbook, conf.config.verbosity):
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     ecsdeploy()

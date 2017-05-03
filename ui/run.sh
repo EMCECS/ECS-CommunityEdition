@@ -53,7 +53,7 @@ case "$(basename ${0})" in
     ;;
     update_deploy)
         if ! [ -z "${1}" ]; then
-            deploy_file="$(realpath ${1})" || die "deploy.yml path must be relative to ${root}"
+            deploy_file="$(realpath ${1})" || die "deploy.yml path must be relative to ${root} or absolute"
             deploy_flag=true
             deploy_val="${deploy_file}"
             export deploy_flag
@@ -73,6 +73,7 @@ case "$(basename ${0})" in
             remove_data_container
             make_new_data_container
             # ecsdeploy load
+            docker_set_artifact
             cd - 2>&1 >/dev/null
         else
             o "No deploy.yml file was provided during bootstrap. To use this feature, do the following:"

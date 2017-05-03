@@ -137,11 +137,16 @@ class Conf(tui.Director):
         Get a status string
         :return: dt status string
         """
-        dt_data = self.diag_dt_get()
-        return "dt_total={} dt_unready={} dt_unknown={}".format(
-            dt_data['total_dt_num'],
-            dt_data['unready_dt_num'],
-            dt_data['unknown_dt_num'])
+        try:
+            dt_data = self.diag_dt_get()
+            dt_string = "dt_total={} dt_unready={} dt_unknown={}".format(
+                dt_data['total_dt_num'],
+                dt_data['unready_dt_num'],
+                dt_data['unknown_dt_num'])
+        except KeyError:
+            dt_string = "dt_query fail"
+
+        return dt_string
 
     def wait_for_dt_ready(self):
         """
@@ -623,11 +628,11 @@ def rg(conf, l, r, a, n):
         n = None
         results = add_all()
         for result in results:
-            o('OK {} {}'.format(result['name'], result['id']))
+            o('Created replication group {}'.format(result['name']))
 
     if n is not None:
         result = add_rg(n)
-        o('OK {} {}'.format(result['name'], result['id']))
+        o('Created replication group {}'.format(result['name']))
 
 
 @ecsconfig.command('namespace', short_help='Work with ECS Namespaces')

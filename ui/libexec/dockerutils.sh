@@ -127,6 +127,33 @@ docker_clean() {
     fi
 }
 
+docker_set_artifact() {
+### ECS Docker Image
+    o "Pulling ${release_artifact}:${release_tag} Docker image"
+    if $registry_flag; then
+        if ! sudo docker pull ${registry_val}/${release_artifact}:${release_tag}; then
+            error "We couldn't pull the software image for some reason. Since you're using a custom"
+            error "registry, it may be that the image does not exist in your registry. Please ensure"
+            error "the '${release_artifact}' image is present on your registry before trying again, or"
+            error "perhaps you can simply pull the image directly from DockerHub."
+            die "If you still need more help after trying the above, you can reach us on GitHub."
+            # This has to be tagged for the cache generator in Ansible
+        fi
+        o "Tagging ${registry_val}/${release_artifact}:${release_tag} -> ${release_common_name}"
+        sudo docker tag "${registry_val}/${release_artifact}:${release_tag}" "${release_common_name}"
+    else
+        if ! sudo docker pull "${release_artifact}:${release_tag}"; then
+            error "We couldn't pull the software image for some reason. It may be a temporary issue"
+            error "or there may be an issue with your Internet access. You'll likely need to check"
+            error "the error message from the Docker pull output (above) to see what's specifically"
+            error "the problem."
+            die "If you still need more help after trying the above, you can reach us on GitHub."
+        fi
+        o "Tagging ${release_artifact}:${release_tag} -> ${release_common_name}"
+        sudo docker tag "${release_artifact}:${release_tag}" "${release_common_name}"
+    fi
+}
+
 data_container_missing() {
     [ -z "$(sudo docker ps -a | grep ecs-install-data)" ]
 }

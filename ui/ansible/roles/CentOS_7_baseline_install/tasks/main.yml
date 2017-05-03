@@ -27,7 +27,7 @@
     copy: no
     src: "{{host_cache_dir}}/{{os_tag}}/package_cache.tgz"
     dest: /
-    creates: /var/cache/yum/x86_64/7/extras/packages/epel-release-7-5.noarch.rpm
+    creates: "{{host_cache_dir}}/{{os_tag}}/disable_package_cache.sem"
 
 # TODO: Improve this
 # This is suuuuuper hacky - There should be a better way using the yum module,
@@ -38,9 +38,9 @@
 # two different runs of `yum update` during bootstrap.sh that causes it.
 # BUG: workaround for above the "--exclude epel-release-7-6.noarch" argument.
 - name: CentOS 7 | Install all packages in the cache
-  shell: yum -y -t -e0 -C --nogpgcheck --exclude epel-release-7-6.noarch install $(find /var/cache/yum -type f -name '*.rpm')
+  shell: yum -y -t -e0 -C --nogpgcheck --exclude epel-release-7-6.noarch install $(find /var/cache/yum -type f -name "*.rpm")
   args:
-    creates: /etc/ntp
+    creates: "{{host_cache_dir}}/{{os_tag}}/disable_package_cache.sem"
 
 - name: CentOS 7 | Configure ntp
   template: src=ntp.conf.j2 dest=/etc/ntp.conf
