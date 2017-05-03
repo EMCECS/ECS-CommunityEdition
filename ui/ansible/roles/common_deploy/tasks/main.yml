@@ -73,7 +73,7 @@
 # Don't add a restart policy because we're using init scripts for that.
   # -v /ecs:/disks:z
 - name: Common | Create the ECS StorageOS container
-  shell: docker create --name ecs-storageos -e SS_GENCONFIG=1 --volumes-from ecs-config -v /ecs:/dae:z -v /host:/host:z -v /var/log/vipr/emcvipr-object:/var/log:z -v /data:/data:z -v {{host_cache_dir}}/ecs_python:/host/ecs_python:z -v /dev/urandom:/dev/random:z --net=host {{product_common_name}} && touch {{host_cache_dir}}/ecs-storageos.created creates="{{host_cache_dir}}/ecs-storageos.created"
+  shell: docker create --name ecs-storageos -e SS_GENCONFIG=1 --volumes-from ecs-config -v /ecs:/dae:z -v /ecs:/disks:z -v /host:/host:z -v /var/log/vipr/emcvipr-object:/var/log:z -v /data:/data:z -v {{host_cache_dir}}/ecs_python:/host/ecs_python:z -v /dev/urandom:/dev/random:z --net=host {{product_common_name}} && touch {{host_cache_dir}}/ecs-storageos.created creates="{{host_cache_dir}}/ecs-storageos.created"
 
 ### And run the ECS container
 # ... bbuuuuut the docker module is currently broken, so we did rolled it oldschool
