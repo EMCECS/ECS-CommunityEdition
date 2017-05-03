@@ -159,6 +159,11 @@ if $init_container; then
     o "OK"
 fi
 
+if ! [ -f "/usr/local/src/ui/ansible/group_vars/all" ]; then
+    o "Applying deploy.yml"
+    ecsdeploy load
+fi
+
 if ! [ -z "$*" ]; then
 # ecsdeploy catfacts enter nodeping
     case "${1}" in
@@ -200,10 +205,6 @@ if ! [ -z "$*" ]; then
         ecsdeploy)
             torrent
             cd "${root}"
-            if ! [ -f "/usr/local/src/ui/ansible/group_vars/all" ]; then
-                o "Applying deploy.yml"
-                ecsdeploy load
-            fi
             ${@}
             cond_incr_rc $?
             ;;

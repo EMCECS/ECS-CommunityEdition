@@ -33,7 +33,7 @@ SP_D = SP[:-1] + '_defaults'
 DEFAULTS[SP] = {
     'is_cold_storage_enabled': False,
     'is_protected': False,
-    'description': None
+    'description': 'Default description'
 }
 
 VDC = 'virtual_data_centers'
@@ -44,9 +44,9 @@ DEFAULTS[VDC] = {}
 RG = 'replication_groups'
 RG_D = RG[:-1] + '_defaults'
 DEFAULTS[RG] = {
-    'description': None,
-    'enable_rebalancing': False,
-    'allow_all_namespaces': False,
+    'description': 'Default description',
+    'enable_rebalancing': True,
+    'allow_all_namespaces': True,
     'is_full_rep': False
 }
 
@@ -73,7 +73,7 @@ NAME = 'name'
 MEMBERS = 'members'
 
 DIRECTORY_TABLE = {
-    'small': 416,
+    'small': 384,
     'large': 1664
 }
 

@@ -22,11 +22,6 @@ facts:
     - 192.168.2.0/24
     - 192.168.1.0/24
 
-  # Full Docker path to ecs-software image to be deployed.
-  # WARNING: If you have customized your image in release.conf, make sure this
-  # line matches your custom value or you'll have a troubleshooting headache!
-  ecs_software_image: emccorp/ecs-software-3.0.0:latest
-
   # Picklist for node names.
   # Currently "moons" (default) and "cities" (ECS SKU-flavored) are available
   autonaming: moons
@@ -86,7 +81,7 @@ facts:
   replication_group_defaults:
     description: Default replication group description
     enable_rebalancing: false
-    allow_all_namespaces: false
+    allow_all_namespaces: true
     is_full_rep: false
 
   # Replication group layout.  You MUST have at least ONE (1) RG for a successful install.
@@ -110,4 +105,4 @@ facts:
         - rg1
       options:
         description: My First Namespace
-
+        namespace_admins: root

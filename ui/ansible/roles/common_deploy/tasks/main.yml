@@ -11,13 +11,13 @@
 #    state: present
 
 - name: Common | Create a data container for ECS configuration control
-  shell: docker run -d -v /opt/storageos/conf -v /opt/storageos/ecsportal/conf -v /etc --name ecs-config --restart=no --entrypoint=/bin/echo {{ecs_software_image}} "ECS configuration data container" && touch {{host_cache_dir}}/ecs-config.created creates="{{host_cache_dir}}/ecs-config.created"
+  shell: docker run -d -v /opt/storageos/conf -v /opt/storageos/ecsportal/conf -v /etc --name ecs-config --restart=no --entrypoint=/bin/echo {{product_common_name}} "ECS configuration data container" && touch {{host_cache_dir}}/ecs-config.created creates="{{host_cache_dir}}/ecs-config.created"
 
 ### Determine any sizing we need to calculate templates
 #
 # [ ]Block device size
 # ref: https://github.com/EMCECS/ECS-CommunityEdition/issues/75
-#      Enables expanding SSM parameters on systems with <1TB Disk #75
+#      Enables expanding SSM parameters on systems with >1TB Disk #75
 #
 # TAG: 2.1.0
 # [X]Conditionally switch between reduced and standard deployments
@@ -73,13 +73,13 @@
 # Don't add a restart policy because we're using init scripts for that.
   # -v /ecs:/disks:z
 - name: Common | Create the ECS StorageOS container
-  shell: docker create --name ecs-storageos -e SS_GENCONFIG=1 --volumes-from ecs-config -v /ecs:/dae:z -v /host:/host:z -v /var/log/vipr/emcvipr-object:/var/log:z -v /data:/data:z -v {{host_cache_dir}}/ecs_python:/host/ecs_python:z -v /dev/urandom:/dev/random:z --net=host {{ecs_software_image}} && touch {{host_cache_dir}}/ecs-storageos.created creates="{{host_cache_dir}}/ecs-storageos.created"
+  shell: docker create --name ecs-storageos -e SS_GENCONFIG=1 --volumes-from ecs-config -v /ecs:/dae:z -v /host:/host:z -v /var/log/vipr/emcvipr-object:/var/log:z -v /data:/data:z -v {{host_cache_dir}}/ecs_python:/host/ecs_python:z -v /dev/urandom:/dev/random:z --net=host {{product_common_name}} && touch {{host_cache_dir}}/ecs-storageos.created creates="{{host_cache_dir}}/ecs-storageos.created"
 
 ### And run the ECS container
 # ... bbuuuuut the docker module is currently broken, so we did rolled it oldschool
 # - name: Start the ECS docker container
 #  docker:
-#    image: emccorp/ecs-software-2.1
+#    image: "{{product_common_name}}"
 #    name: ecs-storageos
 #    detach: true
 #    net: host

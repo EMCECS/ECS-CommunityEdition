@@ -13,7 +13,7 @@ caches:
     applies_to: data_node
     pack_cmd: "docker save {{ caches.docker.src }} | pigz -c5 > {{ caches.docker.dest }}"
     # How to make this src: dynamic?  Rockerfile ENV?
-    src: "{{ facts.ecs_software_image }}"
+    src: "{{ product.common_name }}"
     dest: ecs-software.tgz
     unpack_cmd: "pigz -dc {{ caches.docker.dest }} | docker load"
     unpack_sem: cache_control.sem
