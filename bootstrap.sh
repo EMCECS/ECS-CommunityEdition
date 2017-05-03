@@ -234,7 +234,7 @@ dump_bootstrap_config >"${root}/bootstrap.conf"
 o ""
 o "Escalating privileges"
 o "    You may be presented with the system sudo banner and asked"
-o "    for your password, depending on the Linux flavor and default"
+o "    for your password depending on the Linux flavor and default"
 o "    sudo configuration for your system."
 o ""
 ping_sudo || die "Unable to escalate using sudo."
@@ -526,8 +526,8 @@ if $registry_flag; then
         die "If you still need more help after trying the above, you can reach us on GitHub."
         # This has to be tagged for the cache generator in Ansible
     fi
-    v "Tagging ${registry_val}/${release_artifact}:${release_tag} -> ${release_artifact}:latest"
-    sudo docker tag "${registry_val}/${release_artifact}:${release_tag}" "${release_artifact}:latest" 2>&1 | log
+    v "Tagging ${registry_val}/${release_artifact}:${release_tag} -> ${release_common_name}"
+    sudo docker tag "${registry_val}/${release_artifact}:${release_tag}" "${release_common_name}" 2>&1 | log
 else
     if ! sudo docker pull "${release_artifact}:${release_tag}" 2>&1 | log; then
         error "We couldn't pull the software image for some reason. It may be a temporary issue"
@@ -536,6 +536,8 @@ else
         error "the problem."
         die "If you still need more help after trying the above, you can reach us on GitHub."
     fi
+    v "Tagging ${release_artifact}:${release_tag} -> ${release_common_name}"
+    sudo docker tag "${release_artifact}:${release_tag}" "${release_common_name}" 2>&1 | log
 fi
 
 

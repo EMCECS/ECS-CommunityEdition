@@ -650,7 +650,9 @@ def namespace(conf, l, r, a, n):
         kwargs = {"is_stale_allowed": ns_dict['is_stale_allowed'],
                   "is_compliance_enabled": ns_dict['is_compliance_enabled'],
                   "is_encryption_enabled": ns_dict['is_encryption_enabled'],
-                  "namespace_admins": ns_dict['namespace_admins']}
+                  "namespace_admins": ns_dict['namespace_admins'],
+                  "default_data_services_vpool": ns_dict['']}
+
 
         return conf.api_client.namespace.create(namespace_name, **kwargs)
 

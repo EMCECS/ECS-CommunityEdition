@@ -8,7 +8,6 @@ facts:
   install_node: 10.1.83.75
   management_clients:
     - 0.0.0.0/0
-  ecs_software_image: emccorp/ecs-software-3.0.0:latest
   autonaming: moons
   ansible_defaults:
     ansible_user: admin
@@ -35,7 +34,7 @@ facts:
   replication_group_defaults:
     description: Default replication group description
     enable_rebalancing: false
-    allow_all_namespaces: false
+    allow_all_namespaces: true
     full_replication: false
   storage_pools:
     - name: sp1
