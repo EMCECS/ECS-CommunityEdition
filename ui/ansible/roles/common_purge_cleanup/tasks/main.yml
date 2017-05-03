@@ -38,6 +38,13 @@
   ignore_errors: true
   failed_when: false
 
+- name: Common | Destroy GPT on ECS block devices
+  shell: sgdisk -Z {{ item }}
+  with_items:
+    - "{{ ecs_block_devices }}"
+  ignore_errors: true
+  failed_when: false
+
 - name: Common | Reread partition partition tables of block devices
   shell: partprobe
   with_items:
