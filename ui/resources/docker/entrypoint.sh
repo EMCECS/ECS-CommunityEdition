@@ -169,7 +169,12 @@ if ! [ -z "$*" ]; then
     case "${1}" in
         enter)
             torrent
-            /bin/ash -l
+            if [ -z "${2}" ]; then
+                /bin/ash -l
+            else
+                ansible_user="$(grep '^ *ansible_user:' /opt/deploy.yml | awk '{print $2}')"
+                /usr/bin/ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /opt/ssh/id_ed25519 "${ansible_user}"@"${2}"
+            fi
             cond_incr_rc $?
             ;;
         catfacts)

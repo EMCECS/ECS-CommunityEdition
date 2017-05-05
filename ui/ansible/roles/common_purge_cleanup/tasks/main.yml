@@ -45,7 +45,7 @@
   ignore_errors: true
   failed_when: false
 
-- name: Common | Reread partition partition tables of block devices
+- name: Common | Reread partition tables of block devices
   shell: partprobe
   with_items:
     - "{{ ecs_block_devices }}"
