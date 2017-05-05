@@ -14,3 +14,9 @@
   roles:
     - common_disable_cache
 
+- name: Installer | Disable torrent ffx
+  hosts: ecs_install
+  tasks:
+    - file:
+        path: "{{ffx_sem}}"
+        state: absent

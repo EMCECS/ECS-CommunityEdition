@@ -79,4 +79,23 @@
   with_items:
     - "{{host_cache_dir}}"
     - "{{host_package_dir}}"
-  tags: cache
+  when: "{{flag_install_node is not defined}}"
+  tags: files
+
+- name: Common | Create ecs-install host directory on nodes
+  vars:
+    become: true
+  file:
+    state: directory
+    path: "{{host_root_dir}}"
+  when: "{{flag_install_node is not defined}}"
+  tags: files
+
+- name: Common | Create ecs-install cache directory on nodes
+  vars:
+    become: true
+  file:
+    state: directory
+    path: "{{host_cache_dir}}"
+  when: "{{flag_install_node is not defined}}"
+  tags: files
