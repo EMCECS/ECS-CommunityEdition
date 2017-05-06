@@ -3,7 +3,7 @@
 - name: CentOS 7 | Set selinux permissive
   selinux: policy=targeted state=permissive
 
-# BUG: This is currently a NOOP because importing cert from bootstrap system into
+# TODO: This is currently a NOOP because importing cert from bootstrap system into
 # deploy system has not been implemented.
 #
 - name: CentOS 7 | Add SSL proxy cert
@@ -27,7 +27,7 @@
     copy: no
     src: "{{host_cache_dir}}/{{os_tag}}/package_cache.tgz"
     dest: /
-    creates: "{{host_cache_dir}}/{{os_tag}}/disable_package_cache.sem"
+    creates: "{{host_cache_dir}}/disable_package_cache.sem"
 
 # TODO: Improve this
 # This is suuuuuper hacky - There should be a better way using the yum module,
@@ -38,9 +38,9 @@
 # two different runs of `yum update` during bootstrap.sh that causes it.
 # BUG: workaround for above the "--exclude epel-release-7-6.noarch" argument.
 - name: CentOS 7 | Install all packages in the cache
-  shell: yum -y -t -e0 -C --nogpgcheck --exclude epel-release-7-6.noarch install $(find /var/cache/yum -type f -name "*.rpm")
+  shell: yum -y -t -e0 -C --nogpgcheck install $(find /var/cache/yum -type f -name "*.rpm") || yum -y -t -e0 -C --nogpgcheck update || true
   args:
-    creates: "{{host_cache_dir}}/{{os_tag}}/disable_package_cache.sem"
+    creates: "{{host_cache_dir}}/disable_package_cache.sem"
 
 - name: CentOS 7 | Configure ntp
   template: src=ntp.conf.j2 dest=/etc/ntp.conf

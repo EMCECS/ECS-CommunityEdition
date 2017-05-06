@@ -7,7 +7,7 @@
   shell: mkdir -p $(dirname {{item}})
   with_items: "{{ aria_packages.stdout_lines }}"
   when: "{{flag_install_node is not defined}}"
-  creates: "{{host_cache_dir}}/os_{{ansible_distribution}}_{{ansible_distribution_major_version}}/disable_package_cache.sem"
+  #creates: "{{host_cache_dir}}/disable_package_cache.sem"
 
 - name: CentOS 7 | Copy torrent packages to nodes
   copy:
@@ -15,7 +15,7 @@
     dest: "{{item}}"
   with_items: "{{ aria_packages.stdout_lines }}"
   when: "{{flag_install_node is not defined}}"
-  creates: "{{host_cache_dir}}/os_{{ansible_distribution}}_{{ansible_distribution_major_version}}/disable_package_cache.sem"
+  #creates: "{{host_cache_dir}}/disable_package_cache.sem"
 
 - name: CentOS 7 | Install torrent packages on nodes
   yum:
@@ -25,4 +25,4 @@
     update_cache: no
   with_items: "{{ aria_packages.stdout_lines }}"
   when: "{{flag_install_node is not defined}}"
-  creates: "{{host_cache_dir}}/os_{{ansible_distribution}}_{{ansible_distribution_major_version}}/disable_package_cache.sem"
+  #creates: "{{host_cache_dir}}/disable_package_cache.sem"

@@ -2,6 +2,6 @@
 
 - name: Common | Disable datanode package cache handling
   file:
-    path: "{{host_cache_dir}}/os_{{ansible_distribution}}_{{ansible_distribution_major_version}}/disable_package_cache.sem"
+    path: "{{host_cache_dir}}/disable_package_cache.sem"
     state: touch
 
