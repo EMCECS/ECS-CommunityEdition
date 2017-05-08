@@ -40,6 +40,7 @@ class Director(object):
     autonames_file = os.path.join(ui_etc, 'autonames.yml')
     schema_file = os.path.join(ui_etc, 'schema.yml')
     schema_functions_file = os.path.join(ui_tui, "schema_functions.py")
+    deploy_file_host = os.path.join(host_root, 'deploy.yml')
 
     # state_file = '{0}/state.yml'.format(cache_root)
     state_file = None
@@ -208,7 +209,8 @@ class Director(object):
     def validate_deploy(self):
         """
         Validates the deployment yaml file with the schema
-        :raises AssertionError: if validation fails
+        :raises pykwalify.errors.SchemaError: if validation fails
+        :raises pykwalify.errors.CoreError: for other type of errors
         """
         logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
         if not self.deploy_file:
@@ -226,7 +228,7 @@ class Director(object):
         except SchemaError as e:
             # The deploy file is not valid
             logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name + ': ' + e.msg)
-            print("The deployment file at '%s' is not valid." % (self.deploy_file,))
+            print("The deployment file at '%s' is not valid." % (self.deploy_file_host,))
             raise
 
     def load_deploy(self):
