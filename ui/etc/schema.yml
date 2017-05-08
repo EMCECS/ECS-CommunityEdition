@@ -24,11 +24,6 @@ mapping:
           - type: str
             func: ipv4_cidr
 
-      ecs_software_image:
-        type: str
-        required: True
-        func: docker_image
-
       autonaming:
         type: str
         required: True
