@@ -5,7 +5,7 @@
 licensing:
   license_accepted: true
 facts:
-  install_node: 10.1.83.75
+  install_node: 192.168.2.220
   management_clients:
     - 0.0.0.0/0
   autonaming: moons
@@ -19,32 +19,30 @@ facts:
     ecs_root_pass: ChangeMe
     dns_domain: local
     dns_servers:
-      - 10.1.83.19
+      - 192.168.2.2
     ntp_servers:
-      - mickey.lss.emc.com
-      - minnie.lss.emc.com
+      - 192.168.2.2
   storage_pool_defaults:
     is_cold_storage_enabled: false
     is_protected: false
     description: Default storage pool description
     ecs_block_devices:
-      - /dev/sdb
+      - /dev/vda
   virtual_data_center_defaults:
     description: Default virtual data center description
   replication_group_defaults:
     description: Default replication group description
-    enable_rebalancing: false
+    enable_rebalancing: true
     allow_all_namespaces: true
-    full_replication: false
+    is_full_rep: false
   storage_pools:
     - name: sp1
       members:
-        - 10.1.83.70
-        - 10.1.83.71
+        - 192.168.2.220
       options:
         description: My First SP
         ecs_block_devices:
-          - /dev/sdb
+          - /dev/vda
   virtual_data_centers:
     - name: vdc1
       members:
@@ -57,27 +55,3 @@ facts:
         - vdc1
       options:
         description: My First RG
-
-  # Namespace defaults.
-  namespace_defaults:
-    is_stale_allowed: false
-    compliance_enabled: false
-    is_encryption_enabled: false
-
-  # Namespace layout (optional)
-  namespaces:
-    - name: ns1
-      members:
-        - rg1
-      options:
-        description: My First Namespace
-    - name: ns2
-      members:
-        - rg2
-      options:
-        description: My Second Namespace
-    - name: ns1
-      members:
-        - rg-global
-      options:
-        description: My Global Namespace
