@@ -113,6 +113,14 @@ def load(conf):
     conf.load_config()
     conf.load_state()
 
+    # Validate the deployment config file to before loading it
+    try:
+        conf.validate_deploy()
+    except RuntimeError as e:
+        click.echo(e.msg)
+        click.echo('Operation failed.')
+        sys.exit(1)
+
     # Catch all the noise here caused by deploy.yml weirdness because we can fix some
     # stuff later.
     try:
