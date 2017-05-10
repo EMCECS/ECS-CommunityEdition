@@ -59,6 +59,7 @@ COPY {{ .UIArtifact }} /usr/local/src/ui.tgz
 
 # Unset proxies after build
 ENV http_proxy=
+ENV pip_proxy=
 
 VOLUME [ "/opt", "/usr/local", "/var/log", "/root", "/etc" ]
 
