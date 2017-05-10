@@ -58,17 +58,17 @@ route_os() {
 
     case "${os}" in
 
-        centos\ linux\ release\ 7.2*)
-            source ${plugins}/centos72.plugin.sh
-            ;;
+#        centos\ linux\ release\ 7.2*)
+#            source ${plugins}/centos72.plugin.sh
+#            ;;
 
         centos\ linux\ release\ 7.3*)
             source ${plugins}/centos73.plugin.sh
             ;;
 
-        dockerized\ centos\ linux\ release\ 7.2*)
-            source ${plugins}/centos72-docker.plugin.sh
-            ;;
+#        dockerized\ centos\ linux\ release\ 7.2*)
+#            source ${plugins}/centos72-docker.plugin.sh
+#            ;;
 
         # Die on unknowns
         *)

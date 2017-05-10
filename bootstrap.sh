@@ -39,6 +39,12 @@ cat <<EOH
  -g              Install virtual machine guest agents and utilities for QEMU and VMWare.
                  VirtualBox is not supported at this time.
 
+ -m <mirror>     Use the provided package <mirror> when fetching packages for the
+                 base OS. The mirror is specified as '<host>:<port>'. This option
+                 overrides any mirror lists the base OS would normally use, so be
+                 warned that when using this option it's possible for bootstrapping
+                 to never complete.
+
  -b <mirror>     Build the installer image (ecs-install) locally instead of fetching
                  the current release build from DockerHub (not recommended). Use the
                  Alpine Linux mirror <mirror> when building the image.
@@ -126,9 +132,11 @@ dhcpdns_val=''
 hello_image='hello-world'
 os_supported=false
 alpine_mirror=''
+mirror_flag=false
+mirror_val=''
 
 ### Argue with arguments
-while getopts ":zyngqvhc:b:o:p:k:t:d:r:" opt; do
+while getopts ":zyngqvhc:b:m:o:p:k:t:d:r:" opt; do
   case $opt in
     b)
         export build_image_flag=true
@@ -153,6 +161,10 @@ while getopts ":zyngqvhc:b:o:p:k:t:d:r:" opt; do
         export mitm_flag=true
         export mitm_val="${OPTARG}"
         ensure_file_exists "${mitm_val}" "HTTPS proxy cert"
+        ;;
+    m)
+        export mirror_flag=true
+        export mirror_val="${OPTARG}"
         ;;
     n)
         export override_flag=true
@@ -340,6 +352,12 @@ p Setting package manager proxy
     set_repo_proxy_idempotent
 fi
 
+### Configure system package manager repos for mirror
+if $mirror_flag; then
+    v "Configuring system package manager mirror"
+p Setting package manager mirror
+    set_repo_mirror_idempotent
+fi
 
 ### Configure system package manager to keep its cache
 ### This is so we can reuse it later for nodes

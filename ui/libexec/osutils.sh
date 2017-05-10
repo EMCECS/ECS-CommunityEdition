@@ -132,6 +132,8 @@ dump_bootstrap_config() {
     _vars="$_vars minimal_flag"
     _vars="$_vars deploy_flag"
     _vars="$_vars deploy_val"
+    _vars="$_vars mirror_flag"
+    _vars="$_vars mirror_val"
     _vars="$_vars DEVEL"
     _vars="$_vars DRONE"
     _vars="$_vars BUILD"
