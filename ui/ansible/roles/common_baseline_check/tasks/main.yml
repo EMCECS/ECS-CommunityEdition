@@ -74,3 +74,14 @@
 #- name: Common | Dump hostvars for debug
 #  template: src=dumpvars.yml.j2 dest="/root/{{ansible_hostname}}.vars.yml"
 #  delegate_to: localhost
+
+# [ ]Make sure published ECS ports are accessible
+# [ ]Make sure internal ECS ports are accessible
+#- name: Common | Check that internal ECS ports are available
+#  command: "fuser -n tcp {{item}} && fuser -n udp {{item}}"
+#  with_items: "{{ecs_internal_ports}}"
+#  register: check_internal_ports
+#
+#- fail:
+#    msg: "An internal ECS port ({{item}}) is in use on the system. Please resolve"
+#  when:
