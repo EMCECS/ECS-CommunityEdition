@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+# Copyright (c) 2015 EMC Corporation
+# All Rights Reserved
+#
+# This software contains the intellectual property of EMC Corporation
+# or is licensed to EMC Corporation from third parties.  Use of this
+# software and the intellectual property contained therein is expressly
+# limited to the terms and conditions of the License Agreement under which
+# it is provided by or on behalf of EMC.
+
+
 if [[ $EUID -ne 0 ]]; then
    echo "You must run $0 as root:" 1>&2
    echo "\$ sudo $0 <cert_file>" 1>&2

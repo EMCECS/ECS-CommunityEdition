@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
+# Copyright (c) 2015 EMC Corporation
+# All Rights Reserved
+#
+# This software contains the intellectual property of EMC Corporation
+# or is licensed to EMC Corporation from third parties.  Use of this
+# software and the intellectual property contained therein is expressly
+# limited to the terms and conditions of the License Agreement under which
+# it is provided by or on behalf of EMC.
+
 error_building_ecs_install_image() {
     error "We couldn't build the ecs-install image for some reason. Please check the logs."
     error "If it's something simple, such as a missing base image (we use python:2.7-alpine),"

@@ -7,34 +7,42 @@
 # limited to the terms and conditions of the License Agreement under which
 # it is provided by or on behalf of EMC.
 
+# Do relatively static layers first to avoid unnecessary cache misses
 FROM {{ .FromImage }}
-MAINTAINER Travis Wichert <travis.wichert@emc.com>
+LABEL MAINTAINER='Travis Wichert <travis.wichert@emc.com>'
 ENV ANSIBLE_CONFIG="/etc/ansible/ansible.cfg"
 ENV ANSIBLE_HOSTS="/usr/local/src/ui/inventory.py"
 
+# Add Python module and Alpine repository lists
 COPY ui/resources/docker/ecs-install-requirements.txt /etc/ecs-install-requirements.txt
 COPY ui/resources/docker/apk-repositories /etc/apk/repositories
 
+# Set proxies before build
 {{ if .HTTPProxy }}
 ENV http_proxy={{ .HTTPProxy }}
 {{ end }}
-
 {{ if .PipProxy }}
 ENV pip_proxy={{ .PipProxy }}
 {{ end }}
 
-RUN apk -q --no-cache upgrade \
-    && apk -q --no-cache add openssh-client sshpass openssl ca-certificates libffi libressl@edge_main \
+# Upgrade base system packages for security
+RUN apk -q --no-cache upgrade
+
+# Add required system packages
+RUN apk -q --no-cache add openssh-client sshpass openssl ca-certificates libffi libressl@edge_main \
                              make pigz jq less \
                              opentracker aria2 mktorrent@edge_community \
-                             ansible \
-    && mv /etc/profile.d/color_prompt /etc/profile.d/color_prompt.sh \
+                             ansible
+
+# Setup the environment
+RUN mv /etc/profile.d/color_prompt /etc/profile.d/color_prompt.sh \
     && ln -s /usr/local/src/ui/ansible /ansible \
     && ln -s /usr/local/src/ui /ui \
     && ln -s /usr/local/src /src \
     && mkdir -p /var/run/opentracker \
     && chown nobody:nobody /var/run/opentracker
 
+# Generate temporary build environment and install required Python modules
 RUN apk -q --no-cache add --virtual .build-deps musl-dev libffi-dev \
                        openssl-dev linux-headers git gcc git-perl \
     && if ! [ -z "$pip_proxy" ]; then \
@@ -44,24 +52,35 @@ RUN apk -q --no-cache add --virtual .build-deps musl-dev libffi-dev \
     && pip install -q $pip_proxy --no-cache-dir -r /etc/ecs-install-requirements.txt \
     && apk -q --no-cache --purge del .build-deps
 
-COPY ui/resources/docker/torrent.sh /usr/local/bin/torrent.sh
-
+# Add Ansible configuration
 RUN mkdir -p /etc/ansible
 COPY ui/resources/docker/ansible.cfg /etc/ansible/ansible.cfg
 
+# Add simple init replacement
 COPY ui/resources/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
 
+# Add bittorrent ffx daemon
+COPY ui/resources/docker/torrent.sh /usr/local/bin/torrent.sh
+
+# Add installer UI and scripts
 COPY {{ .UIArtifact }} /usr/local/src/ui.tgz
 # Currently using the Ansible apk.
 # COPY {{ .AnsibleArtifact }} /usr/local/src/ansible.tgz
 
 # Unset proxies after build
+{{ if .HTTPProxy }}
 ENV http_proxy=
+{{ end }}
+{{ if .PipProxy }}
+ENV pip_proxy=
+{{ end }}
 
+# Set default volume mounts
 VOLUME [ "/opt", "/usr/local", "/var/log", "/root", "/etc" ]
 
+# Rubber-stamp this build and push if release
 LABEL VERSION={{ .Version }}
 ENV VERSION={{ .Version }}
 TAG {{ .Version }}

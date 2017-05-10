@@ -113,6 +113,11 @@ set_repo_proxy_idempotent() {
     sudo sed -i -e 's/^mirrorlist=/#mirrorlist=/' /etc/yum.repos.d/*
 }
 
+set_repo_mirror_idempotent() {
+    # sudo sed -i -e "s#http:///centos#http://${mirror_val}/centos#g" /etc/yum.repos.d/*
+    sudo sed -i -e "s#http://.*/centos#http://${mirror_val}/centos#g" /etc/yum.repos.d/*
+}
+
 # command to set the proxy for the whole OS
 set_os_proxy() {
     sudo sed -i -e '/_proxy/d' /etc/environment
