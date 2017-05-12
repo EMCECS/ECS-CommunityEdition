@@ -40,4 +40,4 @@ This installation will work
 Before the data nodes can be created we have to
 
 ## The YML File
-Installation requires the creation of a YML configuration file called deploy.yml. Create this file in `/opt/emc/ecs-install`. A template guide for writing this file can be found [here](docs/design/reference.deploy.yml)
+Installation requires the creation of a YML configuration file called deploy.yml. Create this file in `/opt/emc/ecs-install`. A template guide for writing this file can be found [here](deploy.yml.md)
