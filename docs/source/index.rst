@@ -16,7 +16,7 @@ Installation
 
    installation/system-requirements.rst
    installation/google-compute.rst
-   installation/install.rst
+   installation/ECS-Installation.rst
    
    
 .. _use:
