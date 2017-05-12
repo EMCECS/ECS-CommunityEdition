@@ -4,6 +4,16 @@ deploy.yml
 The installer works off a configuration file called ``deploy.yml``
 placed in ``/opt/emc/ecs-install``
 
+deploy.yml Reference Diagram
+----------------------------
+
+The following is a visual overview of the deployment configuration file
+
+.. figure:: ../../design/deploy.yml.png
+   :alt: Reference Diagram
+
+   Reference Diagram
+
 deploy.yml Template
 -------------------
 
@@ -210,12 +220,4 @@ repository on github.
     #          - root
 
 
-deploy.yml Reference Diagram
-----------------------------
 
-The following is a visual overview of the deployment configuration file
-
-.. figure:: ../design/deploy.yml.png
-   :alt: Reference Diagram
-
-   Reference Diagram
