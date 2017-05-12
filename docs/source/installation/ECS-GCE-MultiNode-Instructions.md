@@ -1,6 +1,6 @@
 # ECS SW 3.x Google Compute Engine Deployment
 
-ECS 3.x Multi Node installation on Google Compute Engine: 
+ECS 3.x Multi Node installation on Google Compute Engine:
 
 The following instructions will allow you to install ECS 2.x software using a GCE Deployment Manager, using a simple template file.
 
@@ -10,13 +10,13 @@ The following instructions will allow you to install ECS 2.x software using a GC
 2. Google Compute Engine Template files that are located in this git repository under ECS-CommunityEdition/ecs-multi-node/gce/
 
 
-## Environment Requirements 
+## Environment Requirements
 The following are the base requirements for running ECS 2.2 software for a mutli node install, this will be created as part of the gcloud commands below:
 
 
 - **Operative system:** CentOS 7.1
 - **CPU/Cores:** 4 Cores
-- **Memory:** Minimum of 50 GB RAM (64 GB recommended)
+- **Memory:** Minimum of 16 GB RAM (64 GB recommended)
 - **Disks:** An un-partitioned/Raw disk with at least 100 GB of Storage per disk per host. Multiple disks can be attached on each ECS Node to increase capacity and performance. Each disk need to be un-partitioned before running the installation scripts.
 
 
@@ -43,7 +43,7 @@ After the installation has completed wait 10 - 15 minutes, and then attempt to l
 
 
 ## Provisioning
-The automated provisioning may get stuck, login into the portal and start the manual provisioning. 
+The automated provisioning may get stuck, login into the portal and start the manual provisioning.
 
 1. Upload License
 2. Create Storage Pool
@@ -72,6 +72,3 @@ In order to monitor the installation process, you need to get a serial port dump
 Now once you are done, you can cleaup instance, disk and networks created (note the disk will be automatically deleted once the instance is deleted)
 
     gcloud deployment-manager deployments delete ecs-deployment
-
-
-
