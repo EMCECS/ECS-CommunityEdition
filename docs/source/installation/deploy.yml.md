@@ -1,3 +1,11 @@
+# deploy.yml 
+
+The installer works off a configuration file called `deploy.yml` placed in `/opt/emc/ecs-install`
+
+## deploy.yml Template
+
+The following deploy.yml reference template can be found in `docs/design/reference.deploy.yml` in the ECS-CommunityEdition repository on github.
+
 ```
 # deploy.yml reference implementation
 
@@ -198,3 +206,9 @@ facts:
 
 
 ```
+
+## deploy.yml Reference Diagram
+
+The following is a visual overview of the deployment configuration file
+
+![Reference Diagram](../design/deploy.yml.png)

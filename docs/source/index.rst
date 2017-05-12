@@ -17,6 +17,7 @@ Installation
    installation/system-requirements.rst
    installation/google-compute.rst
    installation/ECS-Installation.rst
+   installation/deploy.yml.rst
    
    
 .. _use:
