@@ -40,10 +40,12 @@ cat <<EOH
                  VirtualBox is not supported at this time.
 
  -m <mirror>     Use the provided package <mirror> when fetching packages for the
-                 base OS. The mirror is specified as '<host>:<port>'. This option
-                 overrides any mirror lists the base OS would normally use, so be
-                 warned that when using this option it's possible for bootstrapping
-                 to never complete.
+                 base OS (but not 3rd-party sources, such as EPEL or Debian-style PMAs).
+                 The mirror is specified as '<host>:<port>'. This option overrides any
+                 mirror lists the base OS would normally use AND supersedes any proxies
+                 (assuming the mirror is local), so be warned that when using this
+                 option it's possible for bootstrapping to hang indefinitely if the
+                 mirror cannot be contacted.
 
  -b <mirror>     Build the installer image (ecs-install) locally instead of fetching
                  the current release build from DockerHub (not recommended). Use the
@@ -334,6 +336,9 @@ p Setting system proxy
     export http_proxy="http://${proxy_val}"
     export https_proxy="https://${proxy_val}"
     export ftp_proxy="ftp://${proxy_val}"
+    if $mirror_flag; then
+        export no_proxy="${mirror_val}"
+    fi
     set_os_proxy || die "Couldn't write to /etc/environment"
     # set package manager proxy in package manager config
     # Set docker proxy after installing it
@@ -345,17 +350,18 @@ ping_sudo
 
 
 ### Configure system package manager repos for proxies
-if $proxy_flag; then
+if $proxy_flag && ! $mirror_flag; then
     v "Configuring system package manager for proxies"
 p Setting package manager proxy
     set_repo_proxy_conf
-    set_repo_proxy_idempotent
+    set_repo_cacheable_idempotent
 fi
 
 ### Configure system package manager repos for mirror
 if $mirror_flag; then
     v "Configuring system package manager mirror"
 p Setting package manager mirror
+    set_repo_cacheable_idempotent
     set_repo_mirror_idempotent
 fi
 
