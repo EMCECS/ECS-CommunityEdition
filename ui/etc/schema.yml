@@ -87,7 +87,7 @@ mapping:
 
       replication_group_defaults:
         type: map
-        required: True
+        allowempty: True
         mapping:
           description:
             type: str
@@ -164,7 +164,7 @@ mapping:
 
       replication_groups:
         type: seq
-        required: True
+        allowempty: True
         sequence:
           - type: map
             mapping:
