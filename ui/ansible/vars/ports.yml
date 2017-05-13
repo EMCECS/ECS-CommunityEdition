@@ -1,0 +1,131 @@
+ecs_published_ports:
+#  25:
+#    service: smtp
+  80:
+    service: portal
+  111:
+    service: nfs
+  443:
+    service: portal
+  2049:
+    service: nfs
+  3218:
+    service: cas
+  4443:
+    service: management_api
+  9020:
+    service: s3
+  9021:
+    service: s3
+  9022:
+    service: atmos
+  9023:
+    service: atmos
+  9024:
+    service: swift
+  9025:
+    service: swift
+  9040:
+    service: hdfs
+  9094:
+    service: replication
+  9095:
+    service: replication
+  9096:
+    service: replication
+  9097:
+    service: replication
+  9098:
+    service: replication
+  10000:
+    service: nfs
+  10110:
+    service: metering
+  64443:
+    service: management_api
+
+services:
+#  smtp:
+#    name: SMTP test port - unused in ECS CE
+#    description: testing only
+#    issue: N/A
+  nfs:
+    name: ECS NFS
+    description: ECS must be the sole NFS provider on this system
+    issue: https://github.com/EMCECS/ECS-CommunityEdition/issues/179
+  metering:
+    name: ECS Metering
+    descripion: Conflict between ECS Metering and IBM Tivoli Monitoring (k10agent)
+    issue: https://github.com/EMCECS/ECS-CommunityEdition/issues/178
+  portal:
+    name: ECS Portal
+    description: None
+    issue: None
+  management_api:
+    name: ECS Management API
+    description: None
+    issue: None
+  s3:
+    name: ECS S3 Object API
+    description: None
+    issue: None
+  atmos:
+    name: ECS Atmos Object API
+    description: None
+    issue: None
+  swift:
+    name: ECS Swift Object API
+    description: None
+    issue: None
+  hdfs:
+    name: ECS HDFS Access Port
+    description: None
+    issue: None
+  replication:
+    name: ECS Geo and XOR replication ports
+    description: None
+    issue: None
+  esrs:
+    name: Dell EMC Secure Remote Service
+    description: None
+    issue: None
+  cas:
+    name: ECS CAS API endpoint
+    description: None
+    issue: None
+
+ecs_internal_ports:
+#  - 25
+  - 10111
+  - 10114
+  - 10115
+  - 1095
+  - 1096
+  - 1098
+  - 1198
+  - 1298
+  - 2181
+  - 3218
+  - 7399
+  - 7400
+  - 7443
+  - 9010
+  - 9011
+  - 9028
+  - 9029
+  - 9040
+  - 9069
+  - 9091
+  - 9099
+  - 9100
+  - 9101
+  - 9201
+  - 9202
+  - 9203
+  - 9204
+  - 9205
+  - 9209
+  - 9211
+  - 9212
+  - 9888
+  - 9898
