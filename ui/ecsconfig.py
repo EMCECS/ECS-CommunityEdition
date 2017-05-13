@@ -526,6 +526,15 @@ def sp(conf, l, r, a, n):
 @click.option('-n', default=None, help='Add the given VDC to ECS')
 @pass_conf
 def vdc(conf, l, r, a, n):
+    """
+
+    :param conf:
+    :param l:
+    :param r:
+    :param a:
+    :param n:
+    :return:
+    """
     def list_all():
         return conf.ecs.get_vdc_names()
 
@@ -596,6 +605,15 @@ def vdc(conf, l, r, a, n):
 @click.option('-n', default=None, help='Add the given RG to ECS')
 @pass_conf
 def rg(conf, l, r, a, n):
+    """
+
+    :param conf:
+    :param l:
+    :param r:
+    :param a:
+    :param n:
+    :return:
+    """
     def list_all():
         return conf.ecs.get_rg_names()
 
@@ -660,60 +678,132 @@ def rg(conf, l, r, a, n):
         o('Created replication group {}'.format(result['name']))
 
 
-@ecsconfig.command('namespace', short_help='Work with ECS Namespaces')
-@click.option('-l', is_flag=True, help='List known namespace configs')
-@click.option('-r', is_flag=True, help='Get current namespace configs from ECS')
-@click.option('-a', is_flag=True, help="Add all namespaces to ECS")
-@click.option('-n', default=None, help='Add the given namespace to ECS')
-@pass_conf
-def namespace(conf, l, r, a, n):
-    def list_all():
-        return conf.ecs.get_ns_names()
+# @ecsconfig.command('namespace', short_help='Work with ECS Namespaces')
+# @click.option('-l', is_flag=True, help='List known namespace configs')
+# @click.option('-r', is_flag=True, help='Get current namespace configs from ECS')
+# @click.option('-a', is_flag=True, help="Add all namespaces to ECS")
+# @click.option('-n', default=None, help='Add the given namespace to ECS')
+# @pass_conf
+# def namespace(conf, l, r, a, n):
+#     """
+#     # BUG: Broken - doesn't build NS right
+#     :param conf:
+#     :param l:
+#     :param r:
+#     :param a:
+#     :param n:
+#     :return:
+#     """
+#     def list_all():
+#         return conf.ecs.get_ns_names()
+#
+#     def get_all():
+#         return conf.api_client.namespace.list()
+#
+#     def add_namespace(namespace_name):
+#         o('Adding namespace {}'.format(namespace_name))
+#         ns_dict = conf.ecs.get_ns_options(namespace_name)
+#
+#         kwargs = {"is_stale_allowed": ns_dict['is_stale_allowed'],
+#                   "is_compliance_enabled": ns_dict['is_compliance_enabled'],
+#                   "is_encryption_enabled": ns_dict['is_encryption_enabled'],
+#                   "namespace_admins": ns_dict['namespace_admins'],
+#                   "default_data_services_vpool": ns_dict['']}
+#
+#         return conf.api_client.namespace.create(namespace_name, **kwargs)
+#
+#     def add_all():
+#         for namespace_name in list_all():
+#             add_namespace(namespace_name)
+#
+#     if l:
+#         available_rg_configs = list_all()
+#         if available_rg_configs is not None:
+#             o('Available Namespace configurations:')
+#             for ns_name in list_all():
+#                 o('\t{}'.format(ns_name))
+#         else:
+#             o('No namespace configurations in deploy.yml')
+#     if r:
+#         o('Namespaces currently configured:')
+#         namespaces = get_all()
+#         for ns_data in namespaces['namespace']:
+#             o('\t{}'.format(ns_data['name']))
+#     if a:
+#         n = None
+#         available_rg_configs = list_all()
+#         if available_rg_configs is not None:
+#             add_all()
+#         else:
+#             o('No namespace configurations in deploy.yml')
+#     if n is not None:
+#         add_namespace(n)
 
-    def get_all():
-        return conf.api_client.namespace.list()
 
-    def add_namespace(namespace_name):
-        o('Adding namespace {}'.format(namespace_name))
-        ns_dict = conf.ecs.get_ns_options(namespace_name)
-
-        kwargs = {"is_stale_allowed": ns_dict['is_stale_allowed'],
-                  "is_compliance_enabled": ns_dict['is_compliance_enabled'],
-                  "is_encryption_enabled": ns_dict['is_encryption_enabled'],
-                  "namespace_admins": ns_dict['namespace_admins'],
-                  "default_data_services_vpool": ns_dict['']}
-
-
-        return conf.api_client.namespace.create(namespace_name, **kwargs)
-
-    def add_all():
-        for namespace_name in list_all():
-            add_namespace(namespace_name)
-
-    if l:
-        available_rg_configs = list_all()
-        if available_rg_configs is not None:
-            o('Available Namespace configurations:')
-            for ns_name in list_all():
-                o('\t{}'.format(ns_name))
-        else:
-            o('No namespace configurations in deploy.yml')
-    if r:
-        o('Namespaces currently configured:')
-        namespaces = get_all()
-        for ns_data in namespaces['namespace']:
-            o('\t{}'.format(ns_data['name']))
-    if a:
-        n = None
-        available_rg_configs = list_all()
-        if available_rg_configs is not None:
-            add_all()
-        else:
-            o('No namespace configurations in deploy.yml')
-    if n is not None:
-        add_namespace(n)
-
-
+# @ecsconfig.command('object-user', short_help='Work with ECS Object Users')
+# @click.option('-l', is_flag=True, help='List known object user configs')
+# @click.option('-r', is_flag=True, help='Get all current object user configs from ECS')
+# @click.option('-s', is_flag=True, help='Get current object user configs from ECS for given namespace')
+# @click.option('-a', is_flag=True, help="Add all object user to ECS")
+# @click.option('-n', default=None, help='Add the given object user to ECS')
+# @pass_conf
+# def object_user(conf, l, r, s, a, n):
+#     def list_all():
+#         pass
+#
+#     def get_all():
+#         pass
+#
+#     def get_one():
+#         pass
+#
+#     def add_all():
+#         pass
+#
+#     def add_one(user_name):
+#         pass
+#
+#     if l:
+#         list_all()
+#     if a:
+#         n = None
+#         add_all()
+#     if n is not None:
+#         add_one(n)
+#
+#
+# @ecsconfig.command('management-user', short_help='Work with ECS Management Users')
+# @click.option('-l', is_flag=True, help='List known management user configs')
+# @click.option('-r', is_flag=True, help='Get all current management user configs from ECS')
+# @click.option('-s', is_flag=True, help='Get current management user configs from ECS for given namespace')
+# @click.option('-a', is_flag=True, help="Add all management user to ECS")
+# @click.option('-n', default=None, help='Add the given management user to ECS')
+# @pass_conf
+# def management_user(conf, l, r, s, a, n):
+#     def list_all():
+#         pass
+#
+#     def get_all():
+#         pass
+#
+#     def get_one():
+#         pass
+#
+#     def add_all():
+#         pass
+#
+#     def add_one(user_name):
+#         pass
+#
+#     if l:
+#         list_all()
+#     if a:
+#         n = None
+#         add_all()
+#     if n is not None:
+#         add_one(n)
+#
+#
 # @ecsconfig.command('bucket', short_help='Work with ECS Buckets')
 # @click.option('-l', is_flag=True, help='List known bucket configs')
 # @click.option('-r', is_flag=True, help='Get all current bucket configs from ECS')
