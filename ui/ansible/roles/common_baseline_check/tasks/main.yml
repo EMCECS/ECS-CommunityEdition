@@ -70,18 +70,40 @@
   with_items: "{{ ecs_block_devices }}"
   changed_when: False
 
+- include_vars: ports.yml
+
+# Gather info on which ports are listening from /proc
+- name: Common | Check for listening layer 4 ports
+  script: listening_ports.sh
+  register: check_internal_ports
+
+# [X]Make sure published ECS ports are accessible
+- name: Common | Report any conflicts with published ECS ports
+  fail:
+    msg: "Port conflict with published ECS port: {{ item.0 }} {{ services[ecs_published_ports[item[0]].service].name }}
+    | description: {{ services[ecs_published_ports[item[0]].service].description }}
+    | support URL: {{ services[ecs_published_ports[item[0]].service].issue }}"
+  when: item.1 | search('^port {{item.0}}/.*$')
+  with_nested:
+    - "{{ ecs_published_ports }}"
+    - "{{ check_internal_ports.stdout_lines }}"
+# Todo: when upgrading to ansible 2.2, these are amazing for cleaning output up
+#  loop_control:
+#    label: ""
+
+# [X]Make sure internal ECS ports are accessible
+- name: Common | Report any conflicts with internal ECS ports
+  fail:
+    msg: "Port conflict with internal ECS port!"
+  when: item[1] | search('^port {{item[0]}}/.*$')
+  with_nested:
+    - "{{ ecs_internal_ports }}"
+    - "{{ check_internal_ports.stdout_lines }}"
+
+
 # Dump vars for future debugging
 #- name: Common | Dump hostvars for debug
 #  template: src=dumpvars.yml.j2 dest="/root/{{ansible_hostname}}.vars.yml"
 #  delegate_to: localhost
 
-# [ ]Make sure published ECS ports are accessible
-# [ ]Make sure internal ECS ports are accessible
-#- name: Common | Check that internal ECS ports are available
-#  command: "fuser -n tcp {{item}} && fuser -n udp {{item}}"
-#  with_items: "{{ecs_internal_ports}}"
-#  register: check_internal_ports
-#
-#- fail:
-#    msg: "An internal ECS port ({{item}}) is in use on the system. Please resolve"
-#  when:
+
