@@ -12,7 +12,7 @@ The installation process is designed to be done from a dedicated installation no
 
 * 2 Cores
 * 4 GB Memory
-* 10GB HDD
+* 10 GB HDD
 * CentOS 7 Minimal
 
 The minimum technical requirements for the target node is as follows:
@@ -43,7 +43,11 @@ Before the data nodes can be created we have to prepare the installation node. I
 * for .zip archive `unzip ECS-CommunityEdition.zip`
 * for .tar.gz archive `tar -xzvf ECS-CommunityEdition.tar.gz`
 
-Once the archive has been expanded the installation node must be bootstrapped. To do this `cd` into the ECS-CommunityEdition directory and run `./bootstrap.sh`. ![complete bootstrapping](../media/Screen Shot 2017-05-12 at 2.25.29 PM.png)
+Once the archive has been expanded the installation node must be bootstrapped. To do this `cd` into the ECS-CommunityEdition directory and run `./bootstrap.sh`. *Note: The bootstrap script accepts many flags. Be sure to run `./bootsrap -h` to see all bootstrap options* 
+
+The bootstrapping process has completed when the following message appears:
+
+![complete bootstrapping](../media/Screen Shot 2017-05-12 at 2.25.29 PM.png)
 
 After the installation node has successfully finished you may be prompted to reboot the machine. If this is the case the machine must be rebooted before continuing.
 
