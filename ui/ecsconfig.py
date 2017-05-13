@@ -480,9 +480,13 @@ def sp(conf, l, r, a, n):
         return None
 
     if l:
-        o("Available Storage Pool configurations:")
-        for sp_name in list_all():
-            o("\t{}".format(sp_name))
+        available_sp_configs = list_all()
+        if available_sp_configs is not None:
+            o("Available Storage Pool configurations:")
+            for sp_name in available_sp_configs:
+                o("\t{}".format(sp_name))
+        else:
+            o("No storage pool configurations are present.")
 
     if r:
         o('Storage Pools currently configured:')
@@ -490,15 +494,19 @@ def sp(conf, l, r, a, n):
             o("\t{}".format(sp_config['name']))
 
     if a:
-        n = None
-        conf.api_set_timeout(300)
-        conf.api_close()
-        conf.api_reset()
-        tasks = add_all()
-        #o(tasks)
-        conf.api_set_timeout(API_TIMEOUT)
-        conf.api_close()
-        conf.api_reset()
+        available_sp_configs = list_all()
+        if available_sp_configs is not None:
+            n = None
+            conf.api_set_timeout(300)
+            conf.api_close()
+            conf.api_reset()
+            tasks = add_all()
+            #o(tasks)
+            conf.api_set_timeout(API_TIMEOUT)
+            conf.api_close()
+            conf.api_reset()
+        else:
+            o('No storage pool configurations were provided in deploy.yml')
 
     if n is not None:
         conf.api_set_timeout(300)
@@ -543,6 +551,7 @@ def vdc(conf, l, r, a, n):
 
     def add_all():
         tasks = []
+
         for vdc_name in conf.ecs.get_vdc_names():
             o('\t{}'.format(vdc_name))
             conf.wait_for_dt_ready()
@@ -553,9 +562,13 @@ def vdc(conf, l, r, a, n):
         pass
 
     if l:
-        o('Available VDC configurations:')
-        for vdc_name in list_all():
-            o('\t{}'.format(vdc_name))
+        available_vdc_configs = list_all()
+        if available_vdc_configs is not None:
+            o('Available VDC configurations:')
+            for vdc_name in list_all():
+                o('\t{}'.format(vdc_name))
+        else:
+            o('No VDC configurations are present in deploy.yml')
 
     if r:
         o('VDCs currently configured:')
@@ -564,9 +577,13 @@ def vdc(conf, l, r, a, n):
 
     if a:
         n = None
-        o('Creating all VDCs...')
-        # apparently doesn't return tasks
-        tasks = add_all()
+        available_vdc_configs = list_all()
+        if available_vdc_configs is not None:
+            o('Creating all VDCs...')
+            # apparently doesn't return tasks
+            tasks = add_all()
+        else:
+            o('No VDC configurations are present in deploy.yml')
 
     if n is not None:
         add_one(n)
@@ -612,9 +629,13 @@ def rg(conf, l, r, a, n):
         return results
 
     if l:
-        o('Available Replication Group Configurations:')
-        for name in list_all():
-            o('\t{}'.format(name))
+        available_rg_configs = list_all()
+        if available_rg_configs is not None:
+            o('Available Replication Group Configurations:')
+            for name in list_all():
+                o('\t{}'.format(name))
+        else:
+            o('No replication group configurations in deploy.yml')
 
     if r:
         try:
@@ -626,9 +647,13 @@ def rg(conf, l, r, a, n):
 
     if a:
         n = None
-        results = add_all()
-        for result in results:
-            o('Created replication group {}'.format(result['name']))
+        available_rg_configs = list_all()
+        if available_rg_configs is not None:
+            results = add_all()
+            for result in results:
+                o('Created replication group {}'.format(result['name']))
+        else:
+            o('No replication group configurations in deploy.yml')
 
     if n is not None:
         result = add_rg(n)
@@ -666,9 +691,13 @@ def namespace(conf, l, r, a, n):
             add_namespace(namespace_name)
 
     if l:
-        o('Available Namespace configurations:')
-        for ns_name in list_all():
-            o('\t{}'.format(ns_name))
+        available_rg_configs = list_all()
+        if available_rg_configs is not None:
+            o('Available Namespace configurations:')
+            for ns_name in list_all():
+                o('\t{}'.format(ns_name))
+        else:
+            o('No namespace configurations in deploy.yml')
     if r:
         o('Namespaces currently configured:')
         namespaces = get_all()
@@ -676,7 +705,11 @@ def namespace(conf, l, r, a, n):
             o('\t{}'.format(ns_data['name']))
     if a:
         n = None
-        add_all()
+        available_rg_configs = list_all()
+        if available_rg_configs is not None:
+            add_all()
+        else:
+            o('No namespace configurations in deploy.yml')
     if n is not None:
         add_namespace(n)
 
