@@ -225,11 +225,11 @@ def ecsconfig(conf, verbose):
 def ping(conf, c, w, x):
     """
     Ping ECS management API for connectivity
-    :param conf: Click config object with helpers
-    :param c: Click bool flag
-    :param w: Click argument
-    :param x: Click bool flag
-    :return:
+    :param conf: Click object containing the configuration
+    :param c: continuous ping
+    :param w: (with -c) seconds to wait between pings
+    :param x: exit upon successful PONG
+    :return: retval
     """
 
     if c:
@@ -284,7 +284,14 @@ def ping(conf, c, w, x):
 @click.option('-c', help='Install custom license into ECS from file at given path')
 @pass_conf
 def licensing(conf, l, a, c):
-
+    """
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list known configurations of this abstraction
+    :param a: add all known configurations of this abstraction
+    :param c: add a single custom configuration of this abstraction
+    :return: retval
+    """
     def get_license():
         return conf.api_client.licensing.get_license()['license_text']
 
@@ -340,7 +347,16 @@ def licensing(conf, l, a, c):
 @click.option('-k', help='(with -c) Private key to use for custom cert')
 @pass_conf
 def trust(conf, l, x, t, c, k):
-
+    """
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list current cert installed in ECS
+    :param x: generate and trust a new self-signed cert in ECS
+    :param t: Fetch and trust the current ECS cert
+    :param c: Install custom x509 cert from file into ECS
+    :param k: (with -c) Private key to use for custom cert
+    :return: retval
+    """
     def get_cert():
         return conf.api_client.certificate.get_certificate_chain()['chain']
 
@@ -413,6 +429,15 @@ def trust(conf, l, x, t, c, k):
 @click.option('-n', default=None, help='Add the given SP to ECS')
 @pass_conf
 def sp(conf, l, r, a, n):
+    """
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list known configurations of this abstraction
+    :param r: list instances of this abstraction configured on ECS
+    :param a: add all known configurations of this abstraction
+    :param n: add a single known configuration of this abstraction
+    :return: retval
+    """
     def list_all():
         return conf.ecs.get_sp_names()
 
@@ -438,7 +463,7 @@ def sp(conf, l, r, a, n):
         Add given node to named storage pool
         :param sp_id: Storage Pool URN
         :param node_ip: IP address of node
-        :return: Task object
+        :return: retval
         """
 
         node_dict = conf.ecs.get_node_options(node_ip)
@@ -527,13 +552,13 @@ def sp(conf, l, r, a, n):
 @pass_conf
 def vdc(conf, l, r, a, n):
     """
-
-    :param conf:
-    :param l:
-    :param r:
-    :param a:
-    :param n:
-    :return:
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list known configurations of this abstraction
+    :param r: list instances of this abstraction configured on ECS
+    :param a: add all known configurations of this abstraction
+    :param n: add a single known configuration of this abstraction
+    :return: retval
     """
     def list_all():
         return conf.ecs.get_vdc_names()
@@ -606,13 +631,13 @@ def vdc(conf, l, r, a, n):
 @pass_conf
 def rg(conf, l, r, a, n):
     """
-
-    :param conf:
-    :param l:
-    :param r:
-    :param a:
-    :param n:
-    :return:
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list known configurations of this abstraction
+    :param r: list instances of this abstraction configured on ECS
+    :param a: add all known configurations of this abstraction
+    :param n: add a single known configuration of this abstraction
+    :return: retval
     """
     def list_all():
         return conf.ecs.get_rg_names()
@@ -687,12 +712,13 @@ def rg(conf, l, r, a, n):
 # def namespace(conf, l, r, a, n):
 #     """
 #     # BUG: Broken - doesn't build NS right
-#     :param conf:
-#     :param l:
-#     :param r:
-#     :param a:
-#     :param n:
-#     :return:
+#     Work with a collection of ECS abstractions
+#     :param conf: Click object containing the configuration
+#     :param l: list known configurations of this abstraction
+#     :param r: list instances of this abstraction configured on ECS
+#     :param a: add all known configurations of this abstraction
+#     :param n: add a single known configuration of this abstraction
+#     :return: retval
 #     """
 #     def list_all():
 #         return conf.ecs.get_ns_names()
@@ -748,6 +774,15 @@ def rg(conf, l, r, a, n):
 # @click.option('-n', default=None, help='Add the given object user to ECS')
 # @pass_conf
 # def object_user(conf, l, r, s, a, n):
+#     """
+#     Work with a collection of ECS abstractions
+#     :param conf: Click object containing the configuration
+#     :param l: list known configurations of this abstraction
+#     :param r: list instances of this abstraction configured on ECS
+#     :param a: add all known configurations of this abstraction
+#     :param n: add a single known configuration of this abstraction
+#     :return: retval
+#     """
 #     def list_all():
 #         pass
 #
@@ -780,6 +815,15 @@ def rg(conf, l, r, a, n):
 # @click.option('-n', default=None, help='Add the given management user to ECS')
 # @pass_conf
 # def management_user(conf, l, r, s, a, n):
+#     """
+#     Work with a collection of ECS abstractions
+#     :param conf: Click object containing the configuration
+#     :param l: list known configurations of this abstraction
+#     :param r: list instances of this abstraction configured on ECS
+#     :param a: add all known configurations of this abstraction
+#     :param n: add a single known configuration of this abstraction
+#     :return: retval
+#     """
 #     def list_all():
 #         pass
 #
@@ -812,6 +856,15 @@ def rg(conf, l, r, a, n):
 # @click.option('-n', default=None, help='Add the given bucket to ECS')
 # @pass_conf
 # def bucket(conf, l, r, s, a, n):
+#     """
+#     Work with a collection of ECS abstractions
+#     :param conf: Click object containing the configuration
+#     :param l: list known configurations of this abstraction
+#     :param r: list instances of this abstraction configured on ECS
+#     :param a: add all known configurations of this abstraction
+#     :param n: add a single known configuration of this abstraction
+#     :return: retval
+#     """
 #     def list_all():
 #         pass
 #
