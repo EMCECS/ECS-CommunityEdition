@@ -20,20 +20,61 @@ logging.debug('-' * 40 + os.path.abspath(__file__) + '-' * 40)
 DEFAULTS = {}
 
 ANSIBLE_DEFAULTS = 'ansible_defaults'
+ANSIBLE_USER = 'ansible_username'
+ANSIBLE_USER_DEFAULT = 'admin'
+ANSIBLE_PASS = 'ansible_password'
+ANSIBLE_PASS_DEFAULT = 'ChangeMe'
 NODE_DEFAULTS = 'node_defaults'
 INSTALL_NODE = 'install_node'
 MANAGEMENT_CLIENTS = 'management_clients'
 AUTONAMING = 'autonaming'
-ECS_SOFTWARE_IMAGE = 'ecs_software_image'
+ENTROPY_SOURCE = 'entropy_source'
+ENTROPY_SOURCE_DEFAULT = '/dev/urandom'
+ROOT_PASS = 'ecs_root_pass'
+ROOT_PASS_DEFAULT = 'root'
+ROOT_USER = 'ecs_root_user'
+ROOT_USER_DEFAULT = 'ChangeMe'
+_D = '_defaults'
+OPTIONS = 'options'
+NAME = 'name'
+MEMBERS = 'members'
+DESC = 'description'
+DESC_DEFAULT = 'Default description'
 
-FUN_FACTS = [INSTALL_NODE, MANAGEMENT_CLIENTS, AUTONAMING, ECS_SOFTWARE_IMAGE]
+FUN_FACTS = [INSTALL_NODE, MANAGEMENT_CLIENTS, AUTONAMING]
+
+
+# Ansible stuff is a special case where the same password is
+# typically used for all three password args. We should wire
+# all three to an "ansible_password" meta var.  Individual
+# password fields can still be overridden in deploy.yml.
+# Wire an "ansible_username" meta var to ansible_user for
+# consistency.
+# Also, consider implications of ssh pubkey auth.
+ANSIBLE = 'ansible'
+ANSIBLE_D = ANSIBLE[:-1] + _D
+DEFAULTS[ANSIBLE] = {
+    ANSIBLE_USER: ANSIBLE_USER_DEFAULT,
+    'ansible_user': ANSIBLE_USER_DEFAULT,
+    ANSIBLE_PASS: ANSIBLE_PASS_DEFAULT,
+    'ansible_ssh_pass': ANSIBLE_PASS_DEFAULT,
+    'ansible_become_pass': ANSIBLE_PASS_DEFAULT
+}
+
+NODE = 'nodes'
+NODE_D = NODE[:-1] + _D
+DEFAULTS[NODE] = {
+    ROOT_USER: ROOT_USER_DEFAULT,
+    ROOT_PASS: ROOT_PASS_DEFAULT,
+    ENTROPY_SOURCE: ENTROPY_SOURCE_DEFAULT
+}
 
 SP = 'storage_pools'
-SP_D = SP[:-1] + '_defaults'
+SP_D = SP[:-1] + _D
 DEFAULTS[SP] = {
     'is_cold_storage_enabled': False,
     'is_protected': False,
-    'description': 'Default description'
+    DESC: DESC_DEFAULT
 }
 
 VDC = 'virtual_data_centers'
@@ -42,39 +83,32 @@ VDC_KEY = 'secret_key'
 DEFAULTS[VDC] = {}
 
 RG = 'replication_groups'
-RG_D = RG[:-1] + '_defaults'
+RG_D = RG[:-1] + _D
 DEFAULTS[RG] = {
-    'description': 'Default description',
     'enable_rebalancing': True,
     'allow_all_namespaces': True,
-    'is_full_rep': False
+    'is_full_rep': False,
+    DESC: DESC_DEFAULT
 }
 
 NS = 'namespaces'
-NS_D = NS[:-1] + '_defaults'
+NS_D = NS[:-1] + _D
 DEFAULTS[NS] = {
     'is_encryption_enabled': False,
     'is_stale_allowed': False,
     'is_compliance_enabled': False,
-    'namespace_admins': 'root'
+    'namespace_admins': ROOT_USER_DEFAULT
 }
 
 AUTH = 'auth_providers'
-AUTH_D = AUTH[:-1] + '_defaults'
+AUTH_D = AUTH[:-1] + _D
 DEFAULTS[AUTH] = {
-    'description': None
+    DESC: DESC_DEFAULT
 }
-
-ROOT_PASS = 'ecs_root_pass'
-ROOT_USER = 'ecs_root_user'
-
-OPTIONS = 'options'
-NAME = 'name'
-MEMBERS = 'members'
 
 DIRECTORY_TABLE = {
     'small': 384,
-    'large': 1664
+    'large': 1400
 }
 
 
@@ -122,7 +156,8 @@ class ECSConf(object):
         fun_facts = {}
         for fact in FUN_FACTS:
             fun_facts.update({fact: self.get_attr(fact)})
-            fun_facts.update(self.get_attr(ANSIBLE_DEFAULTS).toDict())
+            # fun_facts.update(self.get_attr(ANSIBLE_DEFAULTS).toDict())
+            fun_facts.update(self.get_defaults(ANSIBLE))
         return fun_facts
 
     def get_names(self, map_type):
@@ -169,7 +204,8 @@ class ECSConf(object):
         result = {}
         result.update(DEFAULTS[map_type])
         map_type_d = map_type[:-1] + '_defaults'
-        if map_type in self.deploy.facts and map_type_d in self.deploy.facts:
+        # if map_type in self.deploy.facts and map_type_d in self.deploy.facts:
+        if map_type_d in self.deploy.facts:
             result.update(self.deploy.facts[map_type_d].toDict())
         return result
 
@@ -202,10 +238,10 @@ class ECSConf(object):
 
         :return:
         """
-        opts = {}
-        if NODE_DEFAULTS in self.deploy.facts:
-            opts.update(self.deploy.facts[NODE_DEFAULTS].toDict())
-        return opts
+        # opts = {}
+        # if NODE_DEFAULTS in self.deploy.facts:
+        #     opts.update(self.deploy.facts[NODE_DEFAULTS].toDict())
+        return self.get_defaults(NODES)
 
     def get_node_options(self, node):
         """
