@@ -4,6 +4,7 @@ mapping:
 
   licensing:
     type: map
+    required: False
     mapping:
       license_accepted:
         type: bool
@@ -26,21 +27,29 @@ mapping:
 
       autonaming:
         type: str
-        required: True
+        required: False
 
       ansible_defaults:
         type: map
         required: True
         mapping:
+          ansible_username:
+            type: str
+            func: alphanumeric
+            required: True
           ansible_user:
             type: str
             func: alphanumeric
+            required: False
           ansible_ssh_pass:
             type: str
+            required: False
           ansible_become_pass:
             type: str
+            required: False
           ansible_password:
             type: str
+            required: True
 
       node_defaults:
         type: map
@@ -49,68 +58,87 @@ mapping:
           ecs_root_user:
             type: str
             func: alphanumeric
+            required: False
           ecs_root_pass:
             type: str
+            required: False
           dns_domain:
             type: str
+            required: True
           dns_servers:
             type: seq
+            required: True
             sequence:
               - type: str
           ntp_servers:
             type: seq
+            required: True
             sequence:
               - type: str
 
       storage_pool_defaults:
         type: map
-        required: True
+        required: False
         mapping:
           is_cold_storage_enabled:
             type: bool
+            required: False
           is_protected:
             type: bool
+            required: False
           description:
             type: str
+            required: False
           ecs_block_devices:
             type: seq
+            required: False
             sequence:
               - type: str
                 func: unix_path
 
       virtual_data_center_defaults:
         type: map
-        required: True
+        required: False
         mapping:
           description:
             type: str
+            required: False
 
       replication_group_defaults:
         type: map
-        required: True
+        required: False
         mapping:
           description:
             type: str
+            required: False
           enable_rebalancing:
             type: bool
+            required: False
           allow_all_namespaces:
             type: bool
+            required: False
           is_full_rep:
             type: bool
+            required: False
 
       namespace_defaults:
         type: map
-        allowempty: True
+        required: False
         mapping:
           description:
+            required: False
             type: str
           is_stale_allowed:
+            required: False
             type: bool
           is_compliance_enabled:
+            required: False
             type: bool
           is_encryption_enabled:
+            required: False
             type: bool
           namespace_admins:
+            required: False
             type: str
 
       storage_pools:
@@ -164,7 +192,7 @@ mapping:
 
       replication_groups:
         type: seq
-        required: True
+        required: False
         sequence:
           - type: map
             mapping:
@@ -183,7 +211,7 @@ mapping:
                     type: str
       namespaces:
         type: seq
-        allowempty: True
+        required: False
         sequence:
           - type: map
             mapping:

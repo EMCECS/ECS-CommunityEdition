@@ -225,11 +225,11 @@ def ecsconfig(conf, verbose):
 def ping(conf, c, w, x):
     """
     Ping ECS management API for connectivity
-    :param conf: Click config object with helpers
-    :param c: Click bool flag
-    :param w: Click argument
-    :param x: Click bool flag
-    :return:
+    :param conf: Click object containing the configuration
+    :param c: continuous ping
+    :param w: (with -c) seconds to wait between pings
+    :param x: exit upon successful PONG
+    :return: retval
     """
 
     if c:
@@ -284,7 +284,14 @@ def ping(conf, c, w, x):
 @click.option('-c', help='Install custom license into ECS from file at given path')
 @pass_conf
 def licensing(conf, l, a, c):
-
+    """
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list known configurations of this abstraction
+    :param a: add all known configurations of this abstraction
+    :param c: add a single custom configuration of this abstraction
+    :return: retval
+    """
     def get_license():
         return conf.api_client.licensing.get_license()['license_text']
 
@@ -340,7 +347,16 @@ def licensing(conf, l, a, c):
 @click.option('-k', help='(with -c) Private key to use for custom cert')
 @pass_conf
 def trust(conf, l, x, t, c, k):
-
+    """
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list current cert installed in ECS
+    :param x: generate and trust a new self-signed cert in ECS
+    :param t: Fetch and trust the current ECS cert
+    :param c: Install custom x509 cert from file into ECS
+    :param k: (with -c) Private key to use for custom cert
+    :return: retval
+    """
     def get_cert():
         return conf.api_client.certificate.get_certificate_chain()['chain']
 
@@ -413,6 +429,15 @@ def trust(conf, l, x, t, c, k):
 @click.option('-n', default=None, help='Add the given SP to ECS')
 @pass_conf
 def sp(conf, l, r, a, n):
+    """
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list known configurations of this abstraction
+    :param r: list instances of this abstraction configured on ECS
+    :param a: add all known configurations of this abstraction
+    :param n: add a single known configuration of this abstraction
+    :return: retval
+    """
     def list_all():
         return conf.ecs.get_sp_names()
 
@@ -438,7 +463,7 @@ def sp(conf, l, r, a, n):
         Add given node to named storage pool
         :param sp_id: Storage Pool URN
         :param node_ip: IP address of node
-        :return: Task object
+        :return: retval
         """
 
         node_dict = conf.ecs.get_node_options(node_ip)
@@ -480,9 +505,13 @@ def sp(conf, l, r, a, n):
         return None
 
     if l:
-        o("Available Storage Pool configurations:")
-        for sp_name in list_all():
-            o("\t{}".format(sp_name))
+        available_sp_configs = list_all()
+        if available_sp_configs is not None:
+            o("Available Storage Pool configurations:")
+            for sp_name in available_sp_configs:
+                o("\t{}".format(sp_name))
+        else:
+            o("No storage pool configurations are present.")
 
     if r:
         o('Storage Pools currently configured:')
@@ -490,15 +519,19 @@ def sp(conf, l, r, a, n):
             o("\t{}".format(sp_config['name']))
 
     if a:
-        n = None
-        conf.api_set_timeout(300)
-        conf.api_close()
-        conf.api_reset()
-        tasks = add_all()
-        #o(tasks)
-        conf.api_set_timeout(API_TIMEOUT)
-        conf.api_close()
-        conf.api_reset()
+        available_sp_configs = list_all()
+        if available_sp_configs is not None:
+            n = None
+            conf.api_set_timeout(300)
+            conf.api_close()
+            conf.api_reset()
+            tasks = add_all()
+            #o(tasks)
+            conf.api_set_timeout(API_TIMEOUT)
+            conf.api_close()
+            conf.api_reset()
+        else:
+            o('No storage pool configurations were provided in deploy.yml')
 
     if n is not None:
         conf.api_set_timeout(300)
@@ -518,6 +551,15 @@ def sp(conf, l, r, a, n):
 @click.option('-n', default=None, help='Add the given VDC to ECS')
 @pass_conf
 def vdc(conf, l, r, a, n):
+    """
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list known configurations of this abstraction
+    :param r: list instances of this abstraction configured on ECS
+    :param a: add all known configurations of this abstraction
+    :param n: add a single known configuration of this abstraction
+    :return: retval
+    """
     def list_all():
         return conf.ecs.get_vdc_names()
 
@@ -543,6 +585,7 @@ def vdc(conf, l, r, a, n):
 
     def add_all():
         tasks = []
+
         for vdc_name in conf.ecs.get_vdc_names():
             o('\t{}'.format(vdc_name))
             conf.wait_for_dt_ready()
@@ -553,9 +596,13 @@ def vdc(conf, l, r, a, n):
         pass
 
     if l:
-        o('Available VDC configurations:')
-        for vdc_name in list_all():
-            o('\t{}'.format(vdc_name))
+        available_vdc_configs = list_all()
+        if available_vdc_configs is not None:
+            o('Available VDC configurations:')
+            for vdc_name in list_all():
+                o('\t{}'.format(vdc_name))
+        else:
+            o('No VDC configurations are present in deploy.yml')
 
     if r:
         o('VDCs currently configured:')
@@ -564,9 +611,13 @@ def vdc(conf, l, r, a, n):
 
     if a:
         n = None
-        o('Creating all VDCs...')
-        # apparently doesn't return tasks
-        tasks = add_all()
+        available_vdc_configs = list_all()
+        if available_vdc_configs is not None:
+            o('Creating all VDCs...')
+            # apparently doesn't return tasks
+            tasks = add_all()
+        else:
+            o('No VDC configurations are present in deploy.yml')
 
     if n is not None:
         add_one(n)
@@ -579,6 +630,15 @@ def vdc(conf, l, r, a, n):
 @click.option('-n', default=None, help='Add the given RG to ECS')
 @pass_conf
 def rg(conf, l, r, a, n):
+    """
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list known configurations of this abstraction
+    :param r: list instances of this abstraction configured on ECS
+    :param a: add all known configurations of this abstraction
+    :param n: add a single known configuration of this abstraction
+    :return: retval
+    """
     def list_all():
         return conf.ecs.get_rg_names()
 
@@ -612,9 +672,13 @@ def rg(conf, l, r, a, n):
         return results
 
     if l:
-        o('Available Replication Group Configurations:')
-        for name in list_all():
-            o('\t{}'.format(name))
+        available_rg_configs = list_all()
+        if available_rg_configs is not None:
+            o('Available Replication Group Configurations:')
+            for name in list_all():
+                o('\t{}'.format(name))
+        else:
+            o('No replication group configurations in deploy.yml')
 
     if r:
         try:
@@ -626,61 +690,164 @@ def rg(conf, l, r, a, n):
 
     if a:
         n = None
-        results = add_all()
-        for result in results:
-            o('Created replication group {}'.format(result['name']))
+        available_rg_configs = list_all()
+        if available_rg_configs is not None:
+            results = add_all()
+            for result in results:
+                o('Created replication group {}'.format(result['name']))
+        else:
+            o('No replication group configurations in deploy.yml')
 
     if n is not None:
         result = add_rg(n)
         o('Created replication group {}'.format(result['name']))
 
 
-@ecsconfig.command('namespace', short_help='Work with ECS Namespaces')
-@click.option('-l', is_flag=True, help='List known namespace configs')
-@click.option('-r', is_flag=True, help='Get current namespace configs from ECS')
-@click.option('-a', is_flag=True, help="Add all namespaces to ECS")
-@click.option('-n', default=None, help='Add the given namespace to ECS')
-@pass_conf
-def namespace(conf, l, r, a, n):
-    def list_all():
-        return conf.ecs.get_ns_names()
+# @ecsconfig.command('namespace', short_help='Work with ECS Namespaces')
+# @click.option('-l', is_flag=True, help='List known namespace configs')
+# @click.option('-r', is_flag=True, help='Get current namespace configs from ECS')
+# @click.option('-a', is_flag=True, help="Add all namespaces to ECS")
+# @click.option('-n', default=None, help='Add the given namespace to ECS')
+# @pass_conf
+# def namespace(conf, l, r, a, n):
+#     """
+#     # BUG: Broken - doesn't build NS right
+#     Work with a collection of ECS abstractions
+#     :param conf: Click object containing the configuration
+#     :param l: list known configurations of this abstraction
+#     :param r: list instances of this abstraction configured on ECS
+#     :param a: add all known configurations of this abstraction
+#     :param n: add a single known configuration of this abstraction
+#     :return: retval
+#     """
+#     def list_all():
+#         return conf.ecs.get_ns_names()
+#
+#     def get_all():
+#         return conf.api_client.namespace.list()
+#
+#     def add_namespace(namespace_name):
+#         o('Adding namespace {}'.format(namespace_name))
+#         ns_dict = conf.ecs.get_ns_options(namespace_name)
+#
+#         kwargs = {"is_stale_allowed": ns_dict['is_stale_allowed'],
+#                   "is_compliance_enabled": ns_dict['is_compliance_enabled'],
+#                   "is_encryption_enabled": ns_dict['is_encryption_enabled'],
+#                   "namespace_admins": ns_dict['namespace_admins'],
+#                   "default_data_services_vpool": ns_dict['']}
+#
+#         return conf.api_client.namespace.create(namespace_name, **kwargs)
+#
+#     def add_all():
+#         for namespace_name in list_all():
+#             add_namespace(namespace_name)
+#
+#     if l:
+#         available_rg_configs = list_all()
+#         if available_rg_configs is not None:
+#             o('Available Namespace configurations:')
+#             for ns_name in list_all():
+#                 o('\t{}'.format(ns_name))
+#         else:
+#             o('No namespace configurations in deploy.yml')
+#     if r:
+#         o('Namespaces currently configured:')
+#         namespaces = get_all()
+#         for ns_data in namespaces['namespace']:
+#             o('\t{}'.format(ns_data['name']))
+#     if a:
+#         n = None
+#         available_rg_configs = list_all()
+#         if available_rg_configs is not None:
+#             add_all()
+#         else:
+#             o('No namespace configurations in deploy.yml')
+#     if n is not None:
+#         add_namespace(n)
 
-    def get_all():
-        return conf.api_client.namespace.list()
 
-    def add_namespace(namespace_name):
-        o('Adding namespace {}'.format(namespace_name))
-        ns_dict = conf.ecs.get_ns_options(namespace_name)
-
-        kwargs = {"is_stale_allowed": ns_dict['is_stale_allowed'],
-                  "is_compliance_enabled": ns_dict['is_compliance_enabled'],
-                  "is_encryption_enabled": ns_dict['is_encryption_enabled'],
-                  "namespace_admins": ns_dict['namespace_admins'],
-                  "default_data_services_vpool": ns_dict['']}
-
-
-        return conf.api_client.namespace.create(namespace_name, **kwargs)
-
-    def add_all():
-        for namespace_name in list_all():
-            add_namespace(namespace_name)
-
-    if l:
-        o('Available Namespace configurations:')
-        for ns_name in list_all():
-            o('\t{}'.format(ns_name))
-    if r:
-        o('Namespaces currently configured:')
-        namespaces = get_all()
-        for ns_data in namespaces['namespace']:
-            o('\t{}'.format(ns_data['name']))
-    if a:
-        n = None
-        add_all()
-    if n is not None:
-        add_namespace(n)
-
-
+# @ecsconfig.command('object-user', short_help='Work with ECS Object Users')
+# @click.option('-l', is_flag=True, help='List known object user configs')
+# @click.option('-r', is_flag=True, help='Get all current object user configs from ECS')
+# @click.option('-s', is_flag=True, help='Get current object user configs from ECS for given namespace')
+# @click.option('-a', is_flag=True, help="Add all object user to ECS")
+# @click.option('-n', default=None, help='Add the given object user to ECS')
+# @pass_conf
+# def object_user(conf, l, r, s, a, n):
+#     """
+#     Work with a collection of ECS abstractions
+#     :param conf: Click object containing the configuration
+#     :param l: list known configurations of this abstraction
+#     :param r: list instances of this abstraction configured on ECS
+#     :param a: add all known configurations of this abstraction
+#     :param n: add a single known configuration of this abstraction
+#     :return: retval
+#     """
+#     def list_all():
+#         pass
+#
+#     def get_all():
+#         pass
+#
+#     def get_one():
+#         pass
+#
+#     def add_all():
+#         pass
+#
+#     def add_one(user_name):
+#         pass
+#
+#     if l:
+#         list_all()
+#     if a:
+#         n = None
+#         add_all()
+#     if n is not None:
+#         add_one(n)
+#
+#
+# @ecsconfig.command('management-user', short_help='Work with ECS Management Users')
+# @click.option('-l', is_flag=True, help='List known management user configs')
+# @click.option('-r', is_flag=True, help='Get all current management user configs from ECS')
+# @click.option('-s', is_flag=True, help='Get current management user configs from ECS for given namespace')
+# @click.option('-a', is_flag=True, help="Add all management user to ECS")
+# @click.option('-n', default=None, help='Add the given management user to ECS')
+# @pass_conf
+# def management_user(conf, l, r, s, a, n):
+#     """
+#     Work with a collection of ECS abstractions
+#     :param conf: Click object containing the configuration
+#     :param l: list known configurations of this abstraction
+#     :param r: list instances of this abstraction configured on ECS
+#     :param a: add all known configurations of this abstraction
+#     :param n: add a single known configuration of this abstraction
+#     :return: retval
+#     """
+#     def list_all():
+#         pass
+#
+#     def get_all():
+#         pass
+#
+#     def get_one():
+#         pass
+#
+#     def add_all():
+#         pass
+#
+#     def add_one(user_name):
+#         pass
+#
+#     if l:
+#         list_all()
+#     if a:
+#         n = None
+#         add_all()
+#     if n is not None:
+#         add_one(n)
+#
+#
 # @ecsconfig.command('bucket', short_help='Work with ECS Buckets')
 # @click.option('-l', is_flag=True, help='List known bucket configs')
 # @click.option('-r', is_flag=True, help='Get all current bucket configs from ECS')
@@ -689,6 +856,15 @@ def namespace(conf, l, r, a, n):
 # @click.option('-n', default=None, help='Add the given bucket to ECS')
 # @pass_conf
 # def bucket(conf, l, r, s, a, n):
+#     """
+#     Work with a collection of ECS abstractions
+#     :param conf: Click object containing the configuration
+#     :param l: list known configurations of this abstraction
+#     :param r: list instances of this abstraction configured on ECS
+#     :param a: add all known configurations of this abstraction
+#     :param n: add a single known configuration of this abstraction
+#     :return: retval
+#     """
 #     def list_all():
 #         pass
 #
