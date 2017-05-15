@@ -137,12 +137,12 @@ These steps quickly set up a basic deploy.yml file
 3) Hostnames may be auto-named with the `autonaming` field. `moons` or `cities` are options.
 5) Credential configuration: usernames and credentials for node access. This must be the same across all nodes
 6) Enter your DNS server address into `dns_servers`. This can be found with `cat /etc/resolv.conf`
-7) Enter NTP server address into `ntp_servers`. This will likely be the same value as `dns_servers` ***NOTE: this field cannot be left empty, an NTP server is required for installation.***
+7) Enter NTP server address into `ntp_servers`. This will likely be the same value as `dns_servers` **NOTE: this field cannot be left empty, an NTP server is required for installation.**
 7) List block devices in `ecs_block_devices`.
 8) Enter data node address(es) in Storage Pool `members`
 1) Enter block devices again under Storage Pool `members`
 
-*Please read the reference deploy.yml found [here](deploy.yml.rst). It is designed to be self documenting and required fields are filled with either dummy or default values. The above values are only bare minimum values and may not yield the desired result.*
+*Please read the reference deploy.yml found* [here](deploy.yml.rst)*. It is designed to be self documenting and required fields are filled with either dummy or default values. The above values are only bare minimum values and may not yield the desired result.*
 
 ## Step1
 
