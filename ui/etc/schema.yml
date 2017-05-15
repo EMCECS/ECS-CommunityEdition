@@ -164,7 +164,7 @@ mapping:
 
       replication_groups:
         type: seq
-        allowempty: True
+        required: False
         sequence:
           - type: map
             mapping:
