@@ -70,8 +70,9 @@ case "$(basename ${0})" in
             cd "${root}"
             sudo cp "${deploy_val}" /opt/emc/ecs-install/deploy.yml
             o "Recreating ecs-install data container"
-            remove_data_container
-            make_new_data_container
+            update_image
+            # remove_data_container
+            # make_new_data_container
             # ecsdeploy load
             docker_set_artifact
             cd - 2>&1 >/dev/null
