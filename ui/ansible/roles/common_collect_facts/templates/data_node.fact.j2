@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+ECS_BLOCK_DEVICES="{%- set comma = joiner(" ") -%}
+{%- for blockdev in ecs_block_devices -%}
+{{ comma() }}{{ blockdev }}
+{%- endfor %}"
+
+total_bytes = 0
+for blockdev in ${ECS_BLOCK_DEVICES}; do
+    total_bytes="$(( ${total_bytes} + $(blockdev --getsize64 ${blockdev}) ))"
+done
+
+echo "{
+    \"ecs_block_devices\": \"${ECS_BLOCK_DEVICES}\",
+    \"ecs_block_size\": \"${total_bytes}\"
+}"
