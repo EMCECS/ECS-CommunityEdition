@@ -32,8 +32,8 @@ The minimum technical requirements for the target node is as follows:
 -  4 Cores
 -  16 GB Memory
 -  16 GB Minimum System Drive
--  100 GB block storage unit (raw, unpartitioned) ***NOTE: this drive
-   must be in addition to the standard OS drive***
+-  100 GB block storage unit (raw, unpartitioned) *NOTE: this drive must
+   be in addition to the standard OS drive*
 -  CentOS 7 Minimal
 
 For multi-node installations each data node must fulfill these minimum
@@ -77,10 +77,10 @@ The YML File
 ------------
 
 Installation requires the creation of a YML configuration file called
-deploy.yml. This file ***must*** be written before moving on. Create
-this file in the ``ECS-CommunityEdition`` directory that was created
-when the repository was cloned. A template guide for writing this file
-can be found `here <deploy.yml.rst>`__.
+deploy.yml. This file *must* be written before moving on. Create this
+file in the ``ECS-CommunityEdition`` directory that was created when the
+repository was cloned. A template guide for writing this file can be
+found `here <deploy.yml.rst>`__.
 
 To quickly create a template, simply:
 
@@ -89,11 +89,11 @@ To quickly create a template, simply:
 -  rename the file with
    ``sudo mv /opt/emc/ecs-install/reference.deploy.yml /opt/emc/ecs-install/deploy.yml``
 -  then edit the file with ``sudo vim /opt/emc/ecs-install/deploy.yml``
-   ***be sure to use ``sudo`` or the file will be opened as readonly and
-   any changes made will not be written***
+   *be sure to use* ``sudo`` *or the file will be opened as readonly and
+   any changes made will not be written*
 
 *note: If you find that you've edited the file without sudo privileges,
-the command ``:w !sudo tee %`` can be used to write the while in vim*
+the command* ``:w !sudo tee %`` *can be used to write the while in vim*
 
 bootstrap.sh
 ~~~~~~~~~~~~
@@ -164,14 +164,14 @@ Once the archive has been expanded the installation node must be
 bootstrapped. To do this ``cd`` into the ECS-CommunityEdition directory
 and run ``./bootstrap.sh -c deploy.yml``. Be sure to add the ``-g`` flag
 if building the ECS deployment in a virtual environment and the ``-y``
-flag if you're okay accepting all defaults. ***Note: The bootstrap
-script accepts many flags. Be sure to run ``./bootsrap -h`` to see all
-bootstraping options.***
+flag if you're okay accepting all defaults. *Note: The bootstrap script
+accepts many flags. Be sure to run* ``./bootsrap -h`` *to see all
+bootstraping options.*
 
 The bootstrapping process has completed when the following message
 appears:
 
-.. figure:: ../media/Screen%20Shot%202017-05-12%20at%202.25.29%20PM.png
+.. figure:: ../media/complete_bootstrap.png
    :alt: complete bootstrapping
 
    complete bootstrapping
@@ -204,10 +204,10 @@ These steps quickly set up a basic deploy.yml file
 8) Enter data node address(es) in Storage Pool ``members``
 9) Enter block devices again under Storage Pool ``members``
 
-***Please read the reference deploy.yml found `here <deploy.yml.rst>`__.
+*Please read the reference deploy.yml found `here <deploy.yml.rst>`__.
 It is designed to be self documenting and required fields are filled
 with either dummy or default values. The above values are only bare
-minimum values and may not yield the desired result.***
+minimum values and may not yield the desired result.*
 
 Step1
 -----

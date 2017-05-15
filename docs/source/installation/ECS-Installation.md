@@ -20,7 +20,7 @@ The minimum technical requirements for the target node is as follows:
 * 4 Cores
 * 16 GB Memory
 * 16 GB Minimum System Drive
-* 100 GB block storage unit (raw, unpartitioned) ***NOTE: this drive must be in addition to the standard OS drive***
+* 100 GB block storage unit (raw, unpartitioned) *NOTE: this drive must be in addition to the standard OS drive*
 * CentOS 7 Minimal
 
 For multi-node installations each data node must fulfill these minimum qualifications. The installer will do a pre-flight check to ensure that the minimum qualifications are met. If they are not the installation will not continue. 
@@ -46,15 +46,15 @@ Before the data nodes can be created we have to prepare the installation node. I
 
 ## The YML File
 
-Installation requires the creation of a YML configuration file called deploy.yml. This file ***must*** be written before moving on. Create this file in the `ECS-CommunityEdition` directory that was created when the repository was cloned. A template guide for writing this file can be found [here](deploy.yml.rst). 
+Installation requires the creation of a YML configuration file called deploy.yml. This file *must* be written before moving on. Create this file in the `ECS-CommunityEdition` directory that was created when the repository was cloned. A template guide for writing this file can be found [here](deploy.yml.rst). 
 
 To quickly create a template, simply: 
 
 * run `sudo cp ~/ECS-CommunityEdition/docs/design/reference.deploy.yml /opt/emc/ecs-install/` 
 * rename the file with `sudo mv /opt/emc/ecs-install/reference.deploy.yml /opt/emc/ecs-install/deploy.yml`
-* then edit the file with `sudo vim /opt/emc/ecs-install/deploy.yml` ***be sure to use `sudo` or the file will be opened as readonly and any changes made will not be written***
+* then edit the file with `sudo vim /opt/emc/ecs-install/deploy.yml` *be sure to use* `sudo` *or the file will be opened as readonly and any changes made will not be written*
 
-*note: If you find that you've edited the file without sudo privileges, the command `:w !sudo tee %` can be used to write the while in vim*
+*note: If you find that you've edited the file without sudo privileges, the command* `:w !sudo tee %` *can be used to write the while in vim*
 
 ### bootstrap.sh
 
@@ -119,11 +119,11 @@ For additional help, please open an issue on GitHub.
 ```
 
 Once the archive has been expanded the installation node must be bootstrapped. To do this `cd` into the ECS-CommunityEdition directory and run `./bootstrap.sh -c deploy.yml`. Be sure to add the `-g` flag if building the ECS deployment in a virtual environment and the `-y` flag if you're okay accepting all defaults.
-***Note: The bootstrap script accepts many flags. Be sure to run `./bootsrap -h` to see all bootstraping options.***
+*Note: The bootstrap script accepts many flags. Be sure to run* `./bootsrap -h` *to see all bootstraping options.*
 
 The bootstrapping process has completed when the following message appears:
 
-![complete bootstrapping](../media/Screen Shot 2017-05-12 at 2.25.29 PM.png)
+![complete bootstrapping](../media/complete_bootstrap.png)
 
 After the installation node has successfully bootstrapped you may be prompted to reboot the machine. If this is the case the machine must be rebooted before continuing.
 
@@ -142,7 +142,7 @@ These steps quickly set up a basic deploy.yml file
 8) Enter data node address(es) in Storage Pool `members`
 1) Enter block devices again under Storage Pool `members`
 
-***Please read the reference deploy.yml found [here](deploy.yml.rst). It is designed to be self documenting and required fields are filled with either dummy or default values. The above values are only bare minimum values and may not yield the desired result.***
+*Please read the reference deploy.yml found [here](deploy.yml.rst). It is designed to be self documenting and required fields are filled with either dummy or default values. The above values are only bare minimum values and may not yield the desired result.*
 
 ## Step1
 
