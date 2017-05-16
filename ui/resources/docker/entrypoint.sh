@@ -155,8 +155,8 @@ if $init_container; then
     # echo -n "."
     # Version hack Ansible when installing to site-packages
     # echo "__version__ = '2.1.0.dev.ecs-install'" > /usr/local/lib/python2.7/site-packages/ansible/__init__.py
-    echo ". "
-    o "OK"
+    echo -n ". "
+    echo "OK"
 fi
 
 if ! [ -f "/usr/local/src/ui/ansible/group_vars/all" ]; then
