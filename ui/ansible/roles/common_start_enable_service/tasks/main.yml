@@ -2,5 +2,6 @@
   service:
     enabled: yes
     name: ecs
-    sleep: 60
     state: started
+    # No sleep in systemd
+    # sleep: 60
