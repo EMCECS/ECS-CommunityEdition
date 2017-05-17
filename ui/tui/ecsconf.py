@@ -56,9 +56,9 @@ ANSIBLE_SPECIAL_KEYS = {
     'ansible_username': 'username',
     'ansible_ssh_pass': 'password',
     'ansible_become_pass': 'password',
-    'ansible_password': 'password',
     'ansible_port': 'ssh_port'
 }
+# 'ansible_password': 'password',
 ANSIBLE = 'sshs'
 ANSIBLE_D = ANSIBLE[:-1] + _D
 DEFAULTS[ANSIBLE] = {

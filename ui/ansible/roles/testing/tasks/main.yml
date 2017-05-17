@@ -1,0 +1,14 @@
+- include_vars: main.yml
+
+### This is where we put all the adjusted configs
+#- name: Common | Create a data container for ECS configuration control
+#  shell: docker run -d -v /opt/storageos/conf -v /opt/storageos/ecsportal/conf -v /etc --name ecs-config --restart=no --entrypoint=/bin/echo {{product_common_name}} "ECS configuration data container" && touch {{host_cache_dir}}/ecs-config.created creates="{{host_cache_dir}}/ecs-config.created"
+
+- name: debug
+  debug:
+    msg: docker create --name ecs-storageos -e SS_GENCONFIG=1 --volumes-from ecs-config -v /ecs:/dae:z -v /ecs:/disks:z -v /host:/host:z -v /var/log/vipr/emcvipr-object:/var/log:z -v /data:/data:z -v {{host_cache_dir}}/ecs_python:/host/ecs_python:z -v {{entropy_source}}:/dev/random:z --net=host {{product_common_name}} && touch {{host_cache_dir}}/ecs-storageos.created creates={{host_cache_dir}}/ecs-storageos.created
+
+## Don't add a restart policy because we're using init scripts for that.
+#- name: Common | Create the ECS StorageOS container
+#  shell: docker create --name ecs-storageos -e SS_GENCONFIG=1 --volumes-from ecs-config -v /ecs:/dae:z -v /ecs:/disks:z -v /host:/host:z -v /var/log/vipr/emcvipr-object:/var/log:z -v /data:/data:z -v {{host_cache_dir}}/ecs_python:/host/ecs_python:z -v {{entropy_source}}:/dev/random:z --net=host {{product_common_name}} && touch {{host_cache_dir}}/ecs-storageos.created creates="{{host_cache_dir}}/ecs-storageos.created"
+
