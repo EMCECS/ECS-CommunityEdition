@@ -64,10 +64,8 @@ object.bbfmDirMaxEntries=200
 #
 # Proactive reallocation threshold values for levels 1,2 etc.
 # In case if level index is higher than thresholds list length then the latest value is used.
-# {#object.freeBlocksHighWatermarkLevels={{ '100,50' if ansible_memtotal_mb < 65536 else '1000,200' }}#}
-# {#object.freeBlocksLowWatermarkLevels={{ '0,20' if ansible_memtotal_mb < 65536 else '0,100' }}#}
-object.freeBlocksHighWatermarkLevels={{ '100,50' if ansible_local.data_node.ecs_block_size < 1000000000000 else '1000,200' }}
-object.freeBlocksLowWatermarkLevels{{ '0,20' if ansible_local.data_node.ecs_block_size < 1000000000000 else '0,100' }}
+object.freeBlocksHighWatermarkLevels={{ '100,50' if ansible_local.data_node.ecs_block_size|int < 1000000000000 else '1000,200' }}
+object.freeBlocksLowWatermarkLevels={{ '0,20' if ansible_local.data_node.ecs_block_size|int < 1000000000000 else '0,100' }}
 object.reallocationRetryTimeoutInSecs=10
 object.reallocationRetryTimeoutInSecs=10
 #set this to false if you want to disable reallocation

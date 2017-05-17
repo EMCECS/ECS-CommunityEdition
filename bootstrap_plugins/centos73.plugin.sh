@@ -108,7 +108,7 @@ set_repo_keepcache_conf() {
 }
 
 # idempotent config script to fixup repos to properly use proxycaches
-set_repo_proxy_idempotent() {
+set_repo_cacheable_idempotent() {
     sudo sed -i -e 's/^#baseurl=/baseurl=/' /etc/yum.repos.d/*
     sudo sed -i -e 's/^mirrorlist=/#mirrorlist=/' /etc/yum.repos.d/*
 }
@@ -123,6 +123,9 @@ set_os_proxy() {
     sudo sed -i -e '/_proxy/d' /etc/environment
     echo -n "http_proxy=${http_proxy}\nhttps_proxy=${http_proxy}\nftp_proxy=${http_proxy}\n" \
         | append /etc/environment
+    if $mirror_flag; then
+        echo -n "no_proxy=${mirror_val}\n" | append /etc/environment
+    fi
 }
 
 # command to determine if the OS needs restarting after package updates

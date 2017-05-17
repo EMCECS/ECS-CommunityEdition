@@ -76,9 +76,9 @@ torrent() {
         aria2c -q -l /var/log/torrent.log -T /var/cache/emc/ecs-install/cache.torrent --seed-ratio=0.0 \
                --dht-listen-port=6882 --allow-overwrite=true --check-integrity \
                --listen-port=6883-6999 --enable-mmap=true 1>/dev/null 2>/dev/null &
-        echo "."
+        echo -n ". "
         cd /
-        o "OK"
+        echo "OK"
     fi
 }
 
@@ -155,8 +155,8 @@ if $init_container; then
     # echo -n "."
     # Version hack Ansible when installing to site-packages
     # echo "__version__ = '2.1.0.dev.ecs-install'" > /usr/local/lib/python2.7/site-packages/ansible/__init__.py
-    echo ". "
-    o "OK"
+    echo -n ". "
+    echo "OK"
 fi
 
 if ! [ -f "/usr/local/src/ui/ansible/group_vars/all" ]; then
@@ -172,7 +172,7 @@ if ! [ -z "$*" ]; then
             if [ -z "${2}" ]; then
                 /bin/ash -l
             else
-                ansible_user="$(grep '^ *ansible_user:' /opt/deploy.yml | awk '{print $2}')"
+                ansible_user="$(grep '^ *ssh_username:' /opt/deploy.yml | awk '{print $2}')"
                 /usr/bin/ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /opt/ssh/id_ed25519 "${ansible_user}"@"${2}"
             fi
             cond_incr_rc $?
@@ -211,6 +211,12 @@ if ! [ -z "$*" ]; then
             torrent
             cd "${root}"
             ${@}
+            cond_incr_rc $?
+            ;;
+        testbook)
+            torrent
+            cd /ansible
+            ansible-playbook testing.yml
             cond_incr_rc $?
             ;;
         *)

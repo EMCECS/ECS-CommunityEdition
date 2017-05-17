@@ -43,6 +43,7 @@
     regexp: '^%admin ALL\='
     line: '%admin ALL=(ALL) NOPASSWD:ALL'
     validate: '/usr/sbin/visudo -cf %s'
+  #when: flag_install_node is defined
   tags: sudoers
 
 - name: CentOS 7 | Disable sudo password reverification for wheel group
@@ -52,4 +53,5 @@
     regexp: '^%wheel.*ALL\=.*'
     line: '%wheel ALL=(ALL) NOPASSWD:ALL'
     validate: '/usr/sbin/visudo -cf %s'
+  #when: flag_install_node is defined
   tags: sudoers

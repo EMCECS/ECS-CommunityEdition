@@ -83,7 +83,7 @@ case "$(basename ${0})" in
             o "     deploy_val=<path to your deploy.yml>"
         fi
     ;;
-    ecsdeploy|ecsconfig|ecsremove|catfacts|enter|pingnodes|inventory)
+    ecsdeploy|ecsconfig|ecsremove|catfacts|enter|pingnodes|inventory|testbook)
         run "$(basename ${0})" ${@} || exit $?
     ;;
     island-step1)

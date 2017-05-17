@@ -1,10 +1,12 @@
----
+- include_vars: ports.yml
+
 # Check hardware requirements
 - name: Common | Check RAM size
   # TAG: DevTest
-  fail: msg="ECS data nodes must have at least 15000MiB RAM ({{ansible_memtotal_mb}}MiB reported)"
-  # some fudge for various interpretations of "16GB"?
-  when: ansible_memtotal_mb < 15000
+  fail:
+    msg: "Total RAM available for ECS is less than 15500MB ({{ansible_memtotal_mb|int}}MB reported by node)"
+  # some fudge for various interpretations of "16GB" when dealing with VMs
+  when: ansible_memtotal_mb|int < 15500
 
 - name: Common | Check CPU architecture
   fail: msg="ECS data nodes require a 64-bit CPU and OS"
@@ -52,25 +54,27 @@
   when: item.stat.isblk is not defined
   with_items: "{{ checkbdevs.results }}"
 
+# [X]Make sure block devices are at least 100GiB
+  # TAG: DevTest
+  #shell: (( $(lsblk -dbn --output SIZE {{ item }}) >= 100000000000 ))
+  #shell: (( $(lsblk -dbn --output SIZE {{item}}) >= 1 ))
+  #with_items: "{{ ecs_block_devices }}"
+  #changed_when: False
+- name: Common | Make sure block device(s) are at least 100GB
+  fail:
+    msg: "Total block storage available for ECS is less than 100GB ({{(ansible_local.data_node.ecs_block_size|int / 1000000000)|int}}GB reported by node)"
+  when: ansible_local.data_node.ecs_block_size|int < 100000000000
+
 # [X]Make sure block device partition(s) do NOT exist
 - name: Common | Make sure block device(s) are unpartitioned
   stat: path="{{ item }}1"
   with_items: "{{ ecs_block_devices }}"
   register: checkbparts
+
 - fail:
     msg: "A block device configured in deploy.yml for data nodes is already partitioned."
   when: item.stat.isblk is defined
   with_items: "{{ checkbparts.results }}"
-
-# [X]Make sure block devices are at least 100GiB
-- name: Common | Make sure block device(s) are at least 100GiB (100GiB = 2^30B = 107,374,182,400 bytes)
-  # TAG: DevTest
-  shell: (( $(lsblk -dbn --output SIZE {{ item }}) >= 107374182400 ))
-  #shell: (( $(lsblk -dbn --output SIZE {{item}}) >= 1 ))
-  with_items: "{{ ecs_block_devices }}"
-  changed_when: False
-
-- include_vars: ports.yml
 
 # Gather info on which ports are listening from /proc
 - name: Common | Check for listening layer 4 ports
@@ -87,7 +91,7 @@
   with_nested:
     - "{{ ecs_published_ports }}"
     - "{{ check_internal_ports.stdout_lines }}"
-# Todo: when upgrading to ansible 2.2, these are amazing for cleaning output up
+# Todo: when upgrading to ansible >= 2.2, these are amazing for cleaning output up
 #  loop_control:
 #    label: ""
 
@@ -99,7 +103,6 @@
   with_nested:
     - "{{ ecs_internal_ports }}"
     - "{{ check_internal_ports.stdout_lines }}"
-
 
 # Dump vars for future debugging
 #- name: Common | Dump hostvars for debug
