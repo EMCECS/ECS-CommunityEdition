@@ -1,4 +1,4 @@
-## ECS UI - Script Driven Object Provisioning -: ##
+#<center> ECS UI - Script Driven Object Provisioning </center>
 
  
 **step2_object_provisioning.py**
@@ -15,14 +15,15 @@
 | --MethodName= | Operation to be performed |
 
 Run the script with below values 1 step at a time for –MethodName parameter . The parameters are mentioned below in the sequence in which they should be invoked.
-- UploadLicense
-- CreateObjectVarray
-- CreateDataStore
-- InsertVDC
-- CreateObjectVpool
-- CreateNamespace
-- **CreateUser**  - CreateUser method will return an exception that user already exists. Ignore the exception and proceed to create secret key for the user. Looks like the user is being created in spite of the exception.
-- CreateSecretKey 
+
+* UploadLicense
+* CreateObjectVarray
+* CreateDataStore
+* InsertVDC
+* CreateObjectVpool
+* CreateNamespace
+* CreateUser **Note:** CreateUser method will return an exception that user already exists. Ignore the exception and proceed to create secret key for the user. Looks like the user is being created in spite of the exception.
+* CreateSecretKey 
  
 **Note:**  If -MethodName option is not provided all the Object Provisioning steps will be run in the same sequence as above automatically.  
 
