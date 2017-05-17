@@ -16,7 +16,7 @@ os_supported=false
 # Caller symlinks
 unset symlink_scripts
 symlink_scripts() {
-    symlinks="ecsdeploy catfacts enter pingnodes step1 step2 island-step1 island-step2 update_deploy update_image rebuild_image inventory"
+    symlinks="ecsdeploy catfacts enter pingnodes step1 step2 island-step1 island-step2 update_deploy update_image rebuild_image inventory testbook"
     symlinks="${symlinks} island-step3 ecsconfig ecsremove"
     mkdir -p "${HOME}/bin"
     for l in $symlinks; do

@@ -213,6 +213,12 @@ if ! [ -z "$*" ]; then
             ${@}
             cond_incr_rc $?
             ;;
+        testbook)
+            torrent
+            cd /ansible
+            ansible-playbook testing.yml
+            cond_incr_rc $?
+            ;;
         *)
             ${@}
             cond_incr_rc $?
