@@ -74,16 +74,23 @@ Using the example Hosts and information provided on the documentation:
 
 These are example values for the parameters:
 
-\|Variable Name\|Variable Description \| Example Value\|
-\|-------------\|---------------------\|--------------\| \|ECSNodes \|
-IP Addresses of the ECS Nodes (coma delimited list). \|
-10.0.1.10,10.0.1.11,10.0.1.12,10.0.1.13 \| \|NameSpace \| The objects'
-Namespace \| ns1 \| \|ObjectVArray \| The objects' Virtual Array \| ova1
-\| \|ObjectVPool \| The objects' Virtual Pool \| ov1 \| \|DataStoreName
-\| The name of the Data Store.\| ds1 \| \|VDCName \| The name of the
-Virtual Data Center.\| vdc1 \| \|MethodName \| The name of step to be
-executed. Leave blank for automated and add a value for a manual
-installation\| [empty] \|
++-----------------+--------------------------------------------------------------------------------------------------------+-------------------------------------------+
+| Variable Name   | Variable Description                                                                                   | Example Value                             |
++=================+========================================================================================================+===========================================+
+| ECSNodes        | IP Addresses of the ECS Nodes (coma delimited list).                                                   | 10.0.1.10,10.0.1.11,10.0.1.12,10.0.1.13   |
++-----------------+--------------------------------------------------------------------------------------------------------+-------------------------------------------+
+| NameSpace       | The objects' Namespace                                                                                 | ns1                                       |
++-----------------+--------------------------------------------------------------------------------------------------------+-------------------------------------------+
+| ObjectVArray    | The objects' Virtual Array                                                                             | ova1                                      |
++-----------------+--------------------------------------------------------------------------------------------------------+-------------------------------------------+
+| ObjectVPool     | The objects' Virtual Pool                                                                              | ov1                                       |
++-----------------+--------------------------------------------------------------------------------------------------------+-------------------------------------------+
+| DataStoreName   | The name of the Data Store.                                                                            | ds1                                       |
++-----------------+--------------------------------------------------------------------------------------------------------+-------------------------------------------+
+| VDCName         | The name of the Virtual Data Center.                                                                   | vdc1                                      |
++-----------------+--------------------------------------------------------------------------------------------------------+-------------------------------------------+
+| MethodName      | The name of step to be executed. Leave blank for automated and add a value for a manual installation   | [empty]                                   |
++-----------------+--------------------------------------------------------------------------------------------------------+-------------------------------------------+
 
 Step 1: Upload the License File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

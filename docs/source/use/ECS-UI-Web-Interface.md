@@ -39,10 +39,10 @@ Open *Manage*, then *Namespace*. Set up a Simple Namespace with a name such as "
 
 ###### Namespace features available in this release
 
-* Simple Namespace
-* <del> ~~Retention Policies~~
-* <del> ~~Quotas~~
-* <del> ~~Authentication Domains~~
+* &#x2714; Simple Namespace
+* <del> ~~Retention Policies~~ 
+* <del> ~~Quotas~~ 
+* <del> ~~Authentication Domains~~ 
 
 ![Create Namespace](../media/create_namespace.PNG)
 

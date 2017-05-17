@@ -48,7 +48,7 @@ These are example values for the parameters:
 |-------------|---------------------|--------------|
 |ECSNodes | IP Addresses of the ECS Nodes (coma delimited list). | 10.0.1.10,10.0.1.11,10.0.1.12,10.0.1.13 |
 |NameSpace | The objects' Namespace | ns1 |
-	|ObjectVArray | The objects' Virtual Array | ova1 |
+|ObjectVArray | The objects' Virtual Array | ova1 |
 |ObjectVPool | The objects' Virtual Pool | ov1 |
 |DataStoreName | The name of the Data Store.| ds1 |
 |VDCName | The name of the Virtual Data Center.| vdc1 |

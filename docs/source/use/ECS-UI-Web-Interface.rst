@@ -78,7 +78,7 @@ click *Save* at the very bottom.
 Namespace features available in this release
                                             
 
--  Simple Namespace
+-  ✔ Simple Namespace
 -  
 
    .. raw:: html
