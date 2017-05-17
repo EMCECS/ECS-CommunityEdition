@@ -76,9 +76,9 @@ torrent() {
         aria2c -q -l /var/log/torrent.log -T /var/cache/emc/ecs-install/cache.torrent --seed-ratio=0.0 \
                --dht-listen-port=6882 --allow-overwrite=true --check-integrity \
                --listen-port=6883-6999 --enable-mmap=true 1>/dev/null 2>/dev/null &
-        echo "."
+        echo -n ". "
         cd /
-        o "OK"
+        echo "OK"
     fi
 }
 
