@@ -141,12 +141,17 @@ def load(conf):
                          conf.deploy.licensing.license_accepted is not True):
 
             try:
-                # Replace this with textwrap and pager modules.
+                # todo: Replace this with better wrapping
+                # perhaps textwrap and pager modules.
+                # beware the license has weird characters in it
                 pager = subprocess.Popen(['less', '-~', '-M', '-I',
                                           conf.config.product.license_file],
                                          stdin=subprocess.PIPE, stdout=sys.stdout)
                 pager.stdin.close()
                 pager.wait()
+                # with click.open_file(conf.config.product.license_file, 'r') as eula_file:
+                #     eula_text = eula_file.read()
+
             except KeyboardInterrupt:
                 pass
 

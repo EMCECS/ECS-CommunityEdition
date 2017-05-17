@@ -36,20 +36,22 @@
       ansible_ssh_pipelining: false
   tags: sudoers
 
-#- name: CentOS 7 | Disable sudo password reverification for admin group
-#  lineinfile:
-#    dest: /etc/sudoers
-#    state: present
-#    regexp: '^%admin ALL\='
-#    line: '%admin ALL=(ALL) NOPASSWD:ALL'
-#    validate: '/usr/sbin/visudo -cf %s'
-#  tags: sudoers
-#
-#- name: CentOS 7 | Disable sudo password reverification for wheel group
-#  lineinfile:
-#    dest: /etc/sudoers
-#    state: present
-#    regexp: '^%wheel.*ALL\=.*'
-#    line: '%wheel ALL=(ALL) NOPASSWD:ALL'
-#    validate: '/usr/sbin/visudo -cf %s'
-#  tags: sudoers
+- name: CentOS 7 | Disable sudo password reverification for admin group
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%admin ALL\='
+    line: '%admin ALL=(ALL) NOPASSWD:ALL'
+    validate: '/usr/sbin/visudo -cf %s'
+  #when: flag_install_node is defined
+  tags: sudoers
+
+- name: CentOS 7 | Disable sudo password reverification for wheel group
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%wheel.*ALL\=.*'
+    line: '%wheel ALL=(ALL) NOPASSWD:ALL'
+    validate: '/usr/sbin/visudo -cf %s'
+  #when: flag_install_node is defined
+  tags: sudoers

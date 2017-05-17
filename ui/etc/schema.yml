@@ -25,18 +25,20 @@ mapping:
           - type: str
             func: ipv4_cidr
 
-      autonaming:
-        type: str
-        required: False
-
-      ansible_defaults:
+      ssh_defaults:
         type: map
         required: True
         mapping:
-          ansible_username:
+          ssh_username:
             type: str
             func: alphanumeric
             required: True
+          ssh_password:
+            type: str
+            required: True
+          ssh_port:
+            type: int
+            required: False
           ansible_user:
             type: str
             func: alphanumeric
@@ -47,14 +49,18 @@ mapping:
           ansible_become_pass:
             type: str
             required: False
-          ansible_password:
-            type: str
-            required: True
 
       node_defaults:
         type: map
         required: True
         mapping:
+          entropy_source:
+            type: str
+            func: unix_path
+            required: False
+          autonaming:
+            type: str
+            required: False
           ecs_root_user:
             type: str
             func: alphanumeric

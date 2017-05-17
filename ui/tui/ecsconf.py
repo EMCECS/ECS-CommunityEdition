@@ -19,21 +19,11 @@ logging.debug('-' * 40 + os.path.abspath(__file__) + '-' * 40)
 
 DEFAULTS = {}
 
-ANSIBLE_DEFAULTS = 'ansible_defaults'
-ANSIBLE_USER = 'ansible_username'
-ANSIBLE_USER_DEFAULT = 'admin'
-ANSIBLE_PASS = 'ansible_password'
-ANSIBLE_PASS_DEFAULT = 'ChangeMe'
-NODE_DEFAULTS = 'node_defaults'
+# Top level stuff
+# NODE_DEFAULTS = 'node_defaults'
 INSTALL_NODE = 'install_node'
 MANAGEMENT_CLIENTS = 'management_clients'
-AUTONAMING = 'autonaming'
-ENTROPY_SOURCE = 'entropy_source'
-ENTROPY_SOURCE_DEFAULT = '/dev/urandom'
-ROOT_PASS = 'ecs_root_pass'
-ROOT_PASS_DEFAULT = 'root'
-ROOT_USER = 'ecs_root_user'
-ROOT_USER_DEFAULT = 'ChangeMe'
+
 _D = '_defaults'
 OPTIONS = 'options'
 NAME = 'name'
@@ -41,8 +31,13 @@ MEMBERS = 'members'
 DESC = 'description'
 DESC_DEFAULT = 'Default description'
 
-FUN_FACTS = [INSTALL_NODE, MANAGEMENT_CLIENTS, AUTONAMING]
+FUN_FACTS = [INSTALL_NODE, MANAGEMENT_CLIENTS]
 
+# Directory Table stuff
+DIRECTORY_TABLE = {
+    'small': 384,
+    'large': 1400
+}
 
 # Ansible stuff is a special case where the same password is
 # typically used for all three password args. We should wire
@@ -51,24 +46,52 @@ FUN_FACTS = [INSTALL_NODE, MANAGEMENT_CLIENTS, AUTONAMING]
 # Wire an "ansible_username" meta var to ansible_user for
 # consistency.
 # Also, consider implications of ssh pubkey auth.
-ANSIBLE = 'ansible'
+ANSIBLE_DEFAULTS = 'ssh_defaults'
+ANSIBLE_USER = 'ssh_username'
+ANSIBLE_PASS = 'ssh_password'
+ANSIBLE_PORT = 'ssh_port'
+ANSIBLE_PORT_DEFAULT = 22
+ANSIBLE_SPECIAL_KEYS = {
+    'ansible_user': 'username',
+    'ansible_username': 'username',
+    'ansible_ssh_pass': 'password',
+    'ansible_become_pass': 'password',
+    'ansible_password': 'password',
+    'ansible_port': 'ssh_port'
+}
+ANSIBLE = 'sshs'
 ANSIBLE_D = ANSIBLE[:-1] + _D
 DEFAULTS[ANSIBLE] = {
-    ANSIBLE_USER: ANSIBLE_USER_DEFAULT,
-    'ansible_user': ANSIBLE_USER_DEFAULT,
-    ANSIBLE_PASS: ANSIBLE_PASS_DEFAULT,
-    'ansible_ssh_pass': ANSIBLE_PASS_DEFAULT,
-    'ansible_become_pass': ANSIBLE_PASS_DEFAULT
+    'ssh_username': None,
+    'ansible_username': None,
+    'ansible_user': None,
+    'ssh_password': None,
+    'ansible_password': None,
+    'ansible_ssh_pass': None,
+    'ansible_become_pass': None,
+    'ssh_port': ANSIBLE_PORT_DEFAULT,
+    'ansible_port': None
 }
 
+# Node-level stuff
+ROOT_PASS = 'ecs_root_pass'
+ROOT_PASS_DEFAULT = 'ChangeMe'
+ROOT_USER = 'ecs_root_user'
+ROOT_USER_DEFAULT = 'root'
+ENTROPY_SOURCE = 'entropy_source'
+ENTROPY_SOURCE_DEFAULT = '/dev/urandom'
+AUTONAMING = 'autonaming'
+AUTONAMING_DEFAULT = 'moons'
 NODE = 'nodes'
 NODE_D = NODE[:-1] + _D
 DEFAULTS[NODE] = {
     ROOT_USER: ROOT_USER_DEFAULT,
     ROOT_PASS: ROOT_PASS_DEFAULT,
-    ENTROPY_SOURCE: ENTROPY_SOURCE_DEFAULT
+    ENTROPY_SOURCE: ENTROPY_SOURCE_DEFAULT,
+    AUTONAMING: AUTONAMING_DEFAULT
 }
 
+# Storage Pool stuff
 SP = 'storage_pools'
 SP_D = SP[:-1] + _D
 DEFAULTS[SP] = {
@@ -77,11 +100,13 @@ DEFAULTS[SP] = {
     DESC: DESC_DEFAULT
 }
 
+# Virtual Datacenter stuff
 VDC = 'virtual_data_centers'
 VDC_D = VDC[:-1] + '_defaults'
 VDC_KEY = 'secret_key'
 DEFAULTS[VDC] = {}
 
+# Replication Group stuff
 RG = 'replication_groups'
 RG_D = RG[:-1] + _D
 DEFAULTS[RG] = {
@@ -91,6 +116,28 @@ DEFAULTS[RG] = {
     DESC: DESC_DEFAULT
 }
 
+# Authentication Provider stuff
+AUTH = 'auth_providers'
+AUTH_D = AUTH[:-1] + _D
+DEFAULTS[AUTH] = {
+    DESC: DESC_DEFAULT
+}
+
+# Management user stuff
+MU = 'management_users'
+MU_D = MU[:-1] + _D
+DEFAULTS[MU] = {
+    DESC: DESC_DEFAULT
+}
+
+# Object User stuff
+OU = 'object_users'
+OU_D = OU[:-1] + _D
+DEFAULTS[OU] = {
+    DESC: DESC_DEFAULT
+}
+
+# Namespace stuff
 NS = 'namespaces'
 NS_D = NS[:-1] + _D
 DEFAULTS[NS] = {
@@ -100,15 +147,18 @@ DEFAULTS[NS] = {
     'namespace_admins': ROOT_USER_DEFAULT
 }
 
-AUTH = 'auth_providers'
-AUTH_D = AUTH[:-1] + _D
-DEFAULTS[AUTH] = {
+# Bucket stuff
+BUCKET = 'buckets'
+BUCKET_D = MU[:-1] + _D
+DEFAULTS[BUCKET] = {
     DESC: DESC_DEFAULT
 }
 
-DIRECTORY_TABLE = {
-    'small': 384,
-    'large': 1400
+# File export stuff
+EXPORT = 'exports'
+EXPORT_D = EXPORT[:-1] + _D
+DEFAULTS[EXPORT] = {
+    DESC: DESC_DEFAULT
 }
 
 
@@ -148,16 +198,40 @@ class ECSConf(object):
         except KeyError:
             return None
 
+    def get_ansible_facts(self):
+        """
+        Returns a dict of Ansible facts
+        :return: dict of facts
+        """
+
+        facts = {}
+        facts.update(self.get_defaults(ANSIBLE))
+
+        for sk, sv in ANSIBLE_SPECIAL_KEYS.iteritems():
+            if facts[sk] is None:
+                if sv == 'username':
+                    facts[sk] = facts[ANSIBLE_USER]
+                elif sv == 'password':
+                    facts[sk] = facts[ANSIBLE_PASS]
+                elif sv == 'ssh_port':
+                    facts[sk] = facts[ANSIBLE_PORT]
+                else:
+                    # This shouldn't happen
+                    raise KeyError("Missing default value for key: ".format(sk))
+
+        return facts
+
     def get_fun_facts(self):
         """
         Returns a dict of important general facts
         :return: dict of facts
         """
         fun_facts = {}
-        for fact in FUN_FACTS:
-            fun_facts.update({fact: self.get_attr(fact)})
-            # fun_facts.update(self.get_attr(ANSIBLE_DEFAULTS).toDict())
-            fun_facts.update(self.get_defaults(ANSIBLE))
+
+        for key in FUN_FACTS:
+            fun_facts[key] = self.get_attr(key)
+
+        fun_facts.update(self.get_ansible_facts())
         return fun_facts
 
     def get_names(self, map_type):
@@ -176,13 +250,13 @@ class ECSConf(object):
         """
         Returns the configured root user for the ECS deployemnt
         """
-        return self.get_attr(NODE_DEFAULTS).toDict()[ROOT_USER]
+        return self.get_node_defaults()[ROOT_USER]
 
     def get_root_pass(self):
         """
         Returns the configured root password for the ECS deployment
         """
-        return self.get_attr(NODE_DEFAULTS).toDict()[ROOT_PASS]
+        return self.get_node_defaults()[ROOT_PASS]
 
     @staticmethod
     def gen_secret(length=20, charset=None):
@@ -203,7 +277,7 @@ class ECSConf(object):
         """
         result = {}
         result.update(DEFAULTS[map_type])
-        map_type_d = map_type[:-1] + '_defaults'
+        map_type_d = map_type[:-1] + _D
         # if map_type in self.deploy.facts and map_type_d in self.deploy.facts:
         if map_type_d in self.deploy.facts:
             result.update(self.deploy.facts[map_type_d].toDict())
@@ -241,7 +315,7 @@ class ECSConf(object):
         # opts = {}
         # if NODE_DEFAULTS in self.deploy.facts:
         #     opts.update(self.deploy.facts[NODE_DEFAULTS].toDict())
-        return self.get_defaults(NODES)
+        return self.get_defaults(NODE)
 
     def get_node_options(self, node):
         """
