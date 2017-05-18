@@ -1,14 +1,6 @@
 [![Documentation Status](https://readthedocs.org/projects/dell-emc-ecs-community-edition/badge/?version=latest)](http://dell-emc-ecs-community-edition.readthedocs.io/en/latest/?badge=latest)
 # ECS Community Edition
-### Software Container Deployment
 See [changelog.md](changelog.md) file for release notes.
-
-Deployment options:
-
-* <b>[ECS Multi-Node All-in-One Deployment with Install Node (popular)](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node "ECS Multiple Node Deployment Information")</b>
-* <b>[ECS Multi-Node Deployment with Install Node (recommended)](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node "ECS Multiple Node Deployment Information")</b>
-* <b>[ECS Single-Node Deployment with Install Node](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node "ECS Single Node Deployment Information")</b>
-* <b>[ECS Single-Node All-in-One Deployment (smallest footprint)](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node "ECS Single Node Deployment Information")</b>
 
 ## Description
 
@@ -31,11 +23,26 @@ Hardware or virtual machine with:
 * 1TB additional block storage
 
 ## Deployment Scenarios
+### Deploy into Internet-Connected Environments
+#### [ECS Multi-Node All-in-One Deployment with Install Node (recommended)](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node "ECS Multiple Node Deployment Information")
+Deploy a multi-node ECS instance to two or more hardware or virtual machines and enable all ECS features. Three nodes are required for all ECS 3.0 and above features to be activated.
 
-### Single Node
+#### [ECS Single-Node All-in-One Deployment (smallest footprint)](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node "ECS Single Node Deployment Information")
 Deploy a stand-alone instance of a limited set of ECS kit to a single hardware or virtual machine.
-### Multi-Node
-Deploy a multi-node ECS instance to three (3) or more hardware or virtual machines and enable all ECS features. Three nodes is the required minimum node footprint for ECS 3.0 and above.
+
+### Deployments into Soft-Isolated and Air-Gapped Island Environments
+#####Important information regarding Island deployments
+Please be aware that Install Node bootstrapping requires Internet access to the hardware or virtual machine that will become the Install Node, but once this step is complete, the machine can be removed from the Internet and migrated into the Island environment.
+
+If you prefer to download a prefabricated Install Node as an OVF/OVA, you may obtain one here:
+
+* [Install Node OVA]()
+
+#### [ECS Multi-Node Deployment with Install Node (recommended)](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node "ECS Multiple Node Deployment Information")
+Using an Install Node for isolated environments, deploy a multi-node ECS instance to two or more hardware or virtual machines and enable all ECS features. Three nodes are required for all ECS 3.0 and above features to be activated.
+
+#### [ECS Single-Node Deployment with Install Node](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node "ECS Single Node Deployment Information")
+Using an Install Node for isolated environments, deploy a stand-alone instance of a limited set of ECS kit to a single hardware or virtual machine.
 
 # Directory Structure
 
