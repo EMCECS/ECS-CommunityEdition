@@ -1,0 +1,8 @@
+{% extends "!layout.html" %}
+
+{# custom css overrides #}
+{% set bootswatch_css_custom = ['_static/dell-ui-clarity.min.css'] %}
+
+{% block extrahead %}
+    <link href="{{ pathto("_static/dell-ui-clarity.min.css", True) }}" rel="stylesheet" type="text/css">
+    {% endblock %}

@@ -14,6 +14,7 @@ EMC Elastic Cloud Storage (ECS) is a stateful containerized cloud storage.  It p
 
 ### Minimum
 Hardware or virtual machine with:
+
 * CentOS 7.3 Minimal installation
 * 16GB RAM
 * 16GB root block storage
@@ -21,6 +22,7 @@ Hardware or virtual machine with:
 
 ### Recommended
 Hardware or virtual machine with:
+
 * CentOS 7.3 Minimal installation
 * 64GB RAM
 * 16GB root block storage
