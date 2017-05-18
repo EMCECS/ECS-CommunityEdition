@@ -1,3 +1,15 @@
+ECS 3.x Software Container Deployment
+=====================================
+
+**Note** See the `changelog.md <changelog.md>`__ file for release notes.
+
+Deployment options:
+
+-  **`ECS Docker Multiple Node Deployment
+   (recommended) <https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node>`__**
+-  **`ECS Docker Single Node
+   Deployment <https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node>`__**
+
 Description
 -----------
 
@@ -8,6 +20,76 @@ Swift. ECS can be set up on one or more hosts / VMs in a single-site or
 a multi-site geo replicated configuration. We want the wider community
 to use ECS and provide feedback. Usage of this software is under the
 following End User License Agreement.
+
+Hardware Requirements
+---------------------
+
+Minimum
+~~~~~~~
+
+Hardware or virtual machine with: \* CentOS 7.3 Minimal installation \*
+16GB RAM \* 16GB root block storage \* 104GB additional block storage
+
+Recommended
+~~~~~~~~~~~
+
+Hardware or virtual machine with: \* CentOS 7.3 Minimal installation \*
+64GB RAM \* 16GB root block storage \* 1TB additional block storage
+
+Deployment Scenarios
+--------------------
+
+Single Node
+~~~~~~~~~~~
+
+Deploy a stand-alone instance of a limited set of ECS kit to a single
+hardware or virtual machine. ### Multi-Node Deploy a multi-node ECS
+instance to three (3) or more hardware or virtual machines and enable
+all ECS features. Three nodes is the required minimum node footprint for
+ECS 3.0 and above.
+
+Directory Structure
+===================
+
++-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| Directory Name                                        | Description                                                                                               |
++=======================================================+===========================================================================================================+
+| `docs <docs>`__                                       | Documentation sources; `read them online at Read the Docs <https://rtd.com/>`__                           |
++-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| `examples <examples>`__                               | Deployment and configuration examples for common scenarios                                                |
++-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| `contrib <contrib>`__                                 | Unsupported community-contributed scripts content related to ECS CE                                       |
++-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| `patches <patches>`__                                 | Patches to the ECS Community Edition Docker image                                                         |
++-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| `bootstrap.sh <bootstrap.sh>`__                       | Installer 2.0 bootstrap script                                                                            |
++-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| `release.conf <release.conf>`__                       | Installer 2.0 release information file                                                                    |
++-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| `ui <ui>`__                                           | Installer 2.0 (``ecsdeploy``, ``ecsconfig``, related utilities, and support files)                        |
++-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| `bootstrap\_plugins <bootstrap_plugins>`__            | Installer 2.0 (``bootstrap.sh`` support files)                                                            |
++-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| `legacy <legacy>`__                                   | Legacy deployment scripts                                                                                 |
++-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| `legacy/ecs-single-node <legacy/ecs-single-node>`__   | (Legacy) Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments   |
++-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| `legacy/ecs-multi-node <legacy/ecs-multi-node>`__     | (Legacy) Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment              |
++-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| `legacy/Documentation <legacy/Documentation>`__       | (Legacy) Contains documentation files and media                                                           |
++-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+
+Support
+=======
+
+Please file bugs and issues at the `ECS's site in the EMC Community
+Network (ECS's support
+site) <https://community.emc.com/community/products/ecs>`__ and you can
+also use this GitHub's repository issues page. For more general
+discussions you can contact the EMC Code team at Google Groups or tagged
+with **EMC** on Stack Overflow. The code and documentation are released
+with no warranties or SLAs and are intended to be supported through a
+community driven process.
 
 License Agreement
 =================
@@ -236,29 +318,3 @@ other party.
 held illegal or unenforceable, such provision shall be deemed separable
 from, and shall in no way affect or impair the validity or
 enforceability of, the remaining provisions.
-
-Support
-=======
-
-Please file bugs and issues at the `ECS's site in the EMC Community
-Network (ECS's support
-site) <https://community.emc.com/community/products/ecs>`__ and you can
-also use this GitHub's repository issues page. For more general
-discussions you can contact the EMC Code team at Google Groups or tagged
-with **EMC** on Stack Overflow. The code and documentation are released
-with no warranties or SLAs and are intended to be supported through a
-community driven process.
-
-Directory Structure
-===================
-
-+-------------------+--------------------------------------------------------------------------------------------------+
-| Directory Name    | Description                                                                                      |
-+===================+==================================================================================================+
-| ecs-single-node   | Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments   |
-+-------------------+--------------------------------------------------------------------------------------------------+
-| ecs-multi-node    | Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment              |
-+-------------------+--------------------------------------------------------------------------------------------------+
-| Documentation     | Contains documentation files and media                                                           |
-+-------------------+--------------------------------------------------------------------------------------------------+
-
