@@ -875,6 +875,7 @@ def namespace(conf, l, r, a, n):
     def add_all():
         for namespace_name in list_all():
             add_namespace(namespace_name)
+            o('Created namespace {}'.format(namespace_name))
 
     if l:
         available_rg_configs = list_all()
@@ -894,11 +895,13 @@ def namespace(conf, l, r, a, n):
         available_rg_configs = list_all()
         if available_rg_configs is not None:
             add_all()
+            o('Created all configured namespaces')
         else:
             o('No namespace configurations in deploy.yml')
     if n is not None:
         if namespace_exists(n):
             add_namespace(n)
+            o('Created namespace {}'.format(n))
         else:
             o('No namespace named {}'.format(n))
 
