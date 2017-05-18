@@ -216,6 +216,17 @@ mapping:
                 mapping:
                   description:
                     type: str
+                    required: False
+                  enable_rebalancing:
+                    type: bool
+                    required: False
+                  allow_all_namespaces:
+                    type: bool
+                    required: False
+                  is_full_rep:
+                    type: bool
+                    required: False
+
       namespaces:
         type: seq
         required: False
