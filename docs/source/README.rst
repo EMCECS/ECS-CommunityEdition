@@ -27,14 +27,22 @@ Hardware Requirements
 Minimum
 ~~~~~~~
 
-Hardware or virtual machine with: \* CentOS 7.3 Minimal installation \*
-16GB RAM \* 16GB root block storage \* 104GB additional block storage
+Hardware or virtual machine with:
+
+-  CentOS 7.3 Minimal installation
+-  16GB RAM
+-  16GB root block storage
+-  104GB additional block storage
 
 Recommended
 ~~~~~~~~~~~
 
-Hardware or virtual machine with: \* CentOS 7.3 Minimal installation \*
-64GB RAM \* 16GB root block storage \* 1TB additional block storage
+Hardware or virtual machine with:
+
+-  CentOS 7.3 Minimal installation
+-  64GB RAM
+-  16GB root block storage
+-  1TB additional block storage
 
 Deployment Scenarios
 --------------------

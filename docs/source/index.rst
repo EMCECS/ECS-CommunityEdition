@@ -50,7 +50,7 @@ Readme
 ECS 3.x Software Container Deployment
 =====================================
 
-**Note** See the :link:`../../changelog.rst` file for release notes.
+**Note** See the :doc:`changelog.rst` file for release notes.
 
 Deployment options:
 
@@ -76,14 +76,22 @@ Hardware Requirements
 Minimum
 ~~~~~~~
 
-Hardware or virtual machine with: \* CentOS 7.3 Minimal installation \*
-16GB RAM \* 16GB root block storage \* 104GB additional block storage
+Hardware or virtual machine with:
+
+-  CentOS 7.3 Minimal installation
+-  16GB RAM
+-  16GB root block storage
+-  104GB additional block storage
 
 Recommended
 ~~~~~~~~~~~
 
-Hardware or virtual machine with: \* CentOS 7.3 Minimal installation \*
-64GB RAM \* 16GB root block storage \* 1TB additional block storage
+Hardware or virtual machine with:
+
+-  CentOS 7.3 Minimal installation
+-  64GB RAM
+-  16GB root block storage
+-  1TB additional block storage
 
 Deployment Scenarios
 --------------------
