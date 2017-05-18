@@ -50,7 +50,7 @@ Readme
 ECS 3.x Software Container Deployment
 =====================================
 
-**Note** See the :doc:`changelog` file for release notes.
+**Note** See the :link:`../../changelog.rst` file for release notes.
 
 Deployment options:
 
