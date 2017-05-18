@@ -70,10 +70,10 @@ case "$(basename ${0})" in
             cd "${root}"
             sudo cp "${deploy_val}" /opt/emc/ecs-install/deploy.yml
             o "Recreating ecs-install data container"
-            update_image
-            # remove_data_container
-            # make_new_data_container
-            # ecsdeploy load
+            # update_image
+            remove_data_container
+            make_new_data_container
+            ecsdeploy load
             docker_set_artifact
             cd - 2>&1 >/dev/null
         else
@@ -119,8 +119,9 @@ case "$(basename ${0})" in
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig rg -a || exit $?
-        # o "Pinging Management API Endpoint until ready"
-        # run ecsconfig ping -c -x || exit $?
+        o "Pinging Management API Endpoint until ready"
+        run ecsconfig ping -c -x || exit $?
+        run ecsconfig ns -a || exit $?
     ;;
     *)
         die "Invalid operation."

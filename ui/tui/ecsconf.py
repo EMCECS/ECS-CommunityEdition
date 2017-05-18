@@ -103,7 +103,6 @@ DEFAULTS[SP] = {
 # Virtual Datacenter stuff
 VDC = 'virtual_data_centers'
 VDC_D = VDC[:-1] + '_defaults'
-VDC_KEY = 'secret_key'
 DEFAULTS[VDC] = {}
 
 # Replication Group stuff
@@ -123,6 +122,18 @@ DEFAULTS[AUTH] = {
     DESC: DESC_DEFAULT
 }
 
+# Namespace stuff
+NAMESPACE_ADMINS = 'administrators'
+NAMESPACE_ADMINS_DEFAULT = 'root'
+NAMESPACE_VPOOL = 'replication_group'
+NS = 'namespaces'
+NS_D = NS[:-1] + _D
+DEFAULTS[NS] = {
+    'is_encryption_enabled': False,
+    'is_stale_allowed': False,
+    'is_compliance_enabled': False,
+}
+
 # Management user stuff
 MU = 'management_users'
 MU_D = MU[:-1] + _D
@@ -135,16 +146,6 @@ OU = 'object_users'
 OU_D = OU[:-1] + _D
 DEFAULTS[OU] = {
     DESC: DESC_DEFAULT
-}
-
-# Namespace stuff
-NS = 'namespaces'
-NS_D = NS[:-1] + _D
-DEFAULTS[NS] = {
-    'is_encryption_enabled': False,
-    'is_stale_allowed': False,
-    'is_compliance_enabled': False,
-    'namespace_admins': ROOT_USER_DEFAULT
 }
 
 # Bucket stuff
@@ -240,11 +241,11 @@ class ECSConf(object):
         """
         return self.get_attr(map_type, NAME)
 
-    def get_members(self, map_type, name):
+    def get_members(self, map_type, name, key=MEMBERS):
         """
         Returns a list of items from the members key of the given map_type and name
         """
-        return self.get_attr(map_type, MEMBERS, name)
+        return self.get_attr(map_type, key, name)
 
     def get_root_user(self):
         """
@@ -478,8 +479,11 @@ class ECSConf(object):
     def get_ns_names(self):
         return self.get_names(NS)
 
-    def get_ns_members(self, ns_name):
-        return self.get_members(NS, ns_name)[0]
+    def get_ns_users(self, ns_name):
+        users = self.get_members(NS, ns_name, NAMESPACE_ADMINS)[0]
+        if users is None:
+            users = [NAMESPACE_ADMINS_DEFAULT]
+        return users
 
     def get_ns_options(self, ns_name):
         """
@@ -492,3 +496,23 @@ class ECSConf(object):
         if ns_opts is not None:
             opts.update(ns_opts)
         return opts
+
+    def get_ns_vpool(self, ns_name):
+        """
+        returns the default vpool of the named namespace
+        :param ns_name: ns name
+        :return:
+        """
+        return self.get_attr(NS, NAMESPACE_VPOOL, ns_name)
+
+    def get_ns_dict(self, ns_name):
+        """
+        returns dict describing the named namespace
+        :param ns_name:
+        :return: ns_dict
+        """
+        ns_dict = {}
+        ns_dict.update(self.get_ns_options(ns_name))
+        ns_dict.update({NAMESPACE_ADMINS: self.get_ns_users(ns_name)})
+        ns_dict.update({NAMESPACE_VPOOL: self.get_ns_vpool(ns_name)})
+        return ns_dict
