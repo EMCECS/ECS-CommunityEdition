@@ -544,127 +544,127 @@ def sp(conf, l, r, a, n):
         conf.api_reset()
 
 
-@ecsconfig.command('ds', short_help='Work with ECS Data Stores')
-@click.option('-l', is_flag=True, help='List known DS configs')
-@click.option('-r', is_flag=True, help='Get current DS configs from ECS')
-@click.option('-a', is_flag=True, help="Add all DSs to ECS")
-@click.option('-n', default=None, help='Add the given DS to ECS')
-@pass_conf
-def ds(conf, l, r, a, n):
-    """
-    Work with a collection of ECS abstractions
-    :param conf: Click object containing the configuration
-    :param l: list known configurations of this abstraction
-    :param r: list instances of this abstraction configured on ECS
-    :param a: add all known configurations of this abstraction
-    :param n: add a single known configuration of this abstraction
-    :return: retval
-    """
-    def list_all():
-        return conf.ecs.get_sp_names()
-
-    def get_all():
-        return conf.api_client.storage_pool.list()
-
-    def sp_create(name, sp_ecs_options):
-        """
-        Create a storage pool
-        :param name:
-        :param sp_ecs_options: dict of kwargs
-        :return: Storage Pool ID as URN
-        """
-        kwargs = {"name": name}
-        kwargs.update(sp_ecs_options)
-        #o('kwargs: {}'.format(kwargs))
-
-        resp = conf.api_client.storage_pool.create(**kwargs)
-        return resp['id']
-
-    def sp_add_node(sp_id, node_ip):
-        """
-        Add given node to named storage pool
-        :param sp_id: Storage Pool URN
-        :param node_ip: IP address of node
-        :return: retval
-        """
-
-        node_dict = conf.ecs.get_node_options(node_ip)
-
-        kwargs = {"name": node_ip,
-                  "description": node_dict['description'],
-                  "node_id": node_ip,
-                  "storage_pool_id": sp_id}
-        """
-        def create(self, name, description, node_id, storage_pool_id):
-        :param name: User provided name (not verified or unique)
-        :param description: User provided description (not verified or unique)
-        :param node_id: IP address for the commodity node
-        :param storage_pool_id: Desired storage pool ID for creating data store
-        :returns a task object
-        """
-        return conf.api_client.data_store.create(**kwargs)
-
-    def add_one(name):
-        o('Adding SP {}'.format(name))
-        sp_id = sp_create(name, conf.ecs.sp_ecs_options(name))
-        sp_tasks = []
-        nodes = conf.ecs.get_sp_members(name)
-        if nodes is not None:
-            for node in nodes:
-                o('Adding datastore node {} to {}'.format(node, name))
-                conf.wait_for_dt_ready()
-                # def api_sp_add_node(self, node_ip, sp_id, node_name=None, node_description=None):
-                sp_tasks.append(sp_add_node(sp_id, node))
-        return sp_tasks
-
-    def add_all():
-        storage_pools = conf.ecs.get_sp_names()
-        if storage_pools is not None:
-            sp_tasks = []
-            for name in storage_pools:
-                sp_tasks.extend(add_one(name))
-            return sp_tasks
-        return None
-
-    if l:
-        available_sp_configs = list_all()
-        if available_sp_configs is not None:
-            o("Available Storage Pool configurations:")
-            for sp_name in available_sp_configs:
-                o("\t{}".format(sp_name))
-        else:
-            o("No storage pool configurations are present.")
-
-    if r:
-        o('Storage Pools currently configured:')
-        for sp_config in get_all():
-            o("\t{}".format(sp_config['name']))
-
-    if a:
-        available_sp_configs = list_all()
-        if available_sp_configs is not None:
-            n = None
-            conf.api_set_timeout(300)
-            conf.api_close()
-            conf.api_reset()
-            tasks = add_all()
-            #o(tasks)
-            conf.api_set_timeout(API_TIMEOUT)
-            conf.api_close()
-            conf.api_reset()
-        else:
-            o('No storage pool configurations were provided in deploy.yml')
-
-    if n is not None:
-        conf.api_set_timeout(300)
-        conf.api_close()
-        conf.api_reset()
-        tasks = add_one(n)
-        #o(tasks)
-        conf.api_set_timeout(API_TIMEOUT)
-        conf.api_close()
-        conf.api_reset()
-
+# @ecsconfig.command('ds', short_help='Work with ECS Data Stores')
+# @click.option('-l', is_flag=True, help='List known DS configs')
+# @click.option('-r', is_flag=True, help='Get current DS configs from ECS')
+# @click.option('-a', is_flag=True, help="Add all DSs to ECS")
+# @click.option('-n', default=None, help='Add the given DS to ECS')
+# @pass_conf
+# def ds(conf, l, r, a, n):
+#     """
+#     Work with a collection of ECS abstractions
+#     :param conf: Click object containing the configuration
+#     :param l: list known configurations of this abstraction
+#     :param r: list instances of this abstraction configured on ECS
+#     :param a: add all known configurations of this abstraction
+#     :param n: add a single known configuration of this abstraction
+#     :return: retval
+#     """
+#     def list_all():
+#         return conf.ecs.get_sp_names()
+#
+#     def get_all():
+#         return conf.api_client.storage_pool.list()
+#
+#     def sp_create(name, sp_ecs_options):
+#         """
+#         Create a storage pool
+#         :param name:
+#         :param sp_ecs_options: dict of kwargs
+#         :return: Storage Pool ID as URN
+#         """
+#         kwargs = {"name": name}
+#         kwargs.update(sp_ecs_options)
+#         #o('kwargs: {}'.format(kwargs))
+#
+#         resp = conf.api_client.storage_pool.create(**kwargs)
+#         return resp['id']
+#
+#     def sp_add_node(sp_id, node_ip):
+#         """
+#         Add given node to named storage pool
+#         :param sp_id: Storage Pool URN
+#         :param node_ip: IP address of node
+#         :return: retval
+#         """
+#
+#         node_dict = conf.ecs.get_node_options(node_ip)
+#
+#         kwargs = {"name": node_ip,
+#                   "description": node_dict['description'],
+#                   "node_id": node_ip,
+#                   "storage_pool_id": sp_id}
+#         """
+#         def create(self, name, description, node_id, storage_pool_id):
+#         :param name: User provided name (not verified or unique)
+#         :param description: User provided description (not verified or unique)
+#         :param node_id: IP address for the commodity node
+#         :param storage_pool_id: Desired storage pool ID for creating data store
+#         :returns a task object
+#         """
+#         return conf.api_client.data_store.create(**kwargs)
+#
+#     def add_one(name):
+#         o('Adding SP {}'.format(name))
+#         sp_id = sp_create(name, conf.ecs.sp_ecs_options(name))
+#         sp_tasks = []
+#         nodes = conf.ecs.get_sp_members(name)
+#         if nodes is not None:
+#             for node in nodes:
+#                 o('Adding datastore node {} to {}'.format(node, name))
+#                 conf.wait_for_dt_ready()
+#                 # def api_sp_add_node(self, node_ip, sp_id, node_name=None, node_description=None):
+#                 sp_tasks.append(sp_add_node(sp_id, node))
+#         return sp_tasks
+#
+#     def add_all():
+#         storage_pools = conf.ecs.get_sp_names()
+#         if storage_pools is not None:
+#             sp_tasks = []
+#             for name in storage_pools:
+#                 sp_tasks.extend(add_one(name))
+#             return sp_tasks
+#         return None
+#
+#     if l:
+#         available_sp_configs = list_all()
+#         if available_sp_configs is not None:
+#             o("Available Storage Pool configurations:")
+#             for sp_name in available_sp_configs:
+#                 o("\t{}".format(sp_name))
+#         else:
+#             o("No storage pool configurations are present.")
+#
+#     if r:
+#         o('Storage Pools currently configured:')
+#         for sp_config in get_all():
+#             o("\t{}".format(sp_config['name']))
+#
+#     if a:
+#         available_sp_configs = list_all()
+#         if available_sp_configs is not None:
+#             n = None
+#             conf.api_set_timeout(300)
+#             conf.api_close()
+#             conf.api_reset()
+#             tasks = add_all()
+#             #o(tasks)
+#             conf.api_set_timeout(API_TIMEOUT)
+#             conf.api_close()
+#             conf.api_reset()
+#         else:
+#             o('No storage pool configurations were provided in deploy.yml')
+#
+#     if n is not None:
+#         conf.api_set_timeout(300)
+#         conf.api_close()
+#         conf.api_reset()
+#         tasks = add_one(n)
+#         #o(tasks)
+#         conf.api_set_timeout(API_TIMEOUT)
+#         conf.api_close()
+#         conf.api_reset()
+#
 
 @ecsconfig.command('vdc', short_help='Work with ECS Virtual Data Centers')
 @click.option('-l', is_flag=True, help='List known VDC configs')
@@ -825,67 +825,85 @@ def rg(conf, l, r, a, n):
         o('Created replication group {}'.format(result['name']))
 
 
-# @ecsconfig.command('namespace', short_help='Work with ECS Namespaces')
-# @click.option('-l', is_flag=True, help='List known namespace configs')
-# @click.option('-r', is_flag=True, help='Get current namespace configs from ECS')
-# @click.option('-a', is_flag=True, help="Add all namespaces to ECS")
-# @click.option('-n', default=None, help='Add the given namespace to ECS')
-# @pass_conf
-# def namespace(conf, l, r, a, n):
-#     """
-#     # BUG: Broken - doesn't build NS right
-#     Work with a collection of ECS abstractions
-#     :param conf: Click object containing the configuration
-#     :param l: list known configurations of this abstraction
-#     :param r: list instances of this abstraction configured on ECS
-#     :param a: add all known configurations of this abstraction
-#     :param n: add a single known configuration of this abstraction
-#     :return: retval
-#     """
-#     def list_all():
-#         return conf.ecs.get_ns_names()
-#
-#     def get_all():
-#         return conf.api_client.namespace.list()
-#
-#     def add_namespace(namespace_name):
-#         o('Adding namespace {}'.format(namespace_name))
-#         ns_dict = conf.ecs.get_ns_options(namespace_name)
-#
-#         kwargs = {"is_stale_allowed": ns_dict['is_stale_allowed'],
-#                   "is_compliance_enabled": ns_dict['is_compliance_enabled'],
-#                   "is_encryption_enabled": ns_dict['is_encryption_enabled'],
-#                   "namespace_admins": ns_dict['namespace_admins'],
-#                   "default_data_services_vpool": ns_dict['']}
-#
-#         return conf.api_client.namespace.create(namespace_name, **kwargs)
-#
-#     def add_all():
-#         for namespace_name in list_all():
-#             add_namespace(namespace_name)
-#
-#     if l:
-#         available_rg_configs = list_all()
-#         if available_rg_configs is not None:
-#             o('Available Namespace configurations:')
-#             for ns_name in list_all():
-#                 o('\t{}'.format(ns_name))
-#         else:
-#             o('No namespace configurations in deploy.yml')
-#     if r:
-#         o('Namespaces currently configured:')
-#         namespaces = get_all()
-#         for ns_data in namespaces['namespace']:
-#             o('\t{}'.format(ns_data['name']))
-#     if a:
-#         n = None
-#         available_rg_configs = list_all()
-#         if available_rg_configs is not None:
-#             add_all()
-#         else:
-#             o('No namespace configurations in deploy.yml')
-#     if n is not None:
-#         add_namespace(n)
+@ecsconfig.command('namespace', short_help='Work with ECS Namespaces')
+@click.option('-l', is_flag=True, help='List known namespace configs')
+@click.option('-r', is_flag=True, help='Get current namespace configs from ECS')
+@click.option('-a', is_flag=True, help="Add all namespaces to ECS")
+@click.option('-n', default=None, help='Add the given namespace to ECS')
+@pass_conf
+def namespace(conf, l, r, a, n):
+    """
+    # BUG: Broken - doesn't build NS right
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list known configurations of this abstraction
+    :param r: list instances of this abstraction configured on ECS
+    :param a: add all known configurations of this abstraction
+    :param n: add a single known configuration of this abstraction
+    :return: retval
+    """
+    def list_all():
+        return conf.ecs.get_ns_names()
+
+    def get_all():
+        return conf.api_client.namespace.list()
+
+    def namespace_exists(name):
+        if name in list_all():
+            return True
+        return False
+
+    def add_namespace(namespace_name):
+        o('Adding namespace {}'.format(namespace_name))
+        ns_dict = conf.ecs.get_ns_dict(namespace_name)
+
+        default_data_services_vpool = [
+            x['id']
+            for x
+            in conf.api_client.replication_group.list()['data_service_vpool']
+            if x['name'] == ns_dict['replication_group']
+        ][0]
+
+        kwargs = {"is_stale_allowed": ns_dict['is_stale_allowed'],
+                  "is_compliance_enabled": ns_dict['is_compliance_enabled'],
+                  "is_encryption_enabled": ns_dict['is_encryption_enabled'],
+                  "namespace_admins": ns_dict['administrators'],
+                  "default_data_services_vpool": default_data_services_vpool}
+
+        return conf.api_client.namespace.create(namespace_name, **kwargs)
+
+    def add_all():
+        for namespace_name in list_all():
+            add_namespace(namespace_name)
+            o('Created namespace {}'.format(namespace_name))
+
+    if l:
+        available_rg_configs = list_all()
+        if available_rg_configs is not None:
+            o('Available Namespace configurations:')
+            for ns_name in list_all():
+                o('\t{}'.format(ns_name))
+        else:
+            o('No namespace configurations in deploy.yml')
+    if r:
+        o('Namespaces currently configured:')
+        namespaces = get_all()
+        for ns_data in namespaces['namespace']:
+            o('\t{}'.format(ns_data['name']))
+    if a:
+        n = None
+        available_rg_configs = list_all()
+        if available_rg_configs is not None:
+            add_all()
+            o('Created all configured namespaces')
+        else:
+            o('No namespace configurations in deploy.yml')
+    if n is not None:
+        if namespace_exists(n):
+            add_namespace(n)
+            o('Created namespace {}'.format(n))
+        else:
+            o('No namespace named {}'.format(n))
 
 
 # @ecsconfig.command('object-user', short_help='Work with ECS Object Users')
