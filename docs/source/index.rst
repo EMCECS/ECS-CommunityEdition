@@ -3,10 +3,6 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. _changelog:
-
-    ../../changelog.rst
-
 Welcome to ECS Community Edition's documentation!
 =================================================
 
@@ -54,7 +50,7 @@ Readme
 ECS 3.x Software Container Deployment
 =====================================
 
-**Note** See the :doc:`changlog.rst` file for release notes.
+**Note** See the :doc:`changelog` file for release notes.
 
 Deployment options:
 
