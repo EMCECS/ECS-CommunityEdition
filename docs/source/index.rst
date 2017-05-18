@@ -14,8 +14,6 @@ Installation
 .. toctree::
    :maxdepth: 1
 
-   installation/system-requirements.rst
-   installation/google-compute.rst
    installation/ECS-Installation.rst
    installation/deploy.yml.rst
    
