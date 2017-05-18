@@ -3,8 +3,8 @@
 
 Deployment options:
 
-- **[ECS Docker Multiple Node Deployment (recommended)](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node "ECS Multiple Node Deployment Information")**
-- **[ECS Docker Single Node Deployment](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node "ECS Single Node Deployment Information")**
+* <b>[ECS Docker Multiple Node Deployment (recommended)](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node "ECS Multiple Node Deployment Information")</b>
+* <b>[ECS Docker Single Node Deployment](https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node "ECS Single Node Deployment Information")</b>
 
 ## Description
 
@@ -133,4 +133,3 @@ EMC and Customer enter into this Agreement and this Agreement shall become effec
 **9.7 - Independent Contractors** - The parties shall act as independent contractors for all purposes under this Agreement. Nothing contained herein shall be deemed to constitute either party as an agent or representative of the other party, or both parties as joint venturers or partners for any purpose. Neither party shall be responsible for the acts or omissions of the other party, and neither party will have authority to speak for, represent or obligate the other party in any way without an authenticated record indicating the prior approval of the other party.
 
 **9.8 - Separability** - If any provision of this Agreement shall be held illegal or unenforceable, such provision shall be deemed separable from, and shall in no way affect or impair the validity or enforceability of, the remaining provisions.
-

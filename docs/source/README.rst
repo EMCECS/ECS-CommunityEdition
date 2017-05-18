@@ -5,10 +5,10 @@ ECS 3.x Software Container Deployment
 
 Deployment options:
 
--  **`ECS Docker Multiple Node Deployment
-   (recommended) <https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node>`__**
--  **`ECS Docker Single Node
-   Deployment <https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node>`__**
+-  \ `ECS Docker Multiple Node Deployment
+   (recommended) <https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node>`__\ 
+-  \ `ECS Docker Single Node
+   Deployment <https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node>`__\ 
 
 Description
 -----------
