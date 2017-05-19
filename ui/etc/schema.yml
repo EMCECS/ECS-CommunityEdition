@@ -161,10 +161,10 @@ mapping:
                 type: map
                 required: True
                 mapping:
-                  cold_storage_enabled:
+                  is_cold_storage_enabled:
                     type: bool
                     required: False
-                  protected:
+                  is_protected:
                     type: bool
                     required: False
                   description:
