@@ -8,12 +8,14 @@ EMC Elastic Cloud Storage (ECS) is a stateful containerized cloud storage.  It p
 
 ## Quick Start Guide
 If you have the following:
+
 1. A CentOS 7.3 Minimal instance with:
     1. 16GB RAM
     2. 16GB block device for system
     3. 104GB block device for ECS
 2. Internet access
 3. No proxies, local mirrors, or special Docker registries
+
 Then you should be able to get up and going with a Single-Node All-in-One install using these commands on your VM:
 ```
 # git clone https://github.com/EMCECS/ECS-CommunityEdition
