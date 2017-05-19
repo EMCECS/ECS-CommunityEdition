@@ -36,6 +36,7 @@ And if all went well, you now have a working stand-alone ECS, mostly configured,
 
 ### Minimum
 Hardware or virtual machine with:
+
 * CentOS 7.3 Minimal installation
 * 16GB RAM
 * 16GB root block storage
@@ -43,6 +44,7 @@ Hardware or virtual machine with:
 
 ### Recommended
 Hardware or virtual machine with:
+
 * CentOS 7.3 Minimal installation
 * 64GB RAM
 * 16GB root block storage
