@@ -129,6 +129,7 @@ Directory Structure
      Directory Name              Description
 -------------------------  --------------------------
 `docs <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/docs>`__  Documentation Sources, `Read them online at <http://ecs-ce.readthedocs.io/en/latest/>__
+=========================  ===========================
 
 Support
 =======
