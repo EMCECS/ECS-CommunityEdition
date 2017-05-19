@@ -1,6 +1,6 @@
 [![Documentation Status](https://readthedocs.org/projects/dell-emc-ecs-community-edition/badge/?version=latest)](http://dell-emc-ecs-community-edition.readthedocs.io/en/latest/?badge=latest)
-# ECS Community Edition
-See [changelog.md](changelog.md) file for release notes.
+ <h1> ECS Community Edition </h1> 
+ See [changelog.md](https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/changelog.md) file for release notes.
 
 ## Description
 

@@ -1,5 +1,4 @@
-|Documentation Status| # ECS Community Edition See
-`changelog.md <changelog.md>`__ file for release notes.
+|Documentation Status| ECS Community Edition See `changelog.md <https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/changelog.md>`__ file for release notes.
 
 Description
 -----------
