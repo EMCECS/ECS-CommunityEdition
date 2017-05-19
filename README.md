@@ -6,6 +6,30 @@ See [changelog.md](changelog.md) file for release notes.
 
 EMC Elastic Cloud Storage (ECS) is a stateful containerized cloud storage.  It provides persistence for your applications that can access data through standardized Object protocols like AWS S3 or OpenStack Swift. ECS can be set up on one or more hosts / VMs in a single-site or a multi-site geo replicated configuration. We want the wider community to use ECS and provide feedback.  Usage of this software is under the following End User License Agreement.
 
+## Quick Start Guide
+If you have the following:
+1. A CentOS 7.3 Minimal instance with:
+    1. 16GB RAM
+    2. 16GB block device for system
+    3. 104GB block device for ECS
+2. Internet access
+3. No proxies, local mirrors, or special Docker registries
+Then you should be able to get up and going with a Single-Node All-in-One install using these commands on your VM:
+```
+# git clone https://github.com/EMCECS/ECS-CommunityEdition
+# cd ECS-CommunityEdition
+# cp docs/design/reference.deploy.yml deploy.yml
+# echo "Edit this deploy.yml to match your VM's environment"
+# vi deploy.yml
+# ./bootstrap.sh -y -c deploy.yml
+```
+And then after the node reboots (you did use a clean minimal install from ISO or netinstall right?):
+```
+# step1
+# step2
+```
+And if all went well, you now have a working stand-alone ECS, mostly configured, and ready for use.
+
 ## Hardware Requirements
 
 ### Minimum
