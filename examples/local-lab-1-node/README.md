@@ -5,7 +5,7 @@ In this configuration example, a single-node ECS CE will be deployed in a VM. Th
 In `bootstrap-local.sh` you'll find a shortcut to `bootstrap.sh` with all the options this configuration example wants to use:
 
 ```
-./bootstrap.sh -y -b http://cache.local/alpine -g -r cache.local:5000 -d examples/local-lab-1-node/registry.crt -p cache.local:3128 -c docs/design/reference.deploy.yml
+./bootstrap.sh -y -b http://cache.local/alpine -g -r cache.local:5000 -d examples/local-lab-1-node/registry.crt -p cache.local:3128 -m cache.local -c examples/local-lab-1-node/deploy.yml
 ```
 
 _That's a lot of arguments!_  Let's look at what each of them does:
@@ -18,6 +18,8 @@ _That's a lot of arguments!_  Let's look at what each of them does:
 | `-r` | I have store all the Docker images I use frequently in my local docker registry, `cache.local:5000`, so I specify that registry using the `-r` flag. |
 | `-d` | My Docker registry uses a self-signed cert, so I have to import it into the Docker trust store (or else Docker will throw an identity error). |
 | `-p` | As much as possible I try to speed things up with local caches, Docker registries, OS package mirrors, etc. Here the `-p` flag tells `bootstrap.sh` to use my Squid proxycache running on `cache.local:3128`. |
+| `-m` | This points to my local CentOS mirror. |
+| `-c` | And finally, I have a deploy.yml already built for this lab, so I can tell `bootstrap.sh` to import it now so I don't have to do it later. |
 
 ## Deployment Config File: deploy.yml
 Deployment configuration for ECS Community Edition can be boiled down to a single YAML file, `deploy.yml`.  Deployment details can be tuned by making changes to the file provided using the `-c` argument to `bootstrap.sh` and running `update_deploy` to reload the deployment profile.
