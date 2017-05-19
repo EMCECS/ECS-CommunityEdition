@@ -25,5 +25,5 @@ source ${lib}/includes.sh
 #
 ##############################################################################
 
-${root}ui/pull_image.sh
-${root}ui/pull_image.sh --clean
+${root}/ui/pull_image.sh
+${root}/ui/pull_image.sh --clean
