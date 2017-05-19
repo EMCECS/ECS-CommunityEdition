@@ -128,11 +128,11 @@ Directory Structure
 +-----------------+--------------+
 | Directory Name  | Description  |
 +=================+==============+
-| `docs <docs>`__ | Documentatio |
-|                 | n            |
-|                 | sources;     |
-|                 | `read them   |
-|                 | online at    |
+| `docs <https:// | Documentatio |
+| github.com/EMCE | n            |
+| CS/ECS-Communit | sources;     |
+| yEdition/tree/d | `read them   |
+| evelop/docs>`__ | online at    |
 |                 | Read the     |
 |                 | Docs <http:/ |
 |                 | /ecs-ce.read |
@@ -140,43 +140,50 @@ Directory Structure
 |                 | n/latest/>`_ |
 |                 | _            |
 +-----------------+--------------+
-| `examples <exam | Deployment   |
-| ples>`__        | and          |
-|                 | configuratio |
-|                 | n            |
-|                 | examples for |
-|                 | common       |
+| `examples <http | Deployment   |
+| s://github.com/ | and          |
+| EMCECS/ECS-Comm | configuratio |
+| unityEdition/tr | n            |
+| ee/develop/exam | examples for |
+| ples>`__        | common       |
 |                 | scenarios    |
 +-----------------+--------------+
-| `contrib <contr | Unsupported  |
-| ib>`__          | community-co |
-|                 | ntributed    |
-|                 | scripts      |
-|                 | content      |
-|                 | related to   |
+| `contrib <https | Unsupported  |
+| ://github.com/E | community-co |
+| MCECS/ECS-Commu | ntributed    |
+| nityEdition/tre | scripts      |
+| e/develop/contr | content      |
+| ib>`__          | related to   |
 |                 | ECS CE       |
 +-----------------+--------------+
-| `patches <patch | Patches to   |
-| es>`__          | the ECS      |
-|                 | Community    |
-|                 | Edition      |
-|                 | Docker image |
+| `patches <https | Patches to   |
+| ://github.com/E | the ECS      |
+| MCECS/ECS-Commu | Community    |
+| nityEdition/tre | Edition      |
+| e/develop/patch | Docker image |
+| es>`__          |              |
 +-----------------+--------------+
 | `bootstrap.sh < | Installer    |
-| bootstrap.sh>`_ | 2.0          |
-| _               | bootstrap    |
-|                 | script       |
+| https://github. | 2.0          |
+| com/EMCECS/ECS- | bootstrap    |
+| CommunityEditio | script       |
+| n/blob/develop/ |              |
+| bootstrap.sh>`_ |              |
+| _               |              |
 +-----------------+--------------+
 | `release.conf < | Installer    |
-| release.conf>`_ | 2.0 release  |
-| _               | information  |
-|                 | file         |
+| https://github. | 2.0 release  |
+| com/EMCECS/ECS- | information  |
+| CommunityEditio | file         |
+| n/blob/develop/ |              |
+| release.conf>`_ |              |
+| _               |              |
 +-----------------+--------------+
-| `ui <ui>`__     | Installer    |
-|                 | 2.0          |
-|                 | (``ecsdeploy |
-|                 | ``,          |
-|                 | ``ecsconfig` |
+| `ui <https://gi | Installer    |
+| thub.com/EMCECS | 2.0          |
+| /ECS-CommunityE | (``ecsdeploy |
+| dition/tree/dev | ``,          |
+| elop/ui>`__     | ``ecsconfig` |
 |                 | `,           |
 |                 | related      |
 |                 | utilities,   |
@@ -184,45 +191,51 @@ Directory Structure
 |                 | files)       |
 +-----------------+--------------+
 | `bootstrap\_plu | Installer    |
-| gins <bootstrap | 2.0          |
-| _plugins>`__    | (``bootstrap |
-|                 | .sh``        |
-|                 | support      |
-|                 | files)       |
+| gins <https://g | 2.0          |
+| ithub.com/EMCEC | (``bootstrap |
+| S/ECS-Community | .sh``        |
+| Edition/tree/de | support      |
+| velop/bootstrap | files)       |
+| _plugins>`__    |              |
 +-----------------+--------------+
-| `legacy <legacy | Legacy       |
-| >`__            | deployment   |
-|                 | scripts      |
+| `legacy <https: | Legacy       |
+| //github.com/EM | deployment   |
+| CECS/ECS-Commun | scripts      |
+| ityEdition/tree |              |
+| /develop/legacy |              |
+| >`__            |              |
 +-----------------+--------------+
 | `legacy/ecs-sin | (Legacy)     |
-| gle-node <legac | Contains the |
-| y/ecs-single-no | scripts to   |
-| de>`__          | run a        |
-|                 | Elastic      |
-|                 | Cloud        |
-|                 | Storage      |
-|                 | single Node  |
+| gle-node <https | Contains the |
+| ://github.com/E | scripts to   |
+| MCECS/ECS-Commu | run a        |
+| nityEdition/tre | Elastic      |
+| e/develop/legac | Cloud        |
+| y/ecs-single-no | Storage      |
+| de>`__          | single Node  |
 |                 | Docker and   |
 |                 | Vagrant      |
 |                 | deployments  |
 +-----------------+--------------+
 | `legacy/ecs-mul | (Legacy)     |
-| ti-node <legacy | Contains the |
-| /ecs-multi-node | scripts to   |
-| >`__            | run a        |
-|                 | Elastic      |
-|                 | Cloud        |
-|                 | Storage      |
-|                 | Multiple     |
+| ti-node <https: | Contains the |
+| //github.com/EM | scripts to   |
+| CECS/ECS-Commun | run a        |
+| ityEdition/tree | Elastic      |
+| /develop/legacy | Cloud        |
+| /ecs-multi-node | Storage      |
+| >`__            | Multiple     |
 |                 | Node Docker  |
 |                 | deployment   |
 +-----------------+--------------+
 | `legacy/Documen | (Legacy)     |
-| tation <legacy/ | Contains     |
-| Documentation>` | documentatio |
-| __              | n            |
-|                 | files and    |
-|                 | media        |
+| tation <https:/ | Contains     |
+| /github.com/EMC | documentatio |
+| ECS/ECS-Communi | n            |
+| tyEdition/tree/ | files and    |
+| develop/legacy/ | media        |
+| Documentation>` |              |
+| __              |              |
 +-----------------+--------------+
 
 Support

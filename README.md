@@ -17,6 +17,7 @@ If you have the following:
 3. No proxies, local mirrors, or special Docker registries
 
 Then you should be able to get up and going with a Single-Node All-in-One install using these commands on your VM:
+
 ```
 # git clone https://github.com/EMCECS/ECS-CommunityEdition
 # cd ECS-CommunityEdition
@@ -25,11 +26,14 @@ Then you should be able to get up and going with a Single-Node All-in-One instal
 # vi deploy.yml
 # ./bootstrap.sh -y -c deploy.yml
 ```
+
 And then after the node reboots (you did use a clean minimal install from ISO or netinstall right?):
+
 ```
 # step1    
 # step2
 ```
+
 And if all went well, you now have a working stand-alone ECS, mostly configured, and ready for use.
 
 ## Hardware Requirements
@@ -76,18 +80,18 @@ Using an Install Node for isolated environments, deploy a stand-alone instance o
 
 |Directory Name|Description|
 |--------------|-----------|
-| [docs](docs) | Documentation sources; [read them online at Read the Docs](http://ecs-ce.readthedocs.io/en/latest/)
-| [examples](examples) | Deployment and configuration examples for common scenarios
-| [contrib](contrib) | Unsupported community-contributed scripts content related to ECS CE
-| [patches](patches) | Patches to the ECS Community Edition Docker image
-| [bootstrap.sh](bootstrap.sh) | Installer 2.0 bootstrap script
-| [release.conf](release.conf) | Installer 2.0 release information file
-| [ui](ui) | Installer 2.0 (`ecsdeploy`, `ecsconfig`, related utilities, and support files)
-| [bootstrap_plugins](bootstrap_plugins) | Installer 2.0 (`bootstrap.sh` support files)
-| [legacy](legacy) | Legacy deployment scripts
-| [legacy/ecs-single-node](legacy/ecs-single-node) | (Legacy) Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments|
-| [legacy/ecs-multi-node](legacy/ecs-multi-node) | (Legacy) Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment|
-| [legacy/Documentation](legacy/Documentation) | (Legacy) Contains documentation files and media|
+| [docs](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/docs) | Documentation sources; [read them online at Read the Docs](http://ecs-ce.readthedocs.io/en/latest/)
+| [examples](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/examples) | Deployment and configuration examples for common scenarios
+| [contrib](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/contrib) | Unsupported community-contributed scripts content related to ECS CE
+| [patches](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/patches) | Patches to the ECS Community Edition Docker image
+| [bootstrap.sh](https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/bootstrap.sh) | Installer 2.0 bootstrap script
+| [release.conf](https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/release.conf) | Installer 2.0 release information file
+| [ui](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/ui) | Installer 2.0 (`ecsdeploy`, `ecsconfig`, related utilities, and support files)
+| [bootstrap_plugins](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/bootstrap_plugins) | Installer 2.0 (`bootstrap.sh` support files)
+| [legacy](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy) | Legacy deployment scripts
+| [legacy/ecs-single-node](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/ecs-single-node) | (Legacy) Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments|
+| [legacy/ecs-multi-node](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/ecs-multi-node) | (Legacy) Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment|
+| [legacy/Documentation](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/Documentation) | (Legacy) Contains documentation files and media|
 
 # Support
 

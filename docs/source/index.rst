@@ -26,8 +26,7 @@ Use
 .. NOTE keep this list in sync with manual/index.rst
 .. toctree::
    :maxdepth: 1
-   
-   use/ECS-UI-Automation.rst
+
    use/ECS-UI-Web-Interface.rst
 
 .. _troubleshooting:
