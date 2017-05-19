@@ -78,7 +78,7 @@ Using an Install Node for isolated environments, deploy a stand-alone instance o
 
 # Directory Structure
 
-|Directory Name|Description|
+|   Directory Name   |   Description   |
 |--------------|-----------|
 | [docs](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/docs) | Documentation sources; [read them online at Read the Docs](http://ecs-ce.readthedocs.io/en/latest/)
 | [examples](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/examples) | Deployment and configuration examples for common scenarios
