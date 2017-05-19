@@ -27,7 +27,7 @@ Then you should be able to get up and going with a Single-Node All-in-One instal
 ```
 And then after the node reboots (you did use a clean minimal install from ISO or netinstall right?):
 ```
-# step1
+# step1    
 # step2
 ```
 And if all went well, you now have a working stand-alone ECS, mostly configured, and ready for use.

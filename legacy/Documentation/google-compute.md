@@ -52,7 +52,7 @@ In order to monitor the installation process, you need to get a serial port dump
 
  The ECS Administrative portal can be accessed from any one of the ECS data nodes via HTTPS on port 443. For example: https://ecs-node-ip-address. Once you see the screen below:
 
-![ECS UI](../media/ecs-waiting-for-webserver.PNG)
+![ECS UI](../../docs/source/media/ecs-waiting-for-webserver.PNG)
 
 
 ## Cleanup
