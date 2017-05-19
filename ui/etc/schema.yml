@@ -159,13 +159,17 @@ mapping:
                     func: ipv4_address
               options:
                 type: map
+                required: True
                 mapping:
                   cold_storage_enabled:
                     type: bool
+                    required: False
                   protected:
                     type: bool
+                    required: False
                   description:
                     type: str
+                    required: False
                   ecs_block_devices:
                     required: True
                     type: seq
@@ -191,9 +195,11 @@ mapping:
                     func: alphanumeric
               options:
                 type: map
+                required: False
                 mapping:
                   description:
                     type: str
+                    required: False
 
       replication_groups:
         type: seq
@@ -213,6 +219,7 @@ mapping:
                     func: alphanumeric
               options:
                 type: map
+                required: False
                 mapping:
                   description:
                     type: str
@@ -249,10 +256,14 @@ mapping:
                 required: True
               options:
                 type: map
+                required: False
                 mapping:
                   is_stale_allowed:
                     type: bool
+                    required: False
                   is_compliance_enabled:
                     type: bool
+                    required: False
                   is_encryption_enabled:
                     type: bool
+                    required: False
