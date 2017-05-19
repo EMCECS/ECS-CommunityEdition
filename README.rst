@@ -43,7 +43,7 @@ from ISO or netinstall right?):
 
 ::
 
-    # step1
+    # step1    
     # step2
 
 And if all went well, you now have a working stand-alone ECS, mostly
@@ -55,14 +55,22 @@ Hardware Requirements
 Minimum
 ~~~~~~~
 
-Hardware or virtual machine with: \* CentOS 7.3 Minimal installation \*
-16GB RAM \* 16GB root block storage \* 104GB additional block storage
+Hardware or virtual machine with:
+
+-  CentOS 7.3 Minimal installation
+-  16GB RAM
+-  16GB root block storage
+-  104GB additional block storage
 
 Recommended
 ~~~~~~~~~~~
 
-Hardware or virtual machine with: \* CentOS 7.3 Minimal installation \*
-64GB RAM \* 16GB root block storage \* 1TB additional block storage
+Hardware or virtual machine with:
+
+-  CentOS 7.3 Minimal installation
+-  64GB RAM
+-  16GB root block storage
+-  1TB additional block storage
 
 Deployment Scenarios
 --------------------
@@ -126,9 +134,11 @@ Directory Structure
 |                 | `read them   |
 |                 | online at    |
 |                 | Read the     |
-|                 | Docs <https: |
-|                 | //rtd.com/>` |
-|                 | __           |
+|                 | Docs <http:/ |
+|                 | /ecs-ce.read |
+|                 | thedocs.io/e |
+|                 | n/latest/>`_ |
+|                 | _            |
 +-----------------+--------------+
 | `examples <exam | Deployment   |
 | ples>`__        | and          |

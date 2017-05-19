@@ -76,7 +76,7 @@ Using an Install Node for isolated environments, deploy a stand-alone instance o
 
 |Directory Name|Description|
 |--------------|-----------|
-| [docs](docs) | Documentation sources; [read them online at Read the Docs](https://rtd.com/)
+| [docs](docs) | Documentation sources; [read them online at Read the Docs](http://ecs-ce.readthedocs.io/en/latest/)
 | [examples](examples) | Deployment and configuration examples for common scenarios
 | [contrib](contrib) | Unsupported community-contributed scripts content related to ECS CE
 | [patches](patches) | Patches to the ECS Community Edition Docker image
