@@ -23,12 +23,12 @@ Multi-Node Requirements
 
 An ECS cluster deployment requires a minimum of four data nodes to
 provide the full set of features. Each one of the instances should have
-the following minimum requirements:
-
-- Operating System: CentOS 7.1
-- CPU: 4 Cores 
-- Memory: Minimum 16GB RAM 
-- Disk: An un-partitioned/Raw disk with at least 100 GB of Storage per disk per host. Multiple disks can be attached on each ECS Node to increase capacity and performance. Each disk need to be un-partitioned before running the installation scripts.
+the following minimum requirements: \* Operating System: CentOS 7.1 \*
+CPU: 4 Cores \* Memory: Minimum 16GB RAM \* Disk: An un-partitioned/Raw
+disk with at least 100 GB of Storage per disk per host. Multiple disks
+can be attached on each ECS Node to increase capacity and performance.
+Each disk need to be un-partitioned before running the installation
+scripts.
 
 Using a Public Cloud Service
 ----------------------------
@@ -96,7 +96,13 @@ Required Ports
 +===============+======================================================+
 | 22            | SSH, needed if using remote access                   |
 +---------------+------------------------------------------------------+
+| 80            | HTTP Portal                                          |
++---------------+------------------------------------------------------+
+| 111           | NFS                                                  |
++---------------+------------------------------------------------------+
 | 443           | Port used for accessing the ECS management website   |
++---------------+------------------------------------------------------+
+| 2049          | NFS                                                  |
 +---------------+------------------------------------------------------+
 | 3218          | Port used by the CAS service                         |
 +---------------+------------------------------------------------------+
@@ -114,9 +120,27 @@ Required Ports
 +---------------+------------------------------------------------------+
 | 9025          | Port used for SWIFT API on HTTPS                     |
 +---------------+------------------------------------------------------+
+| 9040          | HDFS                                                 |
++---------------+------------------------------------------------------+
+| 9094          | Replication                                          |
++---------------+------------------------------------------------------+
+| 9095          | Replication                                          |
++---------------+------------------------------------------------------+
+| 9096          | Replication                                          |
++---------------+------------------------------------------------------+
+| 9097          | Replication                                          |
++---------------+------------------------------------------------------+
+| 9098          | Replication                                          |
++---------------+------------------------------------------------------+
 | 9100          | Port used for DT Query service                       |
 +---------------+------------------------------------------------------+
 | 9101          | ECS Diagnostic Service Index                         |
++---------------+------------------------------------------------------+
+| 10000         | NFS                                                  |
++---------------+------------------------------------------------------+
+| 10110         | Metering                                             |
++---------------+------------------------------------------------------+
+| 64443         | Management API                                       |
 +---------------+------------------------------------------------------+
 
 Network Configuration

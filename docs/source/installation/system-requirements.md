@@ -49,7 +49,10 @@ Now we attach a new disk to the host VM. The new disk **/dev/sdc** looks like th
 |Port Number|Port Description|
 |-----------|----------------|
 |22| SSH, needed if using remote access |
-|443 | Port used for accessing the ECS management website|
+|80| HTTP Portal |
+|111| NFS |
+|443| Port used for accessing the ECS management website|
+|2049| NFS |
 |3218| Port used by the CAS service|
 |4443| ECS management API port |
 |9020| Port used for the S3 API|
@@ -58,8 +61,17 @@ Now we attach a new disk to the host VM. The new disk **/dev/sdc** looks like th
 |9023| Port used for Atmos API on HTTPS|
 |9024| Port used for SWIFT API |
 |9025| Port used for SWIFT API on HTTPS|
+|9040| HDFS |
+|9094| Replication |
+|9095| Replication |
+|9096| Replication |
+|9097| Replication |
+|9098| Replication |
 |9100| Port used for DT Query service|
 |9101| ECS Diagnostic Service Index |
+|10000| NFS |
+|10110| Metering |
+|64443| Management API |
 
 ## Network Configuration
 3. **Network configuration:** Define your network configuration. In the case of multiple nodes, all ECS Data Nodes must be on the same subnet and be able to talk to each other. This is an example:
