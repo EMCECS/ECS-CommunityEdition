@@ -126,11 +126,11 @@ Directory Structure
 ===================
 
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-| Directory Name                                                                                                  | Description                                                                                                 |
+| Directory Name                                                                                                      | Description                                                                                             |
 +=====================================================================================================================+=========================================================================================================+
 |`docs <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/docs>`__                                          | Documentation Sources, `Read them online at <http://ecs-ce.readthedocs.io/en/latest/>`__                |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-|`examples <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/examples>`__                                  | Deployment and configuration examples for common scenarios                                              |                            |
+|`examples <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/examples>`__                                  | Deployment and configuration examples for common scenarios                                              |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
 |`contrib <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/contrib>`__                                    | Unsupported community-contributed scripts content related to ECS CE                                     |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
