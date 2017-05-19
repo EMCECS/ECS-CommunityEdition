@@ -15,6 +15,7 @@ Installation
    :maxdepth: 1
 
    installation/ECS-Installation.rst
+   installation/deploy.yml.rst
    
    
 .. _use:
