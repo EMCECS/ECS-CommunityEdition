@@ -125,11 +125,34 @@ machine.
 Directory Structure
 ===================
 
-=========================  ==========================
-     Directory Name              Description
--------------------------  --------------------------
-`docs <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/docs>`__  Documentation Sources, `Read them online at <http://ecs-ce.readthedocs.io/en/latest/>__
-=========================  ===========================
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| Directory Name                                                                                                  | Description                                                                                                 |
++=====================================================================================================================+=========================================================================================================+
+|`docs <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/docs>`__                                          | Documentation Sources, `Read them online at <http://ecs-ce.readthedocs.io/en/latest/>`__                |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`examples <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/examples>`__                                  | Deployment and configuration examples for common scenarios                                              |                            |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`contrib <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/contrib>`__                                    | Unsupported community-contributed scripts content related to ECS CE                                     |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`patches <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/patches>`__                                    | Patches to the ECS Community Edition Docker image                                                       |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`bootstrap.sh <https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/bootstrap.sh>`__                          | Installer 2.0 bootstrap script                                                                          |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`release.conf <https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/release.conf>`__                          | Installer 2.0 release information file                                                                  |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`ui <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/ui>`__                                              | Installer 2.0 (`ecsdeploy`, `ecsconfig`, related utilities, and support files)                          |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`bootstrap_plugins <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/bootstrap_plugins>`__                | Installer 2.0 (`bootstrap.sh` support files)                                                            |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`legacy <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy>`__                                      | Legacy deployment scripts                                                                               |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`legacy/ecs-single-node <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/ecs-single-node>`__      | (Legacy) Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`legacy/ecs-multi-node <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/ecs-multi-node>`__        | (Legacy) Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment            |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`legacy/Documentation <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/Documentation>`__          | (Legacy) Contains documentation files and media                                                         |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+
 
 Support
 =======
