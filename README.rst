@@ -1,14 +1,4 @@
-ECS 3.x Software Container Deployment
-=====================================
-
-**Note** See the `changelog.md <changelog.md>`__ file for release notes.
-
-Deployment options:
-
--  \ `ECS Docker Multiple Node Deployment
-   (recommended) <https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-multi-node>`__\ 
--  \ `ECS Docker Single Node
-   Deployment <https://github.com/EMCECS/ECS-CommunityEdition/tree/master/ecs-single-node>`__\ 
+|Documentation Status| ECS Community Edition See `changelog.md <https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/changelog.md>`__ file for release notes.
 
 Description
 -----------
@@ -20,6 +10,43 @@ Swift. ECS can be set up on one or more hosts / VMs in a single-site or
 a multi-site geo replicated configuration. We want the wider community
 to use ECS and provide feedback. Usage of this software is under the
 following End User License Agreement.
+
+Quick Start Guide
+-----------------
+
+If you have the following:
+
+1. A CentOS 7.3 Minimal instance with:
+
+   1. 16GB RAM
+   2. 16GB block device for system
+   3. 104GB block device for ECS
+
+2. Internet access
+3. No proxies, local mirrors, or special Docker registries
+
+Then you should be able to get up and going with a Single-Node
+All-in-One install using these commands on your VM:
+
+::
+
+    # git clone https://github.com/EMCECS/ECS-CommunityEdition
+    # cd ECS-CommunityEdition
+    # cp docs/design/reference.deploy.yml deploy.yml
+    # echo "Edit this deploy.yml to match your VM's environment"
+    # vi deploy.yml
+    # ./bootstrap.sh -y -c deploy.yml
+
+And then after the node reboots (you did use a clean minimal install
+from ISO or netinstall right?):
+
+::
+
+    # step1    
+    # step2
+
+And if all went well, you now have a working stand-alone ECS, mostly
+configured, and ready for use.
 
 Hardware Requirements
 ---------------------
@@ -47,45 +74,84 @@ Hardware or virtual machine with:
 Deployment Scenarios
 --------------------
 
-Single Node
-~~~~~~~~~~~
+Deploy into Internet-Connected Environments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`ECS Multi-Node All-in-One Deployment with Install Node (recommended) <http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Deploy a multi-node ECS instance to two or more hardware or virtual
+machines and enable all ECS features. Three nodes are required for all
+ECS 3.0 and above features to be activated.
+
+`ECS Single-Node All-in-One Deployment (smallest footprint) <http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Deploy a stand-alone instance of a limited set of ECS kit to a single
-hardware or virtual machine. ### Multi-Node Deploy a multi-node ECS
-instance to three (3) or more hardware or virtual machines and enable
-all ECS features. Three nodes is the required minimum node footprint for
-ECS 3.0 and above.
+hardware or virtual machine.
+
+Deployments into Soft-Isolated and Air-Gapped Island Environments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Important information regarding Island deployments
+''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Please be aware that Install Node bootstrapping requires Internet access
+to the hardware or virtual machine that will become the Install Node,
+but once this step is complete, the machine can be removed from the
+Internet and migrated into the Island environment.
+
+If you prefer to download a prefabricated Install Node as an OVF/OVA,
+you may obtain one here:
+
+-  `Install Node OVA <>`__
+
+`ECS Multi-Node Deployment with Install Node (recommended) <http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Using an Install Node for isolated environments, deploy a multi-node ECS
+instance to two or more hardware or virtual machines and enable all ECS
+features. Three nodes are required for all ECS 3.0 and above features to
+be activated.
+
+`ECS Single-Node Deployment with Install Node <http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Using an Install Node for isolated environments, deploy a stand-alone
+instance of a limited set of ECS kit to a single hardware or virtual
+machine.
 
 Directory Structure
 ===================
 
-+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
-| Directory Name                                        | Description                                                                                               |
-+=======================================================+===========================================================================================================+
-| `docs <docs>`__                                       | Documentation sources; `read them online at Read the Docs <https://rtd.com/>`__                           |
-+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
-| `examples <examples>`__                               | Deployment and configuration examples for common scenarios                                                |
-+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
-| `contrib <contrib>`__                                 | Unsupported community-contributed scripts content related to ECS CE                                       |
-+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
-| `patches <patches>`__                                 | Patches to the ECS Community Edition Docker image                                                         |
-+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
-| `bootstrap.sh <bootstrap.sh>`__                       | Installer 2.0 bootstrap script                                                                            |
-+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
-| `release.conf <release.conf>`__                       | Installer 2.0 release information file                                                                    |
-+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
-| `ui <ui>`__                                           | Installer 2.0 (``ecsdeploy``, ``ecsconfig``, related utilities, and support files)                        |
-+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
-| `bootstrap\_plugins <bootstrap_plugins>`__            | Installer 2.0 (``bootstrap.sh`` support files)                                                            |
-+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
-| `legacy <legacy>`__                                   | Legacy deployment scripts                                                                                 |
-+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
-| `legacy/ecs-single-node <legacy/ecs-single-node>`__   | (Legacy) Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments   |
-+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
-| `legacy/ecs-multi-node <legacy/ecs-multi-node>`__     | (Legacy) Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment              |
-+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
-| `legacy/Documentation <legacy/Documentation>`__       | (Legacy) Contains documentation files and media                                                           |
-+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+| Directory Name                                                                                                      | Description                                                                                             |
++=====================================================================================================================+=========================================================================================================+
+|`docs <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/docs>`__                                          | Documentation Sources, `Read them online at <http://ecs-ce.readthedocs.io/en/latest/>`__                |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`examples <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/examples>`__                                  | Deployment and configuration examples for common scenarios                                              |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`contrib <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/contrib>`__                                    | Unsupported community-contributed scripts content related to ECS CE                                     |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`patches <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/patches>`__                                    | Patches to the ECS Community Edition Docker image                                                       |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`bootstrap.sh <https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/bootstrap.sh>`__                          | Installer 2.0 bootstrap script                                                                          |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`release.conf <https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/release.conf>`__                          | Installer 2.0 release information file                                                                  |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`ui <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/ui>`__                                              | Installer 2.0 (`ecsdeploy`, `ecsconfig`, related utilities, and support files)                          |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`bootstrap_plugins <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/bootstrap_plugins>`__                | Installer 2.0 (`bootstrap.sh` support files)                                                            |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`legacy <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy>`__                                      | Legacy deployment scripts                                                                               |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`legacy/ecs-single-node <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/ecs-single-node>`__      | (Legacy) Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`legacy/ecs-multi-node <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/ecs-multi-node>`__        | (Legacy) Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment            |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+|`legacy/Documentation <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/Documentation>`__          | (Legacy) Contains documentation files and media                                                         |
++---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
+
 
 Support
 =======
@@ -105,15 +171,15 @@ License Agreement
 EMC Elastic Cloud Storage (ECS) Software Limited-Use License Agreement
 ----------------------------------------------------------------------
 
-This EMC Software License Agreement (the “Agreement”) is a legal
+This EMC Software License Agreement (the "Agreement") is a legal
 agreement between EMC Corporation, with a principal office at 176 South
-Street, Hopkinton, MA 01748 USA (“EMC”) and you and the organization on
-whose behalf you are accessing this Agreement (the “Customer”) and
+Street, Hopkinton, MA 01748 USA ("EMC") and you and the organization on
+whose behalf you are accessing this Agreement (the "Customer") and
 governs Customer’s access to, downloading of, and use of any and all
 components, associated media, printed materials, documentation, and
-programming accessed via the EMC software (the “Software”).
+programming accessed via the EMC software (the "Software").
 
-By clicking on the “Agree” or check box or similar button set forth
+By clicking on the "Agree" or check box or similar button set forth
 below, or by downloading, installing, or using the Software, you are
 representing to EMC that (i) you are authorized to legally bind the
 Customer, and (ii) you are agreeing on behalf of the Customer that the
@@ -121,27 +187,27 @@ terms of this Agreement shall govern the relationship of the parties
 with regard to the Software.
 
 If you do not have authority to agree to the terms of this Agreement, or
-do not accept the terms of this Agreement, click on the “Cancel” or
+do not accept the terms of this Agreement, click on the "Cancel" or
 similar button or discontinue your efforts to download the Software, and
 the registration, download and/or installation process will not
 continue. In such event, no access to, or authorization to download or
 use the Software, is granted by EMC.
 
 EMC and Customer enter into this Agreement and this Agreement shall
-become effective on the date on which Customer clicks on the “Agree”
+become effective on the date on which Customer clicks on the "Agree"
 button described above or downloads, installs or uses the Software,
-whichever occurs first (the “Effective Date”). NOW, THEREFORE, in
+whichever occurs first (the "Effective Date"). NOW, THEREFORE, in
 consideration of the premises and obligations contained herein, it is
 agreed as follows:
 
 1.0 - DEFINITIONS
 ~~~~~~~~~~~~~~~~~
 
-**1.1** - “Equipment” means the Customer owned storage devices, systems,
+**1.1** - "Equipment" means the Customer owned storage devices, systems,
 or central processing units that the Software was designed to run on or
 with.
 
-**1.2** - “Software” means the free EMC Software made available for
+**1.2** - "Software" means the free EMC Software made available for
 download by Customer from a designated EMC web site.
 
 2.0 - PURPOSE AND SCOPE
@@ -173,7 +239,7 @@ without EMC's prior written consent, use the Software in a production
 environment, service bureau capacity, or copy, provide, disclose or
 otherwise make available Software in any form to anyone other than
 Customer's agents, employees, consultants or independent contractors
-(“Personnel”), who shall use Software solely for Customer's internal
+("Personnel"), who shall use Software solely for Customer's internal
 business purposes in a manner consistent with this Agreement. Customer
 shall be fully responsible to EMC for the compliance of Customer’s
 personnel herewith.
@@ -216,7 +282,7 @@ notice.
 6.0 - NO WARRANTY OR SUPPORT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**6.1** - EMC PROVIDES ALL SOFTWARE HEREUNDER ON AN “AS-IS,” “WHERE IS”
+**6.1** - EMC PROVIDES ALL SOFTWARE HEREUNDER ON AN "AS-IS," "WHERE IS"
 BASIS, AND MAKES NO OTHER EXPRESS WARRANTIES, WRITTEN OR ORAL, AND ALL
 OTHER WARRANTIES ARE SPECIFICALLY EXCLUDED, INCLUDING, BUT NOT LIMITED
 TO, THE IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
@@ -326,3 +392,6 @@ other party.
 held illegal or unenforceable, such provision shall be deemed separable
 from, and shall in no way affect or impair the validity or
 enforceability of, the remaining provisions.
+
+.. |Documentation Status| image:: https://readthedocs.org/projects/dell-emc-ecs-community-edition/badge/?version=latest
+   :target: http://dell-emc-ecs-community-edition.readthedocs.io/en/latest/?badge=latest

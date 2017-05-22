@@ -80,7 +80,7 @@ Installation requires the creation of a YML configuration file called
 deploy.yml. This file *must* be written before moving on. Create this
 file in the ``ECS-CommunityEdition`` directory that was created when the
 repository was cloned. A template guide for writing this file can be
-found `here <deploy.yml.rst>`__.
+found `here <http://ecs-community-edition.readthedocs.io/en/latest/installation/deploy.yml.html>`__.
 
 To quickly create a template, simply:
 

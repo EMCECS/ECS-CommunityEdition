@@ -1,29 +1,9 @@
-# ECS SW 2.x Google Compute Engine Deployment
+# Google Compute
+We've provided the necesarry templates to install ECS Community Edition via Google Compute Engine Tools. This guide walks the user through this kind of installation.
 
-ECS 2.x Single Node installation on Google Compute Engine: 
-
-The following instructions will allow you to install ECS 2.x software using a GCE Deployment Manager with a single command.
-
-## Prerequisite -
+## Prerequisite
 Google Compute Engine Tools, you can download and install it from the following link:
 - **[gcloud Tools Install](https://cloud.google.com/sdk/gcloud/ "gcloud Tool Guide")**
-
-Google Compute Engine Template files that are located in this git repository under ECS-CommunityEdition/ecs-single-node/gce/
-
-
-## Evnvironment Requirements 
-The following are the base requirements for running ECS 2.x software for a single node install, this will be created as part of the gcloud commands below:
-
-
-- **Operative system:** CentOS 7.1
-- **CPU/Cores:** 4 Cores
-- **Memory:** Minimum of 50 GB RAM (64 GB recommended)
-- **Disks:** An un-partitioned/Raw disk with at least 100 GB of Storage per disk per host. Multiple disks can be attached on each ECS Node to increase capacity and performance. Each disk need to be un-partitioned before running the installation scripts.
-
-
-## Deploy ECS Single Node Install
-
-Using GCE Deployment Manager to deploy a single node ECS. Please make sure to reference the right template from ECS-CommunityEdition/ecs-single-node/gce/ecs_singlenode.yaml
 
 Deployment Manager is GCE's deployment orchestration tool. It enables developers/ops to describe deployments using templates so it is easier to consume, manage and deploy. The following is a deployment template that basically does the following;
 
@@ -34,6 +14,14 @@ Deployment Manager is GCE's deployment orchestration tool. It enables developers
 4. Assign Network
 5. Run a startup script for installing and provisioning ECS.
 
+We have included Google Compute Engine Template files that are located in this git repository.
+## Single Node Template
+Use the template found in ECS-CommunityEdition/ecs-single-node/gce/ to deploy single node ECS. Please make sure to reference the right template from ECS-CommunityEdition/ecs-single-node/gce/ecs_singlenode.yaml.
+## Multi-Node Template
+Use the template found in ECS-CommunityEdition/ecs-multi-node/gce/ to deploy multi-node ECS. Please make sure to reference the right template from ECS-CommunityEdition/ecs-multi-node/gce/ecs_singlenode.yaml.
+
+## Deploy ECS with GCE Deployment Manager
+
 Note I am using here a preemtible GCE node type, this means it lasts only 24 hours. If you are looking to run this for sometime remove this option from the template.
 
 ```
@@ -42,8 +30,7 @@ gcloud deployment-manager deployments create ecs-deployment --config ./ecs_singl
 
 After the installation has completed the script will attempt to login using curl, this may take from 10 - 15 minutes.
 
-
-# Provisioning
+## Provisioning
 The automated provisioning may get stuck, login into the portal and start the manual provisioning. The license is already uploaded so you will need to just provision the following in order:
 
 1. Create Storage Pool
@@ -60,18 +47,15 @@ The automated provisioning may get stuck, login into the portal and start the ma
 In order to monitor the installation process, you need to get a serial port dump from GCE, this can be done using the following command:
 
     gcloud compute instances get-serial-port-output --zone us-central1-f ecs1
-
-## Access the ECS Web UI
+    
+    ## Access the ECS Web UI
 
  The ECS Administrative portal can be accessed from any one of the ECS data nodes via HTTPS on port 443. For example: https://ecs-node-ip-address. Once you see the screen below:
 
-![ECS UI](https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/media/ecs-waiting-for-webserver.PNG)
+![ECS UI](../../docs/source/media/ecs-waiting-for-webserver.PNG)
 
 
 ## Cleanup
 Now once you are done, you can cleaup instance, disk and networks created (note the disk will be automatically deleted once the instance is deleted)
 
     gcloud deployment-manager deployments delete ecs-deployment
-
-
-
