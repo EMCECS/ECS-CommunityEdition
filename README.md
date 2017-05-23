@@ -56,7 +56,7 @@ Hardware or virtual machine with:
 
 ## Deployment Scenarios
 ### Deploy into Internet-Connected Environments
-#### [ECS Multi-Node All-in-One Deployment with Install Node (recommended)](http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html)
+#### [ECS Multi-Node All-in-One Deployment with Install Node (recommended, full-featured)](http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html)
 Deploy a multi-node ECS instance to two or more hardware or virtual machines and enable all ECS features. Three nodes are required for all ECS 3.0 and above features to be activated.
 
 #### [ECS Single-Node All-in-One Deployment (smallest footprint)](http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html)
@@ -66,11 +66,14 @@ Deploy a stand-alone instance of a limited set of ECS kit to a single hardware o
 ##### Important information regarding Island deployments
 Please be aware that Install Node bootstrapping requires Internet access to the hardware or virtual machine that will become the Install Node, but once this step is complete, the machine can be removed from the Internet and migrated into the Island environment.
 
-If you prefer to download a prefabricated Install Node as an OVF/OVA, you may obtain one here:
+If you prefer to download a prefab Install Node as an OVF/OVA, you may obtain one here:
 
-* [Install Node OVA]()
+* [dellemc-ecsce-2.0.2-beta.ova](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova)
+* [dellemc-ecsce-2.0.2-beta.ova.xz](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova.xz)
+* [dellemc-ecsce-2.0.2-beta.ova.gz](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova.gz)
+* [dellemc-ecsce-2.0.2-beta.ova.zip](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova.zip)
 
-#### [ECS Multi-Node Deployment with Install Node (recommended)](http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html)
+#### [ECS Multi-Node Deployment with Install Node (recommended, most reusable, full-featured)](http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html)
 Using an Install Node for isolated environments, deploy a multi-node ECS instance to two or more hardware or virtual machines and enable all ECS features. Three nodes are required for all ECS 3.0 and above features to be activated.
 
 #### [ECS Single-Node Deployment with Install Node](http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html)

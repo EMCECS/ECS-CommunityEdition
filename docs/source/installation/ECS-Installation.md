@@ -16,18 +16,18 @@ The installation process is designed to be done from a dedicated installation no
 * CentOS 7 Minimal
 
 The minimum technical requirements for the target node is as follows:
- 
+
 * 4 Cores
 * 16 GB Memory
 * 16 GB Minimum System Drive
 * 100 GB block storage unit (raw, unpartitioned) *NOTE: this drive must be in addition to the standard OS drive*
 * CentOS 7 Minimal
 
-For multi-node installations each data node must fulfill these minimum qualifications. The installer will do a pre-flight check to ensure that the minimum qualifications are met. If they are not the installation will not continue. 
+For multi-node installations each data node must fulfill these minimum qualifications. The installer will do a pre-flight check to ensure that the minimum qualifications are met. If they are not the installation will not continue.
 
 ### Environmental Requirements
 
-The following environment is required to ensure a successful installation. 
+The following environment is required to ensure a successful installation.
 
 * **Network:** Currently, all nodes, installation and target, must exist on the same subnet.
 * **SSH:** Installation is coordinated via SSH, however, key authentication is not yet supported and password authentication must be enabled.
@@ -44,19 +44,45 @@ Before the data nodes can be created we have to prepare the installation node. I
 * for .zip archive `unzip ECS-CommunityEdition.zip`
 * for .tar.gz archive `tar -xzvf ECS-CommunityEdition.tar.gz`
 
-## The YML File
+### The Deployment Map (deploy.yml)
 
-Installation requires the creation of a YML configuration file called deploy.yml. This file *must* be written before moving on. Create this file in the `ECS-CommunityEdition` directory that was created when the repository was cloned. A template guide for writing this file can be found [here](deploy.yml.rst). 
+Installation requires the creation of a deployment map. This map is represented in a YAML configuration file called deploy.yml. This file *should* be written before moving on for the smoothest experience, but there is a deployment path for creating deploy.yml after bootstrapping the Install Node.
 
-To quickly create a template, simply: 
+Create this file in the `ECS-CommunityEdition` directory that was created when the repository was cloned. A template guide for writing this file can be found [here](deploy.yml.rst).
 
-* run `sudo cp ~/ECS-CommunityEdition/docs/design/reference.deploy.yml /opt/emc/ecs-install/` 
-* rename the file with `sudo mv /opt/emc/ecs-install/reference.deploy.yml /opt/emc/ecs-install/deploy.yml`
-* then edit the file with `sudo vim /opt/emc/ecs-install/deploy.yml` *be sure to use* `sudo` *or the file will be opened as readonly and any changes made will not be written*
+Below are steps for creating a basic deploy.yml. **Please note that all fields mentioned below are required for a successful installation.**
 
-*note: If you find that you've edited the file without sudo privileges, the command* `:w !sudo tee %` *can be used to write the while in vim*
+0. From the ECS-CommunityEdition directory, run the commmand: `cp docs/design/reference.deploy.yml deploy.yml`
+0. Edit the file with your favorite editor on another machine, or use `vi deploy.yml` on the Install Node.  Read the comments in the file and review the examples in the `examples/` directory.
+0. Top-level deployment facts (`facts:`)
+    0. Enter the IP address of the Install Node into the `install_node:` field.
+    0. Enter into the `management_clients:` field the CIDR address/mask of each machine or subnet that will be whitelisted in node's firewalls and allowed to communicate with ECS management API.
+      * `10.1.100.50/32` is *exactly* the IP address.
+      * `192.168.2.0/24` is the entire /24 subnet.
+      * `0.0.0.0/0` represents the entire Internet.
+0. SSH login details (`ssh_defaults:`)
+    0. If the SSH server is bound to a non-standard port, enter that port number in the `ssh_port:` field, or leave it set at the default (22).
+    0. Enter the username of a user permitted to run commands as UID 0/GID 0 ("root") via the `sudo` command into the `ssh_username:` field. This must be the same across all nodes.
+    0. Enter the password for the above user in the `ssh_password:` field. This will only be used during the initial public key authentication setup and can be changed after.  This must be the same across all nodes.
+0 Node configuration (`node_defaults:`)
+    0. Enter the DNS domain for the ECS installation.  This can simply be set to `localdomain` if you will not be using DNS with this ECS deployment.
+    0. Enter each DNS server address, one per line, into `dns_servers:`. This can be what's present in `/etc/resolv.conf`, or it can be a different DNS server entirely.  This DNS server will be set to the primary DNS server for each ECS node.
+    0. Enter each NTP server address, one per line, into `ntp_servers:`.
+0. Storage Pool configuration (`storage_pools:`)
+    0. Enter the storage pool `name:`.
+    0. Enter each data node address, one per line, in `members:`.
+    0. Under `options:`, enter each block device reserved for ECS, one per line, in `ecs_block_devices:`.
+0. When you have completed the `deploy.yml` to your liking, save the file and exit the `vi` editor.
+0. Move on to Bootstrapping
 
-### bootstrap.sh
+These steps quickly set up a basic deploy.yml file
+
+
+
+*Please read the reference deploy.yml found* [here](http://ecs-community-edition.readthedocs.io/en/latest/installation/deploy.yml.html)*. It is designed to be self documenting and required fields are filled with either dummy or default values. The above values are only bare minimum values and may not yield the desired result.*
+
+
+### Bootstrapping the Install Node (bootstrap.sh)
 
 The bootstrap script configures the installation node for ECS deployment. This script can take the following arguments:
 ```
@@ -74,6 +100,14 @@ The bootstrap script configures the installation node for ECS deployment. This s
 
  -g              Install virtual machine guest agents and utilities for QEMU and VMWare.
                  VirtualBox is not supported at this time.
+
+ -m <mirror>     Use the provided package <mirror> when fetching packages for the
+                 base OS (but not 3rd-party sources, such as EPEL or Debian-style PPAs).
+                 The mirror is specified as '<host>:<port>'. This option overrides any
+                 mirror lists the base OS would normally use AND supersedes any proxies
+                 (assuming the mirror is local), so be warned that when using this
+                 option it's possible for bootstrapping to hang indefinitely if the
+                 mirror cannot be contacted.
 
  -b <mirror>     Build the installer image (ecs-install) locally instead of fetching
                  the current release build from DockerHub (not recommended). Use the
@@ -113,9 +147,6 @@ The bootstrap script configures the installation node for ECS deployment. This s
  and install the x509 certificate in certs/reg.pem into Docker's trust store so it can
  access the Docker registry.
     $ bash bootstrap.sh -y -p cache.local:3128 -r registry.local:5000 -d certs/reg.pem
-
-For additional information, read the docs on GitHub.
-For additional help, please open an issue on GitHub.
 ```
 
 Once the archive has been expanded the installation node must be bootstrapped. To do this `cd` into the ECS-CommunityEdition directory and run `./bootstrap.sh -c deploy.yml`. Be sure to add the `-g` flag if building the ECS deployment in a virtual environment and the `-y` flag if you're okay accepting all defaults.
@@ -128,21 +159,6 @@ The bootstrapping process has completed when the following message appears:
 After the installation node has successfully bootstrapped you may be prompted to reboot the machine. If this is the case the machine must be rebooted before continuing.
 
 
-### deploy.yml Basics
-
-These steps quickly set up a basic deploy.yml file
-
-1) Enter the IP address of the **installation node** into the `install_node` field
-2) Enter CIDR address(es) of any machines authorized that will communicate with the ECS management API into the `management_clients` field. `0.0.0.0/0` Allows total access. *Note*: this may be be a block of addresses or subnet.
-3) Hostnames may be auto-named with the `autonaming` field. `moons` or `cities` are options.
-5) Credential configuration: usernames and credentials for node access. This must be the same across all nodes
-6) Enter your DNS server address into `dns_servers`. This can be found with `cat /etc/resolv.conf`
-7) Enter NTP server address into `ntp_servers`. This will likely be the same value as `dns_servers` **NOTE: this field cannot be left empty, an NTP server is required for installation.**
-7) List block devices in `ecs_block_devices`.
-8) Enter data node address(es) in Storage Pool `members`
-1) Enter block devices again under Storage Pool `members`
-
-*Please read the reference deploy.yml found* [here](http://ecs-community-edition.readthedocs.io/en/latest/installation/deploy.yml.html)*. It is designed to be self documenting and required fields are filled with either dummy or default values. The above values are only bare minimum values and may not yield the desired result.*
 
 ## Step1
 
@@ -151,4 +167,3 @@ Once the deploy.yml file has been correctly written the next step is to simply r
 ## Step2
 
 Once step1 has completed run `step2`
-

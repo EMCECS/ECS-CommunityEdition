@@ -77,11 +77,6 @@ facts:
     # - "moons" (ECS CE default)
     # - "cities" (ECS SKU-flavored)
     autonaming: moons
-    #
-    # [Optional]
-    # If your ECS comes with differing default credentials, you can specify those here
-    ecs_root_user: root
-    ecs_root_pass: ChangeMe
 
   # [Optional]
   # Storage pool defaults. Configure to your liking.

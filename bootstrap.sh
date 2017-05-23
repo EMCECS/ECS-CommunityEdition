@@ -40,7 +40,7 @@ cat <<EOH
                  VirtualBox is not supported at this time.
 
  -m <mirror>     Use the provided package <mirror> when fetching packages for the
-                 base OS (but not 3rd-party sources, such as EPEL or Debian-style PMAs).
+                 base OS (but not 3rd-party sources, such as EPEL or Debian-style PPAs).
                  The mirror is specified as '<host>:<port>'. This option overrides any
                  mirror lists the base OS would normally use AND supersedes any proxies
                  (assuming the mirror is local), so be warned that when using this
