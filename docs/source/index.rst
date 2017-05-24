@@ -6,43 +6,16 @@
 Welcome to ECS Community Edition's documentation!
 =================================================
 
-#######
-Installation
-#######
-
 .. NOTE: keep this list in sync with manual/index.rst
 .. toctree::
+   :hidden:
    :maxdepth: 1
 
    installation/ECS-Installation.rst
-   
-   
-.. _use:
-
-#######
-Use
-#######
-
-.. NOTE keep this list in sync with manual/index.rst
-.. toctree::
-   :maxdepth: 1
-
    use/ECS-UI-Web-Interface.rst
-
-.. _troubleshooting:
-
-########
-Troubleshooting
-########
-
-.. NOTE keep this list in sync with manual/index.rst
-.. toctree::
-   :maxdepth: 1
-   
    troubleshooting/ECS-Troubleshooting.rst
 
-########
-Readme
-#######
 
 .. include:: ../../README.rst
+   :start-line: 0
+   :end-before: Directory Structure

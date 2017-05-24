@@ -83,7 +83,7 @@ Using an Install Node for isolated environments, deploy a stand-alone instance o
 
 |   Directory Name   |   Description   |
 |--------------|-----------|
-| [docs](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/docs) | Documentation sources; [read them online at Read the Docs](http://ecs-ce.readthedocs.io/en/latest/)
+| [docs](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/docs) | Documentation sources; [read them online at Read the Docs](http://ecsce.readthedocs.io/en/latest/)
 | [examples](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/examples) | Deployment and configuration examples for common scenarios
 | [contrib](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/contrib) | Unsupported community-contributed scripts content related to ECS CE
 | [patches](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/patches) | Patches to the ECS Community Edition Docker image

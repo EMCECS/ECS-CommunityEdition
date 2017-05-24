@@ -28,6 +28,7 @@ something like this:
    :alt: Upload License file
 
    Upload License file
+
 Create Storage vPool
 --------------------
 
@@ -43,6 +44,7 @@ Once it's updated, you should see something similar to:
    :alt: Create Storage VPool
 
    Create Storage VPool
+
 Create Virtual Data Center
 --------------------------
 
@@ -56,6 +58,7 @@ object to fully initialize.
    :alt: Create Virtual Data Center
 
    Create Virtual Data Center
+
 Create Replication Group
 ------------------------
 
@@ -67,6 +70,7 @@ group is supported.
    :alt: Create Replication Group
 
    Create Replication Group
+
 Create Namespace
 ----------------
 
@@ -83,28 +87,43 @@ Namespace features available in this release
 
    .. raw:: html
 
-      <del> 
+      <del>
 
-   [STRIKEOUT:Retention Policies]
+   Retention Policies
+
+   .. raw:: html
+
+      </del>
+
 -  
 
    .. raw:: html
 
-      <del> 
+      <del>
 
-   [STRIKEOUT:Quotas]
+   Quotas
+
+   .. raw:: html
+
+      </del>
+
 -  
 
    .. raw:: html
 
-      <del> 
+      <del>
 
-   [STRIKEOUT:Authentication Domains]
+   Authentication Domains
+
+   .. raw:: html
+
+      </del>
 
 .. figure:: ../media/create_namespace.PNG
    :alt: Create Namespace
 
    Create Namespace
+
 Create Object User Account
 --------------------------
 
@@ -115,6 +134,7 @@ Object User* to set up object store credentials.
    :alt: Create Namespace
 
    Create Namespace
+
 Create secrets by filling the fields and clicking the buttons.
 
 -  S3 Key: Click *Generate & Add Password* to retrieve the
@@ -125,4 +145,3 @@ Create secrets by filling the fields and clicking the buttons.
    :alt: Create User S3 and Swift Keys
 
    Create User S3 and Swift Keys
-

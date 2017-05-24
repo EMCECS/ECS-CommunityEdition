@@ -1,4 +1,21 @@
-|Documentation Status| ECS Community Edition See `changelog.md <https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/changelog.md>`__ file for release notes.
+.. |Documentation Status| image:: https://readthedocs.org/projects/ecsce/badge/?version=latest
+   :target: http://ecsce.readthedocs.io/en/latest/?badge=latest
+
+|Documentation Status|
+
+.. raw:: html
+
+   <h1>
+
+ECS Community Edition
+
+.. raw:: html
+
+   </h1>
+
+See
+`changelog.md <https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/changelog.md>`__
+file for release notes.
 
 Description
 -----------
@@ -42,7 +59,7 @@ from ISO or netinstall right?):
 
 ::
 
-    # step1    
+    # step1
     # step2
 
 And if all went well, you now have a working stand-alone ECS, mostly
@@ -56,20 +73,22 @@ Minimum
 
 Hardware or virtual machine with:
 
--  CentOS 7.3 Minimal installation
+-  4 CPU Cores
 -  16GB RAM
 -  16GB root block storage
 -  104GB additional block storage
+-  CentOS 7.3 Minimal installation
 
 Recommended
 ~~~~~~~~~~~
 
 Hardware or virtual machine with:
 
--  CentOS 7.3 Minimal installation
+-  8 CPU Cores
 -  64GB RAM
 -  16GB root block storage
 -  1TB additional block storage
+-  CentOS 7.3 Minimal installation
 
 Deployment Scenarios
 --------------------
@@ -77,14 +96,14 @@ Deployment Scenarios
 Deploy into Internet-Connected Environments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`ECS Multi-Node All-in-One Deployment with Install Node (recommended) <http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+`ECS Multi-Node All-in-One Deployment with Install Node (recommended, full-featured) <http://ecsce.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Deploy a multi-node ECS instance to two or more hardware or virtual
 machines and enable all ECS features. Three nodes are required for all
 ECS 3.0 and above features to be activated.
 
-`ECS Single-Node All-in-One Deployment (smallest footprint) <http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
+`ECS Single-Node All-in-One Deployment (smallest footprint) <http://ecsce.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Deploy a stand-alone instance of a limited set of ECS kit to a single
@@ -101,20 +120,22 @@ to the hardware or virtual machine that will become the Install Node,
 but once this step is complete, the machine can be removed from the
 Internet and migrated into the Island environment.
 
-If you prefer to download a prefabricated Install Node as an OVF/OVA,
-you may obtain one here:
+If you prefer to download a prefab Install Node as an OVF/OVA, follow
+one of the links below. Please note that OVAs are produced upon each
+release and do not necessarily have the most current software.
 
--  `Install Node OVA <>`__
+-  `dellemc-ecsce-2.0.2-beta.ova <http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova>`__
+-  `dellemc-ecsce-2.0.2-beta.ova.xz <http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova.xz>`__
 
-`ECS Multi-Node Deployment with Install Node (recommended) <http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+`ECS Multi-Node Deployment with Install Node (recommended, most reusable, full-featured) <http://ecsce.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Using an Install Node for isolated environments, deploy a multi-node ECS
 instance to two or more hardware or virtual machines and enable all ECS
 features. Three nodes are required for all ECS 3.0 and above features to
 be activated.
 
-`ECS Single-Node Deployment with Install Node <http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
+`ECS Single-Node Deployment with Install Node <http://ecsce.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Using an Install Node for isolated environments, deploy a stand-alone
@@ -127,7 +148,7 @@ Directory Structure
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
 | Directory Name                                                                                                      | Description                                                                                             |
 +=====================================================================================================================+=========================================================================================================+
-|`docs <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/docs>`__                                          | Documentation Sources, `Read them online at <http://ecs-ce.readthedocs.io/en/latest/>`__                |
+|`docs <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/docs>`__                                          | Documentation Sources, `Read them online at <http://ecsce.readthedocs.io/en/latest/>`__                |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
 |`examples <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/examples>`__                                  | Deployment and configuration examples for common scenarios                                              |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
@@ -151,7 +172,6 @@ Directory Structure
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
 |`legacy/Documentation <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/Documentation>`__          | (Legacy) Contains documentation files and media                                                         |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-
 
 Support
 =======
@@ -393,5 +413,5 @@ held illegal or unenforceable, such provision shall be deemed separable
 from, and shall in no way affect or impair the validity or
 enforceability of, the remaining provisions.
 
-.. |Documentation Status| image:: https://readthedocs.org/projects/dell-emc-ecs-community-edition/badge/?version=latest
-   :target: http://dell-emc-ecs-community-edition.readthedocs.io/en/latest/?badge=latest
+.. |Documentation Status| image:: https://readthedocs.org/projects/ecsce/badge/?version=latest
+   :target: http://ecsce.readthedocs.io/en/latest/?badge=latest
