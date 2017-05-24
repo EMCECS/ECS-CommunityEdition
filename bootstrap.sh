@@ -294,8 +294,8 @@ o ""
 
 
 ### Set utility symlinks in current user's path for various callables
-v "Creating symlinks in ${HOME}/bin for easy access to commands"
-p Installing commands
+v "Creating shell shims in ${HOME}/bin for CLI commands"
+p Installing CLI shims
 symlink_scripts
 
 
