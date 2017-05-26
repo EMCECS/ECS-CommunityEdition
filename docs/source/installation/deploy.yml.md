@@ -1,6 +1,6 @@
 # deploy.yml
 
-The installer works off a configuration file called `deploy.yml` placed in `/opt/emc/ecs-install`
+The installer works off a configuration file called `deploy.yml` placed in `/opt/emc/ecs-install`.
 
 ## deploy.yml Reference Diagram
 
@@ -10,7 +10,7 @@ The following is a visual overview of the deployment configuration file
 
 ## deploy.yml Template
 
-The following deploy.yml reference template can be found in `docs/design/reference.deploy.yml` in the ECS-CommunityEdition repository on github.
+The following deploy.yml reference template can be found in `docs/design/reference.deploy.yml` in the ECS-CommunityEdition repository on Github.
 
 ```
 # deploy.yml reference implementation
@@ -38,15 +38,16 @@ facts:
 
   # [Required]
   # IPs of machines that will be whitelisted in the firewall and allowed
-  # to access management ports of all nodes. If this is set to the
-  # wildcard (0.0.0.0/0) then anyone can access management ports.
+  # to access management ports of all nodes. If a member of this list is set to
+  # the wildcard mask (0.0.0.0/0) then anyone can access management ports!
   management_clients:
     - 0.0.0.0/0
 
   # [Required]
-  # These credentials must be the same across all nodes. Ansible uses these credentials to
-  # gain initial access to each node in the deployment and set up ssh public key authentication.
-  # If these are not correct, the deployment will fail.
+  # These credentials must be the same across all nodes. Ansible uses these
+  # credentials to gain initial access to each node in the deployment and set
+  # up ssh public key authentication. If these are not correct, the deployment
+  # will fail.
   ssh_defaults:
     # Username to login as
     ssh_username: admin
@@ -55,8 +56,6 @@ facts:
 
   # [Required]
   # Environment configuration for this deployment.
-  # Unless you have a custom ECS for which the default credentials have been changed,
-  # ecs_root_user and ecs_root_pass must be set to "root" and "ChangeMe" respectively.
   node_defaults:
     dns_domain: local
     dns_servers:
@@ -66,9 +65,11 @@ facts:
     #
     # [Optional]
     # VFS path to source of randomness
-    # Defaults to /dev/urandom for speed considerations.  If you prefer /dev/random, put that here.
-    # If you have a /dev/srandom implementation or special entropy hardware, you may use that too
-    # so long as it implements a /dev/random type device abstraction.
+    # Defaults to /dev/urandom for speed considerations.  If you prefer
+    # /dev/random, put that here.
+    # If you have a /dev/srandom implementation or special entropy hardware,
+    # you may use that too so long as it implements a /dev/random type device
+    # abstraction.
     entropy_source: /dev/urandom
     #
     # [Optional]
@@ -77,17 +78,13 @@ facts:
     # - "moons" (ECS CE default)
     # - "cities" (ECS SKU-flavored)
     autonaming: moons
-    #
-    # [Optional]
-    # If your ECS comes with differing default credentials, you can specify those here
-    ecs_root_user: root
-    ecs_root_pass: ChangeMe
 
   # [Optional]
   # Storage pool defaults. Configure to your liking.
-  # All block devices that will be consumed by ECS on ALL nodes must be listed under the
-  # ecs_block_devices option. This can be overridden by the storage pool configuration.
-  # At least ONE (1) block device is REQUIRED for a successful install. More is better.
+  # All block devices that will be consumed by ECS on ALL nodes must be listed
+  # under the ecs_block_devices option. This can be overridden by the storage
+  # pool configuration. At least ONE (1) block device is REQUIRED for a
+  # successful install. More is typically better.
   storage_pool_defaults:
     is_cold_storage_enabled: false
     is_protected: false
@@ -96,7 +93,8 @@ facts:
       - /dev/vda
 
   # [Required]
-  # Storage pool layout. You MUST have at least ONE (1) storage pool for a successful install.
+  # Storage pool layout. You MUST have at least ONE (1) storage pool for a
+  # successful install.
   storage_pools:
     - name: sp1
       members:
@@ -111,14 +109,14 @@ facts:
         ecs_block_devices:
           - /dev/vda
 
-  # [Required]
+  # [Optional]
   # VDC defaults. Configure to your liking.
   virtual_data_center_defaults:
     description: Default virtual data center description
 
   # [Required]
-  # Virtual data center layout. You MUST have at least ONE (1) VDC for a successful install.
-  # Multi-VDC deployments are not yet implemented
+  # Virtual data center layout. You MUST have at least ONE (1) VDC for a
+  # successful install. WARNING: Multi-VDC deployments are not yet implemented.
   virtual_data_centers:
     - name: vdc1
       members:
@@ -134,8 +132,9 @@ facts:
     allow_all_namespaces: true
     is_full_rep: false
 
-  # [Required]
-  # Replication group layout. You MUST have at least ONE (1) RG for a successful install.
+  # [Optional, required for namespaces]
+  # Replication group layout. At least one replication_group is required to also
+  # provision namespaces.
   replication_groups:
     - name: rg1
       members:
@@ -164,4 +163,3 @@ facts:
         is_compliance_enabled: false
 
 ```
-

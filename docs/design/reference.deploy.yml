@@ -40,8 +40,6 @@ facts:
 
   # [Required]
   # Environment configuration for this deployment.
-  # Unless you have a custom ECS for which the default credentials have been changed,
-  # ecs_root_user and ecs_root_pass must be set to "root" and "ChangeMe" respectively.
   node_defaults:
     dns_domain: local
     dns_servers:
@@ -96,7 +94,7 @@ facts:
         ecs_block_devices:
           - /dev/vda
 
-  # [Required]
+  # [Optional]
   # VDC defaults. Configure to your liking.
   virtual_data_center_defaults:
     description: Default virtual data center description
@@ -119,8 +117,8 @@ facts:
     allow_all_namespaces: true
     is_full_rep: false
 
-  # [Required]
-  # Replication group layout. You MUST have at least ONE (1) RG for a successful install.
+  # [Optional, required for namespaces]
+  # Replication group layout. You MUST have at least ONE (1) RG to provision namespaces.
   replication_groups:
     - name: rg1
       members:

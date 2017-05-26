@@ -1,0 +1,62 @@
+/**
+ * Json object mapper for json file with the following schema
+ *
+ * {
+ *  "cluster_info": [{@link AddressMapEntry}, {@link AddressMapEntry}, ...]
+ * }
+ *
+ * where {@link AddressMapEntry} has the schema of,
+ * {
+ *  "agent_id": node_id,
+ *  "agent_endpoint" : endpoint_uri,
+ *  "network": {@link NetworkInfo}
+ * }
+ *
+ * e.g.
+ * {
+ *  "cluster_info": [
+ *  {
+ *      "agent_id": "1111-1111-1111-1111",
+ *      "agent_endpoint" : "https://vazhem-171:9240",
+ *      "network": {
+ *          "hostname": "vazhem-171",
+ *          "public_interface_name": "eth0",
+ *          "private_interface_name": "eth0",
+ *          "data_interface_name": "eth0",
+ *          "replication_interface_name": "eth0",
+ *          "public_ip": "10.77.32.171",
+ *          "private_ip": "10.77.32.171",
+ *          "mgmt_ip": "10.77.32.171",
+ *          "data_ip": "10.77.32.171",
+ *          "replication_ip": "10.77.32.171"
+ *      }
+ *  },
+ *  {
+ *      "agent_id": "222-1111-1111-1111",
+ *      "agent_endpoint" : "https://vazhem-172:9240",
+ *      "network": {
+ *         "hostname": "vazhem-172",
+ *         "public_interface_name": "eth0",
+ *         "private_interface_name": "eth0",
+ *         "mgmt_interface_name": "eth0",
+ *         "data_interface_name": "eth0",
+ *         "replication_interface_name": "eth0",
+ *         "public_ip": "10.77.32.172",
+ *         "private_ip": "10.77.32.172",
+ *         "mgmt_ip": "10.77.32.172",
+ *         "data_ip": "10.77.32.172",
+ *         "replication_ip": "10.77.32.172"
+ *      }
+ *  }
+ *  ]
+ * }
+ */
+
+{
+    "private_interface_name": "{{ ansible_default_ipv4.alias }}",
+    "public_interface_name": "{{ ansible_default_ipv4.alias }}",
+    "hostname": "{{ ansible_hostname }}",
+    "data_ip": "{{ ansible_default_ipv4.address }}",
+    "mgmt_ip": "{{ ansible_default_ipv4.address }}",
+    "replication_ip": "{{ ansible_default_ipv4.address }}"
+}

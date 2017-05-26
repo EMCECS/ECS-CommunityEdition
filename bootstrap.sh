@@ -40,7 +40,7 @@ cat <<EOH
                  VirtualBox is not supported at this time.
 
  -m <mirror>     Use the provided package <mirror> when fetching packages for the
-                 base OS (but not 3rd-party sources, such as EPEL or Debian-style PMAs).
+                 base OS (but not 3rd-party sources, such as EPEL or Debian-style PPAs).
                  The mirror is specified as '<host>:<port>'. This option overrides any
                  mirror lists the base OS would normally use AND supersedes any proxies
                  (assuming the mirror is local), so be warned that when using this
@@ -294,8 +294,8 @@ o ""
 
 
 ### Set utility symlinks in current user's path for various callables
-v "Creating symlinks in ${HOME}/bin for easy access to commands"
-p Installing commands
+v "Creating shell shims in ${HOME}/bin for CLI commands"
+p Installing CLI shims
 symlink_scripts
 
 
@@ -398,9 +398,9 @@ o ""
 v "Installing bootstrap packages pass (1/3)"
 p Installing new packages
 in_prefix_packages 2>&1 | log
-if $proxy_flag; then
-    set_repo_proxy_idempotent
-fi
+#if $proxy_flag; then
+#    set_repo_proxy_idempotent
+#fi
 ping_sudo
 
 
@@ -408,9 +408,9 @@ p Installing packages
 v "Installing bootstrap packages pass (2/3)"
 p Installing new packages
 in_general_packages 2>&1 | log
-if $proxy_flag; then
-    set_repo_proxy_idempotent
-fi
+#if $proxy_flag; then
+#    set_repo_proxy_idempotent
+#fi
 ping_sudo
 
 
@@ -418,9 +418,9 @@ p Installing packages
 v "Installing bootstrap packages pass (3/3)"
 p Installing new packages
 in_suffix_packages 2>&1 | log
-if $proxy_flag; then
-    set_repo_proxy_idempotent
-fi
+#if $proxy_flag; then
+#    set_repo_proxy_idempotent
+#fi
 ping_sudo
 
 
@@ -429,9 +429,9 @@ if $vm_flag; then
     v "Installing virtual machine guest additions"
 p Installing VM guest additions
     in_vm_packages 2>&1 | log
-    if $proxy_flag; then
-        set_repo_proxy_idempotent
-    fi
+#    if $proxy_flag; then
+#        set_repo_proxy_idempotent
+#    fi
     ping_sudo
 fi
 
