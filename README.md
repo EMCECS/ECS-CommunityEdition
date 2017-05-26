@@ -1,5 +1,5 @@
 [![Documentation Status](https://readthedocs.org/projects/dell-emc-ecs-community-edition/badge/?version=latest)](http://dell-emc-ecs-community-edition.readthedocs.io/en/latest/?badge=latest)
- <h1> ECS Community Edition </h1> 
+ <h1> ECS Community Edition </h1>
  See [changelog.md](https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/changelog.md) file for release notes.
 
 ## Description
@@ -30,7 +30,7 @@ Then you should be able to get up and going with a Single-Node All-in-One instal
 And then after the node reboots (you did use a clean minimal install from ISO or netinstall right?):
 
 ```
-# step1    
+# step1
 # step2
 ```
 
@@ -41,18 +41,20 @@ And if all went well, you now have a working stand-alone ECS, mostly configured,
 ### Minimum
 Hardware or virtual machine with:
 
-* CentOS 7.3 Minimal installation
+* 4 CPU Cores
 * 16GB RAM
 * 16GB root block storage
 * 104GB additional block storage
+* CentOS 7.3 Minimal installation
 
 ### Recommended
 Hardware or virtual machine with:
 
-* CentOS 7.3 Minimal installation
+* 8 CPU Cores
 * 64GB RAM
 * 16GB root block storage
 * 1TB additional block storage
+* CentOS 7.3 Minimal installation
 
 ## Deployment Scenarios
 ### Deploy into Internet-Connected Environments

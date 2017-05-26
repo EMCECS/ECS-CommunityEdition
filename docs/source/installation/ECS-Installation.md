@@ -22,8 +22,16 @@ The minimum technical requirements for each ECS data node are:
 * 4 CPU Cores
 * 16 GB Memory
 * 16 GB Minimum system block storage device
-* 100 GB Minimum additional block storage device in a raw, unpartitioned state.
+* 104 GB Minimum additional block storage device in a raw, unpartitioned state.
 * CentOS 7 Minimal installation (ISO- and network-based minimal installs are equally supported)
+
+The recommended technical requirements for each ECS data node are:
+
+* 8 CPU Cores
+* 64GB RAM
+* 16GB root block storage
+* 1TB additional block storage
+* CentOS 7.3 Minimal installation
 
 For multi-node installations each data node must fulfill these minimum qualifications. The installer will do a pre-flight check to ensure that the minimum qualifications are met. If they are not, the installation will not continue.
 
@@ -199,7 +207,7 @@ The first thing the installer will do is create an artifact cache of base operat
 * Internet-connected environments: *automatic*
 * Island environments: `island-step2`
 
-If you are deploying to Internet-connected nodes and used `step1` to begin your deployment, then this section is informational only and you may move on to **5**.  If you are deploying into an island environment and have migrated the install node into your island, you can begin this process by running `island-step2`.  The next tasks the installer will perform are: configuring the ECS nodes, performing a pre-flight check to ensure ECS nodes are viable deployment targets, distributing the artifact cache to ECS nodes, installing necessary packages, and finally deploying the ECS software and init scripts onto ECS nodes.  
+If you are deploying to Internet-connected nodes and used `step1` to begin your deployment, then this section is informational only and you may move on to **5**.  If you are deploying into an island environment and have migrated the install node into your island, you can begin this process by running `island-step2`.  The next tasks the installer will perform are: configuring the ECS nodes, performing a pre-flight check to ensure ECS nodes are viable deployment targets, distributing the artifact cache to ECS nodes, installing necessary packages, and finally deploying the ECS software and init scripts onto ECS nodes.
 
 ## 5. Deploying ECS Topology (`step2` or `island-step3`)
 
