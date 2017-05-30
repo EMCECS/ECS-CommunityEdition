@@ -1,0 +1,53 @@
+- name: Set authorized key
+  authorized_key:
+    user: centos
+    state: present
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Install packages
+  become: true
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - git
+    - rsync
+
+- name: Copy files to installer node
+  synchronize:
+    src: "{{ current_directory }}/"
+    dest: /home/centos/ecs
+    recursive: yes
+
+- name: Provide the deploy.yml file
+  template:
+    src: deploy.yml.j2
+    dest: /home/centos/ecs/deploy.yml
+    owner: centos
+    group: centos
+
+- name: Run boostrap script
+  shell: /home/centos/ecs/bootstrap.sh -n -b http://10.1.83.5/alpine -g -k /home/centos/ecs/contrib/sslproxycert/emc_ssl.pem -p 10.1.83.5:3128 -c /home/centos/ecs/deploy.yml
+  become: true
+  become_method: sudo
+
+- name: reboot nodes
+  shell: sleep 2 && shutdown -r now "Ansible reboot"
+  become: true
+  become_method: sudo
+  async: 1
+  poll: 0
+  ignore_errors: true
+
+- name: wait for server to come back
+  local_action: wait_for host="{{ inventory_hostname }}" port=22 state=started delay=30 timeout=300
+
+- name: Run Step1
+  shell: /root/bin/step1
+  become: true
+  become_method: sudo
+
+- name: Run Step2
+  shell: /root/bin/step2
+  become: true
+  become_method: sudo
