@@ -1,0 +1,29 @@
+caches:
+# OS package caches are a special situation where we rely on ansible's unarchive module
+# to do the unpacking, so always always always create tarballs here!
+  os_CentOS_7:
+    applies_to: os_CentOS_7
+    pack_cmd: "tar -c {{ caches.os_CentOS_7.src }} | pigz -c5 > {{ caches.os_CentOS_7.dest }}"
+    src: /var/cache/yum
+    dest: package_cache.tgz
+    unpack_cmd: "tar -xzf {{ caches.os_CentOS_7.dest }}"
+    unpack_sem: cache_control.sem
+
+  docker:
+    applies_to: data_node
+    pack_cmd: "docker save {{ caches.docker.src }} | pigz -c5 > {{ caches.docker.dest }}"
+    # How to make this src: dynamic?  Rockerfile ENV?
+    src: "{{ product.common_name }}"
+    dest: ecs-software.tgz
+    unpack_cmd: "pigz -dc {{ caches.docker.dest }} | docker load"
+    unpack_sem: cache_control.sem
+
+# This cache doesn't need an unpack command - that is handled by setuptools inside the
+# ECS storageos container.
+#  ecs_python:
+#    applies_to: data_node
+#    pack_cmd: "wget -q  caches.ecs_python.src "
+#    src: https://github.com/kennethreitz/requests/archive/v2.9.1.tar.gz https://bootstrap.pypa.io/ez_setup.py https://pypi.python.org/packages/source/s/setuptools/setuptools-20.7.0.tar.gz#md5=5d12b39bf3e75e80fdce54e44b255615
+#    dest: ez_setup.py
+#    unpack_cmd: none
+#    unpack_sem: cache_control.sem

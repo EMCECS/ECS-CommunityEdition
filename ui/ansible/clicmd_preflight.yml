@@ -1,0 +1,16 @@
+- name: Common | Ping data nodes before doing anything else
+  hosts: data_node
+  gather_facts: false
+  tasks:
+    - ping: "{{inventory_hostname}}"
+
+- name: Installer | Slice nodes into OS groups
+  hosts: data_node
+  tasks:
+     - group_by: key=os_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}
+
+- name: Installer | Perform preflight check
+  hosts: data_node
+  roles:
+    - common_collect_facts
+    - common_baseline_check

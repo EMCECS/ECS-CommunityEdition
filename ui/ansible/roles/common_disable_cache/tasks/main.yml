@@ -1,0 +1,7 @@
+- include_vars: caches.yml
+
+- name: Common | Disable datanode package cache handling
+  file:
+    path: "{{host_cache_dir}}/disable_package_cache.sem"
+    state: touch
+

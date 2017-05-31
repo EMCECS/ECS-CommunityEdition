@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# This script will attempt to install python requests module
+# and self-destruct if successful.
+# Once inserted into cron.hourly, it will be run at system firstboot
+# and then every hour. Odds are it won't run twice.
+
+provides="/tmp/postinstall_patch.sem"
+
+_execute_payload() {
+
+}
+
+if ! [ -f "$provides" ]; then
+
+    my_name="/etc/cron.hourly/postinstall_patch"
+
+    # Some env cron doesn't set
+    PROFILEREAD=true
+    ENV=/etc/bash.bashrc
+    FROM_HEADER=
+    PATH=/sbin:/usr/sbin:/usr/local/sbin:/root/bin:/usr/local/bin:/usr/bin:/bin:/usr/X11R6/bin:/usr/games:/usr/lib/mit/bin:/usr/lib/mit/sbin
+    CPU=x86_64
+    LANG=POSIX
+    PYTHONSTARTUP=/etc/pythonstart
+    OSTYPE=linux
+    MACHTYPE=x86_64-suse-linux
+    G_BROKEN_FILENAMES=1
+
+    _execute_payload >> /host/postinstall.log
+
+    # signal success
+    touch "$provides"
+
+    sleep 2
+
+fi
+
+[ -f "$provides" ] && rm "$my_name"

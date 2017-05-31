@@ -1,0 +1,42 @@
+- include_vars: caches.yml
+
+- name: Selinux | Set selinux permissive
+  selinux: policy=targeted state=permissive
+
+- name: Common | Create ecs-install host directory on nodes
+  vars:
+    become: true
+  file:
+    state: directory
+    path: "{{host_root_dir}}"
+  when: "{{flag_install_node is not defined}}"
+  tags: files
+
+- name: Common | Create ecs-install cache directory on nodes
+  vars:
+    become: true
+  file:
+    state: directory
+    path: "{{host_cache_dir}}"
+  when: "{{flag_install_node is not defined}}"
+  tags: files
+
+- name: Common | Copy cache torrent digest to nodes
+  vars:
+    become: true
+  copy:
+    src: "{{cache_dir}}/cache.torrent"
+    dest: "{{host_cache_dir}}/cache.torrent"
+    force: yes
+  when: "{{flag_install_node is not defined}}"
+  #creates: "{{host_cache_dir}}/disable_package_cache.sem"
+
+- name: Common | Torrent sync caches with nodes
+  vars:
+    become: true
+  shell: aria2c --file-allocation=trunc -T {{host_cache_dir}}/cache.torrent --bt-tracker-connect-timeout=1 --bt-tracker-interval=1 --bt-tracker-timeout=2 --listen-port=6883-6999 --enable-dht=true --dht-entry-point={{ groups['install_node'][0] }}:6882 --dht-message-timeout=2 --dht-listen-port=6882 --seed-time=0 --allow-overwrite=true --check-integrity --bt-enable-lpd=false && touch {{host_cache_dir}}/cache_control.sem
+  args:
+    chdir: "{{host_cache_dir}}/.."
+    # creates: "{{host_cache_dir}}/cache_control.sem"
+    creates: "{{host_cache_dir}}/disable_package_cache.sem"
+  when: "{{flag_install_node is not defined}}"

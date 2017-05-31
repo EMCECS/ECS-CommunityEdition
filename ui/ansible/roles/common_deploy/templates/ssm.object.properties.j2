@@ -1,0 +1,100 @@
+#
+# SS Client
+#
+object.ssClient.isChecksumEnabled=false
+
+#
+# SS Configuration tracker
+#
+object.ssPingIntervalInMillis=5000
+# Timeout for considering ss is transient down
+object.ssTransientDownTimeoutInSecs=1800
+# Timeout for considering ss is permanent down
+object.ssPermanentDownTimeoutInSecs=3600
+# Timeout for considering a missing PD is transient down
+object.pdMissingTimeoutInSecs=1800
+# Timeout before removing a missing partition
+object.pdRemoveMissingTimeoutInSecs=300
+
+# Delay before restarting SS StateMachine after exception
+object.ssStateMachineRetryTimeoutInSecs=1
+
+#
+# SS State machine properties
+#
+object.listChunksSize=1000
+object.sequenceNumberThreshold=1000
+object.ssRecordUpdatePeriodInSecs=60
+
+#
+# CM Client properties
+#
+# Zero value means infinite retry
+object.CmClientRetryCount=0
+object.CmClientRetryTimeoutInSecs=5
+object.MaxNotificationsPerRequest=20
+object.NotificationDelayIntervalInMillis=500
+object.AllocatingRetryPeriodInMillis = 5000
+
+
+#
+# SS Stats properties
+#
+object.ssStatsLargeBlockThresholdInMB=126
+object.ssStatsSmallBlockThresholdInMB=15
+object.ssStatsMinCachedLargeBlocksCount=50
+object.ssStatsDesiredCachedLargeBlocksCount=5000
+object.ssStatsDTReadBatchSize=1000
+object.ssStatsBlockWaitTimeoutInSecs=15
+object.ssStatsSelectorFreeSpaceWatermarkInMB=10240
+object.ssStatsFreeSpaceCalcThreadRestartTimeoutInSecs=15
+object.ssStatsFullMergePeriodInSecs=10
+object.ssStatsPeriodAfterFullCycle=60000
+
+#
+# SSManagerUtils - properties that start with bbfm refer to configuration for BlockBinFileManager
+#
+object.bbfmDefaultBlockBinSizeKb=5242880
+object.bbfmHighestLevelPercentageAllocation=20
+object.bbfmMinimumBlockBinsPerLevel=2
+object.bbfmDirMaxEntries=200
+
+#
+# SS Table reallocation properties
+#
+# Proactive reallocation threshold values for levels 1,2 etc.
+# In case if level index is higher than thresholds list length then the latest value is used.
+object.freeBlocksHighWatermarkLevels={{ '100,50' if ansible_local.data_node.ecs_block_size|int < 1000000000000 else '1000,200' }}
+object.freeBlocksLowWatermarkLevels={{ '0,20' if ansible_local.data_node.ecs_block_size|int < 1000000000000 else '0,100' }}
+object.reallocationRetryTimeoutInSecs=10
+object.reallocationRetryTimeoutInSecs=10
+#set this to false if you want to disable reallocation
+object.ssm.isBlockReallocationEnabled=true
+
+#
+# DT memory table properties
+#
+# Max total table capacity: 512MB
+object.DTMaxTotalTableCapacityBytes=268435456
+# Reserved table capacity: 16MB
+object.DTReservedTableCapacityBytes=8388608
+# Initial table capacity : 512KB
+object.DTInitTableCapacityBytes=262144
+# DT max table capacity : 4M
+object.DTTableCapacityBytes=2097152
+
+# this limitation after btree flush could handle buffer writer queue full.
+object.BPlusTreeWriterCacheSize=100
+# The maximum reader cache size for off-heap size. unit: MB.
+object.BPlusTreeReaderOffHeapCacheSizeMB=16
+# The maximum reader cache size for on-heap size. unit: MB.
+object.BPlusTreeReaderCacheSizeMB=16
+# The sizes of shared cache pools for writer and prefetch, unit MB.
+object.BPlusTreeSharedWriterCachePoolSizeMB=16
+object.BPlusTreeSharedPrefetchCachePoolSizeMB=8
+# whether enable the page prefetch for next keys
+object.BPlusTreePrefetchEnabled=false
+
+object.NFSDataStoreMountRetrySleepMillis=30000
+
+object.NFSDataStoreRetryMax=20

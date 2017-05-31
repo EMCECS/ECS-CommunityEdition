@@ -1,0 +1,7 @@
+- name: Common | Enable ECS service and start ECS
+  service:
+    enabled: yes
+    name: ecs
+    state: started
+    # No sleep in systemd
+    # sleep: 60

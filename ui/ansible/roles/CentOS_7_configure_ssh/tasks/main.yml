@@ -1,0 +1,57 @@
+#- name: Set selinux permissive
+#  selinux: policy=targeted state=permissive
+
+- name: CentOS 7 | Distribute ed25519 ssh key
+  authorized_key:
+    state: present
+    user: "{{ ansible_user }}"
+    key: "{{ lookup('file', '{{ssh_dir}}/id_ed25519.pub') }}"
+
+- name: CentOS 7 | Distribute rsa ssh key
+  authorized_key:
+    state: present
+    user: "{{ ansible_user }}"
+    key: "{{ lookup('file', '{{ssh_dir}}/id_rsa.pub') }}"
+
+# old style
+#  authorized_key: state=present user="{{ ansible_user }}" key="{{ lookup('file', '{{ansible_env.HOME}}/.ssh/id_rsa.pub') }}"
+
+- name: CentOS 7 | Disable SSH UseDNS
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: '^UseDNS no$'
+    state: present
+    line: 'UseDNS no'
+    validate: '/usr/sbin/sshd -t -f %s'
+  notify: CentOS 7 | Restart sshd
+  tags: ssh
+
+- name: CentOS 7 | Disable requiretty
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: '^Defaults.*requiretty'
+    state: absent
+    validate: '/usr/sbin/visudo -cf %s'
+  vars:
+      ansible_ssh_pipelining: false
+  tags: sudoers
+
+- name: CentOS 7 | Disable sudo password reverification for admin group
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%admin ALL\='
+    line: '%admin ALL=(ALL) NOPASSWD:ALL'
+    validate: '/usr/sbin/visudo -cf %s'
+  #when: flag_install_node is defined
+  tags: sudoers
+
+- name: CentOS 7 | Disable sudo password reverification for wheel group
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%wheel.*ALL\=.*'
+    line: '%wheel ALL=(ALL) NOPASSWD:ALL'
+    validate: '/usr/sbin/visudo -cf %s'
+  #when: flag_install_node is defined
+  tags: sudoers

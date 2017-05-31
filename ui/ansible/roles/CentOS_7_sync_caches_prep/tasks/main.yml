@@ -1,0 +1,28 @@
+- name: CentOS 7 | Fetch torrent package names
+  shell: find /var/cache/yum/ -name 'aria2*.x86_64.rpm' -o -name 'c-ares*.rpm'
+  register: aria_packages
+  delegate_to: "{{ groups['install_node'][0] }}"
+
+- name: CentOS 7 | Make yum cache paths for torrent packages
+  shell: mkdir -p $(dirname {{item}})
+  with_items: "{{ aria_packages.stdout_lines }}"
+  when: "{{flag_install_node is not defined}}"
+  #creates: "{{host_cache_dir}}/disable_package_cache.sem"
+
+- name: CentOS 7 | Copy torrent packages to nodes
+  copy:
+    src: "{{item}}"
+    dest: "{{item}}"
+  with_items: "{{ aria_packages.stdout_lines }}"
+  when: "{{flag_install_node is not defined}}"
+  #creates: "{{host_cache_dir}}/disable_package_cache.sem"
+
+- name: CentOS 7 | Install torrent packages on nodes
+  yum:
+    disable_gpg_check: yes
+    name: "{{item}}"
+    state: installed
+    update_cache: no
+  with_items: "{{ aria_packages.stdout_lines }}"
+  when: "{{flag_install_node is not defined}}"
+  #creates: "{{host_cache_dir}}/disable_package_cache.sem"

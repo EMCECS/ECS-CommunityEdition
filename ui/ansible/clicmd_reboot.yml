@@ -1,0 +1,15 @@
+- name: Common | Ping data nodes before doing anything else
+  hosts: data_node
+  gather_facts: false
+  tasks:
+    - ping: "{{inventory_hostname}}"
+
+- name: Installer | Slice nodes into OS groups
+  hosts: data_node
+  tasks:
+     - group_by: key=os_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}
+
+- name: CentOS 7 | Conditionally reboot nodes
+  hosts: data_node:&os_CentOS_7
+  roles:
+    - CentOS_7_reboot

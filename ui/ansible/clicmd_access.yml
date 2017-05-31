@@ -1,0 +1,38 @@
+- name: Common | Ping data nodes before doing anything else
+  hosts: data_node:install_node
+  gather_facts: false
+  vars:
+    ansible_ssh_pipelining: false
+    ansible_ssh_common_args: -o PreferredAuthentications=password -o PubkeyAuthentication=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=60s
+  tasks:
+    - ping: "{{inventory_hostname}}"
+
+- name: Installer | Gather facts and slice into OS groups
+  hosts: data_node:install_node
+  gather_facts: true
+  vars:
+    ansible_ssh_pipelining: false
+    ansible_ssh_common_args: -o PreferredAuthentications=password -o PubkeyAuthentication=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=60s
+  tasks:
+     - group_by: key=os_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}
+
+- name: CentOS 7 | Configure access
+  hosts: os_CentOS_7
+  roles:
+    - CentOS_7_configure_ssh
+    - firewalld_configure_access
+
+- name: Common | Configure hostnames
+  hosts: data_node
+  roles:
+    - common_set_hostname
+
+- name: Common | Configure /etc/hosts
+  hosts: data_node:install_node
+  roles:
+    - common_etc_hosts
+
+- name: Common | Test inter-node access
+  hosts: data_node:install_node
+  roles:
+    - common_access_test

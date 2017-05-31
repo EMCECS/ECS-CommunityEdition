@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# This script will attempt to install python requests module
+# and self-destruct if successful.
+# Once inserted into cron.hourly, it will be run at system firstboot
+# and then every hour. Odds are it won't run twice.
+
+provides="/usr/local/lib64/python2.6/site-packages/requests-2.9.1-py2.6.egg"
+
+_execute_payload() {
+    ecs_python_dir="/host/ecs_python"
+    requests="v2.9.1.tar.gz"
+    requests_dir="requests-2.9.1"
+    ezsetup="ez_setup.py"
+    setuptools="setuptools-20.7.0.zip"
+
+    cd "$ecs_python_dir"
+    tar -xzf "$requests"
+    python "$ezsetup" 2>&1 >/dev/null
+    cd "$requests_dir"
+    python setup.py -q install
+}
+
+if ! [ -d "$provides" ]; then
+
+    my_name="/etc/cron.hourly/setup_python_requests"
+
+    # Some env cron doesn't set
+    PROFILEREAD=true
+    ENV=/etc/bash.bashrc
+    FROM_HEADER=
+    PATH=/sbin:/usr/sbin:/usr/local/sbin:/root/bin:/usr/local/bin:/usr/bin:/bin:/usr/X11R6/bin:/usr/games:/usr/lib/mit/bin:/usr/lib/mit/sbin
+    CPU=x86_64
+    LANG=POSIX
+    PYTHONSTARTUP=/etc/pythonstart
+    OSTYPE=linux
+    MACHTYPE=x86_64-suse-linux
+    G_BROKEN_FILENAMES=1
+
+    _execute_payload >> /host/postinstall.log
+
+    sleep 2
+
+fi
+
+[ -d "$provides" ] && rm "$my_name"

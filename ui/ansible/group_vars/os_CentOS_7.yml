@@ -1,0 +1,16 @@
+---
+ansible_ssh_common_args: -o IdentitiesOnly=yes -o PreferredAuthentications=publickey -o PubkeyAuthentication=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=60s
+disable_services:
+  - mta
+enable_services:
+  - docker
+  - ntp
+  - firewall
+service_names:
+    ntp: ntpd
+    docker: docker
+    ssh: sshd
+    nm: NetworkManager
+    mta: postfix
+    firewall: firewalld
+host_package_dir: /var/cache/yum

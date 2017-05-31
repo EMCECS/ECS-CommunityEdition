@@ -1,0 +1,15 @@
+# Check network requirements
+# [X]Make sure DNS is setup forward and backward
+# We'll call hosts files good enough
+
+- name: Common | Check node connectivity by IP
+  ping: "{{item}}"
+  with_items: "{{ groups['data_node']|map('extract', hostvars, 'ansible_all_ipv4_addresses')|list }}"
+
+- name: Common | Check node connectivity by short name
+  ping: "{{item}}"
+  with_items: "{{ groups['data_node']|map('extract', hostvars, 'ansible_hostname')|list }}"
+
+- name: Common | Check node connectivity by fqdn
+  ping: "{{item}}"
+  with_items: "{{ groups['data_node']|map('extract', hostvars, 'ansible_hostname')|list }}"
