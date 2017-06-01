@@ -1,4 +1,4 @@
-[![Documentation Status](https://readthedocs.org/emcecs/badge/?version=latest)](http://emcecs.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/ecsce/badge/?version=latest)](http://ecsce.readthedocs.io/en/latest/?badge=latest)
  <h1> ECS Community Edition </h1>
  See [changelog.md](changelog.md) file for release notes.
 
