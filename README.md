@@ -73,11 +73,12 @@ If you prefer to download a prefab Install Node as an OVF/OVA, follow one of the
 * [dellemc-ecsce-2.0.2-beta.ova](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova)
 * [dellemc-ecsce-2.0.2-beta.ova.xz](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova.xz)
 
-#### [ECS Multi-Node Deployment with Install Node (recommended, most reusable, full-featured)](docs/source/installation/ECS-Installation.md)
+#### [ECS Single-Node Deployment with Install Node (recommended)](docs/source/installation/ECS-Installation.md)
+Using an Install Node for isolated environments, deploy a stand-alone instance of a limited set of ECS kit to a single hardware or virtual machine.
+
+#### [ECS Multi-Node Deployment with Install Node (most reusable)](docs/source/installation/ECS-Installation.md)
 Using an Install Node for isolated environments, deploy a multi-node ECS instance to two or more hardware or virtual machines and enable all ECS features. Three nodes are required for all ECS 3.0 and above features to be activated.
 
-#### [ECS Single-Node Deployment with Install Node](docs/source/installation/ECS-Installation.md)
-Using an Install Node for isolated environments, deploy a stand-alone instance of a limited set of ECS kit to a single hardware or virtual machine.
 
 # Directory Structure
 
