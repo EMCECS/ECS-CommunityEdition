@@ -4,7 +4,9 @@
 
 ## Description
 
-EMC Elastic Cloud Storage (ECS) is a stateful containerized cloud storage.  It provides persistence for your applications that can access data through standardized Object protocols like AWS S3 or OpenStack Swift. ECS can be set up on one or more hosts / VMs in a single-site or a multi-site geo replicated configuration. We want the wider community to use ECS and provide feedback.  Usage of this software is under the following End User License Agreement.
+EMC Elastic Cloud Storage (ECS) is a stateful, containerized, object storage system for cloud storage protocols.  ECS is compatible with AWS S3 and OpenStack Swift.  On file-enabled buckets, ECS can provide NFS exports for file-level access to objects.
+
+ECS can be set up on one or more hosts or virtual machines in a single-site or a multi-site geo replicated configuration. We want the wider community to use ECS and provide feedback.  Usage of this software is under the End User License Agreement at the bottom of this README.
 
 ## Quick Start Guide
 If you have the following:
@@ -24,7 +26,7 @@ Then you should be able to get up and going with a Single-Node All-in-One instal
 # cp docs/design/reference.deploy.yml deploy.yml
 # echo "Edit this deploy.yml to match your VM's environment"
 # vi deploy.yml
-# ./bootstrap.sh -y -c deploy.yml
+# ./bootstrap.sh -y -g -c deploy.yml
 ```
 
 And then after the node reboots (you did use a clean minimal install from ISO or netinstall right?):
@@ -58,11 +60,12 @@ Hardware or virtual machine with:
 
 ## Deployment Scenarios
 ### Deploy into Internet-Connected Environments
-#### [ECS Multi-Node All-in-One Deployment with Install Node (recommended, full-featured)](docs/source/installation/ECS-Installation.md)
-Deploy a multi-node ECS instance to two or more hardware or virtual machines and enable all ECS features. Three nodes are required for all ECS 3.0 and above features to be activated.
 
-#### [ECS Single-Node All-in-One Deployment (smallest footprint)](docs/source/installation/ECS-Installation.md)
-Deploy a stand-alone instance of a limited set of ECS kit to a single hardware or virtual machine.
+#### [ECS Single-Node All-in-One Deployment (recommended, smallest footprint)](docs/source/installation/ECS-Installation.md)
+Deploy a stand-alone instance of ECS to a single hardware or virtual machine.
+
+#### [ECS Multi-Node All-in-One Deployment with Install Node (EC replication with > 3 nodes)](docs/source/installation/ECS-Installation.md)
+Deploy a multi-node ECS instance to two or more hardware or virtual machines.  Three nodes are required to enable erasure-coding replication.
 
 ### Deployments into Soft-Isolated and Air-Gapped Island Environments
 ##### Important information regarding Island deployments
@@ -74,10 +77,10 @@ If you prefer to download a prefab Install Node as an OVF/OVA, follow one of the
 * [dellemc-ecsce-2.0.2-beta.ova.xz](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova.xz)
 
 #### [ECS Single-Node Deployment with Install Node (recommended)](docs/source/installation/ECS-Installation.md)
-Using an Install Node for isolated environments, deploy a stand-alone instance of a limited set of ECS kit to a single hardware or virtual machine.
+Using an Install Node for isolated environments, deploy a stand-alone instance of ECS to a single hardware or virtual machine.
 
-#### [ECS Multi-Node Deployment with Install Node (most reusable)](docs/source/installation/ECS-Installation.md)
-Using an Install Node for isolated environments, deploy a multi-node ECS instance to two or more hardware or virtual machines and enable all ECS features. Three nodes are required for all ECS 3.0 and above features to be activated.
+#### [ECS Multi-Node Deployment with Install Node](docs/source/installation/ECS-Installation.md)
+Using an Install Node for isolated environments, deploy a multi-node ECS instance to two or more hardware or virtual machines.  Three nodes are required to enable erasure-coding replication.
 
 
 # Directory Structure
