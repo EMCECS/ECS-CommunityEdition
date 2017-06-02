@@ -35,7 +35,7 @@ fi
 run() {
     run="${1}"
     shift
-    sudo docker run --rm -it --privileged --net=host ${default_mount_opts[@]} ${image_release} ${run} ${@}
+    sudo docker run --rm -i --privileged --net=host ${default_mount_opts[@]} ${image_release} ${run} ${@}
     return $?
 }
 
