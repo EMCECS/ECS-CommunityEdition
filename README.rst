@@ -1,4 +1,21 @@
-|Documentation Status| ECS Community Edition See `changelog.md <https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/changelog.md>`__ file for release notes.
+.. |Documentation Status| image:: https://readthedocs.org/projects/ecsce/badge/?version=latest
+   :target: http://ecsce.readthedocs.io/en/latest/?badge=latest
+
+|Documentation Status|
+
+.. raw:: html
+
+   <h1>
+
+ECS Community Edition
+
+.. raw:: html
+
+   </h1>
+
+See
+`changelog.md <https://github.com/EMCECS/ECS-CommunityEdition/blob/latest/changelog.md>`__
+file for release notes.
 
 Description
 -----------
@@ -42,7 +59,7 @@ from ISO or netinstall right?):
 
 ::
 
-    # step1    
+    # step1
     # step2
 
 And if all went well, you now have a working stand-alone ECS, mostly
@@ -56,20 +73,22 @@ Minimum
 
 Hardware or virtual machine with:
 
--  CentOS 7.3 Minimal installation
+-  4 CPU Cores
 -  16GB RAM
 -  16GB root block storage
 -  104GB additional block storage
+-  CentOS 7.3 Minimal installation
 
 Recommended
 ~~~~~~~~~~~
 
 Hardware or virtual machine with:
 
--  CentOS 7.3 Minimal installation
+-  8 CPU Cores
 -  64GB RAM
 -  16GB root block storage
 -  1TB additional block storage
+-  CentOS 7.3 Minimal installation
 
 Deployment Scenarios
 --------------------
@@ -77,14 +96,14 @@ Deployment Scenarios
 Deploy into Internet-Connected Environments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`ECS Multi-Node All-in-One Deployment with Install Node (recommended) <http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+`ECS Multi-Node All-in-One Deployment with Install Node (recommended, full-featured) <http://ecsce.readthedocs.io/en/latest/installation/ECS-Installation.html>`__
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Deploy a multi-node ECS instance to two or more hardware or virtual
 machines and enable all ECS features. Three nodes are required for all
 ECS 3.0 and above features to be activated.
 
-`ECS Single-Node All-in-One Deployment (smallest footprint) <http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
+`ECS Single-Node All-in-One Deployment (smallest footprint) <http://ecsce.readthedocs.io/en/latest/installation/ECS-Installation.html>`__
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Deploy a stand-alone instance of a limited set of ECS kit to a single
@@ -101,20 +120,22 @@ to the hardware or virtual machine that will become the Install Node,
 but once this step is complete, the machine can be removed from the
 Internet and migrated into the Island environment.
 
-If you prefer to download a prefabricated Install Node as an OVF/OVA,
-you may obtain one here:
+If you prefer to download a prefab Install Node as an OVF/OVA, follow
+one of the links below. Please note that OVAs are produced upon each
+release and do not necessarily have the most current software.
 
--  `Install Node OVA <>`__
+-  `dellemc-ecsce-2.0.2-beta.ova <http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova>`__
+-  `dellemc-ecsce-2.0.2-beta.ova.xz <http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova.xz>`__
 
-`ECS Multi-Node Deployment with Install Node (recommended) <http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+`ECS Multi-Node Deployment with Install Node (recommended, most reusable, full-featured) <http://ecsce.readthedocs.io/en/latest/installation/ECS-Installation.html>`__
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Using an Install Node for isolated environments, deploy a multi-node ECS
 instance to two or more hardware or virtual machines and enable all ECS
 features. Three nodes are required for all ECS 3.0 and above features to
 be activated.
 
-`ECS Single-Node Deployment with Install Node <http://dell-emc-ecs-community-edition.readthedocs.io/en/develop/installation/ECS-Installation.html>`__
+`ECS Single-Node Deployment with Install Node <http://ecsce.readthedocs.io/en/latest/installation/ECS-Installation.html>`__
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Using an Install Node for isolated environments, deploy a stand-alone
@@ -127,31 +148,30 @@ Directory Structure
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
 | Directory Name                                                                                                      | Description                                                                                             |
 +=====================================================================================================================+=========================================================================================================+
-|`docs <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/docs>`__                                          | Documentation Sources, `Read them online at <http://ecs-ce.readthedocs.io/en/latest/>`__                |
+|`docs <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/docs>`__                                          | Documentation Sources, `Read them online at <http://ecsce.readthedocs.io/en/latest/>`__                |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-|`examples <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/examples>`__                                  | Deployment and configuration examples for common scenarios                                              |
+|`examples <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/examples>`__                                  | Deployment and configuration examples for common scenarios                                              |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-|`contrib <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/contrib>`__                                    | Unsupported community-contributed scripts content related to ECS CE                                     |
+|`contrib <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/contrib>`__                                    | Unsupported community-contributed scripts content related to ECS CE                                     |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-|`patches <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/patches>`__                                    | Patches to the ECS Community Edition Docker image                                                       |
+|`patches <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/patches>`__                                    | Patches to the ECS Community Edition Docker image                                                       |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-|`bootstrap.sh <https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/bootstrap.sh>`__                          | Installer 2.0 bootstrap script                                                                          |
+|`bootstrap.sh <https://github.com/EMCECS/ECS-CommunityEdition/blob/latest/bootstrap.sh>`__                          | Installer 2.0 bootstrap script                                                                          |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-|`release.conf <https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/release.conf>`__                          | Installer 2.0 release information file                                                                  |
+|`release.conf <https://github.com/EMCECS/ECS-CommunityEdition/blob/latest/release.conf>`__                          | Installer 2.0 release information file                                                                  |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-|`ui <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/ui>`__                                              | Installer 2.0 (`ecsdeploy`, `ecsconfig`, related utilities, and support files)                          |
+|`ui <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/ui>`__                                              | Installer 2.0 (`ecsdeploy`, `ecsconfig`, related utilities, and support files)                          |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-|`bootstrap_plugins <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/bootstrap_plugins>`__                | Installer 2.0 (`bootstrap.sh` support files)                                                            |
+|`bootstrap_plugins <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/bootstrap_plugins>`__                | Installer 2.0 (`bootstrap.sh` support files)                                                            |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-|`legacy <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy>`__                                      | Legacy deployment scripts                                                                               |
+|`legacy <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/legacy>`__                                      | Legacy deployment scripts                                                                               |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-|`legacy/ecs-single-node <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/ecs-single-node>`__      | (Legacy) Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments |
+|`legacy/ecs-single-node <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/legacy/ecs-single-node>`__      | (Legacy) Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-|`legacy/ecs-multi-node <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/ecs-multi-node>`__        | (Legacy) Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment            |
+|`legacy/ecs-multi-node <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/legacy/ecs-multi-node>`__        | (Legacy) Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment            |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-|`legacy/Documentation <https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/Documentation>`__          | (Legacy) Contains documentation files and media                                                         |
+|`legacy/Documentation <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/legacy/Documentation>`__          | (Legacy) Contains documentation files and media                                                         |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-
 
 Support
 =======
@@ -393,5 +413,5 @@ held illegal or unenforceable, such provision shall be deemed separable
 from, and shall in no way affect or impair the validity or
 enforceability of, the remaining provisions.
 
-.. |Documentation Status| image:: https://readthedocs.org/projects/dell-emc-ecs-community-edition/badge/?version=latest
-   :target: http://dell-emc-ecs-community-edition.readthedocs.io/en/latest/?badge=latest
+.. |Documentation Status| image:: https://readthedocs.org/projects/ecsce/badge/?version=latest
+   :target: http://ecsce.readthedocs.io/en/latest/?badge=latest
