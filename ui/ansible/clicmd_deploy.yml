@@ -39,7 +39,7 @@
     - file:
         path: "{{ffx_sem}}"
         state: absent
-  when: not ( num_data_nodes == 1 and top_data_node == install_node )
+      when: not ( num_data_nodes == 1 and top_data_node == install_node )
 
 - name: Common | Install ECS
   gather_facts: True
