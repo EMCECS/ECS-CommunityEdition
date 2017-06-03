@@ -563,7 +563,7 @@ else
     v "Tagging ${release_artifact}:${release_tag} -> ${release_common_name}"
     sudo docker tag "${release_artifact}:${release_tag}" "${release_common_name}" 2>&1 | log
 fi
-
+ping_sudo
 
 ### Next steps
 p ''

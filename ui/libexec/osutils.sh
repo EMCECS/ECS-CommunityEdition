@@ -9,6 +9,20 @@
 # limited to the terms and conditions of the License Agreement under which
 # it is provided by or on behalf of EMC.
 
+# A basic ISO-8601 timestamp with strict capability
+timestamp() {
+    local _char=' '
+    if [ "${*}" == "strict" ]; then
+        _char='T'
+    fi
+    printf "%(%Y-%m-%d${_char}%H:%M:%S%z)T\n" -1
+}
+
+# Get epoch seconds of now
+epoch_now() {
+    printf "%(%s)T\n" -1
+}
+
 # Die if a file doesn't exist (with description)
 ensure_file_exists() {
     local filepath="${1}"
@@ -103,7 +117,7 @@ is_file_http_accessible() {
 }
 
 ping_sudo() {
-    sudo -v
+    retry_with_timeout 5 1800 sudo -v
 }
 
 quit_sudo() {
@@ -141,5 +155,21 @@ dump_bootstrap_config() {
 
     for _var in $_vars; do
         eval echo "export $_var=\$$_var"
+    done
+}
+
+# Simple retry loop with timeout
+# retry_with_timeout <attempts> <timeout_seconds> <command>
+retry_with_timeout() {
+    local _attempts="${1}"
+    local _timeout="${2}"
+    shift; shift
+    local _cmd="${*}"
+
+    local _attempt=0
+    local _timeout_time="$(( $(epoch_now) + _timeout))"
+
+    while [[ _attempt < _attempts ]] && [[ "$(epoch_now)" < _timeout_time ]] && ! $_cmd; do
+        ((_attempt++))
     done
 }
