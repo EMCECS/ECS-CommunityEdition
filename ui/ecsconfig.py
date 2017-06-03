@@ -261,13 +261,15 @@ def ping(conf, c, w, x):
                     sys.exit(1)
         except ECSClientException as e:
             if 'Connection refused' in e.message:
-                o('FAIL: API service is not alive. This is likely temporary.')
+                o('WAIT: API service is not alive. This is likely temporary.')
             elif 'connection failed' in e.message:
-                o('FAIL: API service is alive but ECS is not. This is likely temporary.')
+                o('WAIT: API service is alive but ECS is not. This is likely temporary.')
             elif 'Invalid username or password' in e.message:
-                o('FAIL: Invalid username or password. If ECS authsvc is bootstrapping, this is likely temporary.')
+                o('WAIT: Invalid username or password. If ECS authsvc is bootstrapping, this is likely temporary.')
             elif 'Non-200' in e.message:
-                o('FAIL: ECS API internal error. If ECS services are still bootstrapping, this is likely temporary.')
+                o('WAIT: ECS API internal error. If ECS services are still bootstrapping, this is likely temporary.')
+            elif 'Read timed out' in e.message:
+                o('WAIT: ECS API timed out.  If ECS services are still bootstrapping, this is likely temporary.')
             else:
                 o('FAIL: Unexpected response from API client: {0}'.format(e))
                 if not c:
