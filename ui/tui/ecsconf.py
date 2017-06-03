@@ -198,7 +198,14 @@ class ECSConf(object):
             # If map_type, key, and name are provided, then return the name field at key of
             # map_type in the yaml tree
             if key is not None and name is not None:
-                return [x[key] for x in self.deploy.facts[map_type] if x[NAME] == name][0]
+                try:
+                    attr_map = [x[key] for x in self.deploy.facts[map_type] if x[NAME] == name][0]
+                except IndexError:
+                    try:
+                        attr_map = [x[key] for x in self.deploy.facts[map_type] if x[USERNAME] == name][0]
+                    except IndexError:
+                        raise
+                return attr_map
         except KeyError:
             return None
 
@@ -536,5 +543,4 @@ class ECSConf(object):
     def get_mu_dict(self, mu_name):
         mu_dict = {}
         mu_dict.update(self.get_mu_options(mu_name))
-        mu_dict.update({PASSWORD: self.get_mu_password(mu_name)})
         return mu_dict
