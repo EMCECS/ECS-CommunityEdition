@@ -169,7 +169,7 @@ retry_with_timeout() {
     local _attempt=0
     local _timeout_time="$(( $(epoch_now) + _timeout))"
 
-    while [[ _attempt < _attempts ]] && [[ "$(epoch_now)" < _timeout_time ]] && ! $_cmd; do
+    while [[ _attempt < _attempts ]] && [[ "$(epoch_now)" < "${_timeout_time}" ]] && ! $_cmd; do
         ((_attempt++))
     done
 }

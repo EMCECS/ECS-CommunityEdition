@@ -73,7 +73,7 @@ error() {
 
 # generic error formatter with exit 1
 die() {
-    q "ERROR: ${*}"
+    error "${*}"
     # o "If you believe you have received this in error, please open an issue on github."
     exit 1
 }
@@ -112,4 +112,16 @@ p() {
 }
 pw() {
     printf "\r %${#bar}s\r"
+}
+
+wait_bar() {
+    local _timeout="${1}"
+    shift
+    local _timeout_time="$(( $(epoch_now) + _timeout ))"
+    echo -en "> ${*} "
+    while [[ "$(epoch_now)" < "${_timeout_time}" ]]; do
+        echo -n '.'
+        sleep 1s
+    done
+    echo ''
 }
