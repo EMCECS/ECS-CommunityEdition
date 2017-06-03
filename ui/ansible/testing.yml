@@ -1,4 +1,7 @@
 - name: Installer | Testing
-  hosts: data_node
+  vars:
+    num_data_nodes: "{{ groups['data_node'] | length }}"
+    top_data_node: "{{ groups['data_node'][0] }}"
+    install_node: "{{ groups['install_node'][0] }}"
   roles:
     - testing

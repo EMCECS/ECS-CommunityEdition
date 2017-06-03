@@ -17,5 +17,5 @@
     - file:
         path: "{{ffx_sem}}"
         state: touch
-      when: not ( num_data_nodes == 1 and top_data_node == install_node )
+      when: not ( num_data_nodes|int == 1 and top_data_node == install_node )
 

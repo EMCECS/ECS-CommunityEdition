@@ -20,7 +20,6 @@
   roles:
     - CentOS_7_sync_caches_prep
     - common_sync_caches_by_torrent
-  when: not ( num_data_nodes == 1 and top_data_node == install_node )
 
 - name: CentOS 7 | Install cached packages
   hosts: os_CentOS_7
@@ -31,15 +30,18 @@
     install_node: "{{ groups['install_node'][0] }}"
   roles:
     - CentOS_7_baseline_install
-  when: not ( num_data_nodes == 1 and top_data_node == install_node )
 
 - name: Installer | Disable torrent ffx
   hosts: ecs_install
+  vars:
+    num_data_nodes: "{{ groups['data_node'] | length }}"
+    top_data_node: "{{ groups['data_node'][0] }}"
+    install_node: "{{ groups['install_node'][0] }}"
   tasks:
     - file:
         path: "{{ffx_sem}}"
         state: absent
-      when: not ( num_data_nodes == 1 and top_data_node == install_node )
+      when: not ( num_data_nodes|int == 1 and top_data_node == install_node )
 
 - name: Common | Install ECS
   gather_facts: True

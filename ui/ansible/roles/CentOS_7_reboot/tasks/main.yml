@@ -28,9 +28,9 @@
   poll: 0
   when: "( needs_restarting.stdout | search('[0-9]* : /.*') ) and flag_install_node is not defined"
 
-- name: CentOS 7 | Wait for node to reboot
-  become: false
-  local_action: wait_for host="{{ ansible_host | default(inventory_hostname) }}" port=22 state=started delay=60 timeout=300
+#- name: CentOS 7 | Wait for node to reboot actions to take effect
+#  become: false
+#  local_action: wait_for host="{{ ansible_host | default(inventory_hostname) }}" port=22 state=started delay=5 timeout=300
 
 #     host={{ ansible_default_ipv4.address }} port=22 state=started delay=60 timeout=120
 

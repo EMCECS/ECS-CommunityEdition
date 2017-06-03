@@ -2,7 +2,7 @@
   shell: find /var/cache/yum/ -name 'aria2*.x86_64.rpm' -o -name 'c-ares*.rpm'
   register: aria_packages
   delegate_to: "{{ groups['install_node'][0] }}"
-  when: not ( num_data_nodes == 1 and top_data_node == install_node )
+  when: not ( num_data_nodes|int == 1 and top_data_node == install_node )
 
 - name: CentOS 7 | Make yum cache paths for torrent packages
   shell: mkdir -p $(dirname {{item}})
