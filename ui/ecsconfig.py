@@ -892,8 +892,8 @@ def namespace(conf, l, r, a, n):
             o('\t{}'.format(ns_data['name']))
     if a:
         n = None
-        available_rg_configs = list_all()
-        if available_rg_configs is not None:
+        available_ns_configs = list_all()
+        if available_ns_configs is not None:
             add_all()
             o('Created all configured namespaces')
         else:
@@ -947,45 +947,71 @@ def namespace(conf, l, r, a, n):
 #         add_one(n)
 #
 #
-# @ecsconfig.command('management-user', short_help='Work with ECS Management Users')
-# @click.option('-l', is_flag=True, help='List known management user configs')
+@ecsconfig.command('management-user', short_help='Work with ECS Management Users')
+@click.option('-l', is_flag=True, help='List known management user configs')
 # @click.option('-r', is_flag=True, help='Get all current management user configs from ECS')
-# @click.option('-s', is_flag=True, help='Get current management user configs from ECS for given namespace')
-# @click.option('-a', is_flag=True, help="Add all management user to ECS")
-# @click.option('-n', default=None, help='Add the given management user to ECS')
-# @pass_conf
-# def management_user(conf, l, r, s, a, n):
-#     """
-#     Work with a collection of ECS abstractions
-#     :param conf: Click object containing the configuration
-#     :param l: list known configurations of this abstraction
-#     :param r: list instances of this abstraction configured on ECS
-#     :param a: add all known configurations of this abstraction
-#     :param n: add a single known configuration of this abstraction
-#     :return: retval
-#     """
-#     def list_all():
-#         pass
-#
-#     def get_all():
-#         pass
-#
-#     def get_one():
-#         pass
-#
-#     def add_all():
-#         pass
-#
-#     def add_one(user_name):
-#         pass
-#
-#     if l:
-#         list_all()
-#     if a:
-#         n = None
-#         add_all()
-#     if n is not None:
-#         add_one(n)
+# @click.option('-s', is_flag=False, help='Get current management user configs from ECS for given namespace')
+@click.option('-a', is_flag=True, help="Add all management user to ECS")
+@click.option('-n', default=None, help='Add the given management user to ECS')
+@pass_conf
+def management_user(conf, l, a, n):
+    """
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list known configurations of this abstraction
+    :param r: list instances of this abstraction configured on ECS
+    :param s: list management users associated with given namespace
+    :param a: add all known configurations of this abstraction
+    :param n: add a single known configuration of this abstraction
+    :return: retval
+    """
+    config_type = 'management user'
+
+    def list_all():
+        return conf.ecs.get_mu_names()
+
+    def config_exists(name):
+        if name in list_all():
+            return True
+        return False
+
+    # def get_all():
+    #     return conf.api_client.management_user.get_local_management_users()
+    #
+    # def get_one(name):
+    #     return conf.api_client.management_user.get_local_user_info(name)
+
+    def add_all():
+        for this_name in list_all():
+            add_one(this_name)
+            o('Created {}: {}'.format(config_type, this_name))
+
+    def add_one(name):
+        mu_pass = conf.ecs.get_mu_password(name)
+        mu_dict = conf.ecs.get_mu_dict(name)
+        conf.api_client.management_user.create_local_user_info(name, mu_pass, **mu_dict)
+
+    available_configs = list_all()
+
+    if l:
+        if available_configs is not None:
+            o('Available {} configurations:'.format(config_type))
+            for name in list_all():
+                o('\t{}'.format(name))
+        else:
+            o('No {} configurations in deploy.yml'.format(config_type))
+    if a:
+        n = None
+        if available_configs is not None:
+            add_all()
+            o('Created all configured {}s'.format(config_type))
+        else:
+            o('No {} configurations in deploy.yml'.format(config_type))
+    if n is not None and config_exists(n):
+        add_one(n)
+        o('Created {} named {}'.format(config_type, n))
+    else:
+        o('No {} named {}'.format(config_type, n))
 #
 #
 # @ecsconfig.command('bucket', short_help='Work with ECS Buckets')
