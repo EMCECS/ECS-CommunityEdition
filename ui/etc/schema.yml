@@ -102,45 +102,6 @@ mapping:
               - type: str
                 func: unix_path
 
-      virtual_data_center_defaults:
-        type: map
-        required: False
-        mapping:
-          description:
-            type: str
-            required: False
-
-      replication_group_defaults:
-        type: map
-        required: False
-        mapping:
-          description:
-            type: str
-            required: False
-          enable_rebalancing:
-            type: bool
-            required: False
-          allow_all_namespaces:
-            type: bool
-            required: False
-          is_full_rep:
-            type: bool
-            required: False
-
-      namespace_defaults:
-        type: map
-        required: False
-        mapping:
-          is_stale_allowed:
-            required: False
-            type: bool
-          is_compliance_enabled:
-            required: False
-            type: bool
-          is_encryption_enabled:
-            required: False
-            type: bool
-
       storage_pools:
         type: seq
         required: True
@@ -177,6 +138,14 @@ mapping:
                       - type: str
                         func: unix_path
 
+      virtual_data_center_defaults:
+        type: map
+        required: False
+        mapping:
+          description:
+            type: str
+            required: False
+
       virtual_data_centers:
         type: seq
         required: True
@@ -200,6 +169,23 @@ mapping:
                   description:
                     type: str
                     required: False
+
+      replication_group_defaults:
+        type: map
+        required: False
+        mapping:
+          description:
+            type: str
+            required: False
+          enable_rebalancing:
+            type: bool
+            required: False
+          allow_all_namespaces:
+            type: bool
+            required: False
+          is_full_rep:
+            type: bool
+            required: False
 
       replication_groups:
         type: seq
@@ -234,6 +220,20 @@ mapping:
                     type: bool
                     required: False
 
+      namespace_defaults:
+        type: map
+        required: False
+        mapping:
+          is_stale_allowed:
+            required: False
+            type: bool
+          is_compliance_enabled:
+            required: False
+            type: bool
+          is_encryption_enabled:
+            required: False
+            type: bool
+
       namespaces:
         type: seq
         required: False
@@ -267,3 +267,39 @@ mapping:
                   is_encryption_enabled:
                     type: bool
                     required: False
+
+      management_user_defaults:
+        type: map
+        required: False
+        mapping:
+          is_system_admin:
+            type: bool
+            required: False
+          is_system_monitor:
+            type: bool
+            required: False
+
+      management_users:
+        type: seq
+        required: False
+        sequence:
+          - type: map
+            mapping:
+              username:
+                type: str
+                func: alphanumeric
+                required: True
+              password:
+                type: str
+                required: True
+              options:
+                type: map
+                required: False
+                mapping:
+                  is_system_admin:
+                    type: bool
+                    required: False
+                  is_system_monitor:
+                    type: bool
+                    required: False
+

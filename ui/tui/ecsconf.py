@@ -27,6 +27,8 @@ MANAGEMENT_CLIENTS = 'management_clients'
 _D = '_defaults'
 OPTIONS = 'options'
 NAME = 'name'
+USERNAME = 'username'
+PASSWORD = 'password'
 MEMBERS = 'members'
 DESC = 'description'
 DESC_DEFAULT = 'Default description'
@@ -138,7 +140,8 @@ DEFAULTS[NS] = {
 MU = 'management_users'
 MU_D = MU[:-1] + _D
 DEFAULTS[MU] = {
-    DESC: DESC_DEFAULT
+    'is_system_admin': False,
+    'is_system_monitor': False
 }
 
 # Object User stuff
@@ -195,7 +198,14 @@ class ECSConf(object):
             # If map_type, key, and name are provided, then return the name field at key of
             # map_type in the yaml tree
             if key is not None and name is not None:
-                return [x[key] for x in self.deploy.facts[map_type] if x[NAME] == name][0]
+                try:
+                    attr_map = [x[key] for x in self.deploy.facts[map_type] if x[NAME] == name][0]
+                except IndexError:
+                    try:
+                        attr_map = [x[key] for x in self.deploy.facts[map_type] if x[USERNAME] == name][0]
+                    except IndexError:
+                        raise
+                return attr_map
         except KeyError:
             return None
 
@@ -235,11 +245,11 @@ class ECSConf(object):
         fun_facts.update(self.get_ansible_facts())
         return fun_facts
 
-    def get_names(self, map_type):
+    def get_names(self, map_type, key=NAME):
         """
         Returns a list of name keys from the given map_type
         """
-        return self.get_attr(map_type, NAME)
+        return self.get_attr(map_type, key)
 
     def get_members(self, map_type, name, key=MEMBERS):
         """
@@ -516,3 +526,21 @@ class ECSConf(object):
         ns_dict.update({NAMESPACE_ADMINS: self.get_ns_users(ns_name)})
         ns_dict.update({NAMESPACE_VPOOL: self.get_ns_vpool(ns_name)})
         return ns_dict
+
+    def get_mu_names(self):
+        return self.get_names(MU, USERNAME)
+
+    def get_mu_options(self, mu_name):
+        opts = self.get_defaults(MU)
+        mu_opts = self.get_attr(MU, OPTIONS, mu_name)
+        if mu_opts is not None:
+            opts.update(mu_opts)
+        return opts
+
+    def get_mu_password(self, mu_name):
+        return self.get_attr(MU, PASSWORD, mu_name)
+
+    def get_mu_dict(self, mu_name):
+        mu_dict = {}
+        mu_dict.update(self.get_mu_options(mu_name))
+        return mu_dict

@@ -130,7 +130,21 @@ facts:
         is_full_rep: false
 
   # [Optional]
-  # Namespace defaults.
+  # Management User defaults
+  management_user_defaults:
+    is_system_admin: false
+    is_system_monitor: false
+
+  # [Optional]
+  # Management Users
+  management_users:
+    - username: user1
+      password: ChangeMe
+      options:
+        is_system_admin: true
+
+  # [Optional]
+  # Namespace defaults
   namespace_defaults:
     is_stale_allowed: false
     is_compliance_enabled: false
