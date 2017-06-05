@@ -981,7 +981,10 @@ def management_user(conf, l, r, a, g, n):
         return False
 
     def get_all():
-        return conf.api_client.management_user.list()
+        list_return = []
+        for dict_info in conf.api_client.management_user.list()['mgmt_user_info']:
+            list_return.append(dict_info['userId'])
+        return list_return
 
     def get_one(name):
         return conf.api_client.management_user.get(name)
@@ -1014,7 +1017,10 @@ def management_user(conf, l, r, a, g, n):
             o('No {} configurations in deploy.yml'.format(config_type))
     if r:
         n = None
-        print(get_all())
+        items = get_all()
+        o('All {} configured on ECS:'.format(config_type))
+        for item in items:
+            o("\t" + item)
     if g is not None:
         n = None
         print(get_one(g))
