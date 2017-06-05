@@ -71,7 +71,9 @@
   args:
       chdir: "{{host_cache_dir}}/docker"
       creates: "{{host_cache_dir}}/docker/{{caches.docker.unpack_sem}}"
-  when: flag_install_node is not defined
+  when:
+    - flag_install_node is not defined
+    - not ( num_data_nodes|int == 1 and top_data_node == install_node )
 
 - name: Common | Update block storage path permissions
   file:

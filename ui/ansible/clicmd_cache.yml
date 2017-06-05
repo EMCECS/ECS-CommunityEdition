@@ -1,6 +1,8 @@
 - name: Installer | Build the package cache
   vars:
     num_data_nodes: "{{ groups['data_node'] | length }}"
+    top_data_node: "{{ groups['data_node'][0] }}"
+    install_node: "{{ groups['install_node'][0] }}"
   hosts: ecs_install
   roles:
     - installer_build_cache
@@ -8,8 +10,12 @@
 - name: Installer | Enable torrent ffx
   vars:
     num_data_nodes: "{{ groups['data_node'] | length }}"
+    top_data_node: "{{ groups['data_node'][0] }}"
+    install_node: "{{ groups['install_node'][0] }}"
   hosts: ecs_install
   tasks:
     - file:
         path: "{{ffx_sem}}"
         state: touch
+      when: not ( num_data_nodes|int == 1 and top_data_node == install_node )
+

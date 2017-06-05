@@ -28,6 +28,7 @@
     src: "{{host_cache_dir}}/{{os_tag}}/package_cache.tgz"
     dest: /
     creates: "{{host_cache_dir}}/disable_package_cache.sem"
+  when: not ( num_data_nodes|int == 1 and top_data_node == install_node )
 
 # TODO: Improve this
 # This is suuuuuper hacky - There should be a better way using the yum module,
@@ -41,6 +42,7 @@
   shell: yum -y -t -e0 -C --nogpgcheck install $(find /var/cache/yum -type f -name "*.rpm") || yum -y -t -e0 -C --nogpgcheck update || true
   args:
     creates: "{{host_cache_dir}}/disable_package_cache.sem"
+  when: not ( num_data_nodes|int == 1 and top_data_node == install_node )
 
 - name: CentOS 7 | Configure ntp
   template: src=ntp.conf.j2 dest=/etc/ntp.conf

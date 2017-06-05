@@ -10,9 +10,9 @@ paramiko==2.1.2
 ptpython==0.39
 pycrypto==2.6.1
 pyOpenSSL==17.0.0
-python-ecsclient==1.1.0
+python-ecsclient==1.1.3
 PyYAML==3.12
-# Stuck at 2.9.1 until python-ecsclient updates their reqs
+# Stuck at 2.9.1 until https://github.com/EMCECS/python-ecsclient/pull/36
 requests==2.9.1
 sarge==0.1.4
 simplejson==3.10.0

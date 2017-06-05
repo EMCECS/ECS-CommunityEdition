@@ -261,13 +261,15 @@ def ping(conf, c, w, x):
                     sys.exit(1)
         except ECSClientException as e:
             if 'Connection refused' in e.message:
-                o('FAIL: API service is not alive. This is likely temporary.')
+                o('WAIT: API service is not alive. This is likely temporary.')
             elif 'connection failed' in e.message:
-                o('FAIL: API service is alive but ECS is not. This is likely temporary.')
+                o('WAIT: API service is alive but ECS is not. This is likely temporary.')
             elif 'Invalid username or password' in e.message:
-                o('FAIL: Invalid username or password. If ECS authsvc is bootstrapping, this is likely temporary.')
+                o('WAIT: Invalid username or password. If ECS authsvc is bootstrapping, this is likely temporary.')
             elif 'Non-200' in e.message:
-                o('FAIL: ECS API internal error. If ECS services are still bootstrapping, this is likely temporary.')
+                o('WAIT: ECS API internal error. If ECS services are still bootstrapping, this is likely temporary.')
+            elif 'Read timed out' in e.message:
+                o('WAIT: ECS API timed out.  If ECS services are still bootstrapping, this is likely temporary.')
             else:
                 o('FAIL: Unexpected response from API client: {0}'.format(e))
                 if not c:
@@ -285,6 +287,10 @@ def ping(conf, c, w, x):
 @pass_conf
 def licensing(conf, l, a, c):
     """
+    Work with ECS Licensing
+    """
+
+    """
     Work with a collection of ECS abstractions
     :param conf: Click object containing the configuration
     :param l: list known configurations of this abstraction
@@ -299,8 +305,8 @@ def licensing(conf, l, a, c):
         # license_text is a global variable from defaults.py which
         # can be overridden.
         # o(license_blob)
-        license_dict = {"license_text": license_blob.rstrip('\n')}
-        return conf.api_client.licensing.add_license(license_dict)
+        #license_dict = {"license_text": license_blob.rstrip('\n')}
+        return conf.api_client.licensing.add_license(license_blob)
 
     def add_default_license():
         return add_license(license_text)
@@ -892,8 +898,8 @@ def namespace(conf, l, r, a, n):
             o('\t{}'.format(ns_data['name']))
     if a:
         n = None
-        available_rg_configs = list_all()
-        if available_rg_configs is not None:
+        available_ns_configs = list_all()
+        if available_ns_configs is not None:
             add_all()
             o('Created all configured namespaces')
         else:
@@ -947,45 +953,85 @@ def namespace(conf, l, r, a, n):
 #         add_one(n)
 #
 #
-# @ecsconfig.command('management-user', short_help='Work with ECS Management Users')
-# @click.option('-l', is_flag=True, help='List known management user configs')
-# @click.option('-r', is_flag=True, help='Get all current management user configs from ECS')
-# @click.option('-s', is_flag=True, help='Get current management user configs from ECS for given namespace')
-# @click.option('-a', is_flag=True, help="Add all management user to ECS")
-# @click.option('-n', default=None, help='Add the given management user to ECS')
-# @pass_conf
-# def management_user(conf, l, r, s, a, n):
-#     """
-#     Work with a collection of ECS abstractions
-#     :param conf: Click object containing the configuration
-#     :param l: list known configurations of this abstraction
-#     :param r: list instances of this abstraction configured on ECS
-#     :param a: add all known configurations of this abstraction
-#     :param n: add a single known configuration of this abstraction
-#     :return: retval
-#     """
-#     def list_all():
-#         pass
-#
-#     def get_all():
-#         pass
-#
-#     def get_one():
-#         pass
-#
-#     def add_all():
-#         pass
-#
-#     def add_one(user_name):
-#         pass
-#
-#     if l:
-#         list_all()
-#     if a:
-#         n = None
-#         add_all()
-#     if n is not None:
-#         add_one(n)
+@ecsconfig.command('management-user', short_help='Work with ECS Management Users')
+@click.option('-l', is_flag=True, help='List known management user configs on Install Node')
+@click.option('-r', is_flag=True, help='List current management users on ECS')
+@click.option('-g', is_flag=False, help='Get management user info from ECS for given username')
+# @click.option('-s', is_flag=False, help='Get current management user configs from ECS for given namespace')
+@click.option('-a', is_flag=True, help="Add all management user to ECS")
+@click.option('-n', default=None, help='Add the given management user to ECS')
+@pass_conf
+def management_user(conf, l, r, a, g, n):
+    """
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list known configurations of this abstraction
+    :param r: list instances of this abstraction configured on ECS
+    :param s: list management users associated with given namespace
+    :param a: add all known configurations of this abstraction
+    :param n: add a single known configuration of this abstraction
+    :return: retval
+    """
+    config_type = 'management user'
+
+    def list_all():
+        return conf.ecs.get_mu_names()
+
+    def config_exists(name):
+        if name in list_all():
+            return True
+        return False
+
+    def get_all():
+        list_return = []
+        for dict_info in conf.api_client.management_user.list()['mgmt_user_info']:
+            list_return.append(dict_info['userId'])
+        return list_return
+
+    def get_one(name):
+        return conf.api_client.management_user.get(name)
+
+    def add_all():
+        for this_name in list_all():
+            add_one(this_name)
+            o('Created {}: {}'.format(config_type, this_name))
+
+    def add_one(name):
+        mu_pass = conf.ecs.get_mu_password(name)
+        mu_dict = conf.ecs.get_mu_dict(name)
+        conf.api_client.management_user.create(name, password=mu_pass, **mu_dict)
+
+    available_configs = list_all()
+
+    if l:
+        if available_configs is not None:
+            o('Available {} configurations:'.format(config_type))
+            for name in list_all():
+                o('\t{}'.format(name))
+        else:
+            o('No {} configurations in deploy.yml'.format(config_type))
+    if a:
+        n = None
+        if available_configs is not None:
+            add_all()
+            o('Created all configured {}s'.format(config_type))
+        else:
+            o('No {} configurations in deploy.yml'.format(config_type))
+    if r:
+        n = None
+        items = get_all()
+        o('All {} configured on ECS:'.format(config_type))
+        for item in items:
+            o("\t" + item)
+    if g is not None:
+        n = None
+        print(get_one(g))
+    if n is not None:
+        if config_exists(n):
+            add_one(n)
+            o('Created {} named {}'.format(config_type, n))
+        else:
+            o('No {} named {}'.format(config_type, n))
 #
 #
 # @ecsconfig.command('bucket', short_help='Work with ECS Buckets')

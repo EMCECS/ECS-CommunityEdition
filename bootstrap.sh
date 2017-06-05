@@ -563,7 +563,7 @@ else
     v "Tagging ${release_artifact}:${release_tag} -> ${release_common_name}"
     sudo docker tag "${release_artifact}:${release_tag}" "${release_common_name}" 2>&1 | log
 fi
-
+ping_sudo
 
 ### Next steps
 p ''
@@ -592,17 +592,16 @@ o ''
 
 ### Needs rebooting?
 if get_os_needs_restarting; then
-
     ping_sudo
     q "The system has indicated it wants to reboot."
     o "Please reboot BEFORE continuing to ensure this node is"
     o "operating with the latest kernel and system libraries."
     o ''
-
     if $override_flag; then
         if $override_val; then
             q "Automatically rebooting by user request (-y argument)"
             log "REBOOT-REBOOTING-ARGUMENT"
+            wait_bar 15 "Press CTRL-C to abort"
             do_reboot
         else
             q "Skipping reboot by user request (-n argument)"
