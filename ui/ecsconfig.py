@@ -920,37 +920,96 @@ def namespace(conf, l, r, a, n):
 # @click.option('-n', default=None, help='Add the given object user to ECS')
 # @pass_conf
 # def object_user(conf, l, r, s, a, n):
-#     """
-#     Work with a collection of ECS abstractions
-#     :param conf: Click object containing the configuration
-#     :param l: list known configurations of this abstraction
-#     :param r: list instances of this abstraction configured on ECS
-#     :param a: add all known configurations of this abstraction
-#     :param n: add a single known configuration of this abstraction
-#     :return: retval
-#     """
-#     def list_all():
-#         pass
-#
-#     def get_all():
-#         pass
-#
-#     def get_one():
-#         pass
-#
-#     def add_all():
-#         pass
-#
-#     def add_one(user_name):
-#         pass
-#
-#     if l:
-#         list_all()
-#     if a:
-#         n = None
-#         add_all()
-#     if n is not None:
-#         add_one(n)
+    """
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list known configurations of this abstraction
+    :param r: list instances of this abstraction configured on ECS
+    :param s: list management users associated with given namespace
+    :param a: add all known configurations of this abstraction
+    :param n: add a single known configuration of this abstraction
+    :return: retval
+    """
+    config_type = 'object user'
+
+    def list_all():
+        return conf.ecs.get_ou_names()
+
+    def config_exists(name):
+        if name in list_all():
+            return True
+        return False
+
+    def get_all():
+        list_return = []
+        for dict_info in conf.api_client.object_user.list()['blobuser']:
+            list_return.append(dict_info['userId'])
+        return list_return
+
+    def get_one(name):
+        return conf.api_client.object_user.get(name)
+
+    def add_all():
+        for this_name in list_all():
+            add_one(this_name)
+            o('Created {}: {}'.format(config_type, this_name))
+
+    def add_one(name):
+        ou_namespace = conf.ecs.get_ou_namespace(name)
+        ou_dict = conf.ecs.get_ou_dict(name)
+        ou_dict = {'password': ou_dict['swift_password'],
+                   'groups_list': ou_dict['swift_groups_list']}
+
+        o("Creating {} '{}' in namespace '{}'".format(config_type, name, ou_namespace))
+        conf.api_client.object_user.create(name, namespace=ou_namespace)
+
+        o("Creating {} S3 credentials for '{}' in namespace '{}'".format(config_type,
+                                                                         name,
+                                                                         ou_namespace))
+        conf.api_client.secret_key.create(user_id=name,
+                                          namespace=ou_namespace,
+                                          expiry_time=ou_dict['s3_expiry_time'],
+                                          secret_key=ou_dict['s3_secret_key'])
+
+        if ou_dict['swift_password'] is not None and ou_dict['swift_groups_list'] is not None:
+            o("Creating {} Swift credentials for '{}' in namespace '{}'".format(config_type,
+                                                                                name,
+                                                                                ou_namespace))
+            conf.api_client.password_group.create(user_id=name,
+                                                  namespace=ou_namespace,
+                                                  password=ou_dict['swift_password'],
+                                                  groups_list=ou_dict['swift_groups_list'])
+
+    available_configs = list_all()
+    if l:
+        if available_configs is not None:
+            o('Available {} configurations:'.format(config_type))
+            for name in list_all():
+                o('\t{}'.format(name))
+        else:
+            o('No {} configurations in deploy.yml'.format(config_type))
+    if a:
+        n = None
+        if available_configs is not None:
+            add_all()
+            o('Created all configured {}s'.format(config_type))
+        else:
+            o('No {} configurations in deploy.yml'.format(config_type))
+    if r:
+        n = None
+        items = get_all()
+        o('All {} configured on ECS:'.format(config_type))
+        for item in items:
+            o("\t" + item)
+    if g is not None:
+        n = None
+        print(get_one(g))
+    if n is not None:
+        if config_exists(n):
+            add_one(n)
+            o('Created {} named {}'.format(config_type, n))
+        else:
+            o('No {} named {}'.format(config_type, n))
 #
 #
 @ecsconfig.command('management-user', short_help='Work with ECS Management Users')

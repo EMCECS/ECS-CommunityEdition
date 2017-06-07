@@ -128,7 +128,8 @@ DEFAULTS[AUTH] = {
 NAMESPACE_ADMINS = 'administrators'
 NAMESPACE_ADMINS_DEFAULT = 'root'
 NAMESPACE_VPOOL = 'replication_group'
-NS = 'namespaces'
+NAMESPACE = 'namespace'
+NS = NAMESPACE + 's'
 NS_D = NS[:-1] + _D
 DEFAULTS[NS] = {
     'is_encryption_enabled': False,
@@ -148,7 +149,10 @@ DEFAULTS[MU] = {
 OU = 'object_users'
 OU_D = OU[:-1] + _D
 DEFAULTS[OU] = {
-    DESC: DESC_DEFAULT
+    'expiry_time': 2592000,
+    'secret_key': None,
+    'password': None,
+    'groups_list': None
 }
 
 # Bucket stuff
@@ -544,3 +548,21 @@ class ECSConf(object):
         mu_dict = {}
         mu_dict.update(self.get_mu_options(mu_name))
         return mu_dict
+
+    def get_ou_names(self):
+        return self.get_names(OU, USERNAME)
+
+    def get_ou_options(self, ou_name):
+        opts = self.get_defaults(OU)
+        ou_opts = self.get_attr(OU, OPTIONS, ou_name)
+        if ou_opts is not None:
+            opts.update(ou_opts)
+        return opts
+
+    def get_ou_namespace(self, ou_name):
+        return self.get_attr(OU, NAMESPACE, ou_name)
+
+    def get_ou_dict(self, ou_name):
+        ou_dict = {}
+        ou_dict.update(self.get_ou_options(ou_name))
+        return ou_dict
