@@ -130,7 +130,25 @@ facts:
         is_full_rep: false
 
   # [Optional]
-  # Namespace defaults.
+  # Management User defaults
+  management_user_defaults:
+    is_system_admin: false
+    is_system_monitor: false
+
+  # [Optional]
+  # Management Users
+  management_users:
+    - username: admin1
+      password: ChangeMe
+      options:
+        is_system_admin: true
+    - username: monitor1
+      password: ChangeMe
+      options:
+        is_system_monitor: true
+
+  # [Optional]
+  # Namespace defaults
   namespace_defaults:
     is_stale_allowed: false
     is_compliance_enabled: false
@@ -145,3 +163,30 @@ facts:
       options:
         is_stale_allowed: false
         is_compliance_enabled: false
+
+  # [Optional]
+  # Object User defaults
+  object_user_defaults:
+    # Comma-separated list of Swift authorization groups
+    swift_groups_list:
+      - users
+    # Lifetime of S3 secret key in minutes
+    s3_expiry_time: 2592000
+
+  # [Optional]
+  # Object Users
+  object_users:
+    - username: object_admin1
+      namespace: ns1
+      options:
+        swift_password: ChangeMe
+        swift_groups_list:
+          - admin
+          - users
+        s3_secret_key: ChangeMeChangeMeChangeMeChangeMeChangeMe
+        s3_expiry_time: 2592000
+    - username: object_user1
+      namespace: ns1
+      options:
+        swift_password: ChangeMe
+        s3_secret_key: ChangeMeChangeMeChangeMeChangeMeChangeMe
