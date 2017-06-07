@@ -13,7 +13,7 @@
 ---
 ui:
   name: Install
-  version: 2.0
+  version: 2.1.0
   host_root_dir: /opt/emc/ecs-install
   state_file: /opt/state.yml
   deploy_file: /opt/deploy.yml

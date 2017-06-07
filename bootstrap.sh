@@ -217,7 +217,8 @@ done
 ##############################################################################
 ### Main
 o ""
-o " ${release_name} ${release_version} Install Node Bootstrap"
+o " ${release_name} ${ver_maj}.${ver_min}.${ver_rev}${r} Install Node Bootstrap"
+o " ${release_product} image ${release_artifact}:${release_tag}"
 o "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
 
