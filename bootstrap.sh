@@ -47,9 +47,9 @@ cat <<EOH
                  option it's possible for bootstrapping to hang indefinitely if the
                  mirror cannot be contacted.
 
- -b <mirror>     Build the installer image (ecs-install) locally instead of fetching
-                 the current release build from DockerHub (not recommended). Use the
-                 Alpine Linux mirror <mirror> when building the image.
+ -b <mirror>     Build the installer image (ecs-install) locally using the Alpine Linux
+                 <mirror> URL instead of pulling the current release build from DockerHub.
+                 WARNING: This is not recommended.
 
 [Docker Options]
  -r <registry>   Use the Docker registry at <registry> instead of DockerHub.
@@ -217,13 +217,13 @@ done
 ##############################################################################
 ### Main
 o ""
-o " ${release_name} ${ver_maj}.${ver_min}.${ver_rev}${r} Install Node Bootstrap"
-o " ${release_product} image ${release_artifact}:${release_tag}"
+o " ${release_name} Install Node Bootstrap ${ver_maj}.${ver_min}.${ver_rev}${ver_tag}"
+o " ${release_product} Image ${release_artifact}:${release_tag}"
 o "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-
 
 ### No arguments given.. are you sure?
 if [ -z "$1" ]; then
+    o ""
     o "No options were given, but it's possible your environment may"
     o "depend on one or more options to bootstrap properly."
     o ""
