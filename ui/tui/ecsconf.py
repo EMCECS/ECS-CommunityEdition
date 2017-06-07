@@ -149,10 +149,10 @@ DEFAULTS[MU] = {
 OU = 'object_users'
 OU_D = OU[:-1] + _D
 DEFAULTS[OU] = {
-    'expiry_time': 2592000,
-    'secret_key': None,
-    'password': None,
-    'groups_list': None
+    's3_expiry_time': 2592000,
+    's3_secret_key': None,
+    'swift_password': None,
+    'swift_groups_list': ['users']
 }
 
 # Bucket stuff
@@ -459,7 +459,7 @@ class ECSConf(object):
         :return: dict of vdc options
         """
         opts = self.get_defaults(VDC)
-        vdc_opts = self.get_attr(VDC, OPTIONS, vdc_name)
+        vdc_opts = self.get_attr(VDC, OPTIONS, vdc_name).toDict()
         if vdc_opts is not None:
             opts.update(vdc_opts)
         return opts
@@ -506,7 +506,7 @@ class ECSConf(object):
         :return: dict of rg options
         """
         opts = self.get_defaults(NS)
-        ns_opts = self.get_attr(NS, OPTIONS, ns_name)
+        ns_opts = self.get_attr(NS, OPTIONS, ns_name).toDict()
         if ns_opts is not None:
             opts.update(ns_opts)
         return opts
@@ -536,7 +536,7 @@ class ECSConf(object):
 
     def get_mu_options(self, mu_name):
         opts = self.get_defaults(MU)
-        mu_opts = self.get_attr(MU, OPTIONS, mu_name)
+        mu_opts = self.get_attr(MU, OPTIONS, mu_name).toDict()
         if mu_opts is not None:
             opts.update(mu_opts)
         return opts
@@ -554,7 +554,7 @@ class ECSConf(object):
 
     def get_ou_options(self, ou_name):
         opts = self.get_defaults(OU)
-        ou_opts = self.get_attr(OU, OPTIONS, ou_name)
+        ou_opts = self.get_attr(OU, OPTIONS, ou_name).toDict()
         if ou_opts is not None:
             opts.update(ou_opts)
         return opts
@@ -563,6 +563,4 @@ class ECSConf(object):
         return self.get_attr(OU, NAMESPACE, ou_name)
 
     def get_ou_dict(self, ou_name):
-        ou_dict = {}
-        ou_dict.update(self.get_ou_options(ou_name))
-        return ou_dict
+        return self.get_ou_options(ou_name)

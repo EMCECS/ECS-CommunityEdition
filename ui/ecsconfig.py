@@ -912,14 +912,14 @@ def namespace(conf, l, r, a, n):
             o('No namespace named {}'.format(n))
 
 
-# @ecsconfig.command('object-user', short_help='Work with ECS Object Users')
-# @click.option('-l', is_flag=True, help='List known object user configs')
-# @click.option('-r', is_flag=True, help='Get all current object user configs from ECS')
-# @click.option('-s', is_flag=True, help='Get current object user configs from ECS for given namespace')
-# @click.option('-a', is_flag=True, help="Add all object user to ECS")
-# @click.option('-n', default=None, help='Add the given object user to ECS')
-# @pass_conf
-# def object_user(conf, l, r, s, a, n):
+@ecsconfig.command('object-user', short_help='Work with ECS Object Users')
+@click.option('-l', is_flag=True, help='List known object user configs')
+@click.option('-r', is_flag=True, help='Get all current object user configs from ECS')
+@click.option('-s', is_flag=False, help='Get current object user configs from ECS for given namespace')
+@click.option('-a', is_flag=True, help="Add all object user to ECS")
+@click.option('-n', default=None, help='Add the given object user to ECS')
+@pass_conf
+def object_user(conf, l, r, s, a, n):
     """
     Work with a collection of ECS abstractions
     :param conf: Click object containing the configuration
@@ -943,38 +943,32 @@ def namespace(conf, l, r, a, n):
     def get_all():
         list_return = []
         for dict_info in conf.api_client.object_user.list()['blobuser']:
-            list_return.append(dict_info['userId'])
+            list_return.append(dict_info)
         return list_return
 
     def get_one(name):
         return conf.api_client.object_user.get(name)
 
     def add_all():
+        o('Creating all {}s'.format(config_type))
         for this_name in list_all():
             add_one(this_name)
-            o('Created {}: {}'.format(config_type, this_name))
 
     def add_one(name):
         ou_namespace = conf.ecs.get_ou_namespace(name)
         ou_dict = conf.ecs.get_ou_dict(name)
-        ou_dict = {'password': ou_dict['swift_password'],
-                   'groups_list': ou_dict['swift_groups_list']}
 
-        o("Creating {} '{}' in namespace '{}'".format(config_type, name, ou_namespace))
+        o("Adding {} '{}' to namespace '{}'".format(config_type, name, ou_namespace))
         conf.api_client.object_user.create(name, namespace=ou_namespace)
 
-        o("Creating {} S3 credentials for '{}' in namespace '{}'".format(config_type,
-                                                                         name,
-                                                                         ou_namespace))
+        o("\tAdding S3 credentials for '{}'".format(name))
         conf.api_client.secret_key.create(user_id=name,
                                           namespace=ou_namespace,
                                           expiry_time=ou_dict['s3_expiry_time'],
                                           secret_key=ou_dict['s3_secret_key'])
 
         if ou_dict['swift_password'] is not None and ou_dict['swift_groups_list'] is not None:
-            o("Creating {} Swift credentials for '{}' in namespace '{}'".format(config_type,
-                                                                                name,
-                                                                                ou_namespace))
+            o("\tAdding Swift credentials for '{}'".format(name))
             conf.api_client.password_group.create(user_id=name,
                                                   namespace=ou_namespace,
                                                   password=ou_dict['swift_password'],
@@ -1001,17 +995,17 @@ def namespace(conf, l, r, a, n):
         o('All {} configured on ECS:'.format(config_type))
         for item in items:
             o("\t" + item)
-    if g is not None:
-        n = None
-        print(get_one(g))
+    # if s is not None:
+    #     n = None
+    #     print(get_one(g))
     if n is not None:
         if config_exists(n):
             add_one(n)
             o('Created {} named {}'.format(config_type, n))
         else:
-            o('No {} named {}'.format(config_type, n))
-#
-#
+            o('No {}s named {}'.format(config_type, n))
+
+
 @ecsconfig.command('management-user', short_help='Work with ECS Management Users')
 @click.option('-l', is_flag=True, help='List known management user configs on Install Node')
 @click.option('-r', is_flag=True, help='List current management users on ECS')

@@ -168,7 +168,8 @@ facts:
   # Object User defaults
   object_user_defaults:
     # Comma-separated list of Swift authorization groups
-    swift_groups: users
+    swift_groups_list:
+      - users
     # Lifetime of S3 secret key in minutes
     s3_expiry_time: 2592000
 
@@ -179,7 +180,9 @@ facts:
       namespace: ns1
       options:
         swift_password: ChangeMe
-        swift_groups: admin
+        swift_groups_list:
+          - admin
+          - users
         s3_secret_key: ChangeMeChangeMeChangeMeChangeMeChangeMe
         s3_expiry_time: 2592000
     - username: object_user1

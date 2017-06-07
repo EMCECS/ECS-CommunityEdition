@@ -308,11 +308,16 @@ mapping:
         required: False
         mapping:
           swift_password:
-            type: bool
+            type: str
+            func: alphanumeric
             required: False
-          swift_groups:
-            type: bool
+          swift_groups_list:
+            type: seq
             required: False
+            sequence:
+              - type: str
+                required: True
+                func: alphanumeric
           s3_expiry_time:
             type: int
             required: False
@@ -340,11 +345,16 @@ mapping:
                 required: False
                 mapping:
                   swift_password:
-                    type: bool
+                    type: str
+                    func: alphanumeric
                     required: False
-                  swift_groups:
-                    type: bool
+                  swift_groups_list:
+                    type: seq
                     required: False
+                    sequence:
+                      - type: str
+                        required: True
+                        func: alphanumeric
                   s3_expiry_time:
                     type: int
                     required: False
