@@ -8,6 +8,7 @@ HostnameRegex = "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-
 UnixPathRegex = "^(\/[^\/ ]*)+\/?$"
 AlphanumericRegex = "^[a-zA-Z0-9]+([_-]?[a-zA-Z0-9])*$"
 DockerImageRegex = "^(?:(?=[^:\/]{1,253})(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(?:\.(?!-)[a-zA-Z0-9-]{1,63}(?<!-))*(?::[0-9]{1,5})?\/)?((?![._-])(?:[a-z0-9._-]*)(?<![._-])(?:\/(?![._-])[a-z0-9._-]*(?<![._-]))*)(?::(?![.-])[a-zA-Z0-9_.-]{1,128})?$"
+S3SecretKeyRegex = "(?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])"
 
 def __validate_regex(regex, value, error_message="Validation failed"):
     pattern = re.compile(regex)
@@ -37,4 +38,8 @@ def alphanumeric(value, rule_obj, path):
 
 def docker_image(value, rule_obj,path):
     __validate_regex(DockerImageRegex, value, "Not a valid Docker image: '%s' (%s)" % (value, path))
+    return True
+
+def s3_secret_key(value, rule_obj, path):
+    __validate_regex(S3SecretKeyRegex, value, "Not a valid S3 Secret Key: '%s' (%s)" % (value, path))
     return True

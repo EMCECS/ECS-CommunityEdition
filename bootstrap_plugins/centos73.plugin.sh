@@ -26,7 +26,7 @@ do_preflight() {
 
 # packages to install before others
 #list_prefix_packages='epel-release python-devel wget curl ntp'
-list_prefix_packages='wget curl ntp epel-release'
+list_prefix_packages='wget curl ntp epel-release yum-utils'
 
 # script to run for installing prefix_packages
 in_prefix_packages() {

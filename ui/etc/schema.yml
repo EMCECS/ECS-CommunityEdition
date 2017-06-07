@@ -303,3 +303,62 @@ mapping:
                     type: bool
                     required: False
 
+      object_user_defaults:
+        type: map
+        required: False
+        mapping:
+          swift_password:
+            type: str
+            func: alphanumeric
+            required: False
+          swift_groups_list:
+            type: seq
+            required: False
+            sequence:
+              - type: str
+                required: True
+                func: alphanumeric
+          s3_expiry_time:
+            type: int
+            required: False
+          s3_secret_key:
+            type: str
+            func: s3_secret_key
+            required: False
+
+      object_users:
+        type: seq
+        required: False
+        sequence:
+          - type: map
+            mapping:
+              username:
+                type: str
+                func: alphanumeric
+                required: True
+              namespace:
+                type: str
+                func: alphanumeric
+                required: True
+              options:
+                type: map
+                required: False
+                mapping:
+                  swift_password:
+                    type: str
+                    func: alphanumeric
+                    required: False
+                  swift_groups_list:
+                    type: seq
+                    required: False
+                    sequence:
+                      - type: str
+                        required: True
+                        func: alphanumeric
+                  s3_expiry_time:
+                    type: int
+                    required: False
+                  s3_secret_key:
+                    type: str
+                    func: s3_secret_key
+                    required: False
