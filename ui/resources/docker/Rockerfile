@@ -29,8 +29,9 @@ ENV pip_proxy={{ .PipProxy }}
 RUN apk -q --no-cache upgrade
 
 # Add required system packages
+#RUN apk -q --no-cache add openssh-client sshpass openssl ca-certificates libffi libressl@edge_main \
 RUN apk -q --no-cache add openssh-client sshpass openssl ca-certificates libffi libressl@edge_main \
-                             make pigz jq less \
+                             pigz jq less \
                              opentracker aria2 mktorrent@edge_community \
                              ansible
 
@@ -44,7 +45,7 @@ RUN mv /etc/profile.d/color_prompt /etc/profile.d/color_prompt.sh \
 
 # Generate temporary build environment and install required Python modules
 RUN apk -q --no-cache add --virtual .build-deps musl-dev libffi-dev \
-                       openssl-dev linux-headers git gcc git-perl \
+                       make openssl-dev linux-headers git gcc git-perl \
     && if ! [ -z "$pip_proxy" ]; then \
             export pip_proxy="--proxy $pip_proxy" && \
             git config --global http.proxy "$http_proxy" \

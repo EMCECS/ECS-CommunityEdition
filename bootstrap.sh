@@ -47,9 +47,9 @@ cat <<EOH
                  option it's possible for bootstrapping to hang indefinitely if the
                  mirror cannot be contacted.
 
- -b <mirror>     Build the installer image (ecs-install) locally instead of fetching
-                 the current release build from DockerHub (not recommended). Use the
-                 Alpine Linux mirror <mirror> when building the image.
+ -b <mirror>     Build the installer image (ecs-install) locally using the Alpine Linux
+                 <mirror> URL instead of pulling the current release build from DockerHub.
+                 WARNING: This is not recommended.
 
 [Docker Options]
  -r <registry>   Use the Docker registry at <registry> instead of DockerHub.
@@ -217,12 +217,13 @@ done
 ##############################################################################
 ### Main
 o ""
-o " ${release_name} ${release_version} Install Node Bootstrap"
+o " ${release_name} Install Node Bootstrap ${ver_maj}.${ver_min}.${ver_rev}${ver_tag}"
+o " ${release_product} Image ${release_artifact}:${release_tag}"
 o "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-
 
 ### No arguments given.. are you sure?
 if [ -z "$1" ]; then
+    o ""
     o "No options were given, but it's possible your environment may"
     o "depend on one or more options to bootstrap properly."
     o ""
@@ -563,7 +564,7 @@ else
     v "Tagging ${release_artifact}:${release_tag} -> ${release_common_name}"
     sudo docker tag "${release_artifact}:${release_tag}" "${release_common_name}" 2>&1 | log
 fi
-
+ping_sudo
 
 ### Next steps
 p ''
@@ -592,17 +593,16 @@ o ''
 
 ### Needs rebooting?
 if get_os_needs_restarting; then
-
     ping_sudo
     q "The system has indicated it wants to reboot."
     o "Please reboot BEFORE continuing to ensure this node is"
     o "operating with the latest kernel and system libraries."
     o ''
-
     if $override_flag; then
         if $override_val; then
             q "Automatically rebooting by user request (-y argument)"
             log "REBOOT-REBOOTING-ARGUMENT"
+            wait_bar 15 "Press CTRL-C to abort"
             do_reboot
         else
             q "Skipping reboot by user request (-n argument)"

@@ -61,7 +61,7 @@ Hardware or virtual machine with:
 ## Deployment Scenarios
 ### Deploy into Internet-Connected Environments
 
-#### [ECS Single-Node All-in-One Deployment (recommended, smallest footprint)](docs/source/installation/ECS-Installation.md)
+#### [ECS Single-Node All-in-One Deployment (recommended, fastest, smallest footprint)](docs/source/installation/ECS-Installation.md)
 Deploy a stand-alone instance of ECS to a single hardware or virtual machine.
 
 #### [ECS Multi-Node All-in-One Deployment with Install Node (EC replication with > 3 nodes)](docs/source/installation/ECS-Installation.md)
@@ -73,8 +73,8 @@ Please be aware that Install Node bootstrapping requires Internet access to the 
 
 If you prefer to download a prefab Install Node as an OVF/OVA, follow one of the links below. Please note that OVAs are produced upon each release and do not necessarily have the most current software.
 
-* [dellemc-ecsce-2.0.2-beta.ova](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova)
-* [dellemc-ecsce-2.0.2-beta.ova.xz](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova.xz)
+* [dellemc-ecsce-2.1.0-vm0.ova](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.1.0-vm0.ova)
+* [dellemc-ecsce-2.1.0-vm0.ova.xz](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.1.0-vm0.ova.xz)
 
 #### [ECS Single-Node Deployment with Install Node (recommended)](docs/source/installation/ECS-Installation.md)
 Using an Install Node for isolated environments, deploy a stand-alone instance of ECS to a single hardware or virtual machine.
@@ -91,11 +91,11 @@ Using an Install Node for isolated environments, deploy a multi-node ECS instanc
 | [examples](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/examples) | Deployment and configuration examples for common scenarios
 | [contrib](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/contrib) | Unsupported community-contributed scripts content related to ECS CE
 | [patches](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/patches) | Patches to the ECS Community Edition Docker image
-| [bootstrap.sh](https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/bootstrap.sh) | Installer 2.0 bootstrap script
-| [release.conf](https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/release.conf) | Installer 2.0 release information file
-| [ui](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/ui) | Installer 2.0 (`ecsdeploy`, `ecsconfig`, related utilities, and support files)
-| [bootstrap_plugins](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/bootstrap_plugins) | Installer 2.0 (`bootstrap.sh` support files)
-| [legacy](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy) | Legacy deployment scripts
+| [bootstrap.sh](https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/bootstrap.sh) | Install Node bootstrap script
+| [release.conf](https://github.com/EMCECS/ECS-CommunityEdition/blob/develop/release.conf) | Installer release information file
+| [ui](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/ui) | Install Node utilities and support files
+| [bootstrap_plugins](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/bootstrap_plugins) | Install Node bootstrap script support files
+| [legacy](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy) | (Legacy) Deployment scripts
 | [legacy/ecs-single-node](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/ecs-single-node) | (Legacy) Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments|
 | [legacy/ecs-multi-node](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/ecs-multi-node) | (Legacy) Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment|
 | [legacy/Documentation](https://github.com/EMCECS/ECS-CommunityEdition/tree/develop/legacy/Documentation) | (Legacy) Contains documentation files and media|

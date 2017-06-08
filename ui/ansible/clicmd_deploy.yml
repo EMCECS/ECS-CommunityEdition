@@ -10,27 +10,46 @@
   tasks:
      - group_by: key=os_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}
 
+- name: CentOS 7 | Synchronize cache
+  hosts: os_CentOS_7
+  vars:
+    os_tag: os_CentOS_7
+    num_data_nodes: "{{ groups['data_node'] | length }}"
+    top_data_node: "{{ groups['data_node'][0] }}"
+    install_node: "{{ groups['install_node'][0] }}"
+  roles:
+    - CentOS_7_sync_caches_prep
+    - common_sync_caches_by_torrent
+
 - name: CentOS 7 | Install cached packages
   hosts: os_CentOS_7
   vars:
     os_tag: os_CentOS_7
+    num_data_nodes: "{{ groups['data_node'] | length }}"
+    top_data_node: "{{ groups['data_node'][0] }}"
+    install_node: "{{ groups['install_node'][0] }}"
   roles:
-    - CentOS_7_sync_caches_prep
-    - common_sync_caches_by_torrent
     - CentOS_7_baseline_install
 
 - name: Installer | Disable torrent ffx
   hosts: ecs_install
+  vars:
+    num_data_nodes: "{{ groups['data_node'] | length }}"
+    top_data_node: "{{ groups['data_node'][0] }}"
+    install_node: "{{ groups['install_node'][0] }}"
   tasks:
     - file:
         path: "{{ffx_sem}}"
         state: absent
+      when: not ( num_data_nodes|int == 1 and top_data_node == install_node )
 
 - name: Common | Install ECS
   gather_facts: True
-  vars:
-    num_hosts: "{{ groups['data_node'] | length }}"
   hosts: data_node
+  vars:
+    num_data_nodes: "{{ groups['data_node'] | length }}"
+    top_data_node: "{{ groups['data_node'][0] }}"
+    install_node: "{{ groups['install_node'][0] }}"
   roles:
     - common_baseline_install
     - common_deploy
