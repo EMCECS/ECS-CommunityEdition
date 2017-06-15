@@ -788,7 +788,7 @@ def vdc(conf, l, r, a, n, p):
 
     def add_one(vdc_name):
         conf.wait_for_dt_ready()
-        o('Adding VDC: {}'.format(vdc_name))
+        o('\t{}'.format(vdc_name))
         return vdc_create(vdc_name)
 
     def add_all():
@@ -821,17 +821,14 @@ def vdc(conf, l, r, a, n, p):
             return False
 
     def ping_vdcs(vdc_list):
-        status = False
+        status = True
         for vdc_name in vdc_list:
-            while status is False:
-                o('Checking {}: '.format(vdc_name), nl=False)
-                if get_status(vdc_name) is False:
-                    o('\tWAIT: VDC still onlining...')
-                    status = False
-                    time.sleep(10)
-                else:
-                    o('\tOK: VDC online')
-                    status = True
+            o('Checking {}: '.format(vdc_name), nl=False)
+            if get_status(vdc_name) is False:
+                o('\tWAIT: VDC still onlining...')
+                status = False
+            else:
+                o('\tOK: VDC online')
         return status
 
     if l:
@@ -850,7 +847,9 @@ def vdc(conf, l, r, a, n, p):
 
     if p:
         o('Waiting for all VDCs to online and become active...')
-        ping_vdcs(list_all())
+        while not ping_vdcs(list_all()):
+            o('Retrying...')
+            time.sleep(10)
 
     if a:
         n = None
@@ -859,11 +858,14 @@ def vdc(conf, l, r, a, n, p):
             o('Creating all VDCs...')
             # apparently doesn't return tasks
             tasks = add_all()
+            o('Created all VDCs')
         else:
             o('No VDC configurations are present in deploy.yml')
 
     if n is not None:
+        o('Creating VDC...')
         add_one(n)
+        o('Created VDC')
 
 
 @ecsconfig.command('rg', short_help='Work with ECS Replication Groups')
