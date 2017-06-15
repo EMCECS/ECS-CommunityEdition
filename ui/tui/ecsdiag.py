@@ -13,6 +13,7 @@ class ECSDiag(object):
     """
 
     def __init__(self, endpoint):
+        self.address = endpoint
         self.endpoint = '{0}://{1}:{2}'.format(DIAGNOSTIC_PROTOCOL, endpoint, DIAGNOSTIC_PORT)
 
     def get_dt_status(self):
@@ -28,5 +29,7 @@ class ECSDiag(object):
 
         except Exception as e:
             status_dict.update({'unready_dt_num': 0, 'unknown_dt_num': -1})
+
+        status_dict.update({'endpoint': self.address})
 
         return status_dict
