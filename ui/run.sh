@@ -36,7 +36,9 @@ run() {
     run="${1}"
     shift
     sudo docker run --rm -it --privileged --net=host ${default_mount_opts[@]} ${image_release} ${run} ${@}
-    return $?
+    rc=$?
+    o ""
+    return ${rc}
 }
 
 case "$(basename ${0})" in
@@ -116,6 +118,7 @@ case "$(basename ${0})" in
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig vdc -a || exit $?
+        run ecsconfig vdc -p || exit $?
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig rg -a || exit $?

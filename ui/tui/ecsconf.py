@@ -379,6 +379,17 @@ class ECSConf(object):
         """
         return random.SystemRandom().choice(self.list_all_sp_nodes())
 
+    def get_sp_vdc(self, sp):
+        """
+        Returns the VDC name that the sp belongs to
+        :param sp: storage pool name
+        :return: vdc name or None
+        """
+        for vdc in self.get_vdc_names():
+            if sp in self.get_vdc_members(vdc):
+                return vdc
+        return None
+
 # Storage Pools
     def get_sp_names(self):
         """
@@ -435,6 +446,11 @@ class ECSConf(object):
         return self.get_members(VDC, vdc_name)
 
     def get_vdc_endpoint(self, vdc_name):
+        """
+        Gets the top (first listed) storage pool member from the named VDC
+        :param vdc_name: VDC name string
+        :return: top storage pool of the VDC
+        """
         return self.get_sp_members(self.get_vdc_members(vdc_name)[0])[0]
 
     # def get_vdc_endpoint(self, vdc_name):
@@ -445,6 +461,13 @@ class ECSConf(object):
     #     for sp in self.get_vdc_members(vdc_name):
     #         nodes += self.get_sp_members(sp)
     #     return random.SystemRandom().choice(nodes)
+
+    def get_vdc_primary(self):
+        """
+        Gets the top (first listed) VDC
+        :return:
+        """
+        return self.get_vdc_names()[0]
 
     def get_new_vdc_secret(self, vdc_name):
         """
