@@ -14,7 +14,7 @@ import tui
 import yaml
 from sarge import Capture, run, shell_format, capture_both, get_both
 
-from tui.defaults import *
+from tui.constants import *
 
 # TAG: DevTest
 # sys.dont_write_bytecode = True

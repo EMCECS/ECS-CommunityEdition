@@ -1,4 +1,4 @@
-# deploy.yml reference implementation v2.1.0
+# deploy.yml reference implementation v2.2.0
 
 # [Optional]
 # By changing the license_accepted boolean value to "true" you are
@@ -33,10 +33,37 @@ facts:
   # gain initial access to each node in the deployment and set up ssh public key authentication.
   # If these are not correct, the deployment will fail.
   ssh_defaults:
-    # Username to login as
+    # [Required]
+    # Username to use when logging in to nodes
     ssh_username: admin
+    # [Required for initial password auth]
     # Password to use with SSH login
+    # Comment out or set to None to require SSH public key authentication
     ssh_password: ChangeMe
+    # [Required for initial ssh public key auth]
+    # The name of a file containing the OpenSSH Private Key portion of
+    # an SSH public key auth keypair.
+    # This file must be placed in the following host directory:
+    #    /opt/emc/ecs-install/ssh/
+    # The above directory must have the permissions: 0700
+    # This file must have the permissions: 0600
+    ssh_private_key: id_ed25519
+    # [Optional for initial SSH public key auth;
+    #  Required for initial password auth]
+    # The name of a file containing the OpenSSH Public Key portion of
+    # an SSH public key auth keypair.
+    # This file must be placed in the following host directories:
+    #    /opt/emc/ecs-install/ssh/
+    #    $HOME/.ssh/
+    # The above directories must have the permissions: 0700
+    # This file must have the permissions: 0600
+    ssh_public_key: id_ed25519.pub
+    # [Optional]
+    # Select the type of crypto to use when generating SSH keypairs for
+    # ssh public key authentication. Valid values here are:
+    #  - "ed25519" (Default)
+    #  - "rsa"
+    ssh_crypto: ed25519
 
   # [Required]
   # Environment configuration for this deployment.
@@ -57,8 +84,8 @@ facts:
     # [Optional]
     # Picklist for node names.
     # Available options:
-    # - "moons" (ECS CE default)
-    # - "cities" (ECS SKU-flavored)
+    #  - "moons" (ECS CE default)
+    #  - "cities" (ECS SKU-flavored)
     autonaming: moons
     #
     # [Optional]

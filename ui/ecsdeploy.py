@@ -21,7 +21,7 @@ import yaml
 from sarge import run, shell_format
 
 import tui
-from tui.defaults import *
+from tui.constants import *
 
 # TAG: DevTest
 from pprint import pprint
@@ -179,9 +179,9 @@ def load(conf):
         conf.load_deploy()
     except IOError as e:
         click.echo('Looks like you are starting a new deployment or else')
-        click.echo('your {0} needs to be set up.'.format(conf.config.ui.host_state_file))
+        click.echo('your {0} needs to be set up.'.format(conf.config.ui.host_deploy_file))
         click.echo('Please (re-)run setup or copy an existing deploy.yml to')
-        click.echo('{0}.'.format(conf.config.ui.host_state_file))
+        click.echo('{0}.'.format(conf.config.ui.host_deploy_file))
         sys.exit(1)
     except AttributeError as e:
         click.echo('Operation failed.')
@@ -235,7 +235,8 @@ def cache(conf):
     behind slow Internet links or into island environments.
     """
 
-    if not play('clicmd_access_host', conf.config.verbosity):
+    playbook = 'clicmd_access_host'
+    if not play(playbook, conf.config.verbosity):
         click.echo('Operation failed.')
         sys.exit(1)
 

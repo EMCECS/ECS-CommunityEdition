@@ -17,7 +17,8 @@ ui:
   host_root_dir: /opt/emc/ecs-install
   state_file: /opt/state.yml
   deploy_file: /opt/deploy.yml
-  host_state_file: /opt/emc/ecs-install/deploy.yml
+  host_deploy_file: /opt/emc/ecs-install/deploy.yml
+  host_state_file: /opt/emc/ecs-install/state.yml
   log: /var/log/ecs-install.ui.log
   host_log: /var/log/emc/ecs-install.ui.log
   cache_dir: /var/cache/emc/ecs-install

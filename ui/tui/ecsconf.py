@@ -13,11 +13,15 @@ import sys
 import string
 import random
 import logging
-from defaults import *
+from constants import *
 from tools import logobj
 
 logging.basicConfig(filename=ui_log, level=logging.DEBUG)
 logging.debug('-' * 40 + os.path.abspath(__file__) + '-' * 40)
+
+"""
+Constants and Defaults
+"""
 
 DEFAULTS = {}
 
@@ -172,6 +176,11 @@ DEFAULTS[EXPORT] = {
 }
 
 logobj(DEFAULTS)
+
+
+"""
+Classes
+"""
 
 
 class ECSConf(object):

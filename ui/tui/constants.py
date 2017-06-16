@@ -10,15 +10,16 @@
 # it is provided by or on behalf of EMC.
 
 """
-A bunch of defaults
+A bunch of defaults and constants
 """
 
 src_root = '/usr/local/src'
 log_root = '/var/log'
 host_root = '/opt/emc/ecs-install'
+container_root = '/opt'
 cache_root = '/var/cache/emc/ecs-install'
-ssh_root = '{0}/ssh'.format(host_root)
-ssl_root = '{0}/ssl'.format(host_root)
+ssh_root = '{0}/ssh'.format(container_root)
+ssl_root = '{0}/ssl'.format(container_root)
 ansible_src_root = '{0}/ansible'.format(src_root)
 ansible_log = '{0}/ecs-install.ansible.log'.format(log_root)
 ui_src_root = '{0}/ui'.format(src_root)

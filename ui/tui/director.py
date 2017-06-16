@@ -18,7 +18,7 @@ import widgets
 from tabview import TabView
 from tools import DataSet, logobj
 from tui import KeyBind, TuiConfig
-from defaults import *
+from constants import *
 from pprint import pprint
 import pykwalify
 from pykwalify.core import Core
