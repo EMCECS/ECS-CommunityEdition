@@ -1,3 +1,7 @@
+# See https://github.com/EMCECS/ECS-CommunityEdition/releases for changelog of current releases.
+
+These entries are included for historical record.
+
 ## Update 2017-04-30: v 3.0.0.1 (HF1)
 - Updated Docker image to [ECS Software v3.0 Hotfix 1]()
 - Go-live with Installer 2.0 and yaml-configured, Ansible-based deployment system

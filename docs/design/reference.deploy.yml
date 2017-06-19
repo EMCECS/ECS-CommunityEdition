@@ -61,9 +61,9 @@ facts:
     # [Optional]
     # Select the type of crypto to use when generating SSH keypairs for
     # ssh public key authentication. Valid values here are:
-    #  - "ed25519" (Default)
-    #  - "rsa"
-    ssh_crypto: ed25519
+    #  - "rsa" (Default)
+    #  - "ed25519"
+    ssh_crypto: rsa
 
   # [Required]
   # Environment configuration for this deployment.

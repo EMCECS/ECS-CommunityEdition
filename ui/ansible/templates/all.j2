@@ -1,4 +1,7 @@
 # DANGER: Rendered by installer - direct edits WILL be overwritten when ecsdeploy next runs!
+#
+### From etc/config.yml
+#
 host_root_dir: {{ ui.host_root_dir }}
 cache_dir: {{ ui.cache_dir }}
 host_cache_dir: {{ ui.host_cache_dir }}
@@ -15,7 +18,35 @@ product_vendor: {{ product.vendor }}
 product_flavor: {{ product.flavor }}
 product_common_name: {{ product.common_name }}
 ffx_sem: {{ ui.ffx_sem }}
-
+#
+### SSH Public Key Auth
+#
+keys_rsa:
+  keygen_cmd: ssh-keygen -N '' -t rsa -b 4096 -o -a 100 -f
+  priv_key: /opt/ssh/{{ facts.ssh_defaults.ssh_private_key if facts.ssh_defaults.ssh_private_key is defined and facts.ssh_defaults.ssh_crypto == 'rsa' else 'id_rsa' }}
+  pub_key: /opt/ssh/{{ facts.ssh_defaults.ssh_public_key if facts.ssh_defaults.ssh_public_key is defined and facts.ssh_defaults.ssh_crypto == 'rsa' else 'id_rsa.pub' }}
+keys_ed25519:
+  keygen_cmd: ssh-keygen -N '' -t ed25519 -o -a 100 -f
+  priv_key: /opt/ssh/{{ facts.ssh_defaults.ssh_private_key if facts.ssh_defaults.ssh_private_key is defined and facts.ssh_defaults.ssh_crypto == 'ed25519' else 'ed25519' }}
+  pub_key: /opt/ssh/{{ facts.ssh_defaults.ssh_public_key if facts.ssh_defaults.ssh_public_key is defined and facts.ssh_defaults.ssh_crypto == 'ed25519' else 'ed25519.pub' }}
+ssh_dir_paths:
+  {{ ui.ssh_dir }}:
+    mode: 700
+    owner: root
+    group: root
+    state: directory
+  {{ ui.ssh_dir }}/{{ facts.ssh_defaults.ssh_private_key if facts.ssh_defaults.ssh_private_key is defined and facts.ssh_defaults.ssh_crypto == 'ed25519' else 'ed25519' }}:
+    mode: 600
+    owner: root
+    group: root
+    state: file
+  {{ ui.ssh_dir }}/{{ facts.ssh_defaults.ssh_private_key if facts.ssh_defaults.ssh_private_key is defined and facts.ssh_defaults.ssh_crypto == 'rsa' else 'id_rsa' }}:
+    mode: 600
+    owner: root
+    group: root
+    state: file
+#
+### Required Firewall Ports
 #
 firewall_ports_service_clients:
 # CAS API
@@ -34,6 +65,5 @@ firewall_ports_management_clients:
 # Management API
   - 4443/tcp
 #
-
 #
-#
+# AUX below

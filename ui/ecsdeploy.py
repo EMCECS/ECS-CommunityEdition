@@ -204,7 +204,8 @@ def load(conf):
 
     try:
         with open('{0}/all'.format(ansible_group_vars), 'a') as fp:
-            fp.write(yaml.dump(conf.state.facts.toDict(), default_flow_style=False))
+            fp.write('\n### Facts\n#\n')
+            fp.write(yaml.dump(conf.deploy.facts.toDict(), default_flow_style=False))
     except IOError as e:
         click.echo(e)
         click.echo('Operation failed.')
