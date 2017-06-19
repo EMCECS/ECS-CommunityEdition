@@ -22,7 +22,7 @@ set -o pipefail
 # TODO: Add GitHub URLs to help text (bottom)
 usage() {
     log "providing usage info"
-cat <<EOH
+cat <<EOH | more
 
 [Usage]
  -h              This help text
@@ -56,6 +56,10 @@ cat <<EOH
                  The connect string is specified as '<host>:<port>[/<username>]'
                  You may be prompted for your credentials if authentication is required.
                  You may need to use -d (below) to add the registry's cert to Docker.
+
+ -l              After Docker is installed, login to the Docker registry to access images
+                 which require access authentication. Login to Dockerhub by default unless
+                 -r is used.
 
  -d <x509.crt>   NOTE: This does nothing unless -r is also given.
                  If an alternate Docker registry was specified with -r and uses a cert
@@ -120,6 +124,7 @@ proxy_test_val="google.com:80"
 build_image_flag=false
 registry_flag=false
 registry_val=''
+dlogin_flag=false
 regcert_flag=false
 regcert_val=''
 vm_flag=false
@@ -163,6 +168,9 @@ while getopts ":zyngqvhc:b:m:o:p:k:t:d:r:" opt; do
         export mitm_flag=true
         export mitm_val="${OPTARG}"
         ensure_file_exists "${mitm_val}" "HTTPS proxy cert"
+        ;;
+    l)
+        export dlogin_flag=true
         ;;
     m)
         export mirror_flag=true
@@ -469,6 +477,11 @@ fi
 docker_registry
 ping_sudo
 
+###
+v "Check if Docker login needed"
+if dlogin_flag; then
+    retry_until_ok docker login
+fi
 
 ### Test Docker install
 v "Testing docker installation"

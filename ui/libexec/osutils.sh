@@ -173,3 +173,10 @@ retry_with_timeout() {
         ((_attempt++))
     done
 }
+
+retry_until_ok() {
+    local _cmd="${*}"
+    while ! $_cmd; do
+        o "Command failed, retrying..."
+    done
+}
