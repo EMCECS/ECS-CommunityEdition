@@ -95,17 +95,19 @@ case "$(basename ${0})" in
     island-step2)
         #run ecsdeploy load || exit $?
         run ecsdeploy access check || exit $?
-        run ecsdeploy deploy || exit $?
+        run ecsdeploy bootstrap || exit $?
         run ecsdeploy reboot || exit $?
         run ping_until_clear
+        run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
     ;;
     step1)
         #run ecsdeploy load || exit $?
         run ecsdeploy access check cache || exit $?
-        run ecsdeploy deploy || exit $?
+        run ecsdeploy bootstrap || exit $?
         run ecsdeploy reboot || exit $?
         run ping_until_clear
+        run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
     ;;
     step2|island-step3)
