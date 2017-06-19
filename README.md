@@ -73,8 +73,8 @@ Please be aware that Install Node bootstrapping requires Internet access to the 
 
 If you prefer to download a prefab Install Node as an OVF/OVA, follow one of the links below. Please note that OVAs are produced upon each release and do not necessarily have the most current software.
 
-* [dellemc-ecsce-2.1.0-vm0.ova](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.1.0-vm0.ova)
-* [dellemc-ecsce-2.1.0-vm0.ova.xz](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.1.0-vm0.ova.xz)
+* [dellemc-ecsce-3.0.0.1-install-node-2.1.0-vm0.ova](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.1-install-node-2.1.0-vm0.ova)
+* [dellemc-ecsce-3.0.0.1-install-node-2.1.0-vm0.ova.xz](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.1-install-node-2.1.0-vm0.ova.xz)
 
 #### [ECS Single-Node Deployment with Install Node (recommended)](docs/source/installation/ECS-Installation.md)
 Using an Install Node for isolated environments, deploy a stand-alone instance of ECS to a single hardware or virtual machine.
