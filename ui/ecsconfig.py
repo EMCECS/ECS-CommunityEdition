@@ -10,7 +10,8 @@
 # it is provided by or on behalf of EMC.
 
 """
-adsf
+This script configures various ECS structures according to the
+deployment map in deploy.yml.
 """
 
 import logging
@@ -21,7 +22,7 @@ import sys
 import click
 import tui
 import tui.tools
-from tui.tools import o, die
+from tui.tools import o, die, logobj
 import time
 import simplejson
 from sarge import Capture, run, shell_format, capture_both, get_both
@@ -39,6 +40,14 @@ logging.debug('-' * 40 + os.path.abspath(__file__) + '-' * 40)
 """
 # Helpers
 """
+
+DEBUG = True
+
+
+def debug(msg):
+    if DEBUG:
+        o(msg)
+
 
 """
 # Config
@@ -69,6 +78,8 @@ class Conf(tui.Director):
         """
         Sets the API endpoint to use. default is random endpoint
         """
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
+        logobj(api_endpoint)
         self.api_endpoint = api_endpoint
 
     def api_set_timeout(self, timeout):
@@ -76,14 +87,17 @@ class Conf(tui.Director):
         Sets the API timeout to <timeout> seconds
         :param timeout: <timeout> seconds
         """
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
+        logobj(timeout)
         self.api_timeout = timeout
 
     def _api_get_client(self):
         """
         Returns an instance of ecsclient.client.Client
         """
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
         url = "{0}://{1}:{2}".format(API_PROTOCOL, self.api_endpoint, API_PORT)
-
+        logobj(url)
         return Client('3',
                       username=self.ecs.get_root_user(),
                       password=self.ecs.get_root_pass(),
@@ -96,6 +110,7 @@ class Conf(tui.Director):
         """
         Resets the APIAdminClient instance
         """
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
         try:
             self.api_client.authentication.logout()
         except Exception:
@@ -115,6 +130,7 @@ class Conf(tui.Director):
         unknown_dt_num
         unready_dt_num
         """
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
         dt_diag_client = tui.ECSDiag(self.api_endpoint)
         return dt_diag_client.get_dt_status()
 
@@ -122,6 +138,7 @@ class Conf(tui.Director):
         """
         Returns True of no dt unready and dt unknown, False otherwise
         """
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
         dt_data = self.diag_dt_get()
         if dt_data['unknown_dt_num'] > 0 \
                 or dt_data['total_dt_num'] < self.ecs.get_dt_total(footprint) \
@@ -135,6 +152,7 @@ class Conf(tui.Director):
         Get a status string
         :return: dt status string
         """
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
         dt_string = None
 
         if dt_data is None:
@@ -159,6 +177,7 @@ class Conf(tui.Director):
         """
         Loops until DT are ready or else timeout
         """
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
         tries = DIAGNOSTIC_RETRIES
         timeout = time.time() + DIAGNOSTIC_TIMEOUT
         while tries >= 0:
@@ -172,6 +191,7 @@ class Conf(tui.Director):
         return False
 
     def api_task_get_status(self, task_id):
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
         pass
 
     def get_vdc_id_by_name(self, vdc_name):
@@ -180,6 +200,7 @@ class Conf(tui.Director):
         :param vdc_name: name of the deploy.yml VDC
         :return: VDC ID
         """
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
         return self.api_client.vdc.get(name=vdc_name)['id']
 
     def get_vdc_secret_by_name(self, vdc_name):
@@ -188,6 +209,7 @@ class Conf(tui.Director):
         :param vdc_name: name of the deploy.yml VDC
         :return: VDC Secret Key
         """
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
         self.api_set_endpoint(self.ecs.get_vdc_endpoint(vdc_name))
         self.api_reset()
         return self.api_client.vdc.get_local_secret_key()['key']
@@ -313,8 +335,10 @@ def ping(conf, c, w, x):
             for vdc in vdc_list:
                 o('\t{}: {}'.format(vdc, conf.ecs.get_vdc_endpoint(vdc)))
             endpoint_list = [conf.ecs.get_vdc_endpoint(vdc) for vdc in vdc_list]
+            logobj(endpoint_list)
         else:
-            endpoint_list = conf.ecs.get_vdc_endpoint(conf.ecs.get_vdc_primary())
+            endpoint_list = [conf.ecs.get_vdc_endpoint(conf.ecs.get_vdc_primary())]
+            logobj(endpoint_list)
 
         for endpoint in endpoint_list:
             conf.api_set_endpoint(endpoint)
@@ -549,7 +573,7 @@ def sp(conf, l, r, a, n):
 
     def add_one(name):
         vdc_name = conf.ecs.get_sp_vdc(name)
-        o('Creating Storage Pool {}/{}'.format(vdc_name, name))
+        o('Creating Storage Pool: {}/{}'.format(vdc_name, name))
 
         # Set the correct endpoint for this VDC/SP combo
         conf.api_set_endpoint(conf.ecs.get_vdc_endpoint(vdc_name))
