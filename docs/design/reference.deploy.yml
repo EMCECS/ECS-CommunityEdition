@@ -83,10 +83,7 @@ facts:
   storage_pools:
     - name: sp1
       members:
-        - 192.168.2.220
-        - 192.168.2.221
-        - 192.168.2.222
-        - 192.168.2.223
+        - 192.168.2.200
       options:
         is_protected: false
         is_cold_storage_enabled: false
