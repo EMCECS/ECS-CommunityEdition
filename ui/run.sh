@@ -36,7 +36,9 @@ run() {
     run="${1}"
     shift
     sudo docker run --rm -it --privileged --net=host ${default_mount_opts[@]} ${image_release} ${run} ${@}
-    return $?
+    rc=$?
+    o ""
+    return ${rc}
 }
 
 case "$(basename ${0})" in
@@ -93,17 +95,19 @@ case "$(basename ${0})" in
     island-step2)
         #run ecsdeploy load || exit $?
         run ecsdeploy access check || exit $?
-        run ecsdeploy deploy || exit $?
+        run ecsdeploy bootstrap || exit $?
         run ecsdeploy reboot || exit $?
         run ping_until_clear
+        run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
     ;;
     step1)
         #run ecsdeploy load || exit $?
         run ecsdeploy access check cache || exit $?
-        run ecsdeploy deploy || exit $?
+        run ecsdeploy bootstrap || exit $?
         run ecsdeploy reboot || exit $?
         run ping_until_clear
+        run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
     ;;
     step2|island-step3)
@@ -116,6 +120,7 @@ case "$(basename ${0})" in
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig vdc -a || exit $?
+        run ecsconfig vdc -p || exit $?
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig rg -a || exit $?

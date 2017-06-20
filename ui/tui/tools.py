@@ -214,10 +214,11 @@ class DumpFacts(DataSet):
             raise
 
 
-def o(message):
+def o(message, nl=True):
     """
-
-    :param message:
+    Generic unified output function
+    :param message: string message to output
+    :param nl: bool trailing newline
     :return:
     """
     click.echo('> {}'.format(message))
@@ -225,9 +226,9 @@ def o(message):
 
 def die(message, exception=None):
     """
-
-    :param message:
-    :param exception:
+    Generic unified output and exit(1) function
+    :param message: see o()
+    :param exception: the exception to output
     :return:
     """
     o("FATAL: {}".format(message))

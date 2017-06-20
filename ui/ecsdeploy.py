@@ -255,18 +255,16 @@ def check(conf):
     if not play(playbook, conf.config.verbosity):
         sys.exit(1)
 
-
-@ecsdeploy.command('deploy', short_help='Deploy ECS to nodes')
+@ecsdeploy.command('bootstrap', short_help='Install required packages on nodes')
 @pass_conf
 def deploy(conf):
     """
     Deploys ECS to all data nodes
     """
 
-    playbook = 'clicmd_deploy'
+    playbook = 'clicmd_bootstrap'
     if not play(playbook, conf.config.verbosity):
         sys.exit(1)
-
 
 @ecsdeploy.command('reboot', short_help='Reboot data nodes that need it')
 @pass_conf
@@ -279,6 +277,16 @@ def reboot(conf):
     if not play(playbook, conf.config.verbosity):
         sys.exit(1)
 
+@ecsdeploy.command('deploy', short_help='Deploy ECS to nodes')
+@pass_conf
+def deploy(conf):
+    """
+    Deploys ECS to all data nodes
+    """
+
+    playbook = 'clicmd_deploy'
+    if not play(playbook, conf.config.verbosity):
+        sys.exit(1)
 
 @ecsdeploy.command('start', short_help='Start the ECS service')
 @pass_conf
