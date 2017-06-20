@@ -17,7 +17,7 @@ os_supported=true
 docker_binary='/bin/docker'
 
 # packages to clean up during preflight
-list_preflight_packages="git"
+list_preflight_packages="git nfs-client"
 #nfs-tools"
 
 # Do any OS-specific tasks that must be done prior to bootstrap
@@ -53,7 +53,7 @@ in_general_packages() {
 
 # packages to install after others
 # list_suffix_packages='vim htop iotop iftop jq rsync pigz gdisk aria2'
-list_suffix_packages='htop jq pigz gdisk aria2'
+list_suffix_packages='htop jq pigz gdisk aria2 firewalld'
 
 # script to run for installing suffix_packages
 in_suffix_packages() {
