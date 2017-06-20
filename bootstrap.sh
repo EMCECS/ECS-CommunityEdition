@@ -143,7 +143,7 @@ mirror_flag=false
 mirror_val=''
 
 ### Argue with arguments
-while getopts ":zyngqvhc:b:m:o:p:k:t:d:r:" opt; do
+while getopts ":zynglqvhc:b:m:o:p:k:t:d:r:" opt; do
   case $opt in
     b)
         export build_image_flag=true
@@ -479,7 +479,7 @@ ping_sudo
 
 ###
 v "Check if Docker login needed"
-if dlogin_flag; then
+if $dlogin_flag; then
     retry_until_ok docker login
 fi
 
