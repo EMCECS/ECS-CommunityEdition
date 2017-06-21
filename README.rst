@@ -28,12 +28,12 @@ a multi-site geo replicated configuration. We want the wider community
 to use ECS and provide feedback. Usage of this software is under the
 following End User License Agreement.
 
-ECS Community Edition is a free, reduced footprint, version of DellEMC's Elastic Cloud Storage software. Of course, this means there are some limitations to the use of the software, so the question arises; how is the Community Edition of ECS different from the production version?
+ECS Community Edition is a free, reduced footprint, version of Dell EMC's Elastic Cloud Storage software. Of course, this means there are some limitations to the use of the software, so the question arises; how is the Community Edition of ECS different from the production version?
 
 License difference
 ^^^^^^^^^^^^^^^^^^
 
-As noted with the included license, ECS Community cannot be used in production environments and is intended to be used for trial and proof of concept purposes only. This software is still owned and protected by EMC.
+As noted with the included license, ECS Community cannot be used in production environments and is intended to be used for trial and proof of concept purposes only. This software is still owned and protected by Dell EMC.
 
 Feature differences
 ^^^^^^^^^^^^^^^^^^^
