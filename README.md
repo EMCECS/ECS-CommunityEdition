@@ -8,6 +8,21 @@ EMC Elastic Cloud Storage (ECS) is a stateful, containerized, object storage sys
 
 ECS can be set up on one or more hosts or virtual machines in a single-site or a multi-site geo replicated configuration. We want the wider community to use ECS and provide feedback.  Usage of this software is under the End User License Agreement at the bottom of this README.
 
+ECS Community Edition is a free, reduced footprint, version of Dell EMC's Elastic Cloud Storage software. Of course, this means there are some limitations to the use of the software, so the question arises; how is the Community Edition of ECS different from the production version?
+
+### License difference
+As noted with the included license, ECS Community cannot be used in production environments and is intended to be used for trial and proof of concept purposes only. This software is still owned and protected by Dell EMC.
+
+### Feature differences
+It it important to note that ECS-Community Edition is ***not*** the same as ECS software and as such lacks some features that are integral to the actual ECS software.
+
+* **ECS Community Edition does NOT support encryption**
+* **ECS Community Edition does NOT include ECS' system management, or "fabric", layer**
+
+### Notice
+Because of these differences, ECS Community Edition is absolutely **not** qualified for testing failure scenarios. Failure scenarios can only be adequately mimicked on the full version of ECS Software.
+
+
 ## Quick Start Guide
 If you have the following:
 
