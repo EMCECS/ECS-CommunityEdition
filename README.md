@@ -86,10 +86,23 @@ Deploy a multi-node ECS instance to two or more hardware or virtual machines.  T
 ##### Important information regarding Island deployments
 Please be aware that Install Node bootstrapping requires Internet access to the hardware or virtual machine that will become the Install Node, but once this step is complete, the machine can be removed from the Internet and migrated into the Island environment.
 
-If you prefer to download a prefab Install Node as an OVF/OVA, follow one of the links below. Please note that OVAs are produced upon each release and do not necessarily have the most current software.
+#### Deploying from OVA
+In situations where Internet access is completely disallowed, or for the sake of convenience, an OVA of a prefabricated, bootstrapped, Install Node is provided.  Please download the OVA from one of the links below.
 
-* [dellemc-ecsce-3.0.0.1-install-node-2.2.0-vm0.ova](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.1-install-node-2.2.0-vm0.ova)
-* [dellemc-ecsce-3.0.0.1-install-node-2.2.0-vm0.ova.xz](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.1-install-node-2.2.0-vm0.ova.xz)
+The OVA is shipped as a bootstrapped Install Node.  It must be cloned multiple times to create as many Data Store Nodes as desired.
+
+###### OVA Special Requirements
+* All nodes **MUST** be clones of the OVA.
+* All nodes **MUST** have their virtual hardware configurations updated to match the node type requirements.
+###### Default Credentials
+* The default password for `admin` and `root` accounts is `ChangeMe`.
+###### Network Configuration
+* The OVA is configured to acquire network settings via DHCP.  Static configurations must be manually configured with `sudo nmtui`
+
+##### OVA Download Links
+
+* [dellemc-ecsce-3.0.0.1-install-node-2.2.0-vm1.ova](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.1-install-node-2.2.0-vm1.ova)
+* [dellemc-ecsce-3.0.0.1-install-node-2.2.0-vm1.ova.xz](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.1-install-node-2.2.0-vm1.ova.xz)
 
 #### [ECS Single-Node Deployment with Install Node (recommended)](docs/source/installation/ECS-Installation.md)
 Using an Install Node for isolated environments, deploy a stand-alone instance of ECS to a single hardware or virtual machine.
