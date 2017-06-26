@@ -43,23 +43,37 @@ The following environmental requirements must also be met to ensure a successful
 * **Remote Access:** Installation is coordinated via Ansible and SSH. However, public key authentication during the initial authentication and access configuration is not yet supported.  Therefore, password authentication must be enabled on all nodes, including install node and ECS data node(s).  *This is a known issue and will be addressed in a future release*
 * **OS:** CentOS 7 Minimal installation (ISO- and network-based minimal installs are equally supported)
 
-### Install Node Data Nodes
+### All-in-One Single-Node Deployments
 
 A single node *can* successfully run the installation procedure on itself. To do this simply input the node's own IP address as the installation node as well as the data node in the deploy.yml file.
 
 ## 1. Getting Started
 
-Before the data nodes can be created the install node must be prepared. If downloading the repository from github run `sudo yum install git -y` to install git and then `git clone https://github.com/EMCECS/ECS-CommunityEdition`. If the repository is being added to the machine via usb drive, scp, or some other file-based means. run:
+Please use a non-root administrative user account with sudo privileges on the Install Node when performing the deployment.  If deploying from the provided OVA, this account is username `admin` with password `ChangeMe`.
+
+Before data store nodes can be created, the install node must be prepared. If downloading the repository from github run the following commands to get started:
+
+0. `sudo yum install -y git`
+0. `git clone https://github.com/EMCECS/ECS-CommunityEdition`.
+
+If the repository is being added to the machine via usb drive, scp, or some other file-based means, please copy the archive into `$HOME/` and run:
 
 * for .zip archive `unzip ECS-CommunityEdition.zip`
 * for .tar.gz archive `tar -xzvf ECS-CommunityEdition.tar.gz`
 
+###### Important Note
+> This documentation refers only to the `ECS-CommunityEdition` directory, but the directory created when unarchiving the release archive may have a different name than `ECS-CommunityEdition`.  If this is so, please rename the directory created to `ECS-CommunityEdition` with the `mv` command.  This will help the documentation make sense as you proceed with the deployment.
+
 ## 2. Creating The Deployment Map (`deploy.yml`)
+###### Important Note
+> When installing using the OVA method, please run `videploy` at this time and skip to Step 2.2.
 
-Installation requires the creation of a deployment map. This map is represented in a YAML configuration file called deploy.yml. This file *should* be written before moving on for the smoothest experience, but there is a deployment path for creating deploy.yml after bootstrapping the Install Node.
+Installation requires the creation of a deployment map. This map is represented in a YAML configuration file called deploy.yml. This file *should* be written before the next step for the smoothest experience.
 
+#### 2.1
 Create this file in the `ECS-CommunityEdition` directory that was created when the repository was cloned. A template guide for writing this file can be found [here](deploy.yml.rst).
 
+#### 2.2
 Below are steps for creating a basic deploy.yml. **Please note that all fields mentioned below are required for a successful installation.**
 
 0. From the ECS-CommunityEdition directory, run the commmand: `cp docs/design/reference.deploy.yml deploy.yml`
@@ -83,8 +97,9 @@ Below are steps for creating a basic deploy.yml. **Please note that all fields m
     0. Enter each member data node address, one per line, in `members:`.
     0. Under `options:`, enter each block device reserved for ECS, one per line, in `ecs_block_devices:`.
 0. Virtual Data Center configuration (`virtual_data_centers:`)
-    0. Enter the VDC `name:`.
+    0. Enter each VDC `name:`.
     0. Enter each member Storage Pool name, one per line, in `members:`
+0. Optional directives, such as those for Replication Groups and users, may also be configured at this time.
 0. When you have completed the `deploy.yml` to your liking, save the file and exit the `vi` editor.
 0. Move on to Bootstrapping
 
@@ -94,8 +109,15 @@ These steps quickly set up a basic deploy.yml file
 Please read the reference deploy.yml found [here](http://ecs-community-edition.readthedocs.io/en/latest/installation/deploy.yml.html). It is designed to be self documenting and required fields are filled with either example or default values. The above values are only bare minimum values and may not yield optimal results for your environment.
 
 ## 3. Bootstrapping the Install Node (`bootstrap.sh`)
+###### Important Note
+>When installing using the OVA method, please skip to Step 4.
 
-The bootstrap script configures the installation node for ECS deployment. This script can take the following arguments:
+The bootstrap script configures the installation node for ECS deployment and downloads the required Docker images and software packages that all other nodes in the deployment will need for successful installation.
+
+Once the deploy.yml file has been created, the installation node must be bootstrapped. To do this `cd` into the ECS-CommunityEdition directory and run `./bootstrap.sh -c deploy.yml`. Be sure to add the `-g` flag if building the ECS deployment in a virtual environment and the `-y` flag if you're okay accepting all defaults.
+
+The bootstrap script accepts many flags. If your environment uses proxies, including MitM SSL proxies, custom nameservers, or a local Docker registry or CentOS mirror, you may want to indicate that on the `bootstrap.sh` command line.
+
 ```
 [Usage]
  -h              This help text
@@ -130,6 +152,10 @@ The bootstrap script configures the installation node for ECS deployment. This s
                  You may be prompted for your credentials if authentication is required.
                  You may need to use -d (below) to add the registry's cert to Docker.
 
+ -l              After Docker is installed, login to the Docker registry to access images
+                 which require access authentication. Login to Dockerhub by default unless
+                 -r is used.
+
  -d <x509.crt>   NOTE: This does nothing unless -r is also given.
                  If an alternate Docker registry was specified with -r and uses a cert
                  that cannot be resolved from the anchors in the local system's trust
@@ -160,9 +186,6 @@ The bootstrap script configures the installation node for ECS deployment. This s
     $ ./bootstrap.sh -y -p cache.local:3128 -r registry.local:5000 -d certs/reg.pem
 ```
 
-Once the archive has been expanded the installation node must be bootstrapped. To do this `cd` into the ECS-CommunityEdition directory and run `./bootstrap.sh -c deploy.yml`. Be sure to add the `-g` flag if building the ECS deployment in a virtual environment and the `-y` flag if you're okay accepting all defaults.
-*Note: The bootstrap script accepts many flags. Be sure to run* `./bootsrap -h` *to see all bootstraping options.*
-
 The bootstrapping process has completed when the following message appears:
 
 ```
@@ -190,24 +213,27 @@ The bootstrapping process has completed when the following message appears:
 >
 ```
 
-After the installation node has successfully bootstrapped you may be prompted to reboot the machine. If this is the case the machine must be rebooted before continuing.
+After the installation node has successfully bootstrapped you may be prompted to reboot the machine. If so, then the machine must be rebooted before continuing to Step 4.
 
 ## 4. Deploying ECS Nodes (`step1` or `island-step1`)
 
-Once the deploy.yml file has been correctly written the next step is to simply run one of the following commands:
+Once the deploy.yml file has been correctly written and the Install Node rebooted if needed, then the next step is to simply run one of the following commands:
+
 * Internet-connected environments: `step1`
 * Island environments: `island-step1`
 
 After the installer initializes, the EMC ECS license agreement will appear on the screen. Press `q` to close the screen and type `yes` to accept the license and continue or `no` to abort the process. The install cannot continue until the license agreement has been accepted.
 
-The first thing the installer will do is create an artifact cache of base operating system packages and the ECS software Docker image.  If you are running `step1`, then you may move on to **4.5**.  If you are running `island-step1`, then the installer will stop after this step.  The install node can then be migrated into your island environment where deployment can continue.
+The first thing the installer will do is create an artifact cache of base operating system packages and the ECS software Docker image.  If you are running `step1`, please skip to **Step 5**.  If you are running `island-step1`, then the installer will stop after this step.  The install node can then be migrated into your island environment where deployment can continue.
 
-### 4.4 Deploying the ECS Nodes (`island-step2`)
+#### 4.5. Deploying the Island Environment ECS Nodes (`island-step2`)
+###### Important Note
+> If you are deploying to Internet-connected nodes and used `step1` to begin your deployment, please skip to **Step 5**.
 
 * Internet-connected environments: *automatic*
 * Island environments: `island-step2`
 
-If you are deploying to Internet-connected nodes and used `step1` to begin your deployment, then this section is informational only and you may move on to **5**.  If you are deploying into an island environment and have migrated the install node into your island, you can begin this process by running `island-step2`.  The next tasks the installer will perform are: configuring the ECS nodes, performing a pre-flight check to ensure ECS nodes are viable deployment targets, distributing the artifact cache to ECS nodes, installing necessary packages, and finally deploying the ECS software and init scripts onto ECS nodes.
+If you are deploying into an island environment and have migrated the install node into your island, you can begin this process by running `island-step2`.  The next tasks the installer will perform are: configuring the ECS nodes, performing a pre-flight check to ensure ECS nodes are viable deployment targets, distributing the artifact cache to ECS nodes, installing necessary packages, and finally deploying the ECS software and init scripts onto ECS nodes.
 
 ## 5. Deploying ECS Topology (`step2` or `island-step3`)
 
@@ -216,3 +242,6 @@ If you are deploying to Internet-connected nodes and used `step1` to begin your 
 
 Once either `step1` or `island-step2` have completed, you may then direct the installer to configure the ECS topology by running either `step2` or `island-step3`.  These commands are identical.  Once `step2` or `island-step3` have completed, your ECS will be ready for use.
 If you would prefer to manually configure your ECS topology, you may skip this step entirely.
+
+## That's it!
+Assuming all went well, you now have a functioning ECS Community Edition instance and you may now proceed with your test efforts.
