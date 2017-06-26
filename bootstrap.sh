@@ -141,6 +141,7 @@ os_supported=false
 alpine_mirror=''
 mirror_flag=false
 mirror_val=''
+zerofill_flag=false
 
 ### Argue with arguments
 while getopts ":zynglqvhc:b:m:o:p:k:t:d:r:" opt; do
@@ -209,6 +210,9 @@ while getopts ":zynglqvhc:b:m:o:p:k:t:d:r:" opt; do
         ;;
     q)  export quiet_flag=true
         export verbose_flag=false
+        ;;
+    z)
+        export zerofill_flag=true
         ;;
     \?)
         usage
@@ -634,6 +638,9 @@ if get_os_needs_restarting; then
     fi
 fi
 
+if $zerofill_flag; then
+    sudo /root/zerofill.sh
+fi
 
 ### finish up and reset sudo timestamp
 quit_sudo
