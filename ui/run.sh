@@ -42,6 +42,9 @@ run() {
 }
 
 case "$(basename ${0})" in
+    videploy)
+        sudo vim /opt/emc/ecs-install/deploy.yml
+    ;;
     update_image)
         cd "${root}"
         "${root}/ui/update_image.sh"
