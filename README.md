@@ -1,12 +1,28 @@
 [![Documentation Status](http://readthedocs.org/projects/ecsce/badge/?version=latest)](http://ecsce.readthedocs.io/en/latest/?badge=latest)
  <h1> ECS Community Edition </h1>
- See [changelog.md](changelog.md) file for release notes.
+
+See [release history](https://github.com/EMCECS/ECS-CommunityEdition/releases) for current release notes and change log; [changelog.md](changelog.md) file for legacy history.
 
 ## Description
 
 EMC Elastic Cloud Storage (ECS) is a stateful, containerized, object storage system for cloud storage protocols.  ECS is compatible with AWS S3 and OpenStack Swift.  On file-enabled buckets, ECS can provide NFS exports for file-level access to objects.
 
 ECS can be set up on one or more hosts or virtual machines in a single-site or a multi-site geo replicated configuration. We want the wider community to use ECS and provide feedback.  Usage of this software is under the End User License Agreement at the bottom of this README.
+
+ECS Community Edition is a free, reduced footprint, version of Dell EMC's Elastic Cloud Storage software. Of course, this means there are some limitations to the use of the software, so the question arises; how is the Community Edition of ECS different from the production version?
+
+### License difference
+As noted with the included license, ECS Community cannot be used in production environments and is intended to be used for trial and proof of concept purposes only. This software is still owned and protected by Dell EMC.
+
+### Feature differences
+It it important to note that ECS-Community Edition is ***not*** the same as ECS software and as such lacks some features that are integral to the actual ECS software.
+
+* **ECS Community Edition does NOT support encryption**
+* **ECS Community Edition does NOT include ECS' system management, or "fabric", layer**
+
+### Notice
+Because of these differences, ECS Community Edition is absolutely **not** qualified for testing failure scenarios. Failure scenarios can only be adequately mimicked on the full version of ECS Software.
+
 
 ## Quick Start Guide
 If you have the following:
@@ -71,10 +87,23 @@ Deploy a multi-node ECS instance to two or more hardware or virtual machines.  T
 ##### Important information regarding Island deployments
 Please be aware that Install Node bootstrapping requires Internet access to the hardware or virtual machine that will become the Install Node, but once this step is complete, the machine can be removed from the Internet and migrated into the Island environment.
 
-If you prefer to download a prefab Install Node as an OVF/OVA, follow one of the links below. Please note that OVAs are produced upon each release and do not necessarily have the most current software.
+#### Deploying from OVA
+In situations where Internet access is completely disallowed, or for the sake of convenience, an OVA of a prefabricated, bootstrapped, Install Node is provided.  Please download the OVA from one of the links below.
 
-* [dellemc-ecsce-3.0.0.1-install-node-2.2.0-vm0.ova](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.1-install-node-2.2.0-vm0.ova)
-* [dellemc-ecsce-3.0.0.1-install-node-2.2.0-vm0.ova.xz](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.1-install-node-2.2.0-vm0.ova.xz)
+The OVA is shipped as a bootstrapped Install Node.  It must be cloned multiple times to create as many Data Store Nodes as desired.
+
+###### OVA Special Requirements
+* All nodes **MUST** be clones of the OVA.
+* All nodes **MUST** have their virtual hardware configurations updated to match the node type requirements.
+###### Default Credentials
+* The default password for `admin` and `root` accounts is `ChangeMe`.
+###### Network Configuration
+* The OVA is configured to acquire network settings via DHCP.  Static configurations must be manually configured with `sudo nmtui`
+
+##### OVA Download Links
+
+* [dellemc-ecsce-3.0.0.1-install-node-2.2.1-vm0.ova](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.1-install-node-2.2.1-vm0.ova)
+* [dellemc-ecsce-3.0.0.1-install-node-2.2.1-vm0.ova.xz](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.1-install-node-2.2.1-vm0.ova.xz)
 
 #### [ECS Single-Node Deployment with Install Node (recommended)](docs/source/installation/ECS-Installation.md)
 Using an Install Node for isolated environments, deploy a stand-alone instance of ECS to a single hardware or virtual machine.
