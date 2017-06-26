@@ -1,6 +1,7 @@
 [![Documentation Status](http://readthedocs.org/projects/ecsce/badge/?version=latest)](http://ecsce.readthedocs.io/en/latest/?badge=latest)
  <h1> ECS Community Edition </h1>
- See [changelog.md](changelog.md) file for release notes.
+
+See [release history](https://github.com/EMCECS/ECS-CommunityEdition/releases) for current release notes and change log; [changelog.md](changelog.md) file for legacy history.
 
 ## Description
 
