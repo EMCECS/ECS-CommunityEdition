@@ -5,7 +5,7 @@ pipeline {
         TF_VAR_vsphere_user       = "${params.vsphere_user}"
         TF_VAR_vsphere_password   = "${params.vsphere_password}"
         TF_VAR_vsphere_server     = "${params.vsphere_server}"
-        ANSIBLE_HOST_KEY_CHECKING = False
+        ANSIBLE_HOST_KEY_CHECKING = "False"
     }
 
     stages {
