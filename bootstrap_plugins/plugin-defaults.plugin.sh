@@ -23,3 +23,10 @@ symlink_scripts() {
         ln -s "${root}/ui/run.sh" "${HOME}/bin/$l" 2>/dev/null
     done
 }
+
+unset update_path_in_bashrc
+update_path_in_bashrc() {
+    log "sed error is OK here if the proxy config file does not yet exist."
+    sudo sed -i -e '/PATH/d' $HOME/.bashrc
+    echo 'export PATH=$PATH:$HOME/.local/bin:$HOME/bin' >> $HOME/.bashrc
+}
