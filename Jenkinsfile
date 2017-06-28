@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/EMCECS/ECS-CommunityEdition', branch: "${params.branch}"
+                checkout scm
             }
         }
         stage('Install tools') {
