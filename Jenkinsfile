@@ -5,6 +5,12 @@ pipeline {
         TF_VAR_vsphere_user       = "${params.vsphere_user}"
         TF_VAR_vsphere_password   = "${params.vsphere_password}"
         TF_VAR_vsphere_server     = "${params.vsphere_server}"
+        TF_VAR_datastore          = "${params.datastore}"
+        TF_VAR_template           = "${params.template}"
+        TF_VAR_resource_pool      = "${params.resource_pool}"
+        TF_VAR_datacenter         = "${params.datacenter}"
+        TF_VAR_network_interface  = "${params.network_interface}"
+        TF_VAR_ecs_nodes          = "${params.ecs_nodes}"
         ANSIBLE_HOST_KEY_CHECKING = "False"
     }
 
@@ -46,10 +52,13 @@ pipeline {
                       extras: '-vvv'
               }
         }
-        stage('Deprovision infrastructure'){
-            steps {
-                sh 'terraform destroy -force tests'
-            }
+    }
+
+    post {
+        always {
+            echo 'Deprovision infrastructure'
+            sh 'terraform destroy -force tests'
         }
     }
+
 }
