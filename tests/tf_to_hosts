@@ -16,9 +16,10 @@ def main():
 
     with open(sys.argv[2], "w") as hosts_file:
         hosts_file.write("[install_node]\n")
-        hosts_file.write("%s ansible_connection=ssh\n\n" % (data[INSTALL_NODE_KEY]["value"]))
-        hosts_file.write("[ecs_nodes]\n")
-        hosts_file.write("%s ansible_connection=ssh\n\n" % (data[ECS_NODE_KEY]["value"]))
+        hosts_file.write("%s ansible_connection=ssh\n" % (data[INSTALL_NODE_KEY]["value"]))
+        hosts_file.write("\n[ecs_nodes]\n")
+        for ip in data[ECS_NODE_KEY]["value"]:
+            hosts_file.write("%s ansible_connection=ssh\n" % (ip,))
 
 if __name__ == "__main__":
     main()
