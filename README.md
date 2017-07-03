@@ -1,7 +1,15 @@
-[![Documentation Status](http://readthedocs.org/projects/ecsce/badge/?version=latest)](http://ecsce.readthedocs.io/en/latest/?badge=latest)
  <h1> ECS Community Edition </h1>
 
-See [release history](https://github.com/EMCECS/ECS-CommunityEdition/releases) for current release notes and change log; [changelog.md](changelog.md) file for legacy history.
+[![](https://images.microbadger.com/badges/image/emccorp/ecs-install.svg)](https://microbadger.com/images/emccorp/ecs-install "Get your own image badge on microbadger.com") [![Documentation Status](http://readthedocs.org/projects/ecsce/badge/?version=latest)](http://ecsce.readthedocs.io/en/latest/?badge=latest)
+
+
+Our code of conduct is available here: [Code of Conduct](CODE_OF_CONDUCT.md)
+
+Our contributing guidelines are available here: [Contributing](.github/CONTRIBUTING.md)
+
+Our release histories and current release notes are available here: [release history](https://github.com/EMCECS/ECS-CommunityEdition/releases)
+
+Our legacy histories are available here: [changelog.md](changelog.md)
 
 ## Description
 
