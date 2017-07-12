@@ -18,7 +18,6 @@ docker_binary='/bin/docker'
 
 # packages to clean up during preflight
 list_preflight_packages="git"
-#nfs-tools"
 
 # Do any OS-specific tasks that must be done prior to bootstrap
 do_preflight() {
@@ -26,34 +25,31 @@ do_preflight() {
 }
 
 # packages to install before others
-#list_prefix_packages='epel-release python-devel wget curl ntp'
-list_prefix_packages='wget curl ntp epel-release yum-utils'
+list_prefix_packages='wget curl epel-release yum-utils'
 
 # script to run for installing prefix_packages
 in_prefix_packages() {
     in_repo_pkg "$list_prefix_packages"
-    if ! docker version; then
-        curl -fsSL https://get.docker.com/ | sudo sh
-    fi
+}
+
+# packages to install
+# list_general_packages='yum-utils git python-pip python-docker-py'
+list_general_packages='git ntp docker'
+
+# script to run for installing general_packages
+in_general_packages() {
+    in_repo_pkg "$list_general_packages"
+#    if ! docker version; then
+#        curl -fsSL https://get.docker.com/ | sudo sh
+#    fi
     sudo systemctl enable docker
     sudo systemctl start docker
     sudo usermod -aG docker $(whoami)
 }
 
-# packages to install
-# list_general_packages='yum-utils git python-pip python-docker-py'
-list_general_packages='git python-docker-py'
-
-# script to run for installing general_packages
-in_general_packages() {
-    in_repo_pkg "$list_general_packages"
-#    sudo pip install --upgrade pip
-#    sudo pip install --upgrade virtualenv
-}
-
 # packages to install after others
-# list_suffix_packages='vim htop iotop iftop jq rsync pigz gdisk aria2'
-list_suffix_packages='htop jq pigz gdisk aria2'
+list_suffix_packages='vim htop iotop iftop jq rsync pigz gdisk aria2 python-docker-py'
+# list_suffix_packages='htop jq pigz gdisk aria2 python-docker-py'
 
 # script to run for installing suffix_packages
 in_suffix_packages() {
@@ -76,12 +72,14 @@ in_vm_packages() {
 # command to install one or more os package manager package
 in_repo_pkg() {
     while ! sudo yum -y install $*; do
-        sleep 5
+        sleep 1
     done
 }
 
 rm_repo_pkg() {
-    sudo yum -y autoremove $*
+    while ! sudo yum -y autoremove $*; do
+        sleep 1
+    done
 }
 
 # command to update all packages in the os package manager
@@ -92,7 +90,7 @@ up_repo_pkg_all() {
 # command to rebuild the os package manager's database
 up_repo_db() {
     while ! sudo yum -y makecache; do
-        sleep 10
+        sleep 1
         # retry
     done
 }
