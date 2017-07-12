@@ -102,8 +102,8 @@ The OVA is shipped as a bootstrapped Install Node.  It must be cloned multiple t
 
 ##### OVA Download Links
 
-* [dellemc-ecsce-3.0.0.2-install-node-2.2.1-vm0.ova](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.2-install-node-2.2.1-vm0.ova)
-* [dellemc-ecsce-3.0.0.2-install-node-2.2.1-vm0.ova.xz](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.2-install-node-2.2.1-vm0.ova.xz)
+* [dellemc-ecsce-3.0.0.2-install-node-2.2.2-vm0.ova](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.2-install-node-2.2.2-vm0.ova)
+* [dellemc-ecsce-3.0.0.2-install-node-2.2.2-vm0.ova.xz](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.2-install-node-2.2.2-vm0.ova.xz)
 
 #### [ECS Single-Node Deployment with Install Node (recommended)](docs/source/installation/ECS-Installation.md)
 Using an Install Node for isolated environments, deploy a stand-alone instance of ECS to a single hardware or virtual machine.
