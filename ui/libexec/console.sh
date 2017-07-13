@@ -9,6 +9,24 @@
 # limited to the terms and conditions of the License Agreement under which
 # it is provided by or on behalf of EMC.
 
+### TTY Detection
+
+export IS_TTY=false
+export IS_PIPE=false
+export IS_REDIRECTION=false
+
+if [[ -t 1 ]]; then
+    export IS_TTY=true
+fi
+
+if [[ -p /dev/stdout ]]; then
+    export IS_PIPE=true
+fi
+
+if [[ ! -t 1 && ! -p /dev/stdout ]]; then
+    export IS_REDIRECTION=true
+fi
+
 ### Logging and console output helpers
 
 quiet_flag=false

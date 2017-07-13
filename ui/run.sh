@@ -35,8 +35,17 @@ fi
 run() {
     run="${1}"
     shift
-    sudo docker run --rm -it --privileged --net=host ${default_mount_opts[@]} ${image_release} ${run} ${@}
+
+    local _interactive=''
+    if ${IS_TTY}; then
+        _interactive='-t'
+    fi
+
+    sudo docker run --rm -i ${_interactive} --privileged --net=host \
+            ${default_mount_opts[@]} ${image_release} \
+            ${run} ${@}
     rc=$?
+
     o ""
     return ${rc}
 }
@@ -100,6 +109,7 @@ case "$(basename ${0})" in
         run ecsdeploy access check || exit $?
         run ecsdeploy bootstrap || exit $?
         run ecsdeploy reboot || exit $?
+        sleep 10
         run ping_until_clear
         run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?

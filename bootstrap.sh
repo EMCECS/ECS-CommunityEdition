@@ -310,6 +310,7 @@ o ""
 v "Creating shell shims in ${HOME}/bin for CLI commands"
 p Installing CLI shims
 symlink_scripts
+update_path_in_bashrc
 
 
 ### Override nameservers provided by DHCP if -o was given.
