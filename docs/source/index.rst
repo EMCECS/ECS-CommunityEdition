@@ -14,6 +14,7 @@ Welcome to ECS Community Edition's documentation!
    installation/ECS-Installation.rst
    use/ECS-UI-Web-Interface.rst
    troubleshooting/ECS-Troubleshooting.rst
+   troubleshooting/FAQ.rst
 
 
 .. include:: ../../README.rst
