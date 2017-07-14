@@ -73,6 +73,82 @@ For multiple-node installations, the `/etc/hosts` file on the host VM should inc
 
 If attempting to authenticate results in a response of "Connection Refused", review the below section and ensure all necessary ports are open on all ECS nodes in the cluster. 
 
+## NFS
+
+### Necessary NFS Ports
+The following ports must be opened for NFS to function properly
+
+Port Number |
+|---|
+| 111 |
+| 2049 |
+
+
+### NFS Volume Refuses to Mount
+
+ECS does support the NFS file system. However, troubles can occur when ECS is installed on the full version, or "Everything" version, of CentOS 7. ***Note that the following solution is not necessary on CentOS 7 Minimal.***
+
+#### The Problem
+CentOS 7 Everything starts with NFS/RPC/Portmap components running in the root scope. This is a problem as the ECS-CE Docker container runs its own version of rpcbind. This is the instance of rpcbind that ECS is intended to communicate with. When CentOS is running rpcbind in root scope in addition to the ECS Docker container, a conflict is created and a NFS volume cannot be mounted.
+
+This can be seen by `# rpcinfo -p` returning no NFS services.
+
+#### The Solution
+The conflict can be resolved by simply running `systemctl disable rpcbind`. This command will shut down the rpc service running on the host OS while leaving the Docker instance untouched.
+
+To confirm the CentOS service is gone, run `rpcinfo -p` in the CentOS shell. This should return an error: `rpcinfo: can't contact portmapper: RPC: Remote system error - No such file or directory`
+
+The same command, `rpcinfo-p`, can be run in the Docker container, which should return something similar to:
+```
+   program vers proto   port  service
+    100000    4   tcp    111  portmapper
+    100000    3   tcp    111  portmapper
+    100000    2   tcp    111  portmapper
+    100000    4   udp    111  portmapper
+    100000    3   udp    111  portmapper
+    100000    2   udp    111  portmapper
+    100005    3   tcp   2049  mountd
+    100005    3   udp   2049  mountd
+    100003    3   tcp   2049  nfs
+    100024    1   tcp   2049  status
+    100021    4   tcp  10000  nlockmgr
+    100021    4   udp  10000  nlockmgr
+```
+
+NFS should now function correctly. 
+
+## IBM Tivoli Monitoring
+
+### Issue
+ECS Community edition will fail to completely initialize the storage pool on machines that have the IBM Tivoli Monitoring agent installed.  The storage pool will forever stick in the "Initializing" state and attempts to create a VDC will result in HTTP 400 errors.
+
+### Analysis
+Doing a `ps -ef` inside the container will show that dataheadsvc and metering are restarting frequently.  Looking at `/opt/storageos/logs/metering.log` will show a bind exception on port 10110.  This port is already bound by Tivoli's `k10agent` process.
+
+### Workaround
+1. Uninstall Tivoli Monitoring
+or
+2. Change the port on impacted nodes.
+
+#### Changing the port on ECS
+On _all_ nodes, you will need to edit `/opt/storageos/conf/mt-var.xml` to change the bind port from 10110 to 10109.  Edit the file and change the line:
+
+```
+<property name="serviceUrl" value="service:jmx:rmi://127.0.0.1:10110/jndi/rmi://127.0.0.1:10111/sos" />
+```
+
+to:
+
+```
+<property name="serviceUrl" value="service:jmx:rmi://127.0.0.1:10109/jndi/rmi://127.0.0.1:10111/sos" />
+```
+
+Then restart the metering service:
+
+```
+kill `pidof metering`
+```
+
 ## Network Troubleshooting
 
 ### For those operating behind EMC firewall
