@@ -5,7 +5,7 @@ Troubleshooting Tips
 --------------------
 
 This is a list of troubleshooting tips and nuggets that will help with
-issues. If you still have problems, please use the support section.
+issues. If you still have problems, please file an issue on our GitHub page.
 
 Installation
 ------------
