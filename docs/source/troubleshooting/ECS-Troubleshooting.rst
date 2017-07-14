@@ -1,11 +1,8 @@
 ECS Software 3.x - Troubleshooting Tips
 =======================================
 
-Troubleshooting Tips
---------------------
-
 This is a list of troubleshooting tips and nuggets that will help with
-issues. If you still have problems, please file an issue on our GitHub page.
+issues. If you still have problems, please use the support section.
 
 Installation
 ------------
@@ -13,7 +10,12 @@ Installation
 -  If you change deploy.yml after running step1, you must run
    ``update_deploy`` before running step1 again. Otherwise you will
    likely get the following error:
-    ``{"failed": true, "msg": "An unhandled exception occurred while running the lookup plugin 'file'. Error was a , original message: the file\_name '/opt/ssh/id\_ed25519.pub' does not exist, or is not readable"}``
+
+::
+
+    {"failed": true, "msg": "An unhandled exception occurred while running the lookup plugin 'file'.
+     Error was a <class 'ansible.errors.AnsibleFileNotFound'>, original message: the file_name 
+     '/opt/ssh/id_ed25519.pub' does not exist, or is not readable"}
 
 -  ``A block device configured in deploy.yml for data nodes is already partitioned.``
 
@@ -22,14 +24,14 @@ Installation
    ``ecsremove purge-nodes``.
 
 Provisioning of ECS
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 It takes roughly 30 minutes to get the system provisioned for Step2. ECS
 creates Storage Pools, Replication Groups with the attached disks. If
 Step2 is successful, you should see something along these lines.
 
 Adding a Secret Key for a user
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Set the user and the key that needs to be used and execute the command.
 For example:
@@ -58,6 +60,9 @@ node.
 
 ``curl -X GET "http://<YourIPAddress>:9101/stats/dt/DTInitStat”``
 
+ECS Services
+------------
+
 Docker Container immediately exits on startup
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -65,13 +70,6 @@ If your docker instance immediately exits when started, please ensure
 that the entries in ``/etc/hosts`` on the host system and
 ``network.json`` in the install directory are correct (the latter should
 reflect the host's public IP and the corresponding network adapter).
-
-For those operating behind EMC firewall
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To install ECS Community Edition under these conditions, please view the
-readme file under **/emc-ssl-cert** for further instructions in
-installing the necessary CA certificate.
 
 Restoring ECS after host shutdown/restart
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -105,6 +103,63 @@ the GUI.
 If attempting to authenticate results in a response of "Connection
 Refused", review the below section and ensure all necessary ports are
 open on all ECS nodes in the cluster.
+
+Network Troubleshooting
+-----------------------
+
+For those operating behind EMC firewall
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To install ECS Community Edition under these conditions, please view the
+readme file under **/emc-ssl-cert** for further instructions in
+installing the necessary CA certificate.
+
+Disabling IPv6
+~~~~~~~~~~~~~~
+
+ECS Community Edition does not yet support IPv6. The following procedure
+can be used to disable IPv6 in CentOS 7.
+
+To disable IPv6 on startup:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add the following to /etc/sysctl.conf
+
+::
+
+    net.ipv6.conf.all.disable_ipv6 = 1
+    net.ipv6.conf.default.disable_ipv6 = 1
+
+To disable IPv6 running:
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
+    echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
+
+or
+
+::
+
+    sysctl -w net.ipv6.conf.all.disable_ipv6=1
+    sysctl -w net.ipv6.conf.default.disable_ipv6=1
+
+Get correct interface name
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+CentOS 7 does not assign network interface names as eth0, eth1, etc, but
+rather assigns "predictable" names to each interface that generally look
+like ``ens32`` or similar. There are many benefits to this that can be
+read about
+`here <https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/>`__.
+
+This can be disabled as documented in the above link, however, these
+names can otherwise be simply found and used in the ECS-Community
+installer without issue. To find the names for each device enter the
+following command: ``ip a``. This command will output a list of network
+devices. Simply find the corresponding device and substitute it for eth0
+in the stage1 installation script.
 
 List of open ports required on each ECS data node
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
