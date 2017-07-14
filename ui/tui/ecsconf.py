@@ -49,9 +49,9 @@ DIRECTORY_TABLE = {
 
 # Ansible stuff is a special case where the same password is
 # typically used for all three password args. We should wire
-# all three to an "ansible_password" meta var.  Individual
+# all three to an "ssh_password" meta var.  Individual
 # password fields can still be overridden in deploy.yml.
-# Wire an "ansible_username" meta var to ansible_user for
+# Wire an "ssh_username" meta var to ansible_user for
 # consistency.
 # Also, consider implications of ssh pubkey auth.
 ANSIBLE_DEFAULTS = 'ssh_defaults'
@@ -60,11 +60,11 @@ ANSIBLE_PASS = 'ssh_password'
 ANSIBLE_PORT = 'ssh_port'
 ANSIBLE_PORT_DEFAULT = 22
 ANSIBLE_SPECIAL_KEYS = {
-    'ansible_user': 'username',
-    'ansible_username': 'username',
-    'ansible_ssh_pass': 'password',
-    'ansible_become_pass': 'password',
-    'ansible_port': 'ssh_port'
+    'ansible_user': '#username#',
+    'ansible_username': '#username#',
+    'ansible_ssh_pass': '#password#',
+    'ansible_become_pass': '#password#',
+    'ansible_port': '#ssh_port#'
 }
 # 'ansible_password': 'password',
 ANSIBLE = 'sshs'
@@ -241,11 +241,11 @@ class ECSConf(object):
 
         for sk, sv in ANSIBLE_SPECIAL_KEYS.iteritems():
             if facts[sk] is None:
-                if sv == 'username':
+                if sv == '#username#':
                     facts[sk] = facts[ANSIBLE_USER]
-                elif sv == 'password':
+                elif sv == '#password#':
                     facts[sk] = facts[ANSIBLE_PASS]
-                elif sv == 'ssh_port':
+                elif sv == '#ssh_port#':
                     facts[sk] = facts[ANSIBLE_PORT]
                 else:
                     # This shouldn't happen
