@@ -3,11 +3,25 @@
 
 ## Troubleshooting Tips
 This is a list of troubleshooting tips and nuggets that will help with issues. If you still have problems, please use the support section. 
+
+## Installation
+
+* If you change deploy.yml after running step1, you must run `update_deploy` before running step1 again. Otherwise you will likely get the following error:
+```
+{"failed": true, "msg": "An unhandled exception occurred while running the lookup plugin 'file'.
+ Error was a <class 'ansible.errors.AnsibleFileNotFound'>, original message: the file_name 
+ '/opt/ssh/id_ed25519.pub' does not exist, or is not readable"}
+
+```
+
+* `A block device configured in deploy.yml for data nodes is already partitioned.`
+
+    This error often shows up after a failed installation attempt. In order to clean up the block devices to start over run `ecsremove purge-nodes`.
   
  
 ### Provisioning of ECS 
 
-It takes roughly 30 minutes to get the system provisioned for Step 2 (step2_object_provisioning.py).   ECS creates Storage Pools, Replication Groups with the attached disks. If Step 2 is successful, you should see something along these lines.
+It takes roughly 30 minutes to get the system provisioned for Step2.   ECS creates Storage Pools, Replication Groups with the attached disks. If Step2 is successful, you should see something along these lines.
 
 #### Adding a Secret Key for a user
 
