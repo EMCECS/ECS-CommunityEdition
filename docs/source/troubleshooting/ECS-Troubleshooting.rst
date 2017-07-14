@@ -12,12 +12,8 @@ Installation
 
 -  If you change deploy.yml after running step1, you must run
    ``update_deploy`` before running step1 again. Otherwise you will
-   likely get the following error: \`\`\` {"failed": true, "msg": "An
-   unhandled exception occurred while running the lookup plugin 'file'.
-   Error was a , original message: the file\_name
-   '/opt/ssh/id\_ed25519.pub' does not exist, or is not readable"}
-
-\`\`\`
+   likely get the following error:
+    ``{"failed": true, "msg": "An unhandled exception occurred while running the lookup plugin 'file'. Error was a , original message: the file\_name '/opt/ssh/id\_ed25519.pub' does not exist, or is not readable"}``
 
 -  ``A block device configured in deploy.yml for data nodes is already partitioned.``
 
