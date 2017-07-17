@@ -1,5 +1,5 @@
 # Fixes to the default 3.0HF image.
-FROM emcvipr/object:3.0.0.0-86239.1c9e5ec-reduced
+FROM emcvipr/object:3.1.0.0-93256.00e3410-reduced
 
 # Increase memory for transformsvc
 ADD transformsvc /opt/storageos/bin/
