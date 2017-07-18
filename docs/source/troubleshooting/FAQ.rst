@@ -31,3 +31,21 @@ representation of capacities without having to churn through the whole
 system to figure out the actual user data capacity numbers. In short,
 the numbers you are seeing are not designed to be exact, but are close
 estimates.
+
+Can I use a data store node as an NTP server for the rest of the nodes?
+-----------------------------------------------------------------------
+
+No, this is not a supported deployment option. An external NTP server is
+required.
+
+My ECS functions but the storage pools never initialize.
+--------------------------------------------------------
+
+If you can store objects in buckets without issue, then it's likely that
+your storage pools and data stores are fully initialized. ECS Community
+Edition is a bit weird in that there are some UI/display issues with
+storage pools showing "Not Ready" and data stores showing "initializing"
+even after they have become fully initialized. If you can create VDCs,
+replication groups, namespaces, and buckets, then your storage pools are
+certainly initialized as those higher level abstractions require a
+working storage pool.
