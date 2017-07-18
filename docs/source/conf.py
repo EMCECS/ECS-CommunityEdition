@@ -89,11 +89,12 @@ html_theme = 'bootstrap'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-#html_theme_options = {
+html_theme_options = {
 #    'navbar_links': [
 #    ("Google", "http://google.com", True)
 #]
-#}
+    'navbar_pagenav': False,
+}
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 
 # Add sidebar to display toc
