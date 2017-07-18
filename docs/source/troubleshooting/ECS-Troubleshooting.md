@@ -4,7 +4,7 @@ This is a list of troubleshooting tips and nuggets that will help with issues. I
 
 ## Installation
 
-* If you change deploy.yml after running step1, you must run `update_deploy` before running step1 again. Otherwise you will likely get the following error:
+### If you change deploy.yml after running step1, you must run `update_deploy` before running step1 again. Otherwise you will likely get the following error:
 
 ```
 {"failed": true, "msg": "An unhandled exception occurred while running the lookup plugin 'file'.
@@ -13,9 +13,9 @@ This is a list of troubleshooting tips and nuggets that will help with issues. I
 
 ```
 
-* `A block device configured in deploy.yml for data nodes is already partitioned.`
+### `A block device configured in deploy.yml for data nodes is already partitioned.`
 
-    This error often shows up after a failed installation attempt. In order to clean up the block devices to start over run `ecsremove purge-nodes`.
+This error often shows up after a failed installation attempt. In order to clean up the block devices to start over run `ecsremove purge-nodes`.
   
  
 ## Provisioning of ECS 
@@ -187,6 +187,17 @@ CentOS 7 does not assign network interface names as eth0, eth1, etc, but rather 
 
 This can be disabled as documented in the above link, however, these names can otherwise be simply found and used in the ECS-Community installer without issue. To find the names for each device enter the following command: `ip a`. This command will output a list of network devices. Simply find the corresponding device and substitute it for eth0 in the stage1 installation script.
 
+### Port Conflicts
+
+It is possible that on multinode installations ECS may run into a port conflict. So far there exists a port conflict with the following:
+
+*   ScaleIO - Ports: 9011, 9099
+  
+In these instances the user can attempt to: 
+
+1. Enter the container
+2. Change all instances of the conflicting ports to unused ports in `/opt/storageos/conf` 
+3. Reboot the nodes after altering the conf file.
 
 ### List of open ports required on each ECS data node
 
@@ -198,7 +209,7 @@ followed by `firewall-cmd --reload` for each host.
 
 `fwd_settings.sh` in the main directory will invoke the `firewalld` service and permanently open necessary ports. In the case of a failure in this setup referencing `iptables`, please ensure that your docker network bridge is running and installed using `yum install bridge-utils`.
 
-In the case of a multiple node configuration, you may
+
 
 |Port Name-Usage=Port Number|
 |---------------------------|

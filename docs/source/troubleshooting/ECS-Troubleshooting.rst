@@ -7,9 +7,8 @@ issues. If you still have problems, please use the support section.
 Installation
 ------------
 
--  If you change deploy.yml after running step1, you must run
-   ``update_deploy`` before running step1 again. Otherwise you will
-   likely get the following error:
+If you change deploy.yml after running step1, you must run ``update_deploy`` before running step1 again. Otherwise you will likely get the following error:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -17,11 +16,12 @@ Installation
      Error was a <class 'ansible.errors.AnsibleFileNotFound'>, original message: the file_name 
      '/opt/ssh/id_ed25519.pub' does not exist, or is not readable"}
 
--  ``A block device configured in deploy.yml for data nodes is already partitioned.``
+``A block device configured in deploy.yml for data nodes is already partitioned.``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   This error often shows up after a failed installation attempt. In
-   order to clean up the block devices to start over run
-   ``ecsremove purge-nodes``.
+This error often shows up after a failed installation attempt. In order
+to clean up the block devices to start over run
+``ecsremove purge-nodes``.
 
 Provisioning of ECS
 -------------------
