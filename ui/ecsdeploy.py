@@ -257,7 +257,7 @@ def check(conf):
 
 @ecsdeploy.command('bootstrap', short_help='Install required packages on nodes')
 @pass_conf
-def deploy(conf):
+def bootstrap(conf):
     """
     Deploys ECS to all data nodes
     """
