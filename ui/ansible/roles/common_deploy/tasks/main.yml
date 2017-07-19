@@ -1,21 +1,21 @@
 - include_vars: main.yml
 
 ### This is where we put all the adjusted configs
-- name: Common | Create a data container for ECS configuration control
-  shell: docker run -d -v /opt/storageos/conf -v /opt/storageos/ecsportal/conf -v /etc --name ecs-config --restart=no --entrypoint=/bin/echo {{product_common_name}} "ECS configuration data container" && touch {{host_cache_dir}}/ecs-config.created creates="{{host_cache_dir}}/ecs-config.created"
-
 #- name: Common | Create a data container for ECS configuration control
-#  docker:
-#    image: "{{product_common_name}}"
-#    name: ecs-config
-#    detach: true
-#    restart_policy: no
-#    volumes:
-#      - /opt/storageos/conf
-#      - /opt/storageos/ecsportal/conf
-#      - /etc
-#    entrypoint: /bin/echo "ECS configuration data container"
-#    state: present
+#  shell: docker run -d -v /opt/storageos/conf -v /opt/storageos/ecsportal/conf -v /etc --name ecs-config --restart=no --entrypoint=/bin/echo {{product_common_name}} "ECS configuration data container" && touch {{host_cache_dir}}/ecs-config.created creates="{{host_cache_dir}}/ecs-config.created"
+
+- name: Common | Create a data container for ECS configuration control
+  docker:
+    image: "{{product_common_name}}"
+    name: ecs-config
+    detach: true
+    restart_policy: no
+    volumes:
+      - /opt/storageos/conf
+      - /opt/storageos/ecsportal/conf
+      - /etc
+    entrypoint: /bin/echo "ECS configuration data container"
+    state: present
 
 ### Determine any sizing we need to calculate templates
 #
@@ -29,22 +29,37 @@
 # ref: https://github.com/EMCECS/ECS-CommunityEdition/issues/74
 #  Installer should support installing a "full" build on systems with 64GB RAM+ #74
 
-### Copy templates onto host...
+- name: Common | Copy configurations out of configuration data container
+  command: docker cp ecs-config:{{item.src}} {{item.dest}}
+  with_items:
+    - dest: /host/ssm.object.properties
+      src: /opt/storageos/conf/ssm.object.properties
+#    - dest: /host/common.object.properties
+#      src: /opt/storageos/conf/common.object.properties
 
-- name: Common | Configure SSM Object properties
-  template:
-    src: ssm.object.properties.j2
+# Perform properties edits
+- name: Common | Configure SSM Object properties FBL-Highwater
+  lineinfile:
     dest: /host/ssm.object.properties
+    state: present
+    regexp: '^object\.freeBlocksHighWatermarkLevels=[0-9]*,[0-9]*'
+    line: 'object.freeBlocksHighWatermarkLevels={{ "100,50" if ansible_local.data_node.ecs_block_size|int < 1000000000000 else "1000,200" }}'
 
-- name: Common | Configure CM Object properties
-  template:
-    src: cm.object.properties.j2
-    dest: /host/cm.object.properties
+- name: Common | Configure SSM Object properties FBL-Lowwater
+  lineinfile:
+    dest: /host/ssm.object.properties
+    state: present
+    regexp: '^object\.freeBlocksLowWatermarkLevels=[0-9]*,[0-9]*'
+    line: 'object.freeBlocksLowWatermarkLevels={{ "0,20" if ansible_local.data_node.ecs_block_size|int < 1000000000000 else "0,100" }}'
 
-- name: Common | Configure Common Object properties
-  template:
-    src: common.object.properties.j2
-    dest: /host/common.object.properties
+#  template:
+#    src: ssm.object.properties.j2
+#    dest: /host/ssm.object.properties
+
+#- name: Common | Configure Common Object properties
+#  template:
+#    src: common.object.properties.j2
+#    dest: /host/common.object.properties
 
 #- name: Common | Configure Portal properties
 #  template:
@@ -65,14 +80,14 @@
 
 ### Then docker cp them into the configuration container
 - name: Common | Merge configurations into configuration data container
-  command: docker cp /host/{{item.src}} ecs-config:{{item.dest}}
+  command: docker cp {{item.src}} ecs-config:{{item.dest}}
   with_items:
-    - src: ssm.object.properties
+    - src: /host/ssm.object.properties
       dest: /opt/storageos/conf/ssm.object.properties
-    - src: cm.object.properties
-      dest: /opt/storageos/conf/cm.object.properties
-    - src: common.object.properties
-      dest: /opt/storageos/conf/common.object.properties
+#    - src: /host/common.object.properties
+#      dest: /opt/storageos/conf/common.object.properties
+#    - src: cm.object.properties
+#      dest: /opt/storageos/conf/cm.object.properties
 #    - src: postinstall_patch
 #      dest: /etc/cron.hourly/postinstall_patch
 #    - src: setup_python_requests
@@ -87,30 +102,30 @@
 #    msg: docker create --name ecs-storageos -e SS_GENCONFIG=1 --volumes-from ecs-config -v /ecs:/dae:z -v /ecs:/disks:z -v /host:/host:z -v /var/log/vipr/emcvipr-object:/var/log:z -v /data:/data:z -v {{host_cache_dir}}/ecs_python:/host/ecs_python:z -v {{entropy_source}}:/dev/random:z --net=host {{product_common_name}} && touch {{host_cache_dir}}/ecs-storageos.created creates={{host_cache_dir}}/ecs-storageos.created
 
 # Don't add a restart policy because we're using init scripts for that.
-- name: Common | Create the ECS StorageOS container
-  shell: docker create --name ecs-storageos -e SS_GENCONFIG=1 --volumes-from ecs-config -v /ecs:/dae:z -v /ecs:/disks:z -v /host:/host:z -v /var/log/vipr/emcvipr-object:/var/log:z -v /data:/data:z -v {{host_cache_dir}}/ecs_python:/host/ecs_python:z -v {{entropy_source}}:/dev/random:z --net=host {{product_common_name}} && touch {{host_cache_dir}}/ecs-storageos.created creates="{{host_cache_dir}}/ecs-storageos.created"
+#- name: Common | Create the ECS StorageOS container
+#  shell: docker create --name ecs-storageos -e SS_GENCONFIG=1 --volumes-from ecs-config -v /ecs:/dae:z -v /ecs:/disks:z -v /host:/host:z -v /var/log/vipr/emcvipr-object:/var/log:z -v /data:/data:z -v {{host_cache_dir}}/ecs_python:/host/ecs_python:z -v {{entropy_source}}:/dev/random:z --net=host {{product_common_name}} && touch {{host_cache_dir}}/ecs-storageos.created creates="{{host_cache_dir}}/ecs-storageos.created"
 
 ### And run the ECS container
 # ... bbuuuuut the docker module is currently broken, so we rolled it oldschool
-#- name: Common | Create the ECS StorageOS container
-#  docker:
-#    image: "{{product_common_name}}"
-#    name: ecs-storageos
-#    detach: true
-#    net: host
-#    env:
-#      SS_GENCONFIG: 1
-#    volumes_from:
-#      - ecs-config
-#    volumes:
-#      - /ecs:/dae:z
-#      - /ecs:/disks:z
-#      - /host:/host:z
-#      - /var/log/vipr/emcvipr-object:/var/log:z
-#      - /data:/data:z
-##      - "{{host_cache_dir}}/ecs_python:/host/ecs_python:z"
-#      - "{{entropy_source}}:/dev/random:ro"
-#    restart_policy: no
-#    stop_timeout: 60
-#    state: present
-#
+- name: Common | Create the ECS StorageOS container
+  docker:
+    image: "{{product_common_name}}"
+    name: ecs-storageos
+    detach: true
+    net: host
+    env:
+      SS_GENCONFIG: 1
+    volumes_from:
+      - ecs-config
+    volumes:
+      - /ecs:/dae:z
+      - /ecs:/disks:z
+      - /host:/host:z
+      - /var/log/vipr/emcvipr-object:/var/log:z
+      - /data:/data:z
+#      - "{{host_cache_dir}}/ecs_python:/host/ecs_python:z"
+      - "{{entropy_source}}:/dev/random:ro"
+    restart_policy: no
+    stop_timeout: 60
+    state: present
+
