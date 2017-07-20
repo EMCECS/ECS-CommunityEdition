@@ -584,6 +584,13 @@ else
 fi
 ping_sudo
 
+### Log Docker Inventory
+v "Logging Docker Inventory"
+p Logging Docker Inventory
+sudo docker images 2>&1 | log
+sudo docker ps -a 2>&1 | log
+ping_sudo
+
 ### Next steps
 p ''
 q 'All done bootstrapping your install node.'
