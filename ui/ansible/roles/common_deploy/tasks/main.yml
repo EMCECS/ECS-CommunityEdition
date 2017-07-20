@@ -34,49 +34,64 @@
   with_items:
     - dest: /host/ssm.object.properties
       src: /opt/storageos/conf/ssm.object.properties
-#    - dest: /host/common.object.properties
-#      src: /opt/storageos/conf/common.object.properties
+    - dest: /host/common.object.properties
+      src: /opt/storageos/conf/common.object.properties
+    - dest: /host/cm.object.properties
+      src: /opt/storageos/conf/cm.object.properties
+#    - dest: /host/application.conf
+#      src: /opt/storageos/ecsportal/conf/application.conf
 
-# Perform properties edits
-- name: Common | Configure SSM Object properties FBL-Highwater
+## Perform properties edits
+
+## SSM Object Properties
+# object.freeBlocksHighWatermarkLevels
+- name: 'Common | Configure SSM Object properties: FBL-Highwater'
   lineinfile:
     dest: /host/ssm.object.properties
     state: present
     regexp: '^object\.freeBlocksHighWatermarkLevels=[0-9]*,[0-9]*'
     line: 'object.freeBlocksHighWatermarkLevels={{ "100,50" if ansible_local.data_node.ecs_block_size|int < 1000000000000 else "1000,200" }}'
 
-- name: Common | Configure SSM Object properties FBL-Lowwater
+# object.freeBlocksLowWatermarkLevels
+- name: 'Common | Configure SSM Object properties: FBL-Lowwater'
   lineinfile:
     dest: /host/ssm.object.properties
     state: present
     regexp: '^object\.freeBlocksLowWatermarkLevels=[0-9]*,[0-9]*'
     line: 'object.freeBlocksLowWatermarkLevels={{ "0,20" if ansible_local.data_node.ecs_block_size|int < 1000000000000 else "0,100" }}'
 
-#  template:
-#    src: ssm.object.properties.j2
-#    dest: /host/ssm.object.properties
+## Common Object Properties
+# When NumDtPerCoS is set to 128 (>=64GB RAM) then the number of btree
+# and journal chunks for write quadruples. This means when node count is
+# less than ~4 and total storage space is less than ~4TB, 128 NumDtPerCoS
+# can become unwieldy. This templated param should take into account node
+# count and total storage space available. https://github.com/EMCECS/ECS-CommunityEdition/issues/301
 
-#- name: Common | Configure Common Object properties
-#  template:
-#    src: common.object.properties.j2
-#    dest: /host/common.object.properties
+# object.NumDirectoriesPerCoSForSystemDT
+- name: 'Common | Configure Common Object properties: System NumDtPerCoS'
+  lineinfile:
+    dest: /host/common.object.properties
+    state: present
+    regexp: '^object\.NumDirectoriesPerCoSForSystemDT=[0-9]*'
+    line: 'object.NumDirectoriesPerCoSForSystemDT={{ "128" if ( ansible_memtotal_mb|int > 65536 and ansible_local.data_node.ecs_block_size|int > 1000000000000 and num_data_nodes|int > 3 ) else "32" }}'
 
-#- name: Common | Configure Portal properties
-#  template:
-#    src: application.conf.j2
-#    dest: /host/application.conf
+# object.NumDirectoriesPerCoSForUserDT
+- name: 'Common | Configure Common Object properties: User NumDtPerCoS'
+  lineinfile:
+    dest: /host/common.object.properties
+    state: present
+    regexp: '^object\.NumDirectoriesPerCoSForUserDT=[0-9]*'
+    line: 'object.NumDirectoriesPerCoSForUserDT={{ "128" if ( ansible_memtotal_mb|int > 65536 and ansible_local.data_node.ecs_block_size|int > 1000000000000 and num_data_nodes|int > 3 ) else "32" }}'
 
-#- name: Common | Configure additional python modules install
-#  copy:
-#    src: setup_python_requests
-#    dest: /host/setup_python_requests
-#    mode: 775
+## CM Object Properties
 
-#- name: Common | Configure postinstall patch script
-#  copy:
-#    src: postinstall_patch
-#    dest: /host/postinstall_patch
-#    mode: 775
+# object.MustHaveEnoughResources
+- name: 'Common | Configure CM Object properties: Disable Minimum Node Count'
+  lineinfile:
+    dest: /host/cm.object.properties
+    state: present
+    regexp: '^object\.MustHaveEnoughResources=true'
+    line: 'object.MustHaveEnoughResources=false'
 
 ### Then docker cp them into the configuration container
 - name: Common | Merge configurations into configuration data container
@@ -84,29 +99,28 @@
   with_items:
     - src: /host/ssm.object.properties
       dest: /opt/storageos/conf/ssm.object.properties
-#    - src: /host/common.object.properties
-#      dest: /opt/storageos/conf/common.object.properties
-#    - src: cm.object.properties
-#      dest: /opt/storageos/conf/cm.object.properties
+    - src: /host/common.object.properties
+      dest: /opt/storageos/conf/common.object.properties
+    - src: /host/cm.object.properties
+      dest: /opt/storageos/conf/cm.object.properties
+#    - src: /host/application.conf
+#      dest: /opt/storageos/ecsportal/conf/application.conf
 #    - src: postinstall_patch
 #      dest: /etc/cron.hourly/postinstall_patch
 #    - src: setup_python_requests
 #      dest: /etc/cron.hourly/setup_python_requests
-#    - src: application.conf
-#      dest: /opt/storageos/ecsportal/conf/application.conf
 
-# Now we shouldn't have to fiddle with VNeST
 
 #- name: debug docker create ecs-storageos
 #  debug:
 #    msg: docker create --name ecs-storageos -e SS_GENCONFIG=1 --volumes-from ecs-config -v /ecs:/dae:z -v /ecs:/disks:z -v /host:/host:z -v /var/log/vipr/emcvipr-object:/var/log:z -v /data:/data:z -v {{host_cache_dir}}/ecs_python:/host/ecs_python:z -v {{entropy_source}}:/dev/random:z --net=host {{product_common_name}} && touch {{host_cache_dir}}/ecs-storageos.created creates={{host_cache_dir}}/ecs-storageos.created
 
 # Don't add a restart policy because we're using init scripts for that.
+
 #- name: Common | Create the ECS StorageOS container
 #  shell: docker create --name ecs-storageos -e SS_GENCONFIG=1 --volumes-from ecs-config -v /ecs:/dae:z -v /ecs:/disks:z -v /host:/host:z -v /var/log/vipr/emcvipr-object:/var/log:z -v /data:/data:z -v {{host_cache_dir}}/ecs_python:/host/ecs_python:z -v {{entropy_source}}:/dev/random:z --net=host {{product_common_name}} && touch {{host_cache_dir}}/ecs-storageos.created creates="{{host_cache_dir}}/ecs-storageos.created"
 
 ### And run the ECS container
-# ... bbuuuuut the docker module is currently broken, so we rolled it oldschool
 - name: Common | Create the ECS StorageOS container
   docker:
     image: "{{product_common_name}}"
@@ -123,9 +137,8 @@
       - /host:/host:z
       - /var/log/vipr/emcvipr-object:/var/log:z
       - /data:/data:z
-#      - "{{host_cache_dir}}/ecs_python:/host/ecs_python:z"
-      - "{{entropy_source}}:/dev/random:ro"
+      - "{{entropy_source}}:/dev/random:z"
     restart_policy: no
-    stop_timeout: 60
+    stop_timeout: 300
     state: present
 
