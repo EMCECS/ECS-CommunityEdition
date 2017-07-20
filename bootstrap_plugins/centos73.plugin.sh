@@ -34,7 +34,7 @@ in_prefix_packages() {
 
 # packages to install
 # list_general_packages='yum-utils git python-pip python-docker-py'
-list_general_packages='git ntp docker'
+list_general_packages='git ntp docker vim rsync pigz gdisk aria2'
 
 # script to run for installing general_packages
 in_general_packages() {
@@ -48,7 +48,7 @@ in_general_packages() {
 }
 
 # packages to install after others
-list_suffix_packages='vim htop iotop iftop jq rsync pigz gdisk aria2 python-docker-py'
+list_suffix_packages='htop iotop iftop multitail dstat jq python-docker-py'
 # list_suffix_packages='htop jq pigz gdisk aria2 python-docker-py'
 
 # script to run for installing suffix_packages
