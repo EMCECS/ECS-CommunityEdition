@@ -10,7 +10,7 @@ set -o pipefail
 # limited to the terms and conditions of the License Agreement under which
 # it is provided by or on behalf of EMC.
 
-facts="/opt/cache/facts"
+facts="/var/cache/emc/ecs-install/facts"
 host="${1}"
 
 usage() {
