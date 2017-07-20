@@ -35,6 +35,7 @@
               {% endblock %}
             {% endif %}
             {% block navbarextra %}
+              {% include "importantlinks.html" %}
             {% endblock %}
             {% if theme_source_link_position == "nav" %}
               <li class="hidden-sm">{% include "sourcelink.html" %}</li>
