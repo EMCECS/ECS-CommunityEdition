@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ecsdeploy',
-    version='2.0.3',
+    version='2.3.0',
     packages=find_packages(),
     scripts=['ui.py',
              'ecsdeploy.py',
@@ -14,7 +14,7 @@ setup(
     package_data={'': ['*.yml']},
     author="Travis Wichert @EMC",
     author_email="padthaitofuhot@users.noreply.github.com",
-    license="Multiple, https://raw.githubusercontent.com/EMCECS/ECS-CommunityEdition/master/license.txt",
+    license="Proprietary, https://raw.githubusercontent.com/EMCECS/ECS-CommunityEdition/master/license.txt",
     url='https://github.com/EMCECS/ECS-CommunityEdition',
     install_requires=[
         'Click',
