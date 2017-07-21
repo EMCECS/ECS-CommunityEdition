@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright (c) 2014 EMC Corporation
+ * All Rights Reserved
+ *
+ * This software contains the intellectual property of EMC Corporation
+ * or is licensed to EMC Corporation from third parties.  Use of this
+ * software and the intellectual property contained therein is expressly
+ * limited to the terms and conditions of the License Agreement under which
+ * it is provided by or on behalf of EMC.
+ -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:stat="http://www.emc.com/schema/stat"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util-3.0.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.emc.com/schema/stat
+    http://www.emc.com/schema/stat/stat.xsd">
+
+    <import resource="classpath:shared-threadpool-conf.xml"/>
+    <import resource="classpath:stat-client-conf.xml"/>
+    <import resource="classpath:process-statistics-conf.xml"/>
+
+    <bean id="vnest" class="com.emc.storageos.vnest.ViprNest">
+        <property name="enableStats" value="true" />
+    </bean>
+
+    <util:properties id="KeyValueQoSProperties" location="classpath:vnest.object.properties" local-override="true">
+        <prop key="qoSFailureRate">0.1</prop>
+        <prop key="qoSFailureThreshSecs">10</prop>
+        <prop key="qoSInterval">12</prop>
+        <prop key="backoffEnabled">false</prop>
+        <prop key="backoffDurationSecs">29</prop>
+        <prop key="backoffChance">0.5</prop>
+    </util:properties>
+
+    <bean id="PaxosQoS" class="com.emc.storageos.vnest.utils.RequestQoS">
+        <constructor-arg name="id" value="PaxosQoS"/>
+        <constructor-arg name="qoSFailureRate" value="0.1"/>
+        <constructor-arg name="qoSFailureThreshSecs" value="10"/>
+        <constructor-arg name="qoSInterval" value="12"/>
+    </bean>
+
+    <bean id="keyStats" class="com.emc.storageos.data.object.utils.KeyStats"/>
+
+
+    <!--
+        background threads that cleanup stale paxos tasks
+        to have more threads, separate tasksToHandle with their own config, add to taskMaintenanceList
+        each maintenance thread can handle >= 1 task types so can have between 1-4 threads
+        do not duplicate tasksToHandle
+    -->
+    <bean id="taskProperties" class="com.emc.storageos.data.object.directoryService.impl.scanner.PaxosTaskMaintenanceConfig">
+        <constructor-arg name="tasksToHandle" value="Commit,Elect,Delete,Purge"/>
+        <constructor-arg name="idleMs" value="120000"/>
+        <constructor-arg name="throttleMs" value="0"/>
+        <constructor-arg name="expirationMs" value="60000"/>
+        <constructor-arg name="expirationGuardMs" value="240000"/>
+    </bean>
+
+    <util:list id="taskMaintenanceList">
+        <ref bean="taskProperties"/>
+    </util:list>
+    <!-- end paxos task maintenance -->
+
+
+
+    <bean id="viprNestServer" class="com.emc.storageos.vnest.ViprNestServer">
+    </bean>
+
+    <bean id="internalViprNestClient" class="com.emc.storageos.vnest.client.InternalViprNestClient"/>
+
+    <bean id="vNestUtil" class="com.emc.storageos.vnest.utils.VNestUtil"/>
+
+    <bean id="scannerProperties" class="com.emc.storageos.data.object.impl.ScannerProperties"/>
+
+    <bean id="communicatorThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="COMMUNICATOR"/>
+        <constructor-arg name="corePoolSize" value="100"/>
+        <constructor-arg name="maxPoolSize" value="400"/>
+        <constructor-arg name="queueSize" value="200"/>
+        <constructor-arg name="parallelism" value="300"/>
+        <constructor-arg name="attachFiberScheduler" value="true"/>
+    </bean>
+
+    <bean id="taskScheduler" class="com.emc.storageos.data.object.impl.TaskScheduler">
+        <constructor-arg name="numParallelThreads" value="60"/>
+        <constructor-arg name="maxParallelThreads" value="60"/>
+        <constructor-arg name="name" value="vnest"/>
+        <property name="threadPoolConfigs">
+            <list>
+                <ref bean="defaultBackgroundOperation"/>
+                <ref bean="bfwThreadPoolConfig"/>
+                <ref bean="clientSealChunkThreadPoolConfig"/>
+                <ref bean="chunkPrefetchHintRefresherThreadPoolConfig"/>
+                <ref bean="communicatorThreadPoolConfig"/>
+                <ref bean="nonBlockCommunicatorThreadPoolConfig"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="routingClientProperties" class="com.emc.storageos.data.object.directoryclient.RoutingClientProperties"/>
+
+    <bean id="bufferManager" class="com.emc.storageos.data.object.impl.buffer.BufferManagerImpl"/>
+    <!--
+        <bean id="bufferManager" class="com.emc.storageos.data.object.impl.buffer.NettyBufferManager"/>
+        <bean id="nettyProperties" class="com.emc.storageos.data.object.impl.buffer.NettyProperties"/>
+    -->
+
+    <bean id="dtProperties" class="com.emc.storageos.data.object.impl.DTProperties"/>
+
+    <bean id="clientProperties" class="com.emc.storageos.data.object.client.utils.ClientProperties"/>
+
+    <bean id="writerUtils" class="com.emc.storageos.data.object.client.WriterUtils">
+        <constructor-arg value="false"/> <!-- isRepoWriterNeeded -->
+        <constructor-arg value="true"/> <!-- isJournalWriterNeeded -->
+        <constructor-arg value="false"/> <!-- isIndexWriterNeeded -->
+        <property name="objectBufferManager">
+            <bean class="com.emc.storageos.data.object.impl.buffer.BufferManagerImpl">
+                <constructor-arg name="totalBufferNumOffHeap" value="3"/>
+                <constructor-arg name="initialBufferNumOnHeap" value="3"/>
+                <constructor-arg name="bufferManagerName" value="objectBufferManager"/>
+            </bean>
+        </property>
+    </bean>
+
+
+    <bean id="chunkClient" class="com.emc.storageos.vnest.storage.LocalChunkClient"/>
+
+    <bean id="ioUtil" class="com.emc.storageos.data.object.client.utils.IOUtil"/>
+
+    <bean id="tempFailedZoneObserver" class="com.emc.storageos.data.object.devicescanner.TempFailedZoneObserver"/>
+
+    <bean id="deviceControllerHelper" class="com.emc.storageos.data.object.controller.util.DeviceControllerHelper">
+        <property name="deviceControllers">
+            <map>
+                <entry key="Commodity" value="ssDeviceController"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="journalPreAllocatorWorker" class="com.emc.storageos.vnest.utils.JournalPreAllocatorWorker"/>
+
+    <bean id="localChunkIOUtil" class="com.emc.storageos.vnest.utils.LocalChunkIOUtil"/>
+
+    <bean id="objectCache" class="com.emc.storageos.data.object.controller.util.ObjectCache"/>
+
+    <bean id="ssDeviceController" class="com.emc.storageos.data.object.controller.impl.VNestDeviceController" scope="prototype"/>
+
+    <util:properties id="serviceProperties" location="classpath:systemsvc.object.properties" local-override="true">
+        <prop key="object.NumTreeWriters">1</prop>
+        <prop key="object.TreeWriteType">VNEST_INDEX</prop>
+        <prop key="object.UseSeparateThreadPools">true</prop>
+    </util:properties>
+
+
+    <util:properties id="objectProperties" location="classpath:shared.object.properties" local-override="true">
+        <prop key="object.BTreeRecordCacheStats">true</prop>
+        <!-- percentage of heap memory allocated for reader cache -->
+        <prop key="object.BTreeReadCacheSizePercentage">100</prop>
+        <prop key="object.BTreeCachedKeyEnabled">false</prop>
+        <prop key="object.NumDTWriters">1</prop>
+        <prop key="object.PaxosFutureTimeoutMillis">10000</prop>
+        <prop key="object.PaxosElectTaskFutureTimeoutMillis">10000</prop>
+        <prop key="object.PaxosRetryMax">1</prop>
+        <prop key="object.PaxosNotifyMax">1</prop>
+        <prop key="object.PaxosCommitNotificationAttempt">1</prop>
+        <prop key="object.PaxosRetrySleepMillis">2000</prop>
+        <prop key="object.PaxosAbortDelayMillis">30000</prop>
+        <prop key="object.PaxosSingleZoneAbortDelayMillis">60000</prop>
+        <prop key="object.PaxosCoreThreads">1</prop>
+        <prop key="object.PaxosScheduledTaskThreads">100</prop>
+        <prop key="object.PaxosImmediateTaskThreads">200</prop>
+        <prop key="object.PaxosScannerTaskThreads">300</prop>
+        <prop key="object.PaxosSharedGPBRequests">true</prop>
+        <prop key="object.PaxosUseNewParser">true</prop>
+        <prop key="object.WorkerGroupThreads">50</prop>
+        <prop key="object.ExternalAsyncGroupThreads">1500</prop>
+        <prop key="object.InternalAsyncGroupThreads">1000</prop>
+        <prop key="object.vNestEventLoopGroupThreads">50</prop>
+        <prop key="object.vNestMaxConnectionsPerAddress">5</prop>
+        <prop key="object.vNestConnectionTimeoutMs">10000</prop>
+        <prop key="object.vNestIORatio">80</prop>
+        <prop key="object.PaxosTaskScannerIdleMillis">5000</prop>
+        <prop key="object.PaxosTaskScannerExpireTime">60000</prop>
+        <prop key="object.PaxosMaxFailedDeleteTasks">200</prop>
+        <prop key="object.PaxosTaskScannerDelayMillis">60000</prop>
+        <prop key="object.PaxosTaskScannerDynamicPrefixStartRangeOffsetMs">2000</prop>
+        <prop key="object.PaxosTaskDTListMaxEntries">200</prop>
+        <prop key="object.PaxosMaxTasks">2000</prop>
+        <prop key="object.PaxosUseDynamicRange">true</prop>
+        <prop key="object.KeyConsistencyScannerEnabled">true</prop>
+    </util:properties>
+
+
+    <util:properties id="directoryProperties" location="classpath:shared.object.properties"/>
+
+    <util:properties id="vNestObjectProperties" location="classpath:vnest.object.properties" />
+
+    <bean id="vNestProperties" class="com.emc.storageos.vnest.utils.VNestProperties"/>
+
+    <bean id="paxosClientProperties" class="com.emc.storageos.data.object.directoryService.PaxosClientProperties"/>
+
+    <bean id="paxosClient" class="com.emc.storageos.vnest.client.VNestPaxosClientImpl">
+        <constructor-arg ref="paxosClientProperties"/>
+        <constructor-arg ref="taskScheduler"/>
+    </bean>
+
+    <bean id="directoryClient" class="com.emc.storageos.vnest.client.VNestPaxosDirectoryClientImpl"/>
+
+    <bean id="paxosOperations" class="com.emc.storageos.data.object.directoryService.impl.PaxosOperations"/>
+
+    <bean id="zoneScanner" class="com.emc.storageos.vnest.client.TempZoneScannerImpl"/>
+
+    <bean id="configuration" class="com.emc.storageos.vnest.configuration.impl.ConfigurationImpl">
+        <constructor-arg name="vNestProperties" ref="vNestProperties"/>
+    </bean>
+
+    <bean id="btreeProperties" class="com.emc.storageos.data.object.btree.BTreeProperties"/>
+
+
+    <bean id="basicCommunicationClient" class="com.emc.storageos.data.object.communicator.impl.BasicCommunicationClient"/>
+
+    <bean id="viprNestBcastWorker" class="com.emc.storageos.vnest.ViprNestBcastWorker">
+        <constructor-arg name="nodeAddressMap" ref="nodeAddressMap"/>
+        <constructor-arg name="vNestProperties" ref="vNestProperties"/>
+        <constructor-arg name="routingClientBase" ref="nettyRoutingClient"/>
+        <constructor-arg name="configuration" ref="configuration"/>
+        <constructor-arg name="vNestUtil" ref="vNestUtil"/>
+        <constructor-arg name="viprNestClient" ref="viprNestClient"/>
+    </bean>
+
+
+    <bean id="coordServerScanner" class="com.emc.storageos.vnest.scanner.CoordServerScanner">
+        <constructor-arg name="nodeAddressMap" ref="nodeAddressMap"/>
+        <constructor-arg name="vNestProperties" ref="vNestProperties"/>
+        <constructor-arg name="basicCommunicationClient" ref="nettyRoutingClient"/>
+        <constructor-arg name="configuration" ref="configuration"/>
+        <constructor-arg name="vNestUtil" ref="vNestUtil"/>
+        <constructor-arg name="viprNestClient" ref="viprNestClient"/>
+    </bean>
+
+    <bean id="vNestOperationsScanner" class="com.emc.storageos.vnest.scanner.ViprNestOperationsScanner">
+        <constructor-arg name="vNestProperties" ref="vNestProperties"/>
+    </bean>
+
+    <bean id="heartBeat" class="com.emc.storageos.vnest.monitor.HeartBeat"/>
+
+    <bean id="heartBeatWorker" class="com.emc.storageos.vnest.monitor.HeartBeatMonitor">
+        <constructor-arg name="vNestProperties" ref="vNestProperties"/>
+    </bean>
+
+    <bean id="clientHeartBeat" class="com.emc.storageos.vnest.monitor.ClientHeartBeatImpl"/>
+
+
+    <bean id="reconfiguration" class="com.emc.storageos.vnest.reconfiguration.Reconfiguration"/>
+
+    <bean id="leaderElection" class="com.emc.storageos.vnest.reconfiguration.LeaderElection"/>
+
+    <bean id="serverState" class="com.emc.storageos.vnest.common.ServerState"/>
+
+    <bean id="groupMemberBootstrap" class="com.emc.storageos.vnest.bootstrap.GroupMemberBootstrap"/>
+
+    <bean id="kvApplication" class="com.emc.storageos.data.security.object.impl.ApiApplication">
+        <property name="application" ref="kvApp" />
+        <property name="threadPool" ref="kvThreadPool"/>
+        <property name="unsecuredConnector" ref="kvUnsecuredConnector"/>
+        <property name="minUnsecurePort" value="#{sharedPortsConfig.vnestMinUnsecurePort}" />
+        <property name="minSecurePort" value="#{sharedPortsConfig.vnestMinSecurePort}"/>
+        <property name="portListLength" value="1"/>
+        <property name="disableSSL" value="true"/>
+        <property name="favicon" value="true"/>
+        <property name="lowResourcesConnections" value="1000"/>
+        <property name="lowResourcesMaxIdleTime" value="3000"/>
+        <property name="outputBufferSize" value="32768"/>
+        <property name="requestHeaderSize" value="8192"/>
+        <property name="responseHeaderSize" value="8192"/>
+        <property name="headerCacheSize" value="512"/>
+    </bean>
+
+    <bean id="kvApp" class="com.emc.storageos.api.service.impl.resource.StorageApplication">
+        <property name="resource">
+            <set>
+                <bean class="com.emc.storageos.vnest.rest.BootStrapIndexService"/>
+                <bean class="com.emc.storageos.vnest.rest.BootStrapReplayChunkService"/>
+                <bean class="com.emc.storageos.vnest.rest.KeyValueService"/>
+                <bean class="com.emc.storageos.vnest.rest.GroupMembershipService"/>
+                <bean class="com.emc.storageos.vnest.rest.ConfigurationService"/>
+                <bean class="com.emc.storageos.vnest.rest.DiagnosticService"/>
+            </set>
+        </property>
+    </bean>
+
+    <bean id="kvThreadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
+        <property name="minThreads" value="8"/>
+        <property name="maxThreads" value="1000"/>
+    </bean>
+
+    <bean id="kvServer" class="org.eclipse.jetty.server.Server">
+        <constructor-arg type="org.eclipse.jetty.util.thread.ThreadPool" ref="kvThreadPool"/>
+    </bean>
+
+    <bean id="kvUnsecuredConnector" class="org.eclipse.jetty.server.ServerConnector">
+        <constructor-arg type="org.eclipse.jetty.server.Server" ref="kvServer"/>
+        <constructor-arg type="int" value="7"/> <!--acceptors  -->
+        <constructor-arg type="int" value="-1"/> <!--selectors  -->
+        <property name="acceptQueueSize" value="7"/>
+        <!-- property name="resolveNames" value="false"/need to find Jetty9 equivalent for this-->
+        <property name="idleTimeout" value="60000"/>
+        <!-- property name="requestBufferSize" value="10000"/need to find Jetty9 equivalent for this-->
+     </bean>
+
+    <bean id="securityDisabler" class="com.emc.storageos.data.security.SecurityDisabler"/>
+
+    <bean id="nettyServer" class="com.emc.storageos.vnest.service.VNestNettyServer"/>
+
+    <bean id="vNestNettyServerHelper" class="com.emc.storageos.vnest.service.VNestNettyServerHelper"/>
+
+    <bean id="nettyRoutingClientHelper" class="com.emc.storageos.netty.client.NettyRoutingClientHelper"/>
+
+    <bean id="nettyRoutingClient" class="com.emc.storageos.netty.client.NettyRoutingClient">
+        <constructor-arg value="Internal"/>
+        <constructor-arg value="${network_ipaddr}"/>
+        <constructor-arg ref="nettyRoutingClientHelper"/>
+        <!--property name="localRequestHandler" ref="requestHandler"/-->
+    </bean>
+
+    <bean id="requestHandler" class="com.emc.storageos.vnest.service.CompositeRequestHandler">
+        <property name="handlerList">
+            <list>
+                <bean class="com.emc.storageos.vnest.service.resource.PaxosRequestHandler"/>
+                <bean class="com.emc.storageos.vnest.service.resource.KeyValueRequestHandler"/>
+                <bean class="com.emc.storageos.vnest.service.resource.BootstrapRequestHandler"/>
+                <bean class="com.emc.storageos.vnest.service.resource.ConfigurationRequestHandler"/>
+                <bean class="com.emc.storageos.vnest.service.resource.DiagnosticRequestHandler"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="localRmClient" class="com.emc.storageos.vnest.common.LocalRmClient"/>
+
+    <bean id="viprNestClient" class="com.emc.storageos.vnestclient.ViprNestClient"/>
+
+    <bean id="objectLockUtil" class="com.emc.storageos.data.object.utils.ObjectLockUtil"/>
+
+    <bean id="nodeAddressMap" class="com.emc.storageos.vnest.NodeAddressMap"/>
+
+    <bean id="communicatorProperties" class="com.emc.storageos.data.object.communicator.impl.CommunicatorProperties">
+        <property name="asyncRequests">
+            <set>
+                <!--paxos requests-->
+                <value>REQUEST_PAXOS_ACCEPT</value>
+                <value>REQUEST_PAXOS_COMMIT</value>
+                <value>REQUEST_PAXOS_QUERY</value>
+                <value>REQUEST_PAXOS_BULK_QUERY</value>
+                <value>REQUEST_PAXOS_LIST</value>
+                <value>REQUEST_PAXOS_READ</value>
+                <value>REQUEST_PAXOS_ELECT</value>
+                <value>REQUEST_PAXOS_ABORT</value>
+                <value>REQUEST_PAXOS_INITIATE_ABORT</value>
+                <value>REQUEST_PAXOS_DELETE_COMPLETE</value>
+                <value>REQUEST_PAXOS_DELETE</value>
+                <value>REQUEST_PAXOS_INSERT_TASK</value>
+                <!--keyvalue requests-->
+                <value>REQUEST_INSERT_ENTRY</value>
+                <value>REQUEST_INSERT_ENTRY_IF_ABSENT</value>
+                <value>REQUEST_GET_ENTRY</value>
+                <value>REQUEST_REMOVE_ENTRY</value>
+                <value>REQUEST_LIST_ENTRY</value>
+                <value>REQUEST_BATCH_EXEC_ENTRY</value>
+                <!--bootstrap requests-->
+                <value>REQUEST_GROUPMEMBER_PRE_BOOTSTRAP</value>
+                <!--configuration requests-->
+                <value>REQUEST_UPDATE_VNEST_CONFIG</value>
+                <value>REQUEST_GET_DATANODES</value>
+                <value>REQUEST_GET_DATANODE_INFO</value>
+                <value>REQUEST_UPDATE_DATANODES</value>
+                <value>REQUEST_GET_GROUPMEMBERSHIP</value>
+                <value>REQUEST_UPDATE_ZK_ENSEMBLE</value>
+                <value>REQUEST_ENABLE_NEST_DIAGNOSTIC</value>
+                <!--diagnostic requests-->
+                <value>REQUEST_CHECK_NODE</value>
+                <value>REQUEST_CHANGE_LOG_LEVEL</value>
+            </set>
+        </property>
+    </bean>
+
+    <bean id="communicator" class="com.emc.storageos.data.object.communicator.impl.CommunicationManager">
+        <constructor-arg value="#{storageProcessPortsConfig['port.vnest']}"/>
+    </bean>
+    <bean id="statClient" class="com.emc.storageos.data.statclient.StatisticClientImpl">
+        <constructor-arg name="rootGroupTemplate" ref="vnestStat"/>
+    </bean>
+
+    <bean id="processMonitor" class="com.emc.storageos.data.object.utils.ProcessMonitor" scope="singleton">
+        <property name="enableStatsCollection" value="true"/>
+    </bean>
+
+    <stat:group id="vnestStat" description="VNEST statistics"/>
+
+    <bean class="com.emc.storageos.data.object.ownership.impl.InterestedDirectoryTypesProviderStub"/>
+
+    <!-- vnest uses BFW which needs ConfigClient -->
+    <bean id="servicePrefix" class="java.lang.String">
+        <constructor-arg value="vnest"/>
+    </bean>
+    <import resource="classpath:shared-cf-conf.xml"/>
+    <import resource="classpath:dynamicconfig-shared-conf.xml"/>
+
+</beans>
+
