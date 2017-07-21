@@ -30,19 +30,6 @@ It takes roughly 30 minutes to get the system provisioned for Step2. ECS
 creates Storage Pools, Replication Groups with the attached disks. If
 Step2 is successful, you should see something along these lines.
 
-Adding a Secret Key for a user
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Set the user and the key that needs to be used and execute the command.
-For example:
-
-User: emccode SecretKey: UORQB9Xxx8OKmjplSgKHRIPeeWcR2bbiagC5/xT+Add
-secret
-
-Executing REST API command:
-
-``curl -s -k -X GET -H 'Content-Type:application/json'     -H 'X-SDS-AUTH-TOKEN: BAAca1B6WUJ2Q2hFeUZWSkczNXFIT0I0LzA1SHg4PQMAQQIADTE0MzQ4Njk5Mjc0NzIDAC51cm46VG9rZW46ZWVlNGEwMDEtYzkyOC00ZTIyLTlkMzQtYmE0NWU2N2E4MmM4AgAC0A8='     -H 'ACCEPT:application/json'      https://23.99.93.171:9011/object/user-secret-keys/emccode  {"secret_key_1":"UORQB9Xxx8OKmjplSgKHRIPeeWcR2bbiagC5/xT+","key_timestamp_1":"2015-06-21 07:31:48.515","key_expiry_timestamp_1":"","secret_key_2":"","key_timestamp_2":"","key_expiry_timestamp_2":"","link":{"rel":"self","href":"/object/secret-keys"}}``
-
 Checking Step 2 Object provisioning progress
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -70,20 +57,6 @@ If your docker instance immediately exits when started, please ensure
 that the entries in ``/etc/hosts`` on the host system and
 ``network.json`` in the install directory are correct (the latter should
 reflect the host's public IP and the corresponding network adapter).
-
-Restoring ECS after host shutdown/restart
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In the case that the ECS Community Edition container does not
-automatically start on boot, you can bring it up manually by ensuring
-that docker is running (``service docker start``) and issuing a start
-command for the container (``docker start <container-id>``, where the
-container-ID is ``ecsstandalone`` or ``ecsmultinode``, viewable via the
-command ``sudo docker ps -a``).
-
-Ensure that the Docker container restores itself on boot by executing
-the following: ``systemctl enable docker.service``
-``echo "docker start <container-id>" >>/etc/rc.local``
 
 ECS web portal will not start
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -278,6 +251,21 @@ following command: ``ip a``. This command will output a list of network
 devices. Simply find the corresponding device and substitute it for eth0
 in the stage1 installation script.
 
+Port Conflicts
+~~~~~~~~~~~~~~
+
+It is possible that on multinode installations ECS may run into a port
+conflict. So far there exists a port conflict with the following:
+
+-  ScaleIO - Ports: 9011, 9099
+
+In these instances the user can attempt to:
+
+1. Enter the container
+2. Change all instances of the conflicting ports to unused ports in
+   ``/opt/storageos/conf``
+3. Reboot the nodes after altering the conf file.
+
 List of open ports required on each ECS data node
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -295,8 +283,6 @@ service and permanently open necessary ports. In the case of a failure
 in this setup referencing ``iptables``, please ensure that your docker
 network bridge is running and installed using
 ``yum install bridge-utils``.
-
-In the case of a multiple node configuration, you may
 
 +----------------------------------+
 | Port Name-Usage=Port Number      |

@@ -10,7 +10,7 @@ Listed below are all necessary components for a successful ECS Community Edition
 
 The installation process is designed to be performed from either a dedicated installation node. However, it is possible, if you so choose, for one of the ECS data nodes to double as the install node.  The install node will bootstrap the ECS data nodes and configure the ECS instance. When the process is complete, the install node may be safely destroyed. Both single node and multi-node deployments require only a single install node.
 
-The technical requirements for this machine are minimal, but reducing available CPU, memory, and IO throughput will adversely affect the speed of the installation process:
+The technical requirements for the installation node are minimal, but reducing available CPU, memory, and IO throughput will adversely affect the speed of the installation process:
 
 * 1 CPU Core
 * 2 GB Memory
