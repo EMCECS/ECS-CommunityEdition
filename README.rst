@@ -144,8 +144,7 @@ If you prefer to download a prefab Install Node as an OVF/OVA, follow
 one of the links below. Please note that OVAs are produced upon each
 release and do not necessarily have the most current software.
 
--  `dellemc-ecsce-2.0.2-beta.ova <http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova>`__
--  `dellemc-ecsce-2.0.2-beta.ova.xz <http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-2.0.2-beta.ova.xz>`__
+-  `dellemc-ecsce-3.0.0.2-install-node-2.3.0-vm0.ova <http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.2-install-node-2.3.0-vm0.ova>`__
 
 `ECS Multi-Node Deployment with Install Node (recommended, most reusable, full-featured) <http://ecsce.readthedocs.io/en/latest/installation/ECS-Installation.html>`__
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
