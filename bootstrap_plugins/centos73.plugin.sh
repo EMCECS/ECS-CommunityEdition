@@ -71,7 +71,7 @@ in_vm_packages() {
 
 # command to install one or more os package manager package
 in_repo_pkg() {
-    while ! sudo yum -y install $*; do
+    while ! sudo yum -y install $* --skip-broken; do
         sleep 1
     done
 }
