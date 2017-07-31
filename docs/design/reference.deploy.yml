@@ -47,7 +47,7 @@ facts:
     #    /opt/emc/ecs-install/ssh/
     # The above directory must have the permissions: 0700
     # This file must have the permissions: 0600
-    ssh_private_key: id_ed25519
+    ssh_private_key: id_rsa
     # [Optional for initial SSH public key auth;
     #  Required for initial password auth]
     # The name of a file containing the OpenSSH Public Key portion of
@@ -57,7 +57,7 @@ facts:
     #    $HOME/.ssh/
     # The above directories must have the permissions: 0700
     # This file must have the permissions: 0600
-    ssh_public_key: id_ed25519.pub
+    ssh_public_key: id_rsa.pub
     # [Optional]
     # Select the type of crypto to use when generating SSH keypairs for
     # ssh public key authentication. Valid values here are:
