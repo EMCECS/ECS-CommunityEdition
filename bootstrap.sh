@@ -18,77 +18,82 @@ set -o pipefail
 # installer system.                                                        #
 ############################################################################
 
-### How to
+### Usage
 # TODO: Add GitHub URLs to help text (bottom)
 usage() {
     log "providing usage info"
 cat <<EOH | more
-
 [Usage]
- -h              This help text
+ -h, --help
+    Display this help text and exit
+ --help-build
+    Display build environment help and exit
+ --version
+    Display version information and exit
 
 [General Options]
- -y / -n         Assume YES or NO to any questions (may be dangerous).
-
- -v / -q         Be verbose (also show all logs) / Be quiet (only show necessary output)
-
- -c <deploy.yml> If you have a deploy.yml ready to go, use this.
-
- -o <ns1[,ns2,]> Override DHCP-configured nameserver(s); use these instead. No spaces!
-
- -g              Install virtual machine guest agents and utilities for QEMU and VMWare.
-                 VirtualBox is not supported at this time.
-
- -m <mirror>     Use the provided package <mirror> when fetching packages for the
-                 base OS (but not 3rd-party sources, such as EPEL or Debian-style PPAs).
-                 The mirror is specified as '<host>:<port>'. This option overrides any
-                 mirror lists the base OS would normally use AND supersedes any proxies
-                 (assuming the mirror is local), so be warned that when using this
-                 option it's possible for bootstrapping to hang indefinitely if the
-                 mirror cannot be contacted.
-
- -b <mirror>     Build the installer image (ecs-install) locally using the Alpine Linux
-                 <mirror> URL instead of pulling the current release build from DockerHub.
-                 WARNING: This is not recommended.
+ -y / -n
+    Assume YES or NO to any questions (may be dangerous).
+ -v / -q
+    Be verbose (also show all logs) / Be quiet (only show necessary output)
+ -c FILE
+    If you have a deploy.yml ready to go, give its path to this arg.
+ -o, --override-dns NS1,NS2,NS*
+    Override DHCP-configured nameserver(s); use these instead. No spaces! Use of -o is deprecated, please use --override-dns.
+ -g, --vm-tools
+    Install virtual machine guest agents and utilities for QEMU and VMWare. VirtualBox is not supported at this time. Use of -g is deprecated, please use --vm-tools.
+ -m, --centos-mirror URL
+    Use the provided package <mirror> when fetching packages for the base OS (but not 3rd-party sources, such as EPEL or Debian-style PPAs). The mirror is specified as '<host>:<port>'. This option overrides any mirror lists the base OS would normally use AND supersedes any proxies (assuming the mirror is local), so be warned that when using this option it's possible for bootstrapping to hang indefinitely if the mirror cannot be contacted. Use of -m is deprecated, please use --centos-mirror.
 
 [Docker Options]
- -r <registry>   Use the Docker registry at <registry> instead of DockerHub.
-                 The connect string is specified as '<host>:<port>[/<username>]'
-                 You may be prompted for your credentials if authentication is required.
-                 You may need to use -d (below) to add the registry's cert to Docker.
+ -r, --registry-endpoint REGISTRY
+    Use the Docker registry at REGISTRY instead of DockerHub. The connect string is specified as '<host>:<port>[/<username>]'. You may be prompted for your credentials if authentication is required. You may need to use -d (below) to add the registry's cert to Docker. Use of -r is deprecated, please use --registry-endpoint.
 
- -l              After Docker is installed, login to the Docker registry to access images
-                 which require access authentication. Login to Dockerhub by default unless
-                 -r is used.
+ -l, --registry-login
+    After Docker is installed, login to the Docker registry to access images which require access authentication. This will authenticate with Dockerhub unless --registry-endpoint is also used. Use of -l is deprecated, please use --registry-login.
 
- -d <x509.crt>   NOTE: This does nothing unless -r is also given.
-                 If an alternate Docker registry was specified with -r and uses a cert
-                 that cannot be resolved from the anchors in the local system's trust
-                 store, then use -d to specify the x509 cert file for your registry.
+ -d, --registry-cert FILE
+    [Requires --registry-endpoint] If an alternate Docker registry was specified with -r and uses a cert that cannot be resolved from the anchors in the local system's trust store, then use -d to specify the x509 cert file for your registry.
 
 [Proxies & Middlemen]
- -k <x509.crt>   Install the certificate in <file> into the local trust store. This is
-                 useful for environments that live behind a corporate HTTPS proxy.
-
- -p <proxy>      Use the <proxy> specified as '[user:pass@]<host>:<port>'
-                 items in [] are optional. It is assumed this proxy handles all protocols.
-
- -t <connect>    Attempt to CONNECT through the proxy using the <connect> string specified
-                 as '<host>:<port>'. By default 'google.com:80' is used. Unless you block
-                 access to Google (or vice versa), there's no need to change the default.
+ -p, --proxy-endpoint PROXY
+    Connect to the Internet via the PROXY specified as '[user:pass@]<host>:<port>'. Items in [] are optional. It is assumed this proxy handles all protocols.  Use of -p is deprecated, please use --proxy-endpoint.
+ -k, --proxy-cert FILE
+    Install the certificate in <file> into the local trust store. This is useful for environments that live behind a corporate HTTPS proxy.  Use of -k is deprecated, please use --proxy-cert.
+ -t, --proxy-test-via HOSTSPEC
+    [Requires --proxy-endpoint] Test Internet connectivity through the PROXY by connecting to HOSTSPEC. HOSTSPEC is specified as '<host>:<port>'. By default 'google.com:80' is used. Unless access to Google is blocked (or vice versa), there is no need to change the default.
 
 [Examples]
  Install VM guest agents and install the corporate firewall cert in certs/mitm.pem.
-    $ bash bootstrap.sh -g -k certs/mitm.pem
+    $ bash bootstrap.sh --vm-tools --proxy-cert certs/mitm.pem
 
  Quietly use nlanr.peer.local on port 80 and test the connection using EMC's webserver.
-    $ bash bootstrap.sh -q -p nlanr.peer.local:80 -t emc.com:80
+    $ bash bootstrap.sh -q --proxy-endpoint nlanr.peer.local:80 -proxy-test-via emc.com:80
 
- Assume YES to all questions and use the proxy cache at cache.local port 3128 for HTTP-
- related traffic. Use the Docker registry at registry.local:5000 instead of DockerHub,
- and install the x509 certificate in certs/reg.pem into Docker's trust store so it can
- access the Docker registry.
-    $ bash bootstrap.sh -y -p cache.local:3128 -r registry.local:5000 -d certs/reg.pem
+ Assume YES to all questions. Use the CentOS mirror at http://cache.local/centos when fetching packages. Use the Docker registry at registry.local:5000 instead of DockerHub, and install the x509 certificate in certs/reg.pem into Docker's trust store so it can access the Docker registry.
+    $ bash bootstrap.sh -y --centos-mirror http://cache.local/centos --registry-endpoint registry.local:5000 --registry-cert certs/reg.pem
+
+For additional information, read the docs on GitHub.
+For additional help, please open an issue on GitHub.
+
+EOH
+}
+
+usage_build() {
+    log "providing usage info"
+cat <<EOH | more
+[Usage]
+ -h, --help
+    Display this help text and exit
+ --help-build
+    Display build environment help and exit
+ --version
+    Display version information and exit
+
+[Build Options]
+ --zero-fill-ova
+
+
 
 For additional information, read the docs on GitHub.
 For additional help, please open an issue on GitHub.
@@ -143,84 +148,143 @@ mirror_flag=false
 mirror_val=''
 zerofill_flag=false
 
+version() {
+    o " ${release_name} Install Node Bootstrap ${ver_maj}.${ver_min}.${ver_rev}${ver_tag}"
+    o " ${release_product} Image ${release_artifact}:${release_tag}"
+}
+
 ### Argue with arguments
-while getopts ":zynglqvhc:b:m:o:p:k:t:d:r:" opt; do
-  case $opt in
-    b)
-        export build_image_flag=true
-        export alpine_mirror="${OPTARG}"
-        ensure_string_matches http "${alpine_mirror}" "Requested build, but invalid APK mirror provided"
-        ;;
-    c)
-        export deploy_flag=true
-        export deploy_val="${OPTARG}"
-        ensure_file_exists "${deploy_val}" "ecs-install deployment file"
-        ;;
-    d)
-        export regcert_flag=true
-        export regcert_val="${OPTARG}"
-        ensure_file_exists "${regcert_val}" "Docker registry cert"
-        ;;
-    h)
+
+# Switched to util-linux getopt so we can use long form arguments
+if ! O=$(
+         getopt \
+         -l build-from:,deployment-map:,registry-cert:,help,proxy-cert:registry-login,centos-mirror:,override-dns:,proxy-endpoint:,registry-endpoint:,proxy-test-via:,install-vm-tools,zero-fill-ova,ssh-private-key:,ssh-public-key:,version,help-build \
+         -o c:d:hk:lm:no:r:t:gyvqz \
+         -n "${0}" \
+         -- ${@}
+        ); then
+    usage
+    exit 1
+fi
+
+eval set -- "${O}"
+
+while true; do
+  case "${1}" in
+# Usage
+    -h|--help)
         usage
         exit 1
         ;;
-    k)
-        export mitm_flag=true
-        export mitm_val="${OPTARG}"
-        ensure_file_exists "${mitm_val}" "HTTPS proxy cert"
+    --version)
+        shift
+        version
+        exit 0
         ;;
-    l)
-        export dlogin_flag=true
-        ;;
-    m)
-        export mirror_flag=true
-        export mirror_val="${OPTARG}"
-        ;;
-    n)
-        export override_flag=true
-        export override_val=false
-        ;;
-    o)
-        export dhcpdns_flag=true
-        export dhcpdns_val="${OPTARG}"
-        ;;
-    p)
-        export proxy_flag=true
-        export proxy_val="${OPTARG}"
-        ;;
-    r)
-        export registry_flag=true
-        export registry_val="${OPTARG}"
-        ;;
-    t)
-        export proxy_test_flag=true
-        export proxy_test_val="${OPTARG}"
-        ;;
-    g)
-        export vm_flag=true
-        ;;
-    y)
+# General
+    -y)
         export override_flag=true
         export override_val=true
+        shift
         ;;
-    v)
+    -n)
+        export override_flag=true
+        export override_val=false
+        shift
+        ;;
+    -v)
         export verbose_flag=true
         export quiet_flag=false
+        shift
         ;;
-    q)  export quiet_flag=true
+    -q)
+        export quiet_flag=true
         export verbose_flag=false
+        shift
         ;;
-    z)
+# Configuration
+    -c|--deployment-map)
+        export deploy_flag=true
+        export deploy_val="${2}"
+        ensure_file_exists "${deploy_val}" "ecs-install deployment file"
+        shift 2
+        ;;
+    --ssh-private-key)
+        export ssh_private_key_flag=true
+        export ssh_private_key_val="${2}"
+        shift
+        ;;
+    --ssh-public-key)
+        export ssh_public_key_flag=true
+        export ssh_public_key_val="${2}"
+        shift
+        ;;
+    -m|--centos-mirror)
+        export mirror_flag=true
+        export mirror_val="${2}"
+        shift 2
+        ;;
+    -o|--override-dhcp-dns)
+        export dhcpdns_flag=true
+        export dhcpdns_val="${2}"
+        shift 2
+        ;;
+    -g|--install-vm-tools)
+        export vm_flag=true
+        shift
+        ;;
+# HTTP Proxy
+    -p|--proxy-endpoint)
+        export proxy_flag=true
+        export proxy_val="${2}"
+        shift 2
+        ;;
+    -k|--proxy-cert)
+        export mitm_flag=true
+        export mitm_val="${2}"
+        ensure_file_exists "${mitm_val}" "HTTPS proxy cert"
+        shift 2
+        ;;
+    -t|--proxy-test-via)
+        export proxy_test_flag=true
+        export proxy_test_val="${2}"
+        shift 2
+        ;;
+# Docker Registry
+    -r|--registry-endpoint)
+        export registry_flag=true
+        export registry_val="${2}"
+        shift 2
+        ;;
+    -l|--registry-login)
+        export dlogin_flag=true
+        shift
+        ;;
+    -d|--registry-cert)
+        export regcert_flag=true
+        export regcert_val="${2}"
+        ensure_file_exists "${regcert_val}" "Docker registry cert"
+        shift 2
+        ;;
+# Build Tools
+    --zero-fill-ova)
         export zerofill_flag=true
+        shift
         ;;
-    \?)
-        usage
-        die "Invalid option: -$OPTARG"
+    --build-from)
+        export build_image_flag=true
+        export alpine_mirror="${2}"
+        ensure_string_matches http "${alpine_mirror}" "Requested build, but invalid APK mirror provided"
+        shift 2
         ;;
-    :)
+    --)
+        shift
+        break
+        ;;
+    *)
+        shift
         usage
-        die "Option -$OPTARG requires an argument."
+        die "Invalid option: -${2}"
         ;;
   esac
 done
@@ -229,8 +293,7 @@ done
 ##############################################################################
 ### Main
 o ""
-o " ${release_name} Install Node Bootstrap ${ver_maj}.${ver_min}.${ver_rev}${ver_tag}"
-o " ${release_product} Image ${release_artifact}:${release_tag}"
+version
 o "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
 ### No arguments given.. are you sure?
