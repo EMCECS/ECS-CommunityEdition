@@ -710,7 +710,7 @@ if get_os_needs_restarting; then
 fi
 
 if $zerofill_flag; then
-    sudo /root/zerofill.sh
+    sudo "$INSTALL_ROOT/tools/zerofill.sh"
 fi
 
 ### finish up and reset sudo timestamp
