@@ -1,12 +1,14 @@
 # ECS Community Edition Installation
 
+## Standard Installation
+
 ECS Community Edition now features a brand new installer. This installer aims to greatly improve user experience through automation. This document will guide the user through the new installation process.
 
-## Prerequisites
+### Prerequisites
 
 Listed below are all necessary components for a successful ECS Community Edition installation. If they are not met the installation will likely fail.
 
-### Hardware Requirements
+#### Hardware Requirements
 
 The installation process is designed to be performed from either a dedicated installation node. However, it is possible, if you so choose, for one of the ECS data nodes to double as the install node.  The install node will bootstrap the ECS data nodes and configure the ECS instance. When the process is complete, the install node may be safely destroyed. Both single node and multi-node deployments require only a single install node.
 
@@ -35,7 +37,7 @@ The recommended technical requirements for each ECS data node are:
 
 For multi-node installations each data node must fulfill these minimum qualifications. The installer will do a pre-flight check to ensure that the minimum qualifications are met. If they are not, the installation will not continue.
 
-### Environmental Requirements
+#### Environmental Requirements
 
 The following environmental requirements must also be met to ensure a successful installation:
 
@@ -43,11 +45,11 @@ The following environmental requirements must also be met to ensure a successful
 * **Remote Access:** Installation is coordinated via Ansible and SSH. However, public key authentication during the initial authentication and access configuration is not yet supported.  Therefore, password authentication must be enabled on all nodes, including install node and ECS data node(s).  *This is a known issue and will be addressed in a future release*
 * **OS:** CentOS 7 Minimal installation (ISO- and network-based minimal installs are equally supported)
 
-### All-in-One Single-Node Deployments
+#### All-in-One Single-Node Deployments
 
 A single node *can* successfully run the installation procedure on itself. To do this simply input the node's own IP address as the installation node as well as the data node in the deploy.yml file.
 
-## 1. Getting Started
+### 1. Getting Started
 
 Please use a non-root administrative user account with sudo privileges on the Install Node when performing the deployment.  If deploying from the provided OVA, this account is username `admin` with password `ChangeMe`.
 
@@ -64,16 +66,16 @@ If the repository is being added to the machine via usb drive, scp, or some othe
 ###### Important Note
 > This documentation refers only to the `ECS-CommunityEdition` directory, but the directory created when unarchiving the release archive may have a different name than `ECS-CommunityEdition`.  If this is so, please rename the directory created to `ECS-CommunityEdition` with the `mv` command.  This will help the documentation make sense as you proceed with the deployment.
 
-## 2. Creating The Deployment Map (`deploy.yml`)
+### 2. Creating The Deployment Map (`deploy.yml`)
 ###### Important Note
 > When installing using the OVA method, please run `videploy` at this time and skip to Step 2.2.
 
 Installation requires the creation of a deployment map. This map is represented in a YAML configuration file called deploy.yml. This file *should* be written before the next step for the smoothest experience.
 
-#### 2.1
-Create this file in the `ECS-CommunityEdition` directory that was created when the repository was cloned. A template guide for writing this file can be found [here](deploy.yml.rst).
+##### 2.1
+Create this file in the `ECS-CommunityEdition` directory that was created when the repository was cloned. A template guide for writing this file can be found [here](deploy.yml.html).
 
-#### 2.2
+##### 2.2
 Below are steps for creating a basic deploy.yml. **Please note that all fields mentioned below are required for a successful installation.**
 
 0. From the ECS-CommunityEdition directory, run the commmand: `cp docs/design/reference.deploy.yml deploy.yml`
@@ -105,10 +107,10 @@ Below are steps for creating a basic deploy.yml. **Please note that all fields m
 
 These steps quickly set up a basic deploy.yml file
 
-#### More on deploy.yml
+##### More on deploy.yml
 Please read the reference deploy.yml found [here](http://ecs-community-edition.readthedocs.io/en/latest/installation/deploy.yml.html). It is designed to be self documenting and required fields are filled with either example or default values. The above values are only bare minimum values and may not yield optimal results for your environment.
 
-## 3. Bootstrapping the Install Node (`bootstrap.sh`)
+### 3. Bootstrapping the Install Node (`bootstrap.sh`)
 ###### Important Note
 >When installing using the OVA method, please skip to Step 4.
 
@@ -215,7 +217,7 @@ The bootstrapping process has completed when the following message appears:
 
 After the installation node has successfully bootstrapped you may be prompted to reboot the machine. If so, then the machine must be rebooted before continuing to Step 4.
 
-## 4. Deploying ECS Nodes (`step1` or `island-step1`)
+### 4. Deploying ECS Nodes (`step1` or `island-step1`)
 
 Once the deploy.yml file has been correctly written and the Install Node rebooted if needed, then the next step is to simply run one of the following commands:
 
@@ -226,7 +228,7 @@ After the installer initializes, the EMC ECS license agreement will appear on th
 
 The first thing the installer will do is create an artifact cache of base operating system packages and the ECS software Docker image.  If you are running `step1`, please skip to **Step 5**.  If you are running `island-step1`, then the installer will stop after this step.  The install node can then be migrated into your island environment where deployment can continue.
 
-#### 4.5. Deploying the Island Environment ECS Nodes (`island-step2`)
+##### 4.5. Deploying the Island Environment ECS Nodes (`island-step2`)
 ###### Important Note
 > If you are deploying to Internet-connected nodes and used `step1` to begin your deployment, please skip to **Step 5**.
 
@@ -235,13 +237,46 @@ The first thing the installer will do is create an artifact cache of base operat
 
 If you are deploying into an island environment and have migrated the install node into your island, you can begin this process by running `island-step2`.  The next tasks the installer will perform are: configuring the ECS nodes, performing a pre-flight check to ensure ECS nodes are viable deployment targets, distributing the artifact cache to ECS nodes, installing necessary packages, and finally deploying the ECS software and init scripts onto ECS nodes.
 
-## 5. Deploying ECS Topology (`step2` or `island-step3`)
+### 5. Deploying ECS Topology (`step2` or `island-step3`)
 
 * Internet-connected environments: `step2`
 * Island environments: `island-step3`
 
 Once either `step1` or `island-step2` have completed, you may then direct the installer to configure the ECS topology by running either `step2` or `island-step3`.  These commands are identical.  Once `step2` or `island-step3` have completed, your ECS will be ready for use.
 If you would prefer to manually configure your ECS topology, you may skip this step entirely.
+
+## OVA Installation
+
+ECS Community Edition can optionally be installed with the available [single-node (recommended)](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.2-install-node-2.3.0-vm0.ova) and [multi-node](http://ecsce.readthedocs.io/en/latest/installation/ECS-Installation.html) OVAs. To install with this method:
+
+### 1. Download and deploy the OVA to a VM
+
+### 2. Adjust the resources to have a minimum of:
+
+    * 16GB RAM 
+    * 4 CPU cores
+    * (Optional) Increase vmdk from the minimum 104GB
+
+### 3. Clone VM to number of nodes desired
+
+### 4. Collect network information
+
+Power on VM's and collect their DHCP assigned IP addresses from the vCenter client or from the VMs themselves
+
+You may also assign static IP addresses by logging into each VM and running `nmtui` to set network the network variables (IP, mask, gateway, DNS, etc).
+
+### 5. Log into the first VM and run `videploy`
+
+Follow the directions laid out in the standard installation concerning the creation of the deploy.yml file (section 2).
+
+After completing the deploy.yml file, exit out of `videploy`, this will update the deploy.yml file. 
+
+### 6. Run `step1`
+
+### 7. Run `step2`
+
+###### Important Note: `step1` and `step2` are not scripts and should not be run as such. `./step1` is not a valid command. 
+
 
 ## That's it!
 Assuming all went well, you now have a functioning ECS Community Edition instance and you may now proceed with your test efforts.
