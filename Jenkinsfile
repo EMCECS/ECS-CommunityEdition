@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    options {
+      disableConcurrentBuilds()
+      skipDefaultCheckout()
+      timeout(time: 1, unit: 'HOURS')
+    }
     environment {
         TF_VAR_vsphere_user       = "${params.vsphere_user}"
         TF_VAR_vsphere_password   = "${params.vsphere_password}"
@@ -18,6 +23,13 @@ pipeline {
         stage('Checkout') {
             steps {
                 git url: 'https://github.com/EMCECS/ECS-CommunityEdition', branch: "${params.branch}"
+                script {
+                  // Workaround until the GIT plugin automatically injects these environment variables
+                  env.BRANCH_NAME = sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
+                  env.COMMIT_ID = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+                  env.AUTHOR_NAME = sh(returnStdout: true, script: 'git show -s --pretty=%an HEAD').trim()
+                  env.REPO_URL = sh(returnStdout: true, script: 'git remote get-url origin').trim()
+                }
             }
         }
         stage('Install tools') {
@@ -58,6 +70,12 @@ pipeline {
         always {
             echo 'Deprovision infrastructure'
             sh 'terraform destroy -force tests'
+        }
+        success {
+            slackSend channel: 'ecs-community-edition', color: 'good', message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> passed: ${env.JOB_NAME}@${env.BRANCH_NAME} (<${env.REPO_URL}|${env.COMMIT_ID}>) by ${env.AUTHOR_NAME}"
+        }
+        failure {
+            slackSend channel: 'ecs-community-edition', color: 'danger', message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> failed: ${env.JOB_NAME}@${env.BRANCH_NAME} (<${env.REPO_URL}|${env.COMMIT_ID}>) by ${env.AUTHOR_NAME}"
         }
     }
 
