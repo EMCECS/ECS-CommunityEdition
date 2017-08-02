@@ -14,7 +14,7 @@ ECS Community Edition
    </h1>
 
 See
-`changelog.md <https://github.com/EMCECS/ECS-CommunityEdition/blob/latest/changelog.md>`__
+`changelog.md <https://github.com/EMCECS/ECS-CommunityEdition/blob/master/changelog.md>`__
 file for release notes.
 
 Description

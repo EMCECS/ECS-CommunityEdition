@@ -108,7 +108,7 @@ Below are steps for creating a basic deploy.yml. **Please note that all fields m
 These steps quickly set up a basic deploy.yml file
 
 ##### More on deploy.yml
-Please read the reference deploy.yml found [here](http://ecs-community-edition.readthedocs.io/en/latest/installation/deploy.yml.html). It is designed to be self documenting and required fields are filled with either example or default values. The above values are only bare minimum values and may not yield optimal results for your environment.
+Please read the reference deploy.yml found [here](deploy.yml.html). It is designed to be self documenting and required fields are filled with either example or default values. The above values are only bare minimum values and may not yield optimal results for your environment.
 
 ### 3. Bootstrapping the Install Node (`bootstrap.sh`)
 ###### Important Note
@@ -247,7 +247,7 @@ If you would prefer to manually configure your ECS topology, you may skip this s
 
 ## OVA Installation
 
-ECS Community Edition can optionally be installed with the available [single-node (recommended)](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.2-install-node-2.3.0-vm0.ova) and [multi-node](http://ecsce.readthedocs.io/en/latest/installation/ECS-Installation.html) OVAs. To install with this method:
+ECS Community Edition can optionally be installed with the OVA available [here](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.2-install-node-2.3.0-vm0.ova). To install with this method:
 
 ### 1. Download and deploy the OVA to a VM
 
