@@ -22,7 +22,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/EMCECS/ECS-CommunityEdition', branch: "${params.branch}"
+                checkout scm
+                sh 'printenv'
                 script {
                   // Workaround until the GIT plugin automatically injects these environment variables
                   env.BRANCH_NAME = sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
