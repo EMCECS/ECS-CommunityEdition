@@ -19,6 +19,12 @@
     dest: /home/centos/ecs
     recursive: yes
 
+- name: Remove rsync package
+  become: true
+  package:
+    name: rsync
+    state: absent
+
 - name: Provide the deploy.yml file
   template:
     src: deploy.yml.j2
