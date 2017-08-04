@@ -2,13 +2,26 @@ pipeline {
     agent any
 
     options {
-      disableConcurrentBuilds()
-      skipDefaultCheckout()
-      timeout(time: 1, unit: 'HOURS')
+        disableConcurrentBuilds()
+        skipDefaultCheckout()
+        timeout(time: 1, unit: 'HOURS')
     }
+
+    parameters {
+        string(name: 'vsphere_server', defaultValue: '10.1.83.17', description: 'vSphere host')
+        string(name: 'datastore', defaultValue: 'iSCSI-2', description: 'vSphere datastore')
+        string(name: 'template', defaultValue: 'jenkins/ecsce-template', description: 'VM template')
+        string(name: 'resource_pool', defaultValue: 'Cisco UCS Cluster/Resources/Tests', description: 'vSphere resource pool')
+        string(name: 'datacenter', defaultValue: 'Datacenter', description: 'vSphere datacenter')
+        string(name: 'network_interface', defaultValue: 'VM Network', description: 'VM network interface')
+        string(name: 'ecs_nodes', defaultValue: '1', description: 'Number of ECS nodes to be deployed')
+    }
+
     environment {
-        TF_VAR_vsphere_user       = "${params.vsphere_user}"
-        TF_VAR_vsphere_password   = "${params.vsphere_password}"
+        VSPHERE                   = credentials('vsphere_gotham')
+        SSH                       = credentials('ssh_credentials')
+        TF_VAR_vsphere_user       = "${VSPHERE_USR}"
+        TF_VAR_vsphere_password   = "${VSPHERE_PSW}"
         TF_VAR_vsphere_server     = "${params.vsphere_server}"
         TF_VAR_datastore          = "${params.datastore}"
         TF_VAR_template           = "${params.template}"
@@ -22,13 +35,10 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/EMCECS/ECS-CommunityEdition', branch: "${params.branch}"
+                checkout scm
+                sh 'printenv'
                 script {
-                  // Workaround until the GIT plugin automatically injects these environment variables
-                  env.BRANCH_NAME = sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
                   env.COMMIT_ID = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
-                  env.AUTHOR_NAME = sh(returnStdout: true, script: 'git show -s --pretty=%an HEAD').trim()
-                  env.REPO_URL = sh(returnStdout: true, script: 'git remote get-url origin').trim()
                 }
             }
         }
@@ -56,9 +66,9 @@ pipeline {
                       playbook: 'tests/ansible/install_node.yml',
                       inventory: 'hosts.ini',
                       extraVars: [
-                          ansible_ssh_user: "${params.ssh_user}",
-                          ansible_ssh_pass: "${params.ssh_pass}",
-                          ansible_become_pass: "${params.ssh_pass}",
+                          ansible_ssh_user: "$SSH_USR",
+                          ansible_ssh_pass: "$SSH_PSW",
+                          ansible_become_pass: "$SSH_PSW",
                           current_directory: "$WORKSPACE"
                       ],
                       extras: '-vvv'
@@ -72,10 +82,10 @@ pipeline {
             sh 'terraform destroy -force tests'
         }
         success {
-            slackSend channel: 'ecs-community-edition', color: 'good', message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> passed: ${env.JOB_NAME}@${env.BRANCH_NAME} (<${env.REPO_URL}|${env.COMMIT_ID}>) by ${env.AUTHOR_NAME}"
+            slackSend channel: 'ecs-community-edition', color: 'good', message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> passed: ${env.JOB_NAME}@${env.CHANGE_BRANCH} (<${env.CHANGE_URL}|${env.COMMIT_ID}>) by ${env.CHANGE_AUTHOR_DISPLAY_NAME}"
         }
         failure {
-            slackSend channel: 'ecs-community-edition', color: 'danger', message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> failed: ${env.JOB_NAME}@${env.BRANCH_NAME} (<${env.REPO_URL}|${env.COMMIT_ID}>) by ${env.AUTHOR_NAME}"
+            slackSend channel: 'ecs-community-edition', color: 'danger', message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> failed: ${env.JOB_NAME}@${env.CHANGE_BRANCH} (<${env.CHANGE_URL}|${env.COMMIT_ID}>) by ${env.CHANGE_AUTHOR_DISPLAY_NAME}"
         }
     }
 
