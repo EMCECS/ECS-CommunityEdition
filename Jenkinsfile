@@ -18,7 +18,7 @@ pipeline {
     }
 
     environment {
-        VSPHERE                   = credentials('vsphere_credentials')
+        VSPHERE                   = credentials('vsphere_gotham')
         SSH                       = credentials('ssh_credentials')
         TF_VAR_vsphere_user       = "${VSPHERE_USR}"
         TF_VAR_vsphere_password   = "${VSPHERE_PSW}"
