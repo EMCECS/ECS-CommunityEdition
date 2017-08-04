@@ -4,13 +4,10 @@
     state: present
     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
-- name: Install packages
+- name: Install rsync package
   package:
-    name: "{{ item }}"
+    name: rsync
     state: latest
-  with_items:
-    - git
-    - rsync
 
 - name: Copy files to installer node
   synchronize:
