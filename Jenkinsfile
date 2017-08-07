@@ -36,10 +36,13 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                sh 'printenv'
                 script {
+                  // Workaround until the GIT plugin automatically injects these environment variables
                   env.COMMIT_ID = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+                  env.AUTHOR_NAME = sh(returnStdout: true, script: 'git show -s --pretty=%an HEAD').trim()
+                  env.REPO_URL = sh(returnStdout: true, script: 'git remote get-url origin').trim()
                 }
+                sh 'printenv'
             }
         }
         stage('Install tools') {
@@ -82,10 +85,10 @@ pipeline {
             sh 'terraform destroy -force tests'
         }
         success {
-            slackSend channel: 'ecs-community-edition', color: 'good', message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> passed: ${env.JOB_NAME}@${env.CHANGE_BRANCH} (<${env.CHANGE_URL}|${env.COMMIT_ID}>) by ${env.CHANGE_AUTHOR_DISPLAY_NAME}"
+            slackSend channel: 'ecs-community-edition', color: 'good', message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> passed: ${env.JOB_NAME} (<${env.REPO_URL}|${env.COMMIT_ID}>) by ${env.AUTHOR_NAME}"
         }
         failure {
-            slackSend channel: 'ecs-community-edition', color: 'danger', message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> failed: ${env.JOB_NAME}@${env.CHANGE_BRANCH} (<${env.CHANGE_URL}|${env.COMMIT_ID}>) by ${env.CHANGE_AUTHOR_DISPLAY_NAME}"
+            slackSend channel: 'ecs-community-edition', color: 'danger', message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> failed: ${env.JOB_NAME} (<${env.REPO_URL}|${env.COMMIT_ID}>) by ${env.AUTHOR_NAME}"
         }
     }
 
