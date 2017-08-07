@@ -17,7 +17,7 @@ os_supported=true
 docker_binary='/bin/docker'
 
 # packages to clean up during preflight
-list_preflight_packages="git"
+list_preflight_packages="git nfs-client rsync wget curl epel-release yum-utils ntp docker vim rsync pigz gdisk aria2 htop iotop iftop multitail dstat jq python-docker-py dkms qemu-guest-agent open-vm-tools docker"
 
 # Do any OS-specific tasks that must be done prior to bootstrap
 do_preflight() {
