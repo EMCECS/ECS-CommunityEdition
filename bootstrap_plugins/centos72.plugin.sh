@@ -17,7 +17,7 @@ os_supported=true
 docker_binary='/bin/docker'
 
 # packages to clean up during preflight
-list_preflight_packages="git nfs-client rsync wget curl epel-release yum-utils ntp docker vim rsync pigz gdisk aria2 htop iotop iftop multitail dstat jq python-docker-py dkms qemu-guest-agent open-vm-tools docker"
+list_preflight_packages="git nfs-client rsync wget curl epel-release ntp docker vim rsync pigz gdisk aria2 htop iotop iftop multitail dstat jq python-docker-py dkms qemu-guest-agent open-vm-tools docker"
 #nfs-tools"
 
 # Do any OS-specific tasks that must be done prior to bootstrap
@@ -72,27 +72,23 @@ in_vm_packages() {
 
 # command to install one or more os package manager package
 in_repo_pkg() {
-    while ! sudo yum -y install $*; do
-        sleep 5
-    done
+    retry_with_timeout 10 300 sudo yum -y install $*
 }
 
 rm_repo_pkg() {
-    sudo yum -y autoremove $*
+    retry_with_timeout 10 300 yum -y autoremove $*
 }
 
 # command to update all packages in the os package manager
 up_repo_pkg_all() {
-    sudo yum -y update
+    retry_with_timeout 10 300 sudo yum -y update
 }
 
 # command to rebuild the os package manager's database
 up_repo_db() {
-    while ! sudo yum -y makecache; do
-        sleep 10
-        # retry
-    done
+    retry_with_timeout 10 300 yum -y makecache
 }
+
 
 # command to set os package manager proxy
 set_repo_proxy_conf() {
