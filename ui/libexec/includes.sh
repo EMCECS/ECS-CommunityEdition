@@ -26,3 +26,4 @@ source "${lib}/dockerutils.sh"
 source "${lib}/shipit.lib.sh"
 
 yay "${etc}/config.yml"
+import_vars config

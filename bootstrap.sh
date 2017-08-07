@@ -12,11 +12,13 @@ set -o pipefail
 # limited to the terms and conditions of the License Agreement under which
 # it is provided by or on behalf of EMC.
 
+
 ############################################################################
 # This script should be run on a fresh, minimal install of a supported OS. #
 # It will attempt to build up a baseline operating environment for the     #
 # installer system.                                                        #
 ############################################################################
+
 
 ### Usage
 # TODO: Add GitHub URLs to help text (bottom)
@@ -79,6 +81,8 @@ For additional help, please open an issue on GitHub.
 EOH
 }
 
+
+### Usage for Build Commands
 usage_build() {
     log "providing usage info"
 cat <<EOH | more
@@ -100,6 +104,7 @@ For additional help, please open an issue on GitHub.
 
 EOH
 }
+
 
 ##### Boilerplate ############################################################
 # The build environment is always determined by the last bootstrap.sh run
@@ -148,13 +153,15 @@ mirror_flag=false
 mirror_val=''
 zerofill_flag=false
 
+
+### Version String
 version() {
     o " ${release_name} Install Node Bootstrap ${ver_maj}.${ver_min}.${ver_rev}${ver_tag}"
     o " ${release_product} Image ${release_artifact}:${release_tag}"
 }
 
-### Argue with arguments
 
+### Argue with arguments
 # Switched to util-linux getopt so we can use long form arguments
 if ! O=$(
          getopt \
@@ -212,11 +219,13 @@ while true; do
     --ssh-private-key)
         export ssh_private_key_flag=true
         export ssh_private_key_val="${2}"
+        ensure_file_exists "${ssh_private_key_val}" "SSH private key file"
         shift
         ;;
     --ssh-public-key)
         export ssh_public_key_flag=true
         export ssh_public_key_val="${2}"
+        ensure_file_exists "${ssh_public_key_val}" "SSH public key file"
         shift
         ;;
     -m|--centos-mirror)
@@ -290,11 +299,22 @@ while true; do
 done
 
 
+### Post Argparse Validation
+if $ssh_private_key_flag || $ssh_public_key_flag; then
+    if $ssh_private_key_flag && $ssh_public_key_flag; then
+        break
+    else
+        die "You must specify both an SSH private key file and an SSH public key file."
+    fi
+fi
+
+
 ##############################################################################
 ### Main
 o ""
 version
 o "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
 
 ### No arguments given.. are you sure?
 if [ -z "$1" ]; then
@@ -376,6 +396,12 @@ symlink_scripts
 update_path_in_bashrc
 
 
+### Create install tree
+v "Creating install tree"
+p Create install tree
+create_install_tree
+
+
 ### Override nameservers provided by DHCP if -o was given.
 if $dhcpdns_flag; then
     v "Overriding DHCP nameservers"
@@ -434,6 +460,7 @@ p Setting package manager proxy
     set_repo_cacheable_idempotent
 fi
 
+
 ### Configure system package manager repos for mirror
 if $mirror_flag; then
     v "Configuring system package manager mirror"
@@ -442,11 +469,13 @@ p Setting package manager mirror
     set_repo_mirror_idempotent
 fi
 
+
 ### Configure system package manager to keep its cache
 ### This is so we can reuse it later for nodes
 v "Configuring system package manager to keep its cache so it can be used for other nodes"
 p Setting package manager keepcache
 set_repo_keepcache_conf
+
 
 ### Preflight cleaning
 v "Performing preflight checklist"
@@ -454,22 +483,26 @@ p Performing preflight checklist
 do_preflight 2>&1 | log
 ping_sudo
 
+
 ### Update repo databases and all system packages
 v "Updating system package manager databases pass (1/2)"
 p Updating package manager database
 up_repo_db 2>&1 | log
 ping_sudo
 
+
 v "Updating all system packages pass (1/2)"
 p Updating installed packages
 up_repo_pkg_all 2>&1 | log
 ping_sudo
+
 
 ###
 o "This script installs all packages that are both required for"
 o "the deployment and that we think will be helpful to you when"
 o "managing and operating your environment."
 o ""
+
 
 ### Do system package installs
 v "Installing bootstrap packages pass (1/3)"
@@ -520,10 +553,12 @@ p Updating package manager database
 up_repo_db 2>&1 | log
 ping_sudo
 
+
 v "Updating all system packages pass (2/2)"
 p Updating installed packages
 up_repo_pkg_all 2>&1 | log
 ping_sudo
+
 
 ###
 o "We're going to start working with Docker now. If you elected"
@@ -531,6 +566,7 @@ o "to build your own ecs-install image rather than pull one from"
 o "the EMC Dockerhub repo, it will add some time to your initial"
 o "bootstrap."
 o ""
+
 
 ### If Docker needs proxy configs, do that now.
 if $proxy_flag; then
@@ -545,11 +581,13 @@ fi
 docker_registry
 ping_sudo
 
+
 ###
 v "Check if Docker login needed"
 if $dlogin_flag; then
     retry_until_ok docker login
 fi
+
 
 ### Test Docker install
 v "Testing docker installation"
@@ -582,12 +620,16 @@ fi
 done
 
 
-###
+### Copy existing deploy.yml
 if $deploy_flag; then
 v "Copying deploy.yml"
 p Copying deploy.yml
     sudo cp "${deploy_val}" "${docker_host_root}/deploy.yml"
 fi
+
+
+### Copy existing SSH public/private keys
+if $ssh_private_key_flag && $ssh_public_key_flag
 
 
 ### ECS-Install Docker image
@@ -614,11 +656,13 @@ else
 fi
 ping_sudo
 
+
 ###
 o "We are now pulling the ${release_artifact} image."
 o "This can take quite a long time over a slow Internet link or"
 o "if the backing block storage system is slower than usual."
 o ""
+
 
 ### ECS Docker Image
 v "Pulling ${release_artifact}:${release_tag} Docker image"
@@ -647,12 +691,14 @@ else
 fi
 ping_sudo
 
+
 ### Log Docker Inventory
 v "Logging Docker Inventory"
 p Logging Docker Inventory
 sudo docker images 2>&1 | log
 sudo docker ps -a 2>&1 | log
 ping_sudo
+
 
 ### Next steps
 p ''
@@ -678,6 +724,7 @@ o '    $ island-step2'
 o '  [Wait for deployment to complete, then run:]'
 o '    $ island-step3'
 o ''
+
 
 ### Needs rebooting?
 if get_os_needs_restarting; then
@@ -712,6 +759,7 @@ fi
 if $zerofill_flag; then
     sudo "$INSTALL_ROOT/tools/zerofill.sh"
 fi
+
 
 ### finish up and reset sudo timestamp
 quit_sudo
