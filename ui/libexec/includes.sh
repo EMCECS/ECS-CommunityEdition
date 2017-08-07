@@ -7,6 +7,7 @@ BUILD=${BUILD:-false}
 MONITOR=${DRONE:-false}
 
 etc="${root}/ui/etc"
+export etc
 source "${etc}/release.conf"
 
 if [ -f "${root}/release.conf" ]; then
@@ -22,3 +23,6 @@ log_file="${root}/install.log"
 
 source "${lib}/osutils.sh"
 source "${lib}/dockerutils.sh"
+source "${lib}/shipit.lib.sh"
+
+yay "${etc}/config.yml"
