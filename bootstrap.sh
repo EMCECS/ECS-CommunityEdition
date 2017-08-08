@@ -306,13 +306,12 @@ done
 
 
 ### Post Argparse Validation
-if $ssh_private_key_flag || $ssh_public_key_flag; then
+if ${ssh_private_key_flag} || ${ssh_public_key_flag}; then
     if ! ( $ssh_private_key_flag && $ssh_public_key_flag ); then
         die "You must specify both an SSH private key file and an SSH public key file."
     fi
 fi
 
-exit 1
 
 ##############################################################################
 ### Main
@@ -358,8 +357,8 @@ ping_sudo || die "Unable to escalate using sudo."
 ### Import vars for this specific OS
 o ""
 p Detecting OS
-source ${plugins}/plugin-defaults.plugin.sh
-source ${plugins}/os-router.plugin.sh
+source "${plugins}/plugin-defaults.plugin.sh"
+source "${plugins}/os-router.plugin.sh"
 detect_os
 route_os
 o "Environment is $os"
@@ -376,7 +375,7 @@ o "until you decide to attach the log file or copy & paste its"
 o "content into a help request on GitHub (or where ever)."
 o ""
 o "If you are curious to see what's collected, the log is here:"
-o "    $log_file"
+o "    ${log_file}"
 o ""
 o "It is perfectly fine to remove this log file at any time."
 o ""
@@ -408,7 +407,7 @@ create_install_tree
 
 
 ### Override nameservers provided by DHCP if -o was given.
-if $dhcpdns_flag; then
+if ${dhcpdns_flag}; then
     v "Overriding DHCP nameservers"
 p Overriding DHCP nameservers
     override_dhcp_dns "${dhcpdns_val}"
@@ -416,7 +415,7 @@ fi
 
 
 ### Do we need to do a MitM cert?
-if $mitm_flag; then
+if ${mitm_flag}; then
     v "Adding ${mitm_val} to the local trust store and installer queue"
 p Installing proxy cert
     set_mitm_cert "$mitm_val"
@@ -429,7 +428,7 @@ fi
 
 ### If we got proxies then set them up in the local shell
 ### and the system environment settings
-if $proxy_flag; then
+if ${proxy_flag}; then
     v "Checking connectivity through proxy ${proxy_val}"
 p Checking proxy connection
     proxy_http_ping "${proxy_val}" "${proxy_test_val}" 2>&1 >/dev/null
@@ -444,7 +443,7 @@ p Setting system proxy
     export http_proxy="http://${proxy_val}"
     export https_proxy="https://${proxy_val}"
     export ftp_proxy="ftp://${proxy_val}"
-    if $mirror_flag; then
+    if ${mirror_flag}; then
         export no_proxy="${mirror_val}"
     fi
     set_os_proxy || die "Couldn't write to /etc/environment"
@@ -458,7 +457,7 @@ ping_sudo
 
 
 ### Configure system package manager repos for proxies
-if $proxy_flag && ! $mirror_flag; then
+if ${proxy_flag} && ! ${mirror_flag}; then
     v "Configuring system package manager for proxies"
 p Setting package manager proxy
     set_repo_proxy_conf
@@ -467,7 +466,7 @@ fi
 
 
 ### Configure system package manager repos for mirror
-if $mirror_flag; then
+if ${mirror_flag}; then
     v "Configuring system package manager mirror"
 p Setting package manager mirror
     set_repo_cacheable_idempotent
@@ -540,7 +539,7 @@ ping_sudo
 
 
 ### Do we need VM guest additions?
-if $vm_flag; then
+if ${vm_flag}; then
     v "Installing virtual machine guest additions"
 p Installing VM guest additions
     in_vm_packages 2>&1 | log
@@ -574,7 +573,7 @@ o ""
 
 
 ### If Docker needs proxy configs, do that now.
-if $proxy_flag; then
+if ${proxy_flag}; then
     v "Configuring Docker proxy settings"
 p Setting Docker proxy
     set_docker_proxy 2>&1 | log
@@ -589,7 +588,7 @@ ping_sudo
 
 ###
 v "Check if Docker login needed"
-if $dlogin_flag; then
+if ${dlogin_flag}; then
     retry_until_ok docker login
 fi
 
@@ -626,7 +625,7 @@ done
 
 
 ### Copy existing deploy.yml
-if $deploy_flag; then
+if ${deploy_flag}; then
 v "Copying deploy.yml"
 p Copying deploy.yml
     sudo cp "${deploy_val}" "${docker_host_root}/deploy.yml"
@@ -634,11 +633,16 @@ fi
 
 
 ### Copy existing SSH public/private keys
-if $ssh_private_key_flag && $ssh_public_key_flag
+if ${ssh_private_key_flag} && ${ssh_public_key_flag}; then
+v "Copying SSH public and private keys"
+p Copying SSH keys
+    sudo cp "${ssh_private_key_val}" "${ui_host_ssh_dir}/${ssh_private_key_val}"
+    sudo cp "${ssh_public_key_val}" "${ui_host_ssh_dir}/${ssh_public_key_val}"
+fi
 
 
 ### ECS-Install Docker image
-if $build_image_flag; then
+if ${build_image_flag}; then
 p Building ecs-install image
     if ! ui/build_image.sh 2>&1 | log; then
         error "We couldn't build the ecs-install image for some reason. Please check the logs."
@@ -672,7 +676,7 @@ o ""
 ### ECS Docker Image
 v "Pulling ${release_artifact}:${release_tag} Docker image"
 p Pulling ECS-Software image
-if $registry_flag; then
+if ${registry_flag}; then
     if ! sudo docker pull ${registry_val}/${release_artifact}:${release_tag} 2>&1 | log; then
         error "We couldn't pull the software image for some reason. Since you're using a custom"
         error "registry, it may be that the image does not exist in your registry. Please ensure"
@@ -738,8 +742,8 @@ if get_os_needs_restarting; then
     o "Please reboot BEFORE continuing to ensure this node is"
     o "operating with the latest kernel and system libraries."
     o ''
-    if $override_flag; then
-        if $override_val; then
+    if ${override_flag}; then
+        if ${override_val}; then
             q "Automatically rebooting by user request (-y argument)"
             log "REBOOT-REBOOTING-ARGUMENT"
             wait_bar 15 "Press CTRL-C to abort"
@@ -761,8 +765,8 @@ if get_os_needs_restarting; then
     fi
 fi
 
-if $zerofill_flag; then
-    sudo "$INSTALL_ROOT/tools/zerofill.sh"
+if ${zerofill_flag}; then
+    sudo "${INSTALL_ROOT}/tools/zerofill.sh"
 fi
 
 
