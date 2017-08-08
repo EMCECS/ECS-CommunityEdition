@@ -35,7 +35,7 @@ update_path_in_bashrc() {
 }
 
 create_install_tree() {
-    for pathname in "${ui_host_ssl_dir}" "${host_ssh_dir}"; do
-        mkdir -p "${pathname}"
+    for pathname in "${ui_host_ssl_dir}" "${ui_host_ssh_dir}"; do
+        sudo mkdir -p "${pathname}"
     done
 }
