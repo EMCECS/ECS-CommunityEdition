@@ -17,7 +17,8 @@ os_supported=true
 docker_binary='/bin/docker'
 
 # packages to clean up during preflight
-list_preflight_packages="git nfs-client rsync wget curl epel-release ntp docker vim rsync pigz gdisk aria2 htop iotop iftop multitail dstat jq python-docker-py dkms qemu-guest-agent open-vm-tools docker"
+# Don't `yum autoremove curl`.  Yum is a dependency and it will throw errors.
+list_preflight_packages="git nfs-client nfs-tools rsync wget ntp docker vim pigz gdisk aria2 htop iotop iftop multitail dstat jq python-docker-py dkms qemu-guest-agent open-vm-tools docker"
 #nfs-tools"
 
 # Do any OS-specific tasks that must be done prior to bootstrap
@@ -76,7 +77,7 @@ in_repo_pkg() {
 }
 
 rm_repo_pkg() {
-    retry_with_timeout 10 300 yum -y autoremove $*
+    retry_with_timeout 10 300 sudo yum -y autoremove $*
 }
 
 # command to update all packages in the os package manager
@@ -86,9 +87,8 @@ up_repo_pkg_all() {
 
 # command to rebuild the os package manager's database
 up_repo_db() {
-    retry_with_timeout 10 300 yum -y makecache
+    retry_with_timeout 10 300 sudo yum -y makecache
 }
-
 
 # command to set os package manager proxy
 set_repo_proxy_conf() {
