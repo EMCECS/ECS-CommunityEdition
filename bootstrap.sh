@@ -123,6 +123,7 @@ source "${lib}/includes.sh"
 ##############################################################################
 
 os=''
+noargs=false
 override_flag=false
 override_val=false
 mitm_flag=false
@@ -167,9 +168,14 @@ version() {
 
 ### Argue with arguments
 # Switched to util-linux getopt so we can use long form arguments
+
+if [ -z "$1" ]; then
+    noargs=true
+fi
+
 if ! O=$(
          getopt \
-         -l build-from:,deployment-map:,registry-cert:,help,proxy-cert:registry-login,centos-mirror:,override-dns:,proxy-endpoint:,registry-endpoint:,proxy-test-via:,install-vm-tools,zero-fill-ova,ssh-private-key:,ssh-public-key:,version,help-build \
+         -l build-from:,deploy-config:,registry-cert:,help,proxy-cert:registry-login,centos-mirror:,override-dns:,proxy-endpoint:,registry-endpoint:,proxy-test-via:,install-vm-tools,zero-fill-ova,ssh-private-key:,ssh-public-key:,version,help-build,yes,no,verbose,quiet \
          -o c:d:hk:lm:no:r:t:b:p:gyvqz \
          -n "${0}" \
          -- ${@}
@@ -194,28 +200,28 @@ while true; do
         exit 0
         ;;
 # General
-    -y)
+    -y|--yes)
         export override_flag=true
         export override_val=true
         shift
         ;;
-    -n)
+    -n|--no)
         export override_flag=true
         export override_val=false
         shift
         ;;
-    -v)
+    -v|--verbose)
         export verbose_flag=true
         export quiet_flag=false
         shift
         ;;
-    -q)
+    -q|--quiet)
         export quiet_flag=true
         export verbose_flag=false
         shift
         ;;
 # Configuration
-    -c|--deployment-map)
+    -c|--deploy-config)
         export deploy_flag=true
         export deploy_val="${2}"
         ensure_file_exists "${deploy_val}" "ecs-install deployment file"
@@ -321,7 +327,7 @@ o "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
 
 ### No arguments given.. are you sure?
-if [ -z "$1" ]; then
+if ${noargs}; then
     o ""
     o "No options were given, but it's possible your environment may"
     o "depend on one or more options to bootstrap properly."
