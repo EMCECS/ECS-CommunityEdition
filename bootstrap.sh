@@ -152,6 +152,10 @@ alpine_mirror=''
 mirror_flag=false
 mirror_val=''
 zerofill_flag=false
+ssh_private_key_flag=false
+ssh_private_key_val=''
+ssh_public_key_flag=false
+ssh_public_key_val=''
 
 
 ### Version String
@@ -166,7 +170,7 @@ version() {
 if ! O=$(
          getopt \
          -l build-from:,deployment-map:,registry-cert:,help,proxy-cert:registry-login,centos-mirror:,override-dns:,proxy-endpoint:,registry-endpoint:,proxy-test-via:,install-vm-tools,zero-fill-ova,ssh-private-key:,ssh-public-key:,version,help-build \
-         -o c:d:hk:lm:no:r:t:gyvqz \
+         -o c:d:hk:lm:no:r:t:b:p:gyvqz \
          -n "${0}" \
          -- ${@}
         ); then
@@ -177,6 +181,7 @@ fi
 eval set -- "${O}"
 
 while true; do
+  echo "Got Arg: ${1}"
   case "${1}" in
 # Usage
     -h|--help)
@@ -220,13 +225,13 @@ while true; do
         export ssh_private_key_flag=true
         export ssh_private_key_val="${2}"
         ensure_file_exists "${ssh_private_key_val}" "SSH private key file"
-        shift
+        shift 2
         ;;
     --ssh-public-key)
         export ssh_public_key_flag=true
         export ssh_public_key_val="${2}"
         ensure_file_exists "${ssh_public_key_val}" "SSH public key file"
-        shift
+        shift 2
         ;;
     -m|--centos-mirror)
         export mirror_flag=true
@@ -292,22 +297,22 @@ while true; do
         ;;
     *)
         shift
-        usage
-        die "Invalid option: -${2}"
+        #usage
+        die "Invalid option: ${1} in {${*}}"
         ;;
   esac
+  echo "Looping"
 done
 
 
 ### Post Argparse Validation
 if $ssh_private_key_flag || $ssh_public_key_flag; then
-    if $ssh_private_key_flag && $ssh_public_key_flag; then
-        break
-    else
+    if ! ( $ssh_private_key_flag && $ssh_public_key_flag ); then
         die "You must specify both an SSH private key file and an SSH public key file."
     fi
 fi
 
+exit 1
 
 ##############################################################################
 ### Main
