@@ -171,6 +171,7 @@ retry_with_timeout() {
 
     while [[ _attempt < _attempts ]] && [[ "$(epoch_now)" < "${_timeout_time}" ]] && ! $_cmd; do
         ((_attempt++))
+        sleep 1
     done
 }
 
