@@ -187,7 +187,6 @@ fi
 eval set -- "${O}"
 
 while true; do
-  echo "Got Arg: ${1}"
   case "${1}" in
 # Usage
     -h|--help)
@@ -307,7 +306,6 @@ while true; do
         die "Invalid option: ${1} in {${*}}"
         ;;
   esac
-  echo "Looping"
 done
 
 
@@ -629,7 +627,7 @@ for directory in "${docker_host_root}/ssl" "${docker_host_root}/ssh" "${docker_h
     fi
 done
 for directory in "${docker_host_root}/ssl" "${docker_host_root}/ssh"; do
-    chmod 0700 "${directory}"
+    sudo chmod 0700 "${directory}"
 done
 
 
