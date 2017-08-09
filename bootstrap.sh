@@ -624,9 +624,12 @@ ping_sudo
 v "Creating host paths"
 p Creating host paths
 for directory in "${docker_host_root}/ssl" "${docker_host_root}/ssh" "${docker_host_logs}"; do
-if ! [ -d "${directory}" ]; then
-    sudo mkdir -p "${directory}"
-fi
+    if ! [ -d "${directory}" ]; then
+        sudo mkdir -p "${directory}"
+    fi
+done
+for directory in "${docker_host_root}/ssl" "${docker_host_root}/ssh"; do
+    chmod 0700 "${directory}"
 done
 
 
@@ -642,8 +645,8 @@ fi
 if ${ssh_private_key_flag} && ${ssh_public_key_flag}; then
 v "Copying SSH public and private keys"
 p Copying SSH keys
-    sudo cp "${ssh_private_key_val}" "${ui_host_ssh_dir}/${ssh_private_key_val}"
-    sudo cp "${ssh_public_key_val}" "${ui_host_ssh_dir}/${ssh_public_key_val}"
+    sudo cp "${ssh_private_key_val}" "${ui_host_ssh_dir}/$(basename ${ssh_private_key_val})"
+    sudo cp "${ssh_public_key_val}" "${ui_host_ssh_dir}/$(basename ${ssh_public_key_val})"
 fi
 
 
