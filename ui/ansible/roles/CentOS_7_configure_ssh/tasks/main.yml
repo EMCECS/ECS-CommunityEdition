@@ -1,17 +1,23 @@
 #- name: Set selinux permissive
 #  selinux: policy=targeted state=permissive
 
+#- debug:
+#    msg: "keys_ed25519.enabled == true"
+#  when:
+
 - name: CentOS 7 | Distribute ed25519 ssh key
   authorized_key:
     state: present
     user: "{{ ansible_user }}"
     key: "{{ lookup('file', '{{ssh_dir}}/id_ed25519.pub') }}"
+  when: keys_ed25519.enabled == true
 
 - name: CentOS 7 | Distribute rsa ssh key
   authorized_key:
     state: present
     user: "{{ ansible_user }}"
     key: "{{ lookup('file', '{{ssh_dir}}/id_rsa.pub') }}"
+  when: keys_rsa.enabled == true
 
 # old style
 #  authorized_key: state=present user="{{ ansible_user }}" key="{{ lookup('file', '{{ansible_env.HOME}}/.ssh/id_rsa.pub') }}"

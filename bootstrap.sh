@@ -38,13 +38,18 @@ cat <<EOH | more
     Assume YES or NO to any questions (may be dangerous).
  -v / -q
     Be verbose (also show all logs) / Be quiet (only show necessary output)
- -c FILE
+ -c <FILE>
     If you have a deploy.yml ready to go, give its path to this arg.
- -o, --override-dns NS1,NS2,NS*
+
+[Platform Options]
+ --ssh-private-key <id_rsa | id_ed25519>
+ --ssh-public-key <id_rsa.pub | id_ed25519.pub>
+    Import SSH public key auth material and use it when authenticating to remote nodes.
+ -o, --override-dns <NS1,NS2,NS*>
     Override DHCP-configured nameserver(s); use these instead. No spaces! Use of -o is deprecated, please use --override-dns.
  -g, --vm-tools
     Install virtual machine guest agents and utilities for QEMU and VMWare. VirtualBox is not supported at this time. Use of -g is deprecated, please use --vm-tools.
- -m, --centos-mirror URL
+ -m, --centos-mirror <URL>
     Use the provided package <mirror> when fetching packages for the base OS (but not 3rd-party sources, such as EPEL or Debian-style PPAs). The mirror is specified as '<host>:<port>'. This option overrides any mirror lists the base OS would normally use AND supersedes any proxies (assuming the mirror is local), so be warned that when using this option it's possible for bootstrapping to hang indefinitely if the mirror cannot be contacted. Use of -m is deprecated, please use --centos-mirror.
 
 [Docker Options]
@@ -54,20 +59,20 @@ cat <<EOH | more
  -l, --registry-login
     After Docker is installed, login to the Docker registry to access images which require access authentication. This will authenticate with Dockerhub unless --registry-endpoint is also used. Use of -l is deprecated, please use --registry-login.
 
- -d, --registry-cert FILE
+ -d, --registry-cert <FILE>
     [Requires --registry-endpoint] If an alternate Docker registry was specified with -r and uses a cert that cannot be resolved from the anchors in the local system's trust store, then use -d to specify the x509 cert file for your registry.
 
 [Proxies & Middlemen]
- -p, --proxy-endpoint PROXY
+ -p, --proxy-endpoint <PROXY>
     Connect to the Internet via the PROXY specified as '[user:pass@]<host>:<port>'. Items in [] are optional. It is assumed this proxy handles all protocols.  Use of -p is deprecated, please use --proxy-endpoint.
- -k, --proxy-cert FILE
+ -k, --proxy-cert <FILE>
     Install the certificate in <file> into the local trust store. This is useful for environments that live behind a corporate HTTPS proxy.  Use of -k is deprecated, please use --proxy-cert.
- -t, --proxy-test-via HOSTSPEC
+ -t, --proxy-test-via <HOSTSPEC>
     [Requires --proxy-endpoint] Test Internet connectivity through the PROXY by connecting to HOSTSPEC. HOSTSPEC is specified as '<host>:<port>'. By default 'google.com:80' is used. Unless access to Google is blocked (or vice versa), there is no need to change the default.
 
 [Examples]
- Install VM guest agents and install the corporate firewall cert in certs/mitm.pem.
-    $ bash bootstrap.sh --vm-tools --proxy-cert certs/mitm.pem
+ Install VM guest agents and use SSH public key auth keys in the .ssh/ directory.
+    $ bash bootstrap.sh --vm-tools --ssh-private-key .ssh/id_rsa --ssh-public-key .ssh/id_rsa.pub
 
  Quietly use nlanr.peer.local on port 80 and test the connection using EMC's webserver.
     $ bash bootstrap.sh -q --proxy-endpoint nlanr.peer.local:80 -proxy-test-via emc.com:80
@@ -223,19 +228,21 @@ while true; do
     -c|--deploy-config)
         export deploy_flag=true
         export deploy_val="${2}"
-        ensure_file_exists "${deploy_val}" "ecs-install deployment file"
+        ensure_file_exists "${deploy_val}" "ecs-install deployment file: not found"
         shift 2
         ;;
     --ssh-private-key)
         export ssh_private_key_flag=true
         export ssh_private_key_val="${2}"
         ensure_file_exists "${ssh_private_key_val}" "SSH private key file"
+        ensure_string_list_matches id_rsa,id_ed25519 "${ssh_private_key_val}" "SSH private key file: bad name"
         shift 2
         ;;
     --ssh-public-key)
         export ssh_public_key_flag=true
         export ssh_public_key_val="${2}"
-        ensure_file_exists "${ssh_public_key_val}" "SSH public key file"
+        ensure_file_exists "${ssh_public_key_val}" "SSH public key file: not found"
+        ensure_string_list_matches id_rsa.pub,id_ed25519.pub "${ssh_public_key_val}" "SSH public key file: bad name"
         shift 2
         ;;
     -m|--centos-mirror)
@@ -261,7 +268,7 @@ while true; do
     -k|--proxy-cert)
         export mitm_flag=true
         export mitm_val="${2}"
-        ensure_file_exists "${mitm_val}" "HTTPS proxy cert"
+        ensure_file_exists "${mitm_val}" "HTTPS proxy cert: not found"
         shift 2
         ;;
     -t|--proxy-test-via)
@@ -282,7 +289,7 @@ while true; do
     -d|--registry-cert)
         export regcert_flag=true
         export regcert_val="${2}"
-        ensure_file_exists "${regcert_val}" "Docker registry cert"
+        ensure_file_exists "${regcert_val}" "Docker registry cert: not found"
         shift 2
         ;;
 # Build Tools

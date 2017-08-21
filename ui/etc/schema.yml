@@ -57,6 +57,7 @@ mapping:
             required: False
           ssh_crypto:
             type: str
+            func: valid_crypto_method
             required: False
 
       node_defaults:

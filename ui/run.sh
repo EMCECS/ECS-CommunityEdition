@@ -19,7 +19,6 @@ cd ${root}
 #
 # Imports and import configs
 source ${lib}/includes.sh
-# source ${lib}/versioning.sh
 #
 ##############################################################################
 

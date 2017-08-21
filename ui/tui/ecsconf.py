@@ -66,7 +66,7 @@ ANSIBLE_SPECIAL_KEYS = {
     'ansible_become_pass': '#password#',
     'ansible_port': '#ssh_port#'
 }
-# 'ansible_password': 'password',
+
 ANSIBLE = 'sshs'
 ANSIBLE_D = ANSIBLE[:-1] + _D
 DEFAULTS[ANSIBLE] = {
@@ -78,7 +78,10 @@ DEFAULTS[ANSIBLE] = {
     'ansible_ssh_pass': None,
     'ansible_become_pass': None,
     'ssh_port': ANSIBLE_PORT_DEFAULT,
-    'ansible_port': None
+    'ansible_port': None,
+    'ssh_crypto': 'rsa',
+    'ssh_private_key': 'id_rsa',
+    'ssh_public_key': 'id_rsa.pub'
 }
 
 # Node-level stuff
