@@ -36,31 +36,16 @@ facts:
     # [Required]
     # Username to use when logging in to nodes
     ssh_username: admin
-    # [Required for initial password auth]
+    # [Required]
     # Password to use with SSH login
-    # Comment out or set to None to require SSH public key authentication
+    # *** Set to same value as ssh_username to enable SSH public key authentication ***
     ssh_password: ChangeMe
-    # [Required for initial ssh public key auth]
-    # The name of a file containing the OpenSSH Private Key portion of
-    # an SSH public key auth keypair.
-    # This file must be placed in the following host directory:
-    #    /opt/emc/ecs-install/ssh/
-    # The above directory must have the permissions: 0700
-    # This file must have the permissions: 0600
-    ssh_private_key: id_rsa
-    # [Optional for initial SSH public key auth;
-    #  Required for initial password auth]
-    # The name of a file containing the OpenSSH Public Key portion of
-    # an SSH public key auth keypair.
-    # This file must be placed in the following host directories:
-    #    /opt/emc/ecs-install/ssh/
-    #    $HOME/.ssh/
-    # The above directories must have the permissions: 0700
-    # This file must have the permissions: 0600
-    ssh_public_key: id_rsa.pub
-    # [Optional]
-    # Select the type of crypto to use when generating SSH keypairs for
-    # ssh public key authentication. Valid values here are:
+    # [Required when enabling SSH public key authentication]
+    # Password to give to sudo when gaining root access.
+    ansible_become_pass: ChangeMe
+    # [Required]
+    # Select the type of crypto to use when dealing with ssh public key
+    # authentication. Valid values here are:
     #  - "rsa" (Default)
     #  - "ed25519"
     ssh_crypto: rsa
