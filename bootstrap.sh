@@ -47,7 +47,7 @@ cat <<EOH | more
     Import SSH public key auth material and use it when authenticating to remote nodes.
  -o, --override-dns <NS1,NS2,NS*>
     Override DHCP-configured nameserver(s); use these instead. No spaces! Use of -o is deprecated, please use --override-dns.
- -g, --vm-tools
+ -g, --install-vm-tools
     Install virtual machine guest agents and utilities for QEMU and VMWare. VirtualBox is not supported at this time. Use of -g is deprecated, please use --vm-tools.
  -m, --centos-mirror <URL>
     Use the provided package <mirror> when fetching packages for the base OS (but not 3rd-party sources, such as EPEL or Debian-style PPAs). The mirror is specified as '<host>:<port>'. This option overrides any mirror lists the base OS would normally use AND supersedes any proxies (assuming the mirror is local), so be warned that when using this option it's possible for bootstrapping to hang indefinitely if the mirror cannot be contacted. Use of -m is deprecated, please use --centos-mirror.

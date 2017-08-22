@@ -28,7 +28,7 @@
     group: root
 
 - name: Run boostrap script
-  shell: /root/ecs/bootstrap.sh -n --build-from http://10.1.83.5/alpine --vm-tools --proxy-cert /root/ecs/contrib/sslproxycert/emc_ssl.pem --proxy-endpoint 10.1.83.5:3128 -c /root/ecs/deploy.yml --centos-mirror 10.1.83.5
+  shell: /root/ecs/bootstrap.sh -n --build-from http://10.1.83.5/alpine --install-vm-tools --proxy-cert /root/ecs/contrib/sslproxycert/emc_ssl.pem --proxy-endpoint 10.1.83.5:3128 -c /root/ecs/deploy.yml --centos-mirror 10.1.83.5
 
 - name: reboot nodes
   shell: sleep 2 && shutdown -r now "Ansible reboot"
