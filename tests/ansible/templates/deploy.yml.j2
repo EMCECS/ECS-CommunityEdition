@@ -10,6 +10,8 @@ facts:
   ssh_defaults:
     ssh_username: {{ ansible_ssh_user }}
     ssh_password: {{ ansible_ssh_pass }}
+    ansible_become_pass: {{ ansible_ssh_pass }}
+    ssh_crypto: rsa
 
   node_defaults:
     dns_domain: local
