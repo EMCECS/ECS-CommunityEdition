@@ -247,13 +247,13 @@ If you would prefer to manually configure your ECS topology, you may skip this s
 
 ## OVA Installation
 
-ECS Community Edition can optionally be installed with the OVA available [here](http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.2-install-node-2.3.0-vm0.ova). To install with this method:
+ECS Community Edition can optionally be installed with the OVA available [on the release notes page](https://github.com/EMCECS/ECS-CommunityEdition/releases). To install with this method:
 
 ### 1. Download and deploy the OVA to a VM
 
 ### 2. Adjust the resources to have a minimum of:
 
-    * 16GB RAM 
+    * 16GB RAM
     * 4 CPU cores
     * (Optional) Increase vmdk from the minimum 104GB
 
@@ -269,13 +269,13 @@ You may also assign static IP addresses by logging into each VM and running `nmt
 
 Follow the directions laid out in the standard installation concerning the creation of the deploy.yml file (section 2).
 
-After completing the deploy.yml file, exit out of `videploy`, this will update the deploy.yml file. 
+After completing the deploy.yml file, exit out of `videploy`, this will update the deploy.yml file.
 
 ### 6. Run `step1`
 
 ### 7. Run `step2`
 
-###### Important Note: `step1` and `step2` are not scripts and should not be run as such. `./step1` is not a valid command. 
+###### Important Note: `step1` and `step2` are not scripts and should not be run as such. `./step1` is not a valid command.
 
 
 ## That's it!

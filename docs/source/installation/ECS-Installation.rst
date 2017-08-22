@@ -108,7 +108,7 @@ run:
 -  for .tar.gz archive ``tar -xzvf ECS-CommunityEdition.tar.gz``
 
 Important Note
-              
+
 
     This documentation refers only to the ``ECS-CommunityEdition``
     directory, but the directory created when unarchiving the release
@@ -121,7 +121,7 @@ Important Note
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Important Note
-              
+
 
     When installing using the OVA method, please run ``videploy`` at
     this time and skip to Step 2.2.
@@ -220,7 +220,7 @@ minimum values and may not yield optimal results for your environment.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Important Note
-              
+
 
     When installing using the OVA method, please skip to Step 4.
 
@@ -365,7 +365,7 @@ deployment can continue.
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Important Note
-              
+
 
     If you are deploying to Internet-connected nodes and used ``step1``
     to begin your deployment, please skip to **Step 5**.
@@ -399,7 +399,7 @@ OVA Installation
 
 ECS Community Edition can optionally be installed with the available
 `single-node
-(recommended) <http://130852476153187606.public.ecstestdrive.com/public/dellemc-ecsce-3.0.0.2-install-node-2.3.0-vm0.ova>`__
+(recommended) <http://ecsce.readthedocs.io/en/latest/installation/ECS-Installation.html>`__
 and
 `multi-node <http://ecsce.readthedocs.io/en/latest/installation/ECS-Installation.html>`__
 OVAs. To install with this method:
@@ -412,7 +412,7 @@ OVAs. To install with this method:
 
 ::
 
-    * 16GB RAM 
+    * 16GB RAM
     * 4 CPU cores
     * (Optional) Increase vmdk from the minimum 104GB
 
@@ -445,7 +445,7 @@ will update the deploy.yml file.
 ~~~~~~~~~~~~~~~~
 
 Important Note: ``step1`` and ``step2`` are not scripts and should not be run as such. ``./step1`` is not a valid command.
-                                                                                                                          
+
 
 That's it!
 ----------
