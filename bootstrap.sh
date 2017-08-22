@@ -101,7 +101,8 @@ cat <<EOH | more
 
 [Build Options]
  --zero-fill-ova
-
+    Reduce ephemera, defrag, and zerofill the instance after bootstrapping
+--build-from
 
 
 For additional information, read the docs on GitHub.
@@ -181,7 +182,7 @@ fi
 if ! O=$(
          getopt \
          -l build-from:,deploy-config:,registry-cert:,help,proxy-cert:registry-login,centos-mirror:,override-dns:,proxy-endpoint:,registry-endpoint:,proxy-test-via:,install-vm-tools,zero-fill-ova,ssh-private-key:,ssh-public-key:,version,help-build,yes,no,verbose,quiet \
-         -o c:d:hk:lm:no:r:t:b:p:gyvqz \
+         -o c:d:hk:lm:no:r:t:p:gyvqz \
          -n "${0}" \
          -- ${@}
         ); then
