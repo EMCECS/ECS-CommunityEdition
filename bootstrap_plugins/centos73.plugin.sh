@@ -18,7 +18,7 @@ docker_binary='/bin/docker'
 
 # packages to clean up during preflight
 # Don't `yum autoremove curl`.  Yum is a dependency and it will throw errors.
-list_preflight_packages="git nfs-client nfs-tools rsync wget ntp docker vim pigz gdisk aria2 htop iotop iftop multitail dstat jq python-docker-py dkms qemu-guest-agent open-vm-tools docker"
+list_preflight_packages="git nfs-client nfs-tools rsync wget ntp docker vim pigz gdisk aria2 htop iotop iftop multitail dstat jq python-docker-py dkms qemu-guest-agent open-vm-tools open-vm-tools-desktop docker"
 
 # Do any OS-specific tasks that must be done prior to bootstrap
 do_preflight() {
@@ -62,7 +62,7 @@ in_suffix_packages() {
 }
 
 # packages to install if a VM
-list_vm_packages='dkms qemu-guest-agent open-vm-tools'
+list_vm_packages='dkms qemu-guest-agent open-vm-tools open-vm-tools-desktop'
 
 # command to run for installing vm_packages
 in_vm_packages() {
