@@ -4,7 +4,7 @@ Module for querying ECS diagnostic service
 
 import requests
 from xml.etree import ElementTree
-from defaults import *
+from constants import *
 
 
 class ECSDiag(object):

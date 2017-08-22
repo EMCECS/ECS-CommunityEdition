@@ -1,5 +1,5 @@
 # coding=utf-8
 import tui
-from tui.defaults import *
+from tui.constants import *
 import ui
 

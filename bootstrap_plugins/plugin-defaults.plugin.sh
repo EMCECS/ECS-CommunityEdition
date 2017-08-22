@@ -16,8 +16,11 @@ os_supported=false
 # Caller symlinks
 unset symlink_scripts
 symlink_scripts() {
-    symlinks="ecsdeploy catfacts enter pingnodes step1 step2 island-step1 island-step2 update_deploy update_image rebuild_image inventory testbook videploy"
-    symlinks="${symlinks} island-step3 ecsconfig ecsremove"
+    symlinks="ecsdeploy ecsconfig ecsremove catfacts enter pingnodes  update_deploy"
+    symlinks="${symlinks} update_image rebuild_image inventory testbook videploy"
+    symlinks="${symlinks} step1 step2"
+    symlinks="${symlinks} island-step1 island-step2 island-step3"
+    symlinks="${symlinks} ova-step1 ova-step2"
     mkdir -p "${HOME}/bin"
     for l in $symlinks; do
         ln -s "${root}/ui/run.sh" "${HOME}/bin/$l" 2>/dev/null
@@ -29,4 +32,10 @@ update_path_in_bashrc() {
     log "sed error is OK here if the proxy config file does not yet exist."
     sudo sed -i -e '/PATH/d' $HOME/.bashrc
     echo 'export PATH=$PATH:$HOME/.local/bin:$HOME/bin' >> $HOME/.bashrc
+}
+
+create_install_tree() {
+    for pathname in "${ui_host_ssl_dir}" "${ui_host_ssh_dir}"; do
+        sudo mkdir -p "${pathname}"
+    done
 }

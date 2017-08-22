@@ -1,4 +1,4 @@
-# deploy.yml reference implementation v2.1.0
+# deploy.yml reference implementation v2.2.0
 
 # [Optional]
 # By changing the license_accepted boolean value to "true" you are
@@ -33,10 +33,22 @@ facts:
   # gain initial access to each node in the deployment and set up ssh public key authentication.
   # If these are not correct, the deployment will fail.
   ssh_defaults:
-    # Username to login as
+    # [Required]
+    # Username to use when logging in to nodes
     ssh_username: admin
+    # [Required]
     # Password to use with SSH login
+    # *** Set to same value as ssh_username to enable SSH public key authentication ***
     ssh_password: ChangeMe
+    # [Required when enabling SSH public key authentication]
+    # Password to give to sudo when gaining root access.
+    ansible_become_pass: ChangeMe
+    # [Required]
+    # Select the type of crypto to use when dealing with ssh public key
+    # authentication. Valid values here are:
+    #  - "rsa" (Default)
+    #  - "ed25519"
+    ssh_crypto: rsa
 
   # [Required]
   # Environment configuration for this deployment.
@@ -57,14 +69,14 @@ facts:
     # [Optional]
     # Picklist for node names.
     # Available options:
-    # - "moons" (ECS CE default)
-    # - "cities" (ECS SKU-flavored)
+    #  - "moons" (ECS CE default)
+    #  - "cities" (ECS SKU-flavored)
     autonaming: moons
     #
     # [Optional]
     # If your ECS comes with differing default credentials, you can specify those here
-    ecs_root_user: root
-    ecs_root_pass: ChangeMe
+    # ecs_root_user: root
+    # ecs_root_pass: ChangeMe
 
   # [Optional]
   # Storage pool defaults. Configure to your liking.

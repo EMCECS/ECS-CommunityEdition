@@ -45,6 +45,21 @@ ensure_string_matches() {
     fi
 }
 
+ensure_string_list_matches() {
+    local needles="${1}"
+    shift
+    local haystack="${1}"
+    shift
+    local message="${*}"
+    local found=false
+    for needle in ${needles/,/ }; do
+        if echo "${haystack}" | grep "${needle}" >/dev/null; then
+           found=true
+        fi
+    done
+    ! $found && die "${message}"
+}
+
 # The missing privileged file "redirection" command
 append() {
     sudo dd status=none oflag=append conv=notrunc of="${1}"
@@ -171,6 +186,7 @@ retry_with_timeout() {
 
     while [[ _attempt < _attempts ]] && [[ "$(epoch_now)" < "${_timeout_time}" ]] && ! $_cmd; do
         ((_attempt++))
+        sleep 1
     done
 }
 

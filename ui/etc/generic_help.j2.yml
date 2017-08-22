@@ -1,0 +1,14 @@
+help_refs:
+  - name: GitHub ECS Community and Help
+    url: "http://github.com/EMCECS/ECS-CommunityEdition"
+  - name: "@EMCECS on Twitter"
+    url: "http://twitter.com/EMCECS"
+  - name: ECS Resources at EMC
+    url: "http://community.emc.com/community/products/vipr"
+generic_help: &generic_help |-
+  Use the arrow and page keys to navigate and [ENTER] or [SPACE] to select.
+  If your terminal has mouse support, you can point and click around most pages.
+  If you need more help, there are several resources to assist you.
+
+  {% for ref in help_refs %}{{ ref.name }}: {{ref.url}}
+  {% endfor %}

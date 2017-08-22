@@ -49,6 +49,16 @@ mapping:
           ansible_become_pass:
             type: str
             required: False
+          ssh_private_key:
+            type: str
+            required: False
+          ssh_public_key:
+            type: str
+            required: False
+          ssh_crypto:
+            type: str
+            func: valid_crypto_method
+            required: False
 
       node_defaults:
         type: map
