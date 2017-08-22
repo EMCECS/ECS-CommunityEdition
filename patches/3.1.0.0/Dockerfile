@@ -1,14 +1,16 @@
-# Fixes to the default 3.0HF image.
-FROM emcvipr/object:3.1.0.0-93256.00e3410-reduced
+# Fixes to the default 3.1.0.0 reduced image.
+# RC3
+FROM emcvipr/object:3.1.0.0-95253.5cf9ea0-reduced
 
 # Increase memory for transformsvc
-ADD transformsvc /opt/storageos/bin/
+RUN sed -i s/-Xmx128m/-Xmx512m/ /opt/storageos/bin/transformsvc
 
 # Fix disk partitioning script
-ADD storageserver-partition-config.sh /opt/storageos/bin/
+RUN sed -i '/VMware/ s/$/ \&\& [ ! -e \/data\/is_community_edition ]/' /opt/storageos/bin/storageserver-partition-config.sh
+
 RUN /usr/bin/chmod +x /opt/storageos/bin/storageserver-partition-config.sh
 
 # Make vnest use separate thread pools to prevent deadlock
-ADD vnest.object.properties /opt/storageos/conf/
+RUN printf "\n# Use separate thread pools to prevent deadlock in vnest init\nobject.UseSeparateThreadPools=true\n" >> /opt/storageos/conf/vnest.object.properties
 
 RUN f=/opt/storageos/conf/vnest-common-conf-template.xml; grep -q "object.UseSeparateThreadPools" $f || sed -i '/properties id="serviceProperties"/a \ \ \ \ \ \ \ \ <prop key="object.UseSeparateThreadPools">true</prop>' $f
