@@ -33,7 +33,7 @@ RUN apk -q --no-cache upgrade
 RUN apk -q --no-cache add openssh-client sshpass openssl ca-certificates libffi libressl@edge_main \
                              pigz jq less \
                              opentracker aria2 mktorrent@edge_community \
-                             ansible
+                             ansible@edge_main
 
 # Setup the environment
 RUN mv /etc/profile.d/color_prompt /etc/profile.d/color_prompt.sh \
