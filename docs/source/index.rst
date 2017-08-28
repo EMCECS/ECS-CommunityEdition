@@ -12,6 +12,8 @@ Welcome to ECS Community Edition's documentation!
    :maxdepth: 1
 
    installation/ECS-Installation.rst
+   installation/deploy.yml.rst
+   installation/public-key-authentication.rst
    use/ECS-UI-Web-Interface.rst
    use/Migration.rst
    troubleshooting/ECS-Troubleshooting.rst

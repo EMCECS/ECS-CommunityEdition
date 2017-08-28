@@ -2,7 +2,8 @@
   hosts: install_node
   vars:
     ansible_ssh_pipelining: false
-    ansible_ssh_common_args: -o PreferredAuthentications=password -o PubkeyAuthentication=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=60s
+  vars_files:
+    - vars/{{auth_type}}_auth.yml
   tasks:
      - group_by: key=os_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}
 
@@ -15,6 +16,7 @@
   hosts: os_CentOS_7
   vars:
     ansible_ssh_pipelining: false
-    ansible_ssh_common_args: -o PreferredAuthentications=password -o PubkeyAuthentication=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=60s
+  vars_files:
+    - vars/{{auth_type}}_auth.yml
   roles:
     - CentOS_7_configure_ssh

@@ -15,7 +15,7 @@ import jinja2
 import sys
 import os
 import click
-from defaults import *
+from constants import *
 
 logging.basicConfig(filename=ui_log, level=logging.DEBUG)
 logging.debug('-' * 40 + os.path.abspath(__file__) + '-' * 40)

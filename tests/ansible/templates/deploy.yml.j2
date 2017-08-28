@@ -1,0 +1,104 @@
+licensing:
+  license_accepted: true
+
+facts:
+  install_node: {{ ansible_default_ipv4.address }}
+
+  management_clients:
+    - 0.0.0.0/0
+
+  ssh_defaults:
+    ssh_username: {{ ansible_ssh_user }}
+    ssh_password: {{ ansible_ssh_pass }}
+    ansible_become_pass: {{ ansible_ssh_pass }}
+    ssh_crypto: rsa
+
+  node_defaults:
+    dns_domain: local
+    dns_servers:
+      - 10.1.83.19
+    ntp_servers:
+      - mickey.lss.emc.com
+      - minnie.lss.emc.com
+
+    entropy_source: /dev/urandom
+
+    autonaming: moons
+
+    ecs_root_user: root
+    ecs_root_pass: ChangeMe
+
+  storage_pools:
+    - name: sp1
+      members:
+{% for host in groups['ecs_nodes'] %}
+        - {{ hostvars[host]['inventory_hostname'] }}
+{% endfor %}
+      options:
+        description: Storage pool 1
+        is_protected: false
+        is_cold_storage_enabled: false
+        description: My First SP
+        ecs_block_devices:
+          - /dev/sdb
+
+  virtual_data_centers:
+    - name: vdc1
+      members:
+        - sp1
+      options:
+        description: My First VDC
+
+  replication_groups:
+    - name: rg1
+      members:
+        - vdc1
+      options:
+        description: My First RG
+        enable_rebalancing: true
+        allow_all_namespaces: true
+        is_full_rep: false
+
+  management_user_defaults:
+    is_system_admin: false
+    is_system_monitor: false
+
+  management_users:
+    - username: admin1
+      password: ChangeMe
+      options:
+        is_system_admin: true
+    - username: monitor1
+      password: ChangeMe
+      options:
+        is_system_monitor: true
+
+  namespaces:
+    - name: ns1
+      replication_group: rg1
+      administrators:
+        - root
+      options:
+        is_stale_allowed: false
+        is_compliance_enabled: false
+
+  object_user_defaults:
+    swift_groups_list:
+      - users
+    s3_expiry_time: 2592000
+
+  object_users:
+    - username: object_admin1
+      namespace: ns1
+      options:
+        swift_password: ChangeMe
+        swift_groups_list:
+          - admin
+          - users
+        s3_secret_key: ChangeMeChangeMeChangeMeChangeMeChangeMe
+        s3_expiry_time: 2592000
+    - username: object_user1
+      namespace: ns1
+      options:
+        swift_password: ChangeMe
+        s3_secret_key: ChangeMeChangeMeChangeMeChangeMeChangeMe

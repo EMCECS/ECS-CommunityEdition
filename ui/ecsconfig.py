@@ -26,7 +26,7 @@ from tui.tools import o, die, logobj
 import time
 import simplejson
 from sarge import Capture, run, shell_format, capture_both, get_both
-from tui.defaults import *
+from tui.constants import *
 from ecsclient.client import Client
 from ecsclient.common.exceptions import ECSClientException
 
@@ -369,7 +369,7 @@ def licensing(conf, l, a, c):
         return conf.api_client.licensing.get_license()['license_text']
 
     def add_license(license_blob):
-        # license_text is a global variable from defaults.py which
+        # license_text is a global variable from constants.py which
         # can be overridden.
         # o(license_blob)
         #license_dict = {"license_text": license_blob.rstrip('\n')}

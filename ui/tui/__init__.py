@@ -1,6 +1,6 @@
 # coding=utf-8
-import defaults
-from defaults import *
+import constants
+from constants import *
 from tui import *
 from tools import *
 from tabview import *

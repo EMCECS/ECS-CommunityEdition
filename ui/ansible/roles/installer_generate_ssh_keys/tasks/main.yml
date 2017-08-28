@@ -1,20 +1,25 @@
-- include_vars: main.yml
-
 - name: Installer | Check RSA Keypair
   stat: path="{{keys_rsa.priv_key}}"
   register: rsa_keypair
+  when: keys_rsa.enabled == True
 
 - name: Installer | Generate RSA Keypair
   command: "{{keys_rsa.keygen_cmd}} {{keys_rsa.priv_key}}"
-  when: not rsa_keypair.stat.exists
+  when: keys_rsa.enabled == True and ( not rsa_keypair.stat.exists )
 
 - name: Installer | Check ed25519 Keypair
   stat: path="{{keys_ed25519.priv_key}}"
   register: ed25519_keypair
+  when: keys_ed25519.enabled
 
 - name: Installer | Generate ed25519 Keypair
   command: "{{keys_ed25519.keygen_cmd}} {{keys_ed25519.priv_key}}"
-  when: not ed25519_keypair.stat.exists
+  when: keys_ed25519.enabled and ( not ed25519_keypair.stat.exists )
+
+- name: Installer | Fail when no crypto selected
+  fail:
+    msg: "No ssh pubkey auth crypto type selected. Check ssh_defaults/ssh_crypto in deploy.yml."
+  when: ( not keys_rsa.enabled ) and ( not keys_ed25519.enabled )
 
 - name: Installer | Ensure directory permissions on ssh keystore
   file:

@@ -1,24 +1,24 @@
-keys_rsa:
-  keygen_cmd: ssh-keygen -N '' -t rsa -b 4096 -o -a 100 -f
-  priv_key: /opt/ssh/id_rsa
-  pub_key: /opt/ssh/id_rsa.pub
-keys_ed25519:
-  keygen_cmd: ssh-keygen -N '' -t ed25519 -o -a 100 -f
-  priv_key: /opt/ssh/id_ed25519
-  pub_key: /opt/ssh/id_ed25519.pub
-ssh_dir_paths:
-  /opt/ssh:
-    mode: 700
-    owner: root
-    group: root
-    state: directory
-  /opt/ssh/id_ed25519:
-    mode: 600
-    owner: root
-    group: root
-    state: file
-  /opt/ssh/id_rsa:
-    mode: 600
-    owner: root
-    group: root
-    state: file
+#keys_rsa:
+#  keygen_cmd: ssh-keygen -N '' -t rsa -b 4096 -o -a 100 -f
+#  priv_key: /opt/ssh/id_rsa
+#  pub_key: /opt/ssh/id_rsa.pub
+#keys_ed25519:
+#  keygen_cmd: ssh-keygen -N '' -t ed25519 -o -a 100 -f
+#  priv_key: /opt/ssh/id_ed25519
+#  pub_key: /opt/ssh/id_ed25519.pub
+#ssh_dir_paths:
+#  /opt/ssh:
+#    mode: 700
+#    owner: root
+#    group: root
+#    state: directory
+#  /opt/ssh/id_ed25519:
+#    mode: 600
+#    owner: root
+#    group: root
+#    state: file
+#  /opt/ssh/id_rsa:
+#    mode: 600
+#    owner: root
+#    group: root
+#    state: file
