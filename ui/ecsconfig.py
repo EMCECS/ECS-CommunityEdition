@@ -147,19 +147,21 @@ class Conf(tui.Director):
         else:
             return True
 
-    def diag_dt_status_text(self, dt_data=None):
+    def diag_dt_status(self, dt_data=None):
         """
         Get a status string
         :return: dt status string
         """
         logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
         dt_string = None
+        diag_success = False
 
         if dt_data is None:
             try:
                 dt_data = self.diag_dt_get()
             except Exception as e:
                 dt_string = "dt_query fail: {}".format(e)
+                diag_success = False
 
         if dt_string is None:
             try:
@@ -168,10 +170,13 @@ class Conf(tui.Director):
                     dt_data['total_dt_num'],
                     dt_data['unready_dt_num'],
                     dt_data['unknown_dt_num'])
+                diag_success = True
             except Exception as e:
                 dt_string = "dt_query fail: {}".format(e)
+                diag_success = False
 
-        return dt_string
+        return {'status': diag_success,
+                'text': dt_string}
 
     def wait_for_dt_ready(self):
         """
@@ -290,15 +295,20 @@ def ping(conf, c, w, x):
                 resp_dict = conf.api_client.user_info.whoami()
                 if resp_dict is not None:
                     if resp_dict['common_name'] is not None:
+                        dt_status = conf.diag_dt_status()
                         o('PONG: api_endpoint={} username={} {}'.format(conf.api_endpoint,
                                                                         resp_dict['common_name'],
-                                                                        conf.diag_dt_status_text()))
+                                                                        dt_status['text']))
                         if x:
-                            pinging = False
+                            if dt_status['status'] is True:
+                                pinging = False
+                            else:
+                                pinging = True
                     else:
                         raise ECSClientException("Unexpected response from API")
             except requests.ConnectionError or httplib.HTTPException:
-                o("FAIL: API service unavailable {}".format(conf.diag_dt_status_text()))
+                dt_status = conf.diag_dt_status()
+                o("FAIL: API service unavailable {}".format(dt_status['text']))
                 try:
                     del conf.api_client
                     if not c:
