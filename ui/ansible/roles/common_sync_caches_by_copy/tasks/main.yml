@@ -10,7 +10,7 @@
     state: directory
     path: "{{host_cache_dir}}/{{ item }}"
   with_items: "{{ caches.keys() }}"
-  when: "{{flag_install_node is not defined}}"
+  when: flag_install_node is not defined
   tags: files
 
 # This could be faster with synchronize (rsync) but
@@ -20,5 +20,5 @@
   copy:
     src: "{{cache_dir}}/{{item.key}}/"
     dest: "{{host_cache_dir}}/{{item.key}}/"
-  when: "{{ item.value.applies_to in group_names }} and {{flag_install_node is not defined}}"
+  when: ( item.value.applies_to in group_names ) and ( flag_install_node is not defined )"
   with_dict: "{{ caches }}"

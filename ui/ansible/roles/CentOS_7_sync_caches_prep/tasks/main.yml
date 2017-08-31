@@ -7,7 +7,7 @@
 - name: CentOS 7 | Make yum cache paths for torrent packages
   shell: mkdir -p $(dirname {{item}})
   with_items: "{{ aria_packages.stdout_lines }}"
-  when: "{{flag_install_node is not defined}}"
+  when: flag_install_node is not defined
   #creates: "{{host_cache_dir}}/disable_package_cache.sem"
 
 - name: CentOS 7 | Copy torrent packages to nodes
@@ -15,7 +15,7 @@
     src: "{{item}}"
     dest: "{{item}}"
   with_items: "{{ aria_packages.stdout_lines }}"
-  when: "{{flag_install_node is not defined}}"
+  when: flag_install_node is not defined
   #creates: "{{host_cache_dir}}/disable_package_cache.sem"
 
 - name: CentOS 7 | Install torrent packages on nodes
@@ -25,5 +25,5 @@
     state: installed
     update_cache: no
   with_items: "{{ aria_packages.stdout_lines }}"
-  when: "{{flag_install_node is not defined}}"
+  when: flag_install_node is not defined
   #creates: "{{host_cache_dir}}/disable_package_cache.sem"
