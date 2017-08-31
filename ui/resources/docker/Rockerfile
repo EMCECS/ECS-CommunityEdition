@@ -85,4 +85,4 @@ VOLUME [ "/opt", "/usr/local", "/var/log", "/root", "/etc" ]
 LABEL VERSION={{ .Version }}
 ENV VERSION={{ .Version }}
 TAG {{ .Version }}
-PUSH {{ .BuildPush }}
+# PUSH {{ .BuildPush }}
