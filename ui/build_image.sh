@@ -43,6 +43,8 @@ elif ! [ -z "$1" ] && [ "$1" == "--update-mirror" ]; then
     fi
 fi
 
+build_push=false
+
 o "Building image ${image_name}"
 o "Build context is: ${context}"
 
@@ -68,7 +70,8 @@ BuildPush="-var BuildPush=${latest_image_path}"
 case $context in
 
     release)
-        BuildPush="--push ${BuildPush}"
+        # BuildPush="--push ${BuildPush}"
+        build_push=true
         o "I will push a release image to the registry after build"
     ;;
 
@@ -105,9 +108,13 @@ Rockerfile="-f ui/resources/docker/Rockerfile"
 o "UI artifact is: ${ui_artifact}"
 # Currently using the Ansible apk
 # o "Ansible artifact is: ${ansible_artifact}"
-sudo /usr/local/bin/rocker build $Context $Version $Artifacts $FromImage $BuildPush $Rockerfile $HTTPProxy $PipProxy . || img_build_fail
+sudo /usr/local/bin/rocker build $Context $Version $Artifacts $FromImage $Rockerfile $HTTPProxy $PipProxy . || img_build_fail
 
 o "Tagging ${full_image_path} -> ${image_release}"
 sudo docker tag "${full_image_path}" "${image_release}" || img_pull_fail
+
+if ${build_push}; then
+    sudo docker push "${image_release}"
+fi
 
 exit 0
