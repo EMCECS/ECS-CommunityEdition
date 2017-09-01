@@ -781,7 +781,7 @@ if get_os_needs_restarting; then
 fi
 
 if ${zerofill_flag}; then
-    sudo "${INSTALL_ROOT}/tools/zerofill.sh"
+    sudo bash "${INSTALL_ROOT}/tools/zerofill.sh"
 fi
 
 
