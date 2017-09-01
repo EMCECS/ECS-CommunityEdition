@@ -28,12 +28,14 @@
     src: "{{host_cache_dir}}/{{os_tag}}/package_cache.tgz"
     dest: /
     creates: "{{host_cache_dir}}/disable_package_cache.sem"
-  when: not ( num_data_nodes|int == 1 and top_data_node == install_node )
+  when:
+    - not ( num_data_nodes|int == 1 and top_data_node == install_node )
+    - ova is not defined
 
 # TODO: Improve this
 # This is suuuuuper hacky - There should be a better way using the yum module,
 # but feeding it a list of specific package names when not connected to the
-# Internet is... trying.
+# Internet is... not conducive to sanity.
 # BUG: If two different versions of the same package manage to wind up in the cache
 # it will cause this whole thing to fail. There is a race condition during the
 # two different runs of `yum update` during bootstrap.sh that causes it.
@@ -42,7 +44,9 @@
   shell: yum -y -t -e0 -C --nogpgcheck --exclude epel-release-7-9.noarch install $(find /var/cache/yum -type f -name "*.rpm") || yum -y -t -e0 -C --nogpgcheck update
   args:
     creates: "{{host_cache_dir}}/disable_package_cache.sem"
-  when: not ( num_data_nodes|int == 1 and top_data_node == install_node )
+  when:
+    - not ( num_data_nodes|int == 1 and top_data_node == install_node and ova is defined )
+    - ova is not defined
 
 - name: CentOS 7 | Configure ntp
   template: src=ntp.conf.j2 dest=/etc/ntp.conf
