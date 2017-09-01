@@ -2,7 +2,9 @@
 - name: CentOS 7 | Check needs-restarting
   shell: /bin/needs-restarting -r
   register: needs_restarting
+  ignore_errors: True
   when: ova is not defined
+
 ## 776 : /sbin/dhclient
 #- name: "Debug the needs_restarting output"
 #  debug:
