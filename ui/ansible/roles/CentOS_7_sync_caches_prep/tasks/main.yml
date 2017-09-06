@@ -8,6 +8,8 @@
   shell: mkdir -p $(dirname {{item}})
   with_items: "{{ aria_packages.stdout_lines }}"
   when: flag_install_node is not defined
+  loop_control:
+    label: "{{item.stdout}}"
   #creates: "{{host_cache_dir}}/disable_package_cache.sem"
 
 - name: CentOS 7 | Copy torrent packages to nodes
@@ -16,6 +18,8 @@
     dest: "{{item}}"
   with_items: "{{ aria_packages.stdout_lines }}"
   when: flag_install_node is not defined
+  loop_control:
+    label: "{{item.stdout}}"
   #creates: "{{host_cache_dir}}/disable_package_cache.sem"
 
 - name: CentOS 7 | Install torrent packages on nodes
@@ -26,4 +30,6 @@
     update_cache: no
   with_items: "{{ aria_packages.stdout_lines }}"
   when: flag_install_node is not defined
+  loop_control:
+    label: "{{item.stdout}}"
   #creates: "{{host_cache_dir}}/disable_package_cache.sem"
