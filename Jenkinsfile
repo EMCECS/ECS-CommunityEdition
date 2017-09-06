@@ -73,8 +73,7 @@ pipeline {
                           ansible_ssh_pass: "$SSH_PSW",
                           ansible_become_pass: "$SSH_PSW",
                           current_directory: "$WORKSPACE"
-                      ],
-                      extras: '-vvv'
+                      ]
               }
         }
     }
