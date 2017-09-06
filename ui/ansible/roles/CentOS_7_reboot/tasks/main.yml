@@ -3,6 +3,8 @@
   shell: /bin/needs-restarting -r
   register: needs_restarting
   ignore_errors: True
+  failed_when: False
+  changed_when: False
   when: ova is not defined
 
 ## 776 : /sbin/dhclient
@@ -23,7 +25,7 @@
   notify:
     - CentOS 7 | Reboot required
   when:
-    - ( needs_restarting|failed ) and flag_install_node is not defined
+    - ( needs_restarting|failed ) and flag_install_node is defined
     - ova is not defined
 
 - name: CentOS 7 | Reboot node
