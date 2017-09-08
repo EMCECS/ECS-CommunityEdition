@@ -2,7 +2,7 @@
 - name: CentOS 7 | Check needs-restarting
   command: /bin/needs-restarting
   register: needs_restarting
-
+  when: ova is not defined
 ## 776 : /sbin/dhclient
 #- name: "Debug the needs_restarting output"
 #  debug:
@@ -13,20 +13,25 @@
     msg: "Node flagged for reboot by package manager"
   #changed_when: needs_restarting.rc = 1 and flag_install_node is not defined
   changed_when: "( needs_restarting.stdout | search('[0-9]* : /.*') ) and flag_install_node is not defined"
+  when: ova is not defined
 
 - name: CentOS 7 | Check if install node also needs restarting
   debug:
     msg: "The install node also needs restarting, but we can't reboot right now."
   notify:
     - CentOS 7 | Reboot required
-  when: "( needs_restarting.stdout | search('[0-9]* : /.*') ) and flag_install_node is defined"
+  when:
+    - "( needs_restarting.stdout | search('[0-9]* : /.*') ) and flag_install_node is defined"
+    - ova is not defined
 
 - name: CentOS 7 | Reboot node
   become: yes
   shell: sleep 2 && /sbin/shutdown -r now "Node flagged for reboot by package manager"
   async: 1
   poll: 0
-  when: "( needs_restarting.stdout | search('[0-9]* : /.*') ) and flag_install_node is not defined"
+  when:
+    - "( needs_restarting.stdout | search('[0-9]* : /.*') ) and flag_install_node is not defined"
+    - ova is not defined
 
 #- name: CentOS 7 | Wait for node to reboot actions to take effect
 #  become: false
