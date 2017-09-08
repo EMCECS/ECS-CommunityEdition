@@ -103,7 +103,7 @@ case "$(basename ${0})" in
         #run ecsdeploy load || exit $?
         run ecsdeploy cache || exit $?
     ;;
-    island-step2)
+    island-step2|ova-step1)
         #run ecsdeploy load || exit $?
         run ecsdeploy access check || exit $?
         run ecsdeploy bootstrap || exit $?
@@ -122,7 +122,7 @@ case "$(basename ${0})" in
         run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
     ;;
-    step2|island-step3)
+    step2|island-step3|ova-step2)
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig licensing -a || exit $?
