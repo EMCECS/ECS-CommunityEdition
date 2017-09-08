@@ -51,7 +51,12 @@ run() {
 
 case "$(basename ${0})" in
     videploy)
-        sudo vim /opt/emc/ecs-install/deploy.yml
+        if ${deploy_flag}; then
+            vim ${deploy_val}
+            update_deploy
+        else
+            update_deploy
+        fi
     ;;
     update_image)
         cd "${root}"
@@ -91,9 +96,8 @@ case "$(basename ${0})" in
             cd - 2>&1 >/dev/null
         else
             o "No deploy.yml file was provided during bootstrap. To use this feature, do the following:"
-            o "Modify ${root}/bootstrap.conf by adjusting the following lines:"
-            o "     deploy_flag=true"
-            o "     deploy_val=<path to your deploy.yml>"
+            o "     $ update_deploy <FILE> "
+            o "Where <FILE> is the absolute path to you deploy.yml file."
         fi
     ;;
     ecsdeploy|ecsconfig|ecsremove|catfacts|enter|pingnodes|inventory|testbook)
