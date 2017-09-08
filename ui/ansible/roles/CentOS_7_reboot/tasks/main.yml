@@ -28,7 +28,7 @@
     - ( needs_restarting|failed ) and flag_install_node is defined
     - ova is not defined
 
-- name: CentOS 7 | Reboot node
+- name: CentOS 7 | Reboot node(s)
   become: True
   shell: sleep 5 && /sbin/shutdown -r now "Node flagged for reboot by package manager"
   async: 1
@@ -38,7 +38,7 @@
     - ( needs_restarting|failed ) and flag_install_node is not defined
     - ova is not defined
 
-- name: CentOS 7 | Wait for node to reboot
+- name: CentOS 7 | Wait for node(s) to reboot
   become: False
   local_action: wait_for host="{{ ansible_host | default(inventory_hostname) }}" port="{{ ansible_port }}" state=started delay=15 timeout=300
   when:
