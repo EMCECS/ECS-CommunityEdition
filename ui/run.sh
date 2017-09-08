@@ -86,7 +86,7 @@ case "$(basename ${0})" in
             # update_image
             remove_data_container
             make_new_data_container
-            ecsdeploy load
+            ecsdeploy noop
             # docker_set_artifact
             cd - 2>&1 >/dev/null
         else
