@@ -334,5 +334,13 @@ def enable_cache(conf):
         sys.exit(1)
 
 
+@ecsdeploy.command('noop', short_help='noop')
+@pass_conf
+def enable_cache(conf):
+    """
+    Perform noop for some macros.
+    """
+    sys.exit(0)
+
 if __name__ == '__main__':
     ecsdeploy()
