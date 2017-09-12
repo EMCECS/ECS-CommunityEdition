@@ -28,7 +28,9 @@
     src: "{{cache_dir}}/cache.torrent"
     dest: "{{host_cache_dir}}/cache.torrent"
     force: yes
-  when: flag_install_node is not defined
+  when:
+    - flag_install_node is not defined
+    - ova is not defined
   #creates: "{{host_cache_dir}}/disable_package_cache.sem"
 
 - name: Common | Torrent sync caches with nodes
@@ -39,4 +41,6 @@
     chdir: "{{host_cache_dir}}/.."
     # creates: "{{host_cache_dir}}/cache_control.sem"
     creates: "{{host_cache_dir}}/disable_package_cache.sem"
-  when: flag_install_node is not defined
+  when:
+    - flag_install_node is not defined
+    - ova is not defined
