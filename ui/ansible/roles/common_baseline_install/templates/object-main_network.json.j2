@@ -20,7 +20,7 @@
                 "public_interface_name" : "{{hostvars[node].ansible_default_ipv4.alias}}"
             },
             "agent_endpoint" : "https://{{hostvars[node].ansible_hostname}}:9240",
-            "agent_id" : "{{hostvars[node].node_uuid}}"
+            "agent_id" : "{{hostvars[node].ansible_local.data_node.node_uuid}}"
         }{{ comma() }}
 {%- endfor %}
     ]
