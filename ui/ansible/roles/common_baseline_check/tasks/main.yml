@@ -87,19 +87,18 @@
     msg: "Port conflict with published ECS port: {{ item.0 }} {{ services[ecs_published_ports[item[0]].service].name }}
     | description: {{ services[ecs_published_ports[item[0]].service].description }}
     | support URL: {{ services[ecs_published_ports[item[0]].service].issue }}"
-  when: item.1 | search('^port {{item.0}}/.*$')
+  when: item[1] | search('^port ' ~ item[0] ~ '/.*$')
   with_nested:
     - "{{ ecs_published_ports }}"
     - "{{ check_internal_ports.stdout_lines }}"
-# Todo: when upgrading to ansible >= 2.2, these are amazing for cleaning output up
 #  loop_control:
-#    label: ""
+#    label: "{{item}}"
 
 # [X]Make sure internal ECS ports are accessible
 - name: Common | Report any conflicts with internal ECS ports
   fail:
     msg: "Port conflict with internal ECS port!"
-  when: item[1] | search('^port {{item[0]}}/.*$')
+  when: item[1] | search('^port ' ~ item[0] ~ '/.*$')
   with_nested:
     - "{{ ecs_internal_ports }}"
     - "{{ check_internal_ports.stdout_lines }}"

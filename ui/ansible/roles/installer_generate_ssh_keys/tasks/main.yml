@@ -29,3 +29,5 @@
     owner: "{{item.value.owner}}"
     group: "{{item.value.group}}"
   with_dict: "{{ssh_dir_paths}}"
+  loop_control:
+    label: "{{item.key}}"

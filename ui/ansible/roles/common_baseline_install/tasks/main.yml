@@ -10,6 +10,8 @@
     group: "{{item.group}}"
   with_items: "{{ecs_docker_dirs}}"
   tags: files
+  loop_control:
+    label: "{{item.path}}"
 
 ### Generate network.json
 - name: Common | Generate network.json
@@ -47,6 +49,8 @@
   file: path="/ecs/uuid-{{ item.stdout }}" state=directory recurse=yes owner=444 group=444
   with_items: "{{ uuid.results }}"
   tags: disks
+  loop_control:
+    label: "/ecs/uuid-{{ item.stdout }}"
 
 - name: Common | Mount partitions and create fstabs
   mount:
@@ -61,6 +65,8 @@
     - "{{ uuid.results }}"
     - "{{ ecs_block_devices }}"
   tags: disks
+  loop_control:
+    label: "/ecs/uuid-{{ item.0.stdout }}"
 
 - name: Common | Preallocate XFS extents for chunk storage
   script: additional_prep.sh {{ item }}1
@@ -86,6 +92,8 @@
     recurse: "{{item.recurse}}"
   with_items: "{{ecs_docker_dirs_post}}"
   tags: files
+  loop_control:
+    label: "{{ item.path }}"
 
 #- name: Common | Tag ECS Docker image
 #  shell: /usr/bin/docker tag {{ecs_software_image}} {{ecs_software_image}}:latest

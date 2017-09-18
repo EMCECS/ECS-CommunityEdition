@@ -109,7 +109,8 @@ case "$(basename ${0})" in
     ;;
     island-step2|ova-step1)
         #run ecsdeploy load || exit $?
-        run ecsdeploy access check || exit $?
+        run ecsdeploy access || exit $?
+        run ecsdeploy check || exit $?
         run ecsdeploy bootstrap || exit $?
         run ecsdeploy reboot || exit $?
         sleep 10
@@ -119,7 +120,9 @@ case "$(basename ${0})" in
     ;;
     step1)
         #run ecsdeploy load || exit $?
-        run ecsdeploy access check cache || exit $?
+        run ecsdeploy access || exit $?
+        run ecsdeploy check || exit $?
+        run ecsdeploy cache || exit $?
         run ecsdeploy bootstrap || exit $?
         run ecsdeploy reboot || exit $?
         run ping_until_clear

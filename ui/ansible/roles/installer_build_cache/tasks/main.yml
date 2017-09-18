@@ -6,6 +6,8 @@
   when:
     - not ( num_data_nodes|int == 1 and top_data_node == install_node )
     - ova is not defined
+  loop_control:
+    label: "{{ cache_dir }}/{{ item }}"
 
 - name: Installer | Create compressed cache files
   shell: "{{ item.value.pack_cmd }}"
@@ -18,6 +20,8 @@
   when:
     - not ( num_data_nodes|int == 1 and top_data_node == install_node )
     - ova is not defined
+  loop_control:
+    label: "{{ host_cache_dir }}/{{ item.key }}/{{ item.value.dest }}"
 
 - name: Installer | Create cache distribution torrent file
   shell: mktorrent-borg -ig 'facts*' -a udp://{{ groups['install_node'][0] }}:6881 -a http://{{ groups['install_node'][0] }}:6881/announce -o {{ cache_dir }}/cache.torrent -pub {{ cache_dir }}

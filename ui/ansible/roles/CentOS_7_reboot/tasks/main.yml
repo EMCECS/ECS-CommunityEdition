@@ -1,8 +1,12 @@
 
 - name: CentOS 7 | Check needs-restarting
-  command: /bin/needs-restarting
+  shell: /bin/needs-restarting -r
   register: needs_restarting
+  ignore_errors: True
+  failed_when: False
+  changed_when: False
   when: ova is not defined
+
 ## 776 : /sbin/dhclient
 #- name: "Debug the needs_restarting output"
 #  debug:
@@ -11,9 +15,9 @@
 - name: CentOS 7 | Set reboot action on nodes that need restarting
   debug:
     msg: "Node flagged for reboot by package manager"
-  #changed_when: needs_restarting.rc = 1 and flag_install_node is not defined
-  changed_when: "( needs_restarting.stdout | search('[0-9]* : /.*') ) and flag_install_node is not defined"
-  when: ova is not defined
+  when:
+    - ( needs_restarting|failed ) and flag_install_node is not defined
+    - ova is not defined
 
 - name: CentOS 7 | Check if install node also needs restarting
   debug:
@@ -21,32 +25,36 @@
   notify:
     - CentOS 7 | Reboot required
   when:
-    - "( needs_restarting.stdout | search('[0-9]* : /.*') ) and flag_install_node is defined"
+    - ( needs_restarting|failed ) and flag_install_node is defined
     - ova is not defined
 
-- name: CentOS 7 | Reboot node
-  become: yes
-  shell: sleep 2 && /sbin/shutdown -r now "Node flagged for reboot by package manager"
+- name: CentOS 7 | Reboot node(s)
+  become: True
+  shell: sleep 5 && /sbin/shutdown -r now "Node flagged for reboot by package manager"
   async: 1
   poll: 0
+  ignore_errors: True
   when:
-    - "( needs_restarting.stdout | search('[0-9]* : /.*') ) and flag_install_node is not defined"
+    - ( needs_restarting|failed ) and flag_install_node is not defined
     - ova is not defined
 
-#- name: CentOS 7 | Wait for node to reboot actions to take effect
-#  become: false
-#  local_action: wait_for host="{{ ansible_host | default(inventory_hostname) }}" port=22 state=started delay=5 timeout=300
+- name: CentOS 7 | Wait for node(s) to reboot
+  become: False
+  local_action: wait_for host="{{ ansible_host | default(inventory_hostname) }}" port="{{ ansible_port }}" state=started delay=15 timeout=300
+  when:
+    - ( needs_restarting|failed ) and flag_install_node is not defined
+    - ova is not defined
 
-#     host={{ ansible_default_ipv4.address }} port=22 state=started delay=60 timeout=120
+  # host={{ ansible_default_ipv4.address }} port=22 state=started delay=60 timeout=120
 
 #- name: CentOS 7 | Reboot node
 #  shell: sleep 5 && shutdown -r now "Node flagged for reboot by package manager"
+#  become: yes
 #  async: 1
 #  poll: 0
 #  ignore_errors: True
 #  failed_when: False
-#  changed_when: ( needs_restarting.rc = 1 ) and flag_install_node is not defined
-#  #when: ( needs_restarting.stdout.find('/') != -1 ) and flag_install_node is not defined
+#  changed_when: ( needs_restarting|failed ) and flag_install_node is not defined
 #
 #- name: CentOS 7 | Wait for node to reboot
 #  wait_for:
