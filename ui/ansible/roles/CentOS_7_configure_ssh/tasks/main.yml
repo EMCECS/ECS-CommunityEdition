@@ -2,7 +2,7 @@
   authorized_key:
     state: present
     user: "{{ ansible_user }}"
-    key: "{{ lookup('file', '{{ssh_dir}}/id_ed25519.pub') }}"
+    key: "{{ lookup('file', '{{ssh_dir}}/ed25519.pub') }}"
   when: keys_ed25519.enabled == true
 
 - name: CentOS 7 | Distribute rsa ssh key
