@@ -1,5 +1,4 @@
-{%- set comma = joiner(" ") -%}
-
+{%- set comma = joiner(",") -%}
 {
     "cluster_info" : [
 {%- for node in groups['data_node'] -%}
@@ -22,6 +21,7 @@
             "agent_endpoint" : "https://{{hostvars[node].ansible_hostname}}:9240",
             "agent_id" : "{{hostvars[node].ansible_local.data_node.node_uuid}}"
         }{{ comma() }}
-{%- endfor %}
+
+{% endfor %}
     ]
 }
