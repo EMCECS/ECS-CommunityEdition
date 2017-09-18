@@ -1,0 +1,27 @@
+{%- set comma = joiner(" ") -%}
+
+{
+    "cluster_info" : [
+{%- for node in groups['data_node'] -%}
+        {
+            "network" : {
+                "mgmt_ip" : "{{hostvars[node].ansible_default_ipv4.address}}",
+                "hostname" : "{{hostvars[node].ansible_hostname}}",
+                "data_interface_name" : "{{hostvars[node].ansible_default_ipv4.alias}}",
+                "replication_ip" : "{{hostvars[node].ansible_default_ipv4.address}}",
+                "data2_interface_name" : "{{hostvars[node].ansible_default_ipv4.alias}}",
+                "private_interface_name" : "{{hostvars[node].ansible_default_ipv4.alias}}",
+                "data2_ip" : "{{hostvars[node].ansible_default_ipv4.address}}",
+                "private_ip" : "{{hostvars[node].ansible_default_ipv4.address}}",
+                "replication_interface_name" : "{{hostvars[node].ansible_default_ipv4.alias}}",
+                "public_ip" : "{{hostvars[node].ansible_default_ipv4.address}}",
+                "mgmt_interface_name" : "{{hostvars[node].ansible_default_ipv4.alias}}",
+                "data_ip" : "{{hostvars[node].ansible_default_ipv4.address}}",
+                "public_interface_name" : "{{hostvars[node].ansible_default_ipv4.alias}}"
+            },
+            "agent_endpoint" : "https://{{hostvars[node].ansible_hostname}}:9240",
+            "agent_id" : "{{hostvars[node].node_uuid}}"
+        }{{ comma() }}
+{%- endfor %}
+    ]
+}
