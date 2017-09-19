@@ -1,6 +1,6 @@
 # Fixes to the default 3.1.0.0 reduced image.
-# RC3
-FROM emcvipr/object:3.1.0.0-95253.5cf9ea0-reduced
+# RC4
+FROM emcvipr/object:3.1.0.0-95266.ab2753a-reduced
 
 # Increase memory for transformsvc
 RUN sed -i s/-Xmx128m/-Xmx512m/ /opt/storageos/bin/transformsvc
