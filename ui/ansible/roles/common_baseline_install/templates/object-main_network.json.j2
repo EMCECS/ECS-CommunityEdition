@@ -1,8 +1,11 @@
 {%- set comma = joiner(",") -%}
+{%- set vdc = hostvars[inventory_hostname]['vdc'] -%}
 {
     "cluster_info": [
-{% for node in groups['data_node'] -%}
-        {{ comma() }}{
+{%- for node in groups['data_node'] -%}
+{%- if ( (hostvars[node]['vdc'] is defined) and
+        (hostvars[node]['vdc'] == vdc) ) -%}{{ comma() }}
+        {
             "network": {
                 "mgmt_ip": "{{hostvars[node].ansible_default_ipv4.address}}",
                 "hostname": "{{hostvars[node].ansible_fqdn}}",
@@ -20,6 +23,7 @@
             },
             "agent_endpoint": "https://{{hostvars[node].ansible_fqdn}}:9240",
             "agent_id": "{{hostvars[node].ansible_local.data_node.node_uuid}}"
-        }{% endfor %}
+        }
+{% endif %}{% endfor %}
     ]
 }
