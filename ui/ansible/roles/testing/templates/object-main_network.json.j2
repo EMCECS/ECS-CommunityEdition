@@ -1,0 +1,29 @@
+{%- set comma = joiner(",") -%}
+{%- set vdc = hostvars[inventory_hostname]['vdc'] -%}
+{
+    "cluster_info": [
+{%- for node in groups['data_node'] -%}
+{%- if ( (hostvars[node]['vdc'] is defined) and
+        (hostvars[node]['vdc'] == vdc) ) -%}{{ comma() }}
+        {
+            "network": {
+                "mgmt_ip": "{{hostvars[node].ansible_default_ipv4.address}}",
+                "hostname": "{{hostvars[node].ansible_fqdn}}",
+                "data_interface_name": "{{hostvars[node].ansible_default_ipv4.alias}}",
+                "replication_ip": "{{hostvars[node].ansible_default_ipv4.address}}",
+                "data2_interface_name": "{{hostvars[node].ansible_default_ipv4.alias}}",
+                "private_interface_name": "{{hostvars[node].ansible_default_ipv4.alias}}",
+                "data2_ip": "{{hostvars[node].ansible_default_ipv4.address}}",
+                "private_ip": "{{hostvars[node].ansible_default_ipv4.address}}",
+                "replication_interface_name": "{{hostvars[node].ansible_default_ipv4.alias}}",
+                "public_ip": "{{hostvars[node].ansible_default_ipv4.address}}",
+                "mgmt_interface_name": "{{hostvars[node].ansible_default_ipv4.alias}}",
+                "data_ip": "{{hostvars[node].ansible_default_ipv4.address}}",
+                "public_interface_name": "{{hostvars[node].ansible_default_ipv4.alias}}"
+            },
+            "agent_endpoint": "https://{{hostvars[node].ansible_fqdn}}:9240",
+            "agent_id": "{{hostvars[node].ansible_local.data_node.node_uuid}}"
+        }
+{% endif %}{% endfor %}
+    ]
+}

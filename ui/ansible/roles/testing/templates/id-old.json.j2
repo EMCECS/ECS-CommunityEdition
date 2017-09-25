@@ -1,0 +1,7 @@
+{%- set spanner = joiner("-") -%}
+{%- set this_host = ansible_hostname -%}
+{%- set this_sp = hostvars[inventory_hostname]['sp'] -%}
+{%- set this_vdc = hostvars[inventory_hostname]['vdc'] -%}
+{
+    "agent_id": "{{ this_host }}-{{ spanner() }}{{ hostvars[inventory_hostname]['group_names'] }}-{{ this_vdc }}"
+}

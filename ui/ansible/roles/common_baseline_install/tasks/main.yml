@@ -80,7 +80,7 @@
   when:
     - flag_install_node is not defined
     - not ( num_data_nodes|int == 1 and top_data_node == install_node )
-    - ansible_local.ova.ova is not defined
+    - ansible_local.ova is not defined
 
 - name: Common | Update block storage path permissions
   file:

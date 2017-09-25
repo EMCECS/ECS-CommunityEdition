@@ -5,7 +5,7 @@
   ignore_errors: True
   failed_when: False
   changed_when: False
-  when: ansible_local.ova.ova is not defined
+  when: ansible_local.ova is not defined
 
 ## 776 : /sbin/dhclient
 #- name: "Debug the needs_restarting output"
@@ -17,7 +17,7 @@
     msg: "Node flagged for reboot by package manager"
   when:
     - ( needs_restarting|failed ) and flag_install_node is not defined
-    - ansible_local.ova.ova is not defined
+    - ansible_local.ova is not defined
 
 - name: CentOS 7 | Check if install node also needs restarting
   debug:
@@ -26,7 +26,7 @@
     - CentOS 7 | Reboot required
   when:
     - ( needs_restarting|failed ) and flag_install_node is defined
-    - ansible_local.ova.ova is not defined
+    - ansible_local.ova is not defined
 
 - name: CentOS 7 | Reboot node(s)
   become: True
@@ -36,14 +36,14 @@
   ignore_errors: True
   when:
     - ( needs_restarting|failed ) and flag_install_node is not defined
-    - ansible_local.ova.ova is not defined
+    - ansible_local.ova is not defined
 
 - name: CentOS 7 | Wait for node(s) to reboot
   become: False
   local_action: wait_for host="{{ ansible_host | default(inventory_hostname) }}" port="{{ ansible_port }}" state=started delay=15 timeout=300
   when:
     - ( needs_restarting|failed ) and flag_install_node is not defined
-    - ansible_local.ova.ova is not defined
+    - ansible_local.ova is not defined
 
   # host={{ ansible_default_ipv4.address }} port=22 state=started delay=60 timeout=120
 
