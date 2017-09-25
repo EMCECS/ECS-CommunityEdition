@@ -30,7 +30,7 @@
     force: yes
   when:
     - flag_install_node is not defined
-    - ova is not defined
+    - ansible_local.ova.ova is not defined
   #creates: "{{host_cache_dir}}/disable_package_cache.sem"
 
 - name: Common | Torrent sync caches with nodes
@@ -43,4 +43,4 @@
     creates: "{{host_cache_dir}}/disable_package_cache.sem"
   when:
     - flag_install_node is not defined
-    - ova is not defined
+    - ansible_local.ova.ova is not defined
