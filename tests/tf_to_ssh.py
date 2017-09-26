@@ -6,7 +6,7 @@ import json
 INSTALL_NODE_KEY = "install_node_ip"
 ECS_NODE_KEY = "ecs_node_ip"
 SSH_BINARY = "/usr/bin/ssh"
-SSH_ARGS = "-v"
+SSH_ARGS = ""
 SSH_USER = sys.argv[3]
 
 def main():
