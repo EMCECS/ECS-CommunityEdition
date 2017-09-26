@@ -62,11 +62,11 @@ pipeline {
                 sh 'terraform output -json > output.json'
             }
         }
-        stage('Deploy ECS'){
+        stage('Setup install node'){
             steps {
                   sh './tests/tf_to_hosts output.json hosts.ini'
                   ansiblePlaybook \
-                      playbook: 'tests/ansible/install_node.yml',
+                      playbook: 'tests/ansible/install_node_setup.yml',
                       inventory: 'hosts.ini',
                       extraVars: [
                           ansible_ssh_user: "$SSH_USR",
@@ -74,6 +74,37 @@ pipeline {
                           ansible_become_pass: "$SSH_PSW",
                           current_directory: "$WORKSPACE"
                       ]
+              }
+        }
+        stage('Bootstrap install node'){
+            steps {
+                  sh 'whoami; hostname; ip addr; pwd; ls -la'
+                  sh 'curl http://10.1.83.5/registry.crt -o /root/ecs/registry.crt'
+                  sh '/root/ecs/bootstrap.sh -n -v --build-from http://10.1.83.5/alpine --vm-tools --proxy-cert /root/ecs/contrib/sslproxycert/emc_ssl.pem --proxy-endpoint 10.1.83.5:3128 -c /root/ecs/deploy.yml --centos-mirror 10.1.83.5 --registry-cert /root/ecs/registry.crt --registry-endpoint 10.1.83.5:5000'
+              }
+        }
+        stage('Reboot install node'){
+            steps {
+                  sh './tests/tf_to_hosts output.json hosts.ini'
+                  ansiblePlaybook \
+                      playbook: 'tests/ansible/install_node_reboot.yml',
+                      inventory: 'hosts.ini',
+                      extraVars: [
+                          ansible_ssh_user: "$SSH_USR",
+                          ansible_ssh_pass: "$SSH_PSW",
+                          ansible_become_pass: "$SSH_PSW",
+                          current_directory: "$WORKSPACE"
+                      ]
+              }
+        }
+        stage('Deploy ECS'){
+            steps {
+                  sh 'step1'
+              }
+        }
+        stage('Configure ECS'){
+            steps {
+                  sh 'step2'
               }
         }
     }
