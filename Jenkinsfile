@@ -64,10 +64,12 @@ pipeline {
         }
         stage('Setup install node'){
             steps {
+                  sh 'chmod +x ./tests/tf_to_hosts.py'
+                  sh 'chmod +x ./tests/tf_to_ssh.py'
                   sh './tests/tf_to_hosts.py output.json hosts.ini'
-                  sh "./tests/tf_to_ssh.py output.json ./tests/ssh.sh $SSH_USR"
+                  sh "./tests/tf_to_ssh.py output.json ./ssh.sh $SSH_USR"
                   sh 'chmod +x ./tests/ssh.sh'
-                  ansiblePlaybook \
+                    ansiblePlaybook \
                       playbook: 'tests/ansible/install_node_setup.yml',
                       inventory: 'hosts.ini',
                       extraVars: [
@@ -80,8 +82,8 @@ pipeline {
         }
         stage('Bootstrap install node'){
             steps {
-                  sh './tests/ssh.sh curl http://10.1.83.5/registry.crt -o ./tests/registry.crt'
-                  sh './tests/ssh.sh /root/ecs/bootstrap.sh -n -v --build-from http://10.1.83.5/alpine --vm-tools --proxy-cert /root/ecs/contrib/sslproxycert/emc_ssl.pem --proxy-endpoint 10.1.83.5:3128 -c /root/ecs/deploy.yml --centos-mirror 10.1.83.5 --registry-cert ./tests/registry.crt --registry-endpoint 10.1.83.5:5000'
+                  sh './ssh.sh curl http://10.1.83.5/registry.crt -o ./tests/registry.crt'
+                  sh './ssh.sh /root/ecs/bootstrap.sh -n -v --build-from http://10.1.83.5/alpine --vm-tools --proxy-cert /root/ecs/contrib/sslproxycert/emc_ssl.pem --proxy-endpoint 10.1.83.5:3128 -c /root/ecs/deploy.yml --centos-mirror 10.1.83.5 --registry-cert ./tests/registry.crt --registry-endpoint 10.1.83.5:5000'
               }
         }
         stage('Reboot install node'){
@@ -99,12 +101,12 @@ pipeline {
         }
         stage('Deploy ECS'){
             steps {
-                  sh './tests/ssh.sh step1'
+                  sh './ssh.sh step1'
               }
         }
         stage('Configure ECS'){
             steps {
-                  sh './tests/ssh.sh step2'
+                  sh './ssh.sh step2'
               }
         }
     }
