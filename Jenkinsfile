@@ -82,8 +82,8 @@ pipeline {
         }
         stage('Bootstrap install node'){
             steps {
-                  sh './ssh.sh curl http://10.1.83.5/registry.crt -o ./tests/registry.crt'
-                  sh './ssh.sh /root/ecs/bootstrap.sh -n -v --build-from http://10.1.83.5/alpine --vm-tools --proxy-cert /root/ecs/contrib/sslproxycert/emc_ssl.pem --proxy-endpoint 10.1.83.5:3128 -c /root/ecs/deploy.yml --centos-mirror 10.1.83.5 --registry-cert ./tests/registry.crt --registry-endpoint 10.1.83.5:5000'
+                  sh './ssh.sh curl http://10.1.83.5/registry.crt -o ./registry.crt'
+                  sh './ssh.sh /root/ecs/bootstrap.sh -n -v --build-from http://10.1.83.5/alpine --vm-tools --proxy-cert /root/ecs/contrib/sslproxycert/emc_ssl.pem --proxy-endpoint 10.1.83.5:3128 -c /root/ecs/deploy.yml --centos-mirror 10.1.83.5 --registry-cert ./registry.crt --registry-endpoint 10.1.83.5:5000'
               }
         }
         stage('Reboot install node'){
