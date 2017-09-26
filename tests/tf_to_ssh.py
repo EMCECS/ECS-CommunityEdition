@@ -10,8 +10,8 @@ SSH_ARGS = "-v"
 SSH_USER = sys.argv[3]
 
 def main():
-    if len(sys.argv) != 3:
-        print("Usage: %s INPUT_JSON_FILE OUTPUT_HOSTS_FILE" % (sys.argv[0],))
+    if len(sys.argv) != 4:
+        print("Usage: %s INPUT_JSON_FILE OUTPUT_HOSTS_FILE SSH_USER" % (sys.argv[0],))
         sys.exit(1)
 
     with open(sys.argv[1]) as json_file:
