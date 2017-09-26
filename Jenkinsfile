@@ -64,7 +64,9 @@ pipeline {
         }
         stage('Setup install node'){
             steps {
-                  sh './tests/tf_to_hosts output.json hosts.ini'
+                  sh './tests/tf_to_hosts.py output.json hosts.ini'
+                  sh "./tests/tf_to_ssh.py output.json ./tests/ssh.sh $SSH_USR"
+                  sh 'chmod +x ./tests/ssh.sh'
                   ansiblePlaybook \
                       playbook: 'tests/ansible/install_node_setup.yml',
                       inventory: 'hosts.ini',
@@ -78,14 +80,12 @@ pipeline {
         }
         stage('Bootstrap install node'){
             steps {
-                  sh 'whoami; hostname; ip addr; pwd; ls -la'
-                  sh 'curl http://10.1.83.5/registry.crt -o /tmp/registry.crt'
-                  sh '/root/ecs/bootstrap.sh -n -v --build-from http://10.1.83.5/alpine --vm-tools --proxy-cert /root/ecs/contrib/sslproxycert/emc_ssl.pem --proxy-endpoint 10.1.83.5:3128 -c /root/ecs/deploy.yml --centos-mirror 10.1.83.5 --registry-cert /tmp/registry.crt --registry-endpoint 10.1.83.5:5000'
+                  sh './tests/ssh.sh curl http://10.1.83.5/registry.crt -o ./tests/registry.crt'
+                  sh './tests/ssh.sh /root/ecs/bootstrap.sh -n -v --build-from http://10.1.83.5/alpine --vm-tools --proxy-cert /root/ecs/contrib/sslproxycert/emc_ssl.pem --proxy-endpoint 10.1.83.5:3128 -c /root/ecs/deploy.yml --centos-mirror 10.1.83.5 --registry-cert ./tests/registry.crt --registry-endpoint 10.1.83.5:5000'
               }
         }
         stage('Reboot install node'){
             steps {
-                  sh './tests/tf_to_hosts output.json hosts.ini'
                   ansiblePlaybook \
                       playbook: 'tests/ansible/install_node_reboot.yml',
                       inventory: 'hosts.ini',
@@ -99,12 +99,12 @@ pipeline {
         }
         stage('Deploy ECS'){
             steps {
-                  sh 'step1'
+                  sh './tests/ssh.sh step1'
               }
         }
         stage('Configure ECS'){
             steps {
-                  sh 'step2'
+                  sh './tests/ssh.sh step2'
               }
         }
     }
