@@ -69,7 +69,10 @@ pipeline {
                   sh './tests/tf_to_hosts.py output.json hosts.ini'
                   sh "./tests/tf_to_ssh.py output.json ./ssh.sh $SSH_USR"
                   sh 'chmod +x ./ssh.sh'
-                    ansiblePlaybook \
+                  sh 'cat output.json'
+                  sh 'cat hosts.ini'
+                  sh 'cat ./ssh.sh'
+                  ansiblePlaybook \
                       playbook: 'tests/ansible/install_node_setup.yml',
                       inventory: 'hosts.ini',
                       extraVars: [
