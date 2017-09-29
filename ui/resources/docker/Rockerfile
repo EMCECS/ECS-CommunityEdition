@@ -30,7 +30,8 @@ RUN apk -q --no-cache upgrade
 
 # Add required system packages
 #RUN apk -q --no-cache add openssh-client sshpass openssl ca-certificates libffi libressl@edge_main \
-RUN apk -q --no-cache add openssh-client sshpass openssl ca-certificates libffi libressl@edge_main \
+RUN apk -q --no-cache add python2\
+                             openssh-client sshpass openssl ca-certificates libffi libressl@edge_main \
                              pigz jq less \
                              opentracker aria2 mktorrent@edge_community \
                              ansible@edge_main
