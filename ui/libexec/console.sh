@@ -52,6 +52,16 @@ log() {
     fi
 }
 
+qlog() {
+    if [ -z "$*" ]; then
+        while read -r line; do
+            printf "%s\n" "${line}" >> "${log_file}"
+        done
+    else
+        printf "%s\n" "${*}" >> "${log_file}"
+    fi
+}
+
 print() {
     $need_nl && pw && need_nl=false
     printf "> %s\n" "${*}"

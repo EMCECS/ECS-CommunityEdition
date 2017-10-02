@@ -70,45 +70,45 @@ collect_environment_info() {
 #        o "Running in a container, skipping collection"
 #    else
 
-        log "GET-HWINFO"
-        sudo dmesg 2>&1 | log
-        log "END-DMESG"
-        sudo uname -a 2>&1 | log
-        log "END-UNAME"
-        env 2>&1 | log
-        log "END-ENV"
-        sudo lsmod 2>&1 | log
-        log "END-LSMOD"
-        sudo lscpu 2>&1 | log
-        log "END-LSCPU"
-        sudo lspci 2>&1 | log
-        log "END-LSPCI"
-        sudo lsscsi 2>&1 | log
-        log "END-LSSCSI"
-        sudo lsusb 2>&1 | log
-        log "END-LSUSB"
-        sudo lshw 2>&1 | log
-        log "END-LSHW"
-        sudo hwinfo 2>&1 | log
-        log "END-HWINFO"
-        sudo dmidecode 2>&1 | log
-        log "END-DMIDECODE"
-        sudo free -h 2>&1 | log
-        log "END-FREE"
-        sudo df -h 2>&1 | log
-        log "END-DF"
-        sudo mount 2>&1 | log
-        log "END-MOUNT"
-        sudo fdisk -l 2>&1 | log
-        log "END-FDISK"
-        sudo parted -l 2>&1 | log
-        log "END-PARTED"
-        sudo pvs 2>&1 | log
-        log "END-PVS"
-        sudo vgs 2>&1 | log
-        log "END-GVS"
-        sudo lvs 2>&1 | log
-        log "END-LVS"
+        qlog "GET-HWINFO"
+        sudo dmesg 2>&1 | qlog
+        qlog "END-DMESG"
+        sudo uname -a 2>&1 | qlog
+        qlog "END-UNAME"
+        env 2>&1 | qlog
+        qlog "END-ENV"
+        sudo lsmod 2>&1 | qlog
+        qlog "END-LSMOD"
+        sudo lscpu 2>&1 | qlog
+        qlog "END-LSCPU"
+        sudo lspci 2>&1 | qlog
+        qlog "END-LSPCI"
+        sudo lsscsi 2>&1 | qlog
+        qlog "END-LSSCSI"
+        sudo lsusb 2>&1 | qlog
+        qlog "END-LSUSB"
+        sudo lshw 2>&1 | qlog
+        qlog "END-LSHW"
+        sudo hwinfo 2>&1 | qlog
+        qlog "END-HWINFO"
+        sudo dmidecode 2>&1 | qlog
+        qlog "END-DMIDECODE"
+        sudo free -h 2>&1 | qlog
+        qlog "END-FREE"
+        sudo df -h 2>&1 | qlog
+        qlog "END-DF"
+        sudo mount 2>&1 | qlog
+        qlog "END-MOUNT"
+        sudo fdisk -l 2>&1 | qlog
+        qlog "END-FDISK"
+        sudo parted -l 2>&1 | qlog
+        qlog "END-PARTED"
+        sudo pvs 2>&1 | qlog
+        qlog "END-PVS"
+        sudo vgs 2>&1 | qlog
+        qlog "END-GVS"
+        sudo lvs 2>&1 | qlog
+        qlog "END-LVS"
         log "END-COLLECT-ENVIRONMENT-INFO"
 #    fi
 }
