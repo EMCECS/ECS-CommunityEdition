@@ -26,11 +26,13 @@ ENV pip_proxy={{ .PipProxy }}
 {{ end }}
 
 # Upgrade base system packages for security
-RUN apk -q --no-cache upgrade
+RUN apk -q update && \
+    apk -q --no-cache upgrade
 
 # Add required system packages
 #RUN apk -q --no-cache add openssh-client sshpass openssl ca-certificates libffi libressl@edge_main \
-RUN apk -q --no-cache add openssh-client sshpass openssl ca-certificates libffi libressl@edge_main \
+RUN apk -q --no-cache add python2 py-pip\
+                             openssh-client sshpass openssl ca-certificates libffi libressl@edge_main \
                              pigz jq less \
                              opentracker aria2 mktorrent@edge_community \
                              ansible@edge_main
@@ -40,12 +42,13 @@ RUN mv /etc/profile.d/color_prompt /etc/profile.d/color_prompt.sh \
     && ln -s /usr/local/src/ui/ansible /ansible \
     && ln -s /usr/local/src/ui /ui \
     && ln -s /usr/local/src /src \
+    && ln -s /usr/bin/python /usr/local/bin/python \
     && mkdir -p /var/run/opentracker \
     && chown nobody:nobody /var/run/opentracker
 
 # Generate temporary build environment and install required Python modules
-RUN apk -q --no-cache add --virtual .build-deps musl-dev libffi-dev \
-                       make openssl-dev linux-headers git gcc git-perl \
+RUN apk -q --no-cache add --update --virtual .build-deps musl-dev libffi-dev \
+                       build-base make openssl-dev linux-headers git gcc git-perl \
     && if ! [ -z "$pip_proxy" ]; then \
             export pip_proxy="--proxy $pip_proxy" && \
             git config --global http.proxy "$http_proxy" \
