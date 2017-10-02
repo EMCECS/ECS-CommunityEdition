@@ -1,0 +1,28 @@
+- name: Set authorized key
+  authorized_key:
+    user: root
+    state: present
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- name: Install rsync package
+  package:
+    name: rsync
+    state: latest
+
+- name: Copy files to installer node
+  synchronize:
+    src: "{{ current_directory }}/"
+    dest: /root/ecs
+    recursive: yes
+
+- name: Remove rsync package
+  package:
+    name: rsync
+    state: absent
+
+- name: Provide the deploy.yml file
+  template:
+    src: deploy.yml.j2
+    dest: /root/ecs/deploy.yml
+    owner: root
+    group: root
