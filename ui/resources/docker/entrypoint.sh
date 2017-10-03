@@ -132,8 +132,8 @@ we_get_signal() {
 # Because Docker zombies are real.
 trap we_get_signal INT TERM
 
-# if ! [ -x /usr/local/bin/ansible ] || ! [ -x /usr/local/bin/ecsdeploy ]; then
-if ! [ -x /usr/local/bin/ecsdeploy ]; then
+# if ! [ -x /usr/bin/ansible ] || ! [ -x /usr/bin/ecsdeploy ]; then
+if ! [ -x /usr/bin/ecsdeploy ]; then
     init_container=true
 fi
 
