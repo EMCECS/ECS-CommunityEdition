@@ -73,7 +73,7 @@ If the repository is being added to the machine via usb drive, scp, or some othe
 Installation requires the creation of a deployment map. This map is represented in a YAML configuration file called deploy.yml. This file *should* be written before the next step for the smoothest experience.
 
 ##### 2.1
-Create this file in the `ECS-CommunityEdition` directory that was created when the repository was cloned. A template guide for writing this file can be found [here](deploy.yml).
+Create this file in the `ECS-CommunityEdition` directory that was created when the repository was cloned. A template guide for writing this file can be found [here](deploy.yml.md).
 
 ##### 2.2
 Below are steps for creating a basic deploy.yml. **Please note that all fields mentioned below are required for a successful installation.**
@@ -108,7 +108,7 @@ Below are steps for creating a basic deploy.yml. **Please note that all fields m
 These steps quickly set up a basic deploy.yml file
 
 ##### More on deploy.yml
-Please read the reference deploy.yml found [here](deploy.yml). It is designed to be self documenting and required fields are filled with either example or default values. The above values are only bare minimum values and may not yield optimal results for your environment.
+Please read the reference deploy.yml found [here](deploy.yml.md). It is designed to be self documenting and required fields are filled with either example or default values. The above values are only bare minimum values and may not yield optimal results for your environment.
 
 ### 3. Bootstrapping the Install Node (`bootstrap.sh`)
 ###### Important Note
