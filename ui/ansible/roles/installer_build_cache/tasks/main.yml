@@ -5,7 +5,7 @@
   with_items: "{{ caches.keys() }}"
   when:
     - not ( num_data_nodes|int == 1 and top_data_node == install_node )
-    - ova is not defined
+    - ( ansible_local is defined and ansible_local.ova is not defined )
   loop_control:
     label: "{{ cache_dir }}/{{ item }}"
 
@@ -19,7 +19,7 @@
   register: cacheresults
   when:
     - not ( num_data_nodes|int == 1 and top_data_node == install_node )
-    - ova is not defined
+    - ( ansible_local is defined and ansible_local.ova is not defined )
   loop_control:
     label: "{{ host_cache_dir }}/{{ item.key }}/{{ item.value.dest }}"
 
@@ -29,4 +29,4 @@
     creates: "{{ cache_dir }}/cache.torrent"
   when:
     - not ( num_data_nodes|int == 1 and top_data_node == install_node )
-    - ova is not defined
+    - ( ansible_local is defined and ansible_local.ova is not defined )

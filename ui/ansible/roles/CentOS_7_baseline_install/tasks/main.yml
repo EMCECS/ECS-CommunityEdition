@@ -30,7 +30,7 @@
     creates: "{{host_cache_dir}}/disable_package_cache.sem"
   when:
     - not ( num_data_nodes|int == 1 and top_data_node == install_node )
-    - ova is not defined
+    - ( ansible_local is defined and ansible_local.ova is not defined )
 
 # TODO: Improve this
 # This is suuuuuper hacky - There should be a better way using the yum module,
@@ -45,8 +45,8 @@
   args:
     creates: "{{host_cache_dir}}/disable_package_cache.sem"
   when:
-    - not ( num_data_nodes|int == 1 and top_data_node == install_node and ova is defined )
-    - ova is not defined
+    - not ( num_data_nodes|int == 1 and top_data_node == install_node and ( ansible_local is defined and ansible_local.ova is defined )  )
+    - ( ansible_local is defined and ansible_local.ova is not defined )
 
 - name: CentOS 7 | Configure ntp
   template: src=ntp.conf.j2 dest=/etc/ntp.conf
