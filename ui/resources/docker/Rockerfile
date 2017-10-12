@@ -47,7 +47,7 @@ RUN mv /etc/profile.d/color_prompt /etc/profile.d/color_prompt.sh \
     && chown nobody:nobody /var/run/opentracker
 
 # Generate temporary build environment and install required Python modules
-RUN apk -q --no-cache add --update --virtual .build-deps musl-dev libffi-dev \
+RUN apk -q --no-cache add --update --virtual .build-deps musl-dev python2-dev libffi-dev \
                        build-base make openssl-dev linux-headers git gcc git-perl \
     && if ! [ -z "$pip_proxy" ]; then \
             export pip_proxy="--proxy $pip_proxy" && \
