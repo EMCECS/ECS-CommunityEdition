@@ -134,10 +134,12 @@ trap we_get_signal INT TERM
 
 # if ! [ -x /usr/bin/ansible ] || ! [ -x /usr/bin/ecsdeploy ]; then
 if ! [ -x /usr/bin/ecsdeploy ]; then
+    #o "No /usr/bin/ecsdeploy found"
     init_container=true
 fi
 
 if [ -f /etc/update.sem ]; then
+    #o "Found /etc/update.sem"
     rm -f /etc/update.sem
     init_container=true
 fi

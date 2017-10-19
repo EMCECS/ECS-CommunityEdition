@@ -82,7 +82,7 @@ ENV pip_proxy=
 {{ end }}
 
 # Set default volume mounts
-VOLUME [ "/opt", "/usr/local", "/var/log", "/root", "/etc" ]
+VOLUME [ "/opt", "/usr", "/var/log", "/root", "/etc" ]
 
 # Rubber-stamp this build and push if release
 LABEL VERSION={{ .Version }}
