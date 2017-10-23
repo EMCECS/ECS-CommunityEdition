@@ -12,5 +12,6 @@ done
 
 echo "{
     \"ecs_block_devices\": \"${ECS_BLOCK_DEVICES}\",
-    \"ecs_block_size\": \"${total_bytes}\"
+    \"ecs_block_size\": \"${total_bytes}\",
+    \"node_uuid\": \"$(uuidgen -t)\"
 }"
