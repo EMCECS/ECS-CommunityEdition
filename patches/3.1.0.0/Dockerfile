@@ -14,3 +14,6 @@ RUN f=/opt/storageos/conf/vnest-common-conf-template.xml; grep -q "object.UseSep
 
 # Set georeceiver's initialBufferNumOnHeap to something smaller for CE
 RUN f=/opt/storageos/conf/georeceiver-conf.xml; grep -q 'name="initialBufferNumOnHeap" value="10"' $f ||  sed -i 's/name="initialBufferNumOnHeap" value="60"/name="initialBufferNumOnHeap" value="10"/' $f
+
+# Configure CM Object properties: Disable minimum storage device count
+RUN f=/opt/storageos/conf/cm.object.properties; grep -q 'MustHaveEnoughResources=false' $f ||  sed -i 's/MustHaveEnoughResources=true/MustHaveEnoughResources=false/' $f
