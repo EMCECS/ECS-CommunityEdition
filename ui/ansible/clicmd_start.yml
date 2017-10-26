@@ -8,3 +8,4 @@
   hosts: data_node
   roles:
     - common_start_enable_service
+    - common_run_cf_client

@@ -10,10 +10,10 @@ RUN sed -i '/VMware/ s/$/ \&\& [ ! -e \/data\/is_community_edition ]/' /opt/stor
 
 RUN /usr/bin/chmod +x /opt/storageos/bin/storageserver-partition-config.sh
 
-# Make vnest use separate thread pools to prevent deadlock
-RUN printf "\n# Use separate thread pools to prevent deadlock in vnest init\nobject.UseSeparateThreadPools=true\n" >> /opt/storageos/conf/vnest.object.properties
-
 RUN f=/opt/storageos/conf/vnest-common-conf-template.xml; grep -q "object.UseSeparateThreadPools" $f || sed -i '/properties id="serviceProperties"/a \ \ \ \ \ \ \ \ <prop key="object.UseSeparateThreadPools">true</prop>' $f
 
 # Set georeceiver's initialBufferNumOnHeap to something smaller for CE
 RUN f=/opt/storageos/conf/georeceiver-conf.xml; grep -q 'name="initialBufferNumOnHeap" value="10"' $f ||  sed -i 's/name="initialBufferNumOnHeap" value="60"/name="initialBufferNumOnHeap" value="10"/' $f
+
+# Configure CM Object properties: Disable minimum storage device count
+RUN f=/opt/storageos/conf/cm.object.properties; grep -q 'MustHaveEnoughResources=false' $f ||  sed -i 's/MustHaveEnoughResources=true/MustHaveEnoughResources=false/' $f
