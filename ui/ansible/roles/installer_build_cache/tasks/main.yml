@@ -3,7 +3,11 @@
 - name: Installer | Create cache directories
   file: state=directory path={{ cache_dir }}/{{ item }}
   with_items: "{{ caches.keys() }}"
-  when: not ( num_data_nodes|int == 1 and top_data_node == install_node )
+  when:
+    - not ( num_data_nodes|int == 1 and top_data_node == install_node )
+    - ( ansible_local is defined and ansible_local.ova is not defined )
+  loop_control:
+    label: "{{ cache_dir }}/{{ item }}"
 
 - name: Installer | Create compressed cache files
   shell: "{{ item.value.pack_cmd }}"
@@ -13,10 +17,16 @@
   with_dict: "{{ caches }}"
   delegate_to: "{{ groups['install_node'][0] }}"
   register: cacheresults
-  when: not ( num_data_nodes|int == 1 and top_data_node == install_node )
+  when:
+    - not ( num_data_nodes|int == 1 and top_data_node == install_node )
+    - ( ansible_local is defined and ansible_local.ova is not defined )
+  loop_control:
+    label: "{{ host_cache_dir }}/{{ item.key }}/{{ item.value.dest }}"
 
 - name: Installer | Create cache distribution torrent file
   shell: mktorrent-borg -ig 'facts*' -a udp://{{ groups['install_node'][0] }}:6881 -a http://{{ groups['install_node'][0] }}:6881/announce -o {{ cache_dir }}/cache.torrent -pub {{ cache_dir }}
   args:
     creates: "{{ cache_dir }}/cache.torrent"
-  when: not ( num_data_nodes|int == 1 and top_data_node == install_node )
+  when:
+    - not ( num_data_nodes|int == 1 and top_data_node == install_node )
+    - ( ansible_local is defined and ansible_local.ova is not defined )

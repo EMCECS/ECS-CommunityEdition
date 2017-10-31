@@ -10,10 +10,27 @@
     group: "{{item.group}}"
   with_items: "{{ecs_docker_dirs}}"
   tags: files
+  loop_control:
+    label: "{{item.path}}"
 
 ### Generate network.json
 - name: Common | Generate network.json
-  template: src=network-json.j2 dest=/host/data/network.json owner=444 group=444 force=no
+  template: src=rev1-network.json.j2 dest=/host/data/network.json owner=444 group=444 force=no
+  tags: files
+
+### Generate object-main_network.json
+- name: Common | Generate object-main_network.json
+  template: src=object-main_network.json.j2 dest=/host/data/object-main_network.json owner=444 group=444 force=no
+  tags: files
+
+### Generate id.json
+- name: Common | Generate id.json
+  template: src=id.json.j2 dest=/host/data/id.json owner=444 group=444 force=no
+  tags: files
+
+### Generate agent.json
+- name: Common | Generate agent.json
+  template: src=agent.json.j2 dest=/host/data/agent.json owner=444 group=444 force=no
   tags: files
 
 ### Generate seeds file
@@ -47,6 +64,8 @@
   file: path="/ecs/uuid-{{ item.stdout }}" state=directory recurse=yes owner=444 group=444
   with_items: "{{ uuid.results }}"
   tags: disks
+  loop_control:
+    label: "/ecs/uuid-{{ item.stdout }}"
 
 - name: Common | Mount partitions and create fstabs
   mount:
@@ -61,6 +80,8 @@
     - "{{ uuid.results }}"
     - "{{ ecs_block_devices }}"
   tags: disks
+  loop_control:
+    label: "/ecs/uuid-{{ item.0.stdout }}"
 
 - name: Common | Preallocate XFS extents for chunk storage
   script: additional_prep.sh {{ item }}1
@@ -74,6 +95,7 @@
   when:
     - flag_install_node is not defined
     - not ( num_data_nodes|int == 1 and top_data_node == install_node )
+    - ( ansible_local is defined and ansible_local.ova is not defined )
 
 - name: Common | Update block storage path permissions
   file:
@@ -85,6 +107,8 @@
     recurse: "{{item.recurse}}"
   with_items: "{{ecs_docker_dirs_post}}"
   tags: files
+  loop_control:
+    label: "{{ item.path }}"
 
 #- name: Common | Tag ECS Docker image
 #  shell: /usr/bin/docker tag {{ecs_software_image}} {{ecs_software_image}}:latest

@@ -38,6 +38,8 @@
       src: /opt/storageos/conf/common.object.properties
     - dest: /host/cm.object.properties
       src: /opt/storageos/conf/cm.object.properties
+  loop_control:
+    label: "{{item.src}}"
 #    - dest: /host/application.conf
 #      src: /opt/storageos/ecsportal/conf/application.conf
 
@@ -103,6 +105,8 @@
       dest: /opt/storageos/conf/common.object.properties
     - src: /host/cm.object.properties
       dest: /opt/storageos/conf/cm.object.properties
+  loop_control:
+    label: "{{item.dest}}"
 #    - src: /host/application.conf
 #      dest: /opt/storageos/ecsportal/conf/application.conf
 #    - src: postinstall_patch

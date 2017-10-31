@@ -251,7 +251,7 @@ while true; do
         export mirror_val="${2}"
         shift 2
         ;;
-    -o|--override-dhcp-dns)
+    -o|--override-dns)
         export dhcpdns_flag=true
         export dhcpdns_val="${2}"
         shift 2
@@ -781,7 +781,7 @@ if get_os_needs_restarting; then
 fi
 
 if ${zerofill_flag}; then
-    sudo "${INSTALL_ROOT}/tools/zerofill.sh"
+    sudo bash "${INSTALL_ROOT}/tools/zerofill.sh"
 fi
 
 

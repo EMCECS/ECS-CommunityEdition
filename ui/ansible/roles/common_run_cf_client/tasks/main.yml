@@ -1,0 +1,8 @@
+- name: Common | Run cf_client in ecs-storageos container
+  command: /usr/bin/docker exec ecs-storageos /opt/storageos/tools/cf_client --user emcservice --password ChangeMe --set --name com.emc.ecs.ssm.allocation.allowAllocationOnIgnoredPartitions --value true --reason allow
+
+#The reason is L1 DT table can’t allocate chunk from L2 tables and keep read only, then it block the system finish initialize.
+#The reason can’t allocate chunk is because we only has one partition (it may cause by MustHaveEnoughResources=true during installing, or there will 5 data partitions in a vm node). We need enable another flag in ssm to allow allocate all blocks in one partition.
+#luna:/opt/storageos/tools # ./cf_client --user emcservice --password ChangeMe --set --name com.emc.ecs.ssm.allocation.allowAllocationOnIgnoredPartitions --value true --reason allow
+#After change the value, I add VDC and RG manually from GUI. ECS works now.
+

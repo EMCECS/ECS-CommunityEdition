@@ -1,0 +1,6 @@
+- name: Reboot install node
+  hosts: install_node
+  roles:
+    - install_node_reboot
+  tags:
+    - install_node

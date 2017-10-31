@@ -61,9 +61,11 @@ route_os() {
         centos\ linux\ release\ 7.2*)
             source ${plugins}/centos72.plugin.sh
             ;;
-
         centos\ linux\ release\ 7.3*)
             source ${plugins}/centos73.plugin.sh
+            ;;
+        centos\ linux\ release\ 7.4*)
+            source ${plugins}/centos74.plugin.sh
             ;;
 
 #        dockerized\ centos\ linux\ release\ 7.2*)

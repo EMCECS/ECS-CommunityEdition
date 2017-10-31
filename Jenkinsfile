@@ -62,19 +62,54 @@ pipeline {
                 sh 'terraform output -json > output.json'
             }
         }
-        stage('Deploy ECS'){
+        stage('Setup install node'){
             steps {
-                  sh './tests/tf_to_hosts output.json hosts.ini'
+                  sh 'chmod +x ./tests/tf_to_hosts.py'
+                  sh 'chmod +x ./tests/tf_to_ssh.py'
+                  sh './tests/tf_to_hosts.py output.json hosts.ini'
+                  sh "./tests/tf_to_ssh.py output.json ./ssh.sh $SSH_USR"
+                  sh 'chmod +x ./ssh.sh'
+                  sh 'cat output.json'
+                  sh 'cat hosts.ini'
+                  sh 'cat ./ssh.sh'
                   ansiblePlaybook \
-                      playbook: 'tests/ansible/install_node.yml',
+                      playbook: 'tests/ansible/install_node_setup.yml',
                       inventory: 'hosts.ini',
                       extraVars: [
                           ansible_ssh_user: "$SSH_USR",
                           ansible_ssh_pass: "$SSH_PSW",
                           ansible_become_pass: "$SSH_PSW",
                           current_directory: "$WORKSPACE"
-                      ],
-                      extras: '-vvv'
+                      ]
+              }
+        }
+        stage('Bootstrap install node'){
+            steps {
+                  sh './ssh.sh curl http://10.1.83.5/registry.crt -o /tmp/registry.crt'
+                  sh './ssh.sh /root/ecs/bootstrap.sh -n -v --build-from http://10.1.83.5/alpine --vm-tools --proxy-cert /root/ecs/contrib/sslproxycert/emc_ssl.pem --proxy-endpoint 10.1.83.5:3128 -c /root/ecs/deploy.yml --centos-mirror 10.1.83.5 --registry-cert /tmp/registry.crt --registry-endpoint cache.gotham.local:5000 --override-dns 10.1.83.19'
+              }
+        }
+        stage('Reboot install node'){
+            steps {
+                  ansiblePlaybook \
+                      playbook: 'tests/ansible/install_node_reboot.yml',
+                      inventory: 'hosts.ini',
+                      extraVars: [
+                          ansible_ssh_user: "$SSH_USR",
+                          ansible_ssh_pass: "$SSH_PSW",
+                          ansible_become_pass: "$SSH_PSW",
+                          current_directory: "$WORKSPACE"
+                      ]
+              }
+        }
+        stage('Deploy ECS'){
+            steps {
+                  sh './ssh.sh step1'
+              }
+        }
+        stage('Configure ECS'){
+            steps {
+                  sh './ssh.sh step2'
               }
         }
     }
