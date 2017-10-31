@@ -1,0 +1,6 @@
+- name: Bootstrap install node
+  hosts: install_node
+  roles:
+    - install_node
+  tags:
+    - install_node
