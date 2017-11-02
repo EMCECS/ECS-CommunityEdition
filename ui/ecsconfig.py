@@ -1130,10 +1130,10 @@ def object_user(conf, l, r, s, a, n):
             try:
                 get_one(name)
                 is_editable = True
-                o("\t\tOK")
+                o("\tOK")
             except Exception as e:
                 is_editable = False
-                o("\t\tWaiting...")
+                o("\tWaiting...")
                 time.sleep(1)
 
         o("\tAdding {}'s S3 credentials".format(name))
