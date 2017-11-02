@@ -1124,6 +1124,18 @@ def object_user(conf, l, r, s, a, n):
         o("Creating '{}' in namespace '{}'".format(name, ou_namespace))
         conf.api_client.object_user.create(name, namespace=ou_namespace)
 
+        o("\tWaiting for '{}' to become editable".format(name))
+        is_editable = False
+        while is_editable is False:
+            try:
+                get_one(name)
+                is_editable = True
+                o("\t\tOK")
+            except Exception as e:
+                is_editable = False
+                o("\t\tWaiting...")
+                time.sleep(1)
+
         o("\tAdding {}'s S3 credentials".format(name))
         conf.api_client.secret_key.create(user_id=name,
                                           namespace=ou_namespace,
