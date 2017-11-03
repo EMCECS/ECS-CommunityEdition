@@ -13,7 +13,7 @@ resource "vsphere_folder" "tests_folder" {
 }
 
 resource "vsphere_virtual_machine" "install_node" {
-  name   = "jenkins-ecsce-install"
+  name   = "jenkins-ecsce-install-${substr(sha1(timestamp()),0,8)}"
   folder = "${vsphere_folder.tests_folder.path}"
   vcpu   = 2
   memory = 4096
@@ -34,7 +34,7 @@ resource "vsphere_virtual_machine" "install_node" {
 
 resource "vsphere_virtual_machine" "ecs_node" {
   count  = "${var.ecs_nodes}"
-  name   = "jenkins-ecsce-ecs-${count.index}"
+  name   = "jenkins-ecsce-ecs-${count.index}-${substr(sha1(timestamp()),0,8)}"
   folder = "${vsphere_folder.tests_folder.path}"
   vcpu   = 4
   memory = 16384
