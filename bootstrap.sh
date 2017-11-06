@@ -102,8 +102,9 @@ cat <<EOH | more
 [Build Options]
  --zero-fill-ova
     Reduce ephemera, defrag, and zerofill the instance after bootstrapping
---build-from
-
+ --build-from <URL>
+    Use the Alpine Linux mirror at <URL> to build the ecs-install image locally.
+    Mirror list: https://wiki.alpinelinux.org/wiki/Alpine_Linux:Mirrors
 
 For additional information, read the docs on GitHub.
 For additional help, please open an issue on GitHub.
@@ -181,7 +182,7 @@ fi
 
 if ! O=$(
          getopt \
-         -l build-from:,deploy-config:,registry-cert:,help,proxy-cert:,registry-login,centos-mirror:,override-dns:,proxy-endpoint:,registry-endpoint:,proxy-test-via:,vm-tools,zero-fill-ova,ssh-private-key:,ssh-public-key:,version,help-build,yes,no,verbose,quiet \
+         -l build-from:,deploy-config:,registry-cert:,help,help-build,proxy-cert:,registry-login,centos-mirror:,override-dns:,proxy-endpoint:,registry-endpoint:,proxy-test-via:,vm-tools,zero-fill-ova,ssh-private-key:,ssh-public-key:,version,help-build,yes,no,verbose,quiet \
          -o c:d:hk:lm:no:r:t:p:gyvqz \
          -n "${0}" \
          -- ${@}
@@ -197,6 +198,10 @@ while true; do
 # Usage
     -h|--help)
         usage
+        exit 1
+        ;;
+    --help-build)
+        usage_build
         exit 1
         ;;
     --version)

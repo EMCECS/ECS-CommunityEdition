@@ -1124,18 +1124,44 @@ def object_user(conf, l, r, s, a, n):
         o("Creating '{}' in namespace '{}'".format(name, ou_namespace))
         conf.api_client.object_user.create(name, namespace=ou_namespace)
 
-        o("\tAdding {}'s S3 credentials".format(name))
-        conf.api_client.secret_key.create(user_id=name,
-                                          namespace=ou_namespace,
-                                          expiry_time=ou_dict['s3_expiry_time'],
-                                          secret_key=ou_dict['s3_secret_key'])
+        o("\tWaiting for '{}' to become editable".format(name))
+        is_editable = False
+        while is_editable is False:
+            try:
+                get_one(name)
+                is_editable = True
+                o("\tOK")
+            except Exception as e:
+                is_editable = False
+                o("\tWaiting...")
+                time.sleep(5)
 
-        if ou_dict['swift_password'] is not None and ou_dict['swift_groups_list'] is not None:
-            o("\tAdding {}'s Swift credentials".format(name))
-            conf.api_client.password_group.create(user_id=name,
+        creds_added = False
+        while creds_added is False:
+            try:
+                o("\tAdding {}'s S3 credentials".format(name))
+                conf.api_client.secret_key.create(user_id=name,
                                                   namespace=ou_namespace,
-                                                  password=ou_dict['swift_password'],
-                                                  groups_list=ou_dict['swift_groups_list'])
+                                                  expiry_time=ou_dict['s3_expiry_time'],
+                                                  secret_key=ou_dict['s3_secret_key'])
+                creds_added = True
+            except Exception as e:
+                creds_added = False
+                time.sleep(5)
+
+        creds_added = False
+        while creds_added is False:
+            try:
+                if ou_dict['swift_password'] is not None and ou_dict['swift_groups_list'] is not None:
+                    o("\tAdding {}'s Swift credentials".format(name))
+                    conf.api_client.password_group.create(user_id=name,
+                                                          namespace=ou_namespace,
+                                                          password=ou_dict['swift_password'],
+                                                          groups_list=ou_dict['swift_groups_list'])
+                creds_added = True
+            except Exception as e:
+                creds_added = False
+                time.sleep()
 
     available_configs = list_all()
     if l:
