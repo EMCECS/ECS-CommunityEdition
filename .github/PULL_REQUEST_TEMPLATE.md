@@ -1,11 +1,14 @@
-This pull request addresses the following issue(s): # .
+### This pull request addresses the following referenced issue(s):
 
+1.
+2.
+3.
 
-Overview of changes:
+### Overview of changes:
 
--
--
--
+1.
+2.
+3.
 
-
+---
 @padthaitofuhot @captntuttle @adrianmo

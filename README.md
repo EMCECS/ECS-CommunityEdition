@@ -1,7 +1,14 @@
-[![Documentation Status](http://readthedocs.org/projects/ecsce/badge/?version=latest)](http://ecsce.readthedocs.io/en/latest/?badge=latest)
- <h1> ECS Community Edition </h1>
+# ECS Community Edition
+**ECS Software Image**
+[![](https://images.microbadger.com/badges/version/emccorp/ecs-software-3.1.0.svg)](https://microbadger.com/images/emccorp/ecs-software-3.1.0 "Get your own version badge on microbadger.com")
+**ECS CE Install Node Image**
+[![](https://images.microbadger.com/badges/version/emccorp/ecs-install.svg)](https://microbadger.com/images/emccorp/ecs-install "Get your own version badge on microbadger.com") [![Documentation Status](http://readthedocs.org/projects/ecsce/badge/?version=latest)](http://ecsce.readthedocs.io/en/latest/?badge=latest) [![Jenkins](https://img.shields.io/jenkins/s/https/jenkins.qa.ubuntu.com/view/Precise/view/All%20Precise/job/precise-desktop-amd64_default.svg?style=flat-square)](http://10.1.83.120/job/ecs-ce/)
 
-See [release history](https://github.com/EMCECS/ECS-CommunityEdition/releases) for current release notes and change log; [changelog.md](changelog.md) file for legacy history.
+Current releases and history are available [here][releases].
+
+## Community Guides
+Please read our [Community Code of Conduct][ccoc] before contributing.  Thank you.
+
 
 ## Description
 
@@ -207,3 +214,8 @@ EMC and Customer enter into this Agreement and this Agreement shall become effec
 **9.7 - Independent Contractors** - The parties shall act as independent contractors for all purposes under this Agreement. Nothing contained herein shall be deemed to constitute either party as an agent or representative of the other party, or both parties as joint venturers or partners for any purpose. Neither party shall be responsible for the acts or omissions of the other party, and neither party will have authority to speak for, represent or obligate the other party in any way without an authenticated record indicating the prior approval of the other party.
 
 **9.8 - Separability** - If any provision of this Agreement shall be held illegal or unenforceable, such provision shall be deemed separable from, and shall in no way affect or impair the validity or enforceability of, the remaining provisions.
+
+[ccoc]: https://github.com/EMCECS/ECS-CommunityEdition/blob/master/CODE_OF_CONDUCT.md
+[contributing]: https://github.com/EMCECS/ECS-CommunityEdition/blob/master/.github/CONTRIBUTING.md
+[releases]: https://github.com/EMCECS/ECS-CommunityEdition/releases
+[legacy_changelog]: https://github.com/EMCECS/ECS-CommunityEdition/blob/master/docs/legacy/changelog.md
