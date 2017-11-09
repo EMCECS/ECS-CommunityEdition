@@ -89,7 +89,7 @@ installation node as well as the data node in the deploy.yml file.
 ~~~~~~~~~~~~~~~~~~
 
 Please use a non-root administrative user account with sudo privileges
-on the Install Node when performing the deployment. If deploying from
+on the install node when performing the deployment. If deploying from
 the provided OVA, this account is username ``admin`` with password
 ``ChangeMe``.
 
@@ -146,11 +146,11 @@ fields mentioned below are required for a successful installation.**
 0. From the ECS-CommunityEdition directory, run the commmand:
    ``cp docs/design/reference.deploy.yml deploy.yml``
 1. Edit the file with your favorite editor on another machine, or use
-   ``vi deploy.yml`` on the Install Node. Read the comments in the file
+   ``vi deploy.yml`` on the install node. Read the comments in the file
    and review the examples in the ``examples/`` directory.
 2. Top-level deployment facts (``facts:``)
 
-   0. Enter the IP address of the Install Node into the
+   0. Enter the IP address of the install node into the
       ``install_node:`` field.
    1. Enter into the ``management_clients:`` field the CIDR address/mask
       of each machine or subnet that will be whitelisted in node's
@@ -342,7 +342,7 @@ before continuing to Step 4.
 4. Deploying ECS Nodes (``step1`` or ``island-step1``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once the deploy.yml file has been correctly written and the Install Node
+Once the deploy.yml file has been correctly written and the install node
 rebooted if needed, then the next step is to simply run one of the
 following commands:
 
