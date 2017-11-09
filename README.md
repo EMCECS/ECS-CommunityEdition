@@ -92,12 +92,12 @@ Deploy a multi-node ECS instance to two or more hardware or virtual machines.  T
 
 ### Deployments into Soft-Isolated and Air-Gapped Island Environments
 ##### Important information regarding Island deployments
-Please be aware that Install Node bootstrapping requires Internet access to the hardware or virtual machine that will become the Install Node, but once this step is complete, the machine can be removed from the Internet and migrated into the Island environment.
+Please be aware that install node bootstrapping requires Internet access to the hardware or virtual machine that will become the install node, but once this step is complete, the machine can be removed from the Internet and migrated into the Island environment.
 
 #### Deploying from OVA
-In situations where Internet access is completely disallowed, or for the sake of convenience, an OVA of a prefabricated, bootstrapped, Install Node is provided.  Please download the OVA from one of the links below.
+In situations where Internet access is completely disallowed, or for the sake of convenience, an OVA of a prefabricated, bootstrapped, install node is provided.  Please download the OVA from one of the links below.
 
-The OVA is shipped as a bootstrapped Install Node.  It must be cloned multiple times to create as many Data Store Nodes as desired.
+The OVA is shipped as a bootstrapped install node.  It must be cloned multiple times to create as many Data Store Nodes as desired.
 
 ###### OVA Special Requirements
 * All nodes **MUST** be clones of the OVA.
@@ -111,10 +111,10 @@ The OVA is shipped as a bootstrapped Install Node.  It must be cloned multiple t
 Please see the [release page](https://github.com/EMCECS/ECS-CommunityEdition/releases) for OVA download links.
 
 #### [ECS Single-Node Deployment with Install Node (recommended)](docs/source/installation/ECS-Installation.md)
-Using an Install Node for isolated environments, deploy a stand-alone instance of ECS to a single hardware or virtual machine.
+Using an install node for isolated environments, deploy a stand-alone instance of ECS to a single hardware or virtual machine.
 
 #### [ECS Multi-Node Deployment with Install Node](docs/source/installation/ECS-Installation.md)
-Using an Install Node for isolated environments, deploy a multi-node ECS instance to two or more hardware or virtual machines.  Three nodes are required to enable erasure-coding replication.
+Using an install node for isolated environments, deploy a multi-node ECS instance to two or more hardware or virtual machines.  Three nodes are required to enable erasure-coding replication.
 
 
 # Directory Structure

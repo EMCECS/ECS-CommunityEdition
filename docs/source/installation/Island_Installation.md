@@ -51,7 +51,7 @@ A single node *can* successfully run the installation procedure on itself. To do
 
 ### 1. Getting Started
 
-It is recommended to use a non-root administrative user account with sudo privileges on the Install Node when performing the deployment.  Deploying from the root account is supported, but not recommended.
+It is recommended to use a non-root administrative user account with sudo privileges on the install node when performing the deployment.  Deploying from the root account is supported, but not recommended.
 
 Before data store nodes can be created, the install node must be prepared. If acquiring the software via the GitHub repository, run:
 
@@ -77,9 +77,9 @@ Below are steps for creating a basic deploy.yml. **All fields indicated below ar
 
 0. From the `$HOME/ECS-CommunityEdition` directory, run the commmand:
 `cp docs/design/reference.deploy.yml deploy.yml`
-0. Edit the file with your favorite editor on another machine, or use `vi deploy.yml` on the Install Node.  Read the comments in the file and review the examples in the `examples/` directory.
+0. Edit the file with your favorite editor on another machine, or use `vi deploy.yml` on the install node.  Read the comments in the file and review the examples in the `examples/` directory.
 0. Top-level deployment facts (`facts:`)
-    0. Enter the IP address of the Install Node into the `install_node:` field.
+    0. Enter the IP address of the install node into the `install_node:` field.
     0. Enter into the `management_clients:` field the CIDR address/mask of each machine or subnet that will be whitelisted in node's firewalls and allowed to communicate with ECS management API.
       * `10.1.100.50/32` is *exactly* the IP address.
       * `192.168.2.0/24` is the entire /24 subnet.
@@ -108,7 +108,7 @@ These steps quickly set up a basic deploy.yml file
 #### More on deploy.yml
 For more information on deploy.yml, please read the reference guide found [here](deploy.yml.md).
 
-### 3. Bootstrapping the Install Node (`bootstrap.sh`)
+### 3. Bootstrapping the install node (`bootstrap.sh`)
 The bootstrap script configures the installation node for ECS deployment and downloads the required Docker images and software packages that all other nodes in the deployment will need for successful installation.
 
 Once the deploy.yml file has been created, the installation node must be bootstrapped. To do this `cd` into the ECS-CommunityEdition directory and run `./bootstrap.sh -c deploy.yml`. Be sure to add the `-g` flag if building the ECS deployment in a virtual environment and the `-y` flag if you're okay accepting all defaults.
@@ -203,7 +203,7 @@ After the installation node has successfully bootstrapped you will likely be pro
 
 ### 4. Deploying ECS Nodes (`island-step1`)
 
-Once the deploy.yml file has been correctly written and the Install Node rebooted if needed, then the next step is to simply run `island-step1`.
+Once the deploy.yml file has been correctly written and the install node rebooted if needed, then the next step is to simply run `island-step1`.
 
 After the installer initializes, the EMC ECS license agreement will appear on the screen. Press `q` to close the screen and type `yes` to accept the license and continue or `no` to abort the process. The install cannot continue until the license agreement has been accepted.
 
