@@ -1,7 +1,8 @@
 # Building `ecs-install` Image From Sources
+The ECS-CommunityEdition git repository is also a build environment for the `ecs-install` image.
 
-## Building `ecs-install` Image During Bootstrap
-If you're hacking around in the install node code, then you'll probably want to build your own install node image at some point.  The boostrap script has options for accomplishing just this.
+## Building `ecs-install` Image During Bootstrap with `boostrap.sh`
+If you're hacking around in the install node code, then you'll probably want to build your own install node image at some point.  The `bootstrap.sh` script has options for accomplishing just this.
 
 ```
 [Usage]
@@ -26,19 +27,19 @@ To tell bootstrap to build the image for you, just include the `--build-from` ar
 
 `[admin@localhost ECS-CommunityEdition]$ ./bootstrap.sh --build-from http://dl-cdn.alpinelinux.org/alpine/`
 
-## Building `ecs-install` Image After Bootstrapping
+## Building `ecs-install` Image After Bootstrapping with `build_image`
 
 If you need to build the `ecs-install` image after bootstrapping, then you'll need to give a valid Alpine Linux mirror to your install node:
 
 ```
-[admin@installer-230 ECS-CommunityEdition]$ ui/build_image.sh --update-mirror http://cache.local/alpine/
+[admin@installer-230 ECS-CommunityEdition]$ build_image --update-mirror http://cache.local/alpine/
 > Updating bootstrap.conf to use Alpine Linux mirror http://cache.local/alpine/
 ```
 
 Once the mirror is configured, you can then build the image:
 
 ```
-[admin@installer-230 ECS-CommunityEdition]$ ui/build_image.sh
+[admin@installer-230 ECS-CommunityEdition]$ build_image
 > Building image ecs-install
 > Build context is: local
 > Using custom registry: cache.local:5000
@@ -47,7 +48,6 @@ Once the mirror is configured, you can then build the image:
 > Generating Alpine Linux repositories file
 > Collecting artifacts
 > UI artifact is: ui/resources/docker/ecs-install.2.5.1-local.installer-230.4.tgz
-[sudo] password for admin:
 INFO[0000] FROM cache.local:5000/alpine:3.6
 INFO[0000] | Image sha256:37eec                          size=3.962 MB
 INFO[0000] LABEL MAINTAINER='Travis Wichert <travis.wichert@emc.com>'
@@ -156,10 +156,36 @@ The new image is automatically tagged :latest in the local repository and replac
 You'll then want to clean up the local Docker repository with this command:
 
 ```
-[admin@installer-230 ECS-CommunityEdition]$ ui/build_image.sh --clean
+[admin@installer-230 ECS-CommunityEdition]$ build_image --clean
 > Cleaning up...
 >      [build tmp containers]
 >      [ecs-install data containers]
 >      [exited containers]
 >      [dangling layers]
 ```
+
+## Making Quick Iterative Changes to an Existing `ecs-install` Image with `update_image`
+
+Building an image can take a long time.  If you have not made any changes to files that are used in the `docker build` process, then you can update an existing `ecs-install` data container with code changes using the `update_image` macro:
+
+```
+[admin@installer-230 ECS-CommunityEdition]$ update_image
+> Updating image: ecs-install
+> Build context is: local
+> Tunneling through proxy: cache.local:3128
+> Cleaning up...
+>      [build tmp containers]
+>      [ecs-install data containers]
+>      [exited containers]
+>      [dangling layers]
+> Collecting artifacts
+> UI is: ui/resources/docker/ecs-install.2.5.1-local.installer-230.5.tgz
+> Creating new data container
+> Image updated.
+```
+
+## Quickly Testing Ansible Changes with `testbook`
+
+If you're working with Ansible within ECS Community Edition, you might find yourself needing to test to see how your Ansible role is being played from within the `ecs-install` image.  You can do this by modifying the files under the `testing` subdirectory of the Ansible `roles` directory: `ui/ansible/roles/testing`
+
+After making your changes, run `update_image` as discussed above, and then run `testbook` to execute your role.  The `testbook` command will automatically initialize a new data container, configure access with the install node, and test your role directives.
