@@ -130,8 +130,9 @@ Querying a node
 
 
 ## `update_deploy`
-This utility updates the `/opt/emc/ecs-install/deploy.yml` file with the updated contents of the file `deploy.yml` provided during bootstrapping.
+This utility updates the `/opt/emc/ecs-install/deploy.yml` file with the updated contents of the file `deploy.yml` provided during bootstrapping.  It can also set the path to the `deploy.yml` file from which to fetch updates.
 
+Running with no arguments
 ```
 [admin@installer-230 ~]$ update_deploy
 > Updating /opt/emc/ecs-install/deploy.yml from /home/admin/ecsce-lab-configs/local/local-lab-1-node-1/deploy.yml
@@ -139,6 +140,26 @@ This utility updates the `/opt/emc/ecs-install/deploy.yml` file with the updated
 <     ssh_password: ChangeMe
 ---
 >     ssh_password: admin
+> Recreating ecs-install data container
+ecs-install> Initializing data container, one moment ... OK
+ecs-install> Applying deploy.yml
+```
+
+Updating the deploy.yml file to a different source.
+```
+[admin@installer-230 ~]$ update_deploy ~/ecsce-lab-configs/local/local-lab-1-node-2/deploy.yml
+> Updating bootstrap.conf to use deploy config from /home/admin/ecsce-lab-configs/local/local-lab-1-node-2/deploy.yml
+> Updating /opt/emc/ecs-install/deploy.yml from /home/admin/ecsce-lab-configs/local/local-lab-1-node-2/deploy.yml
+37c37
+<     ssh_password: admin
+---
+>     ssh_password: ChangeMe
+82c82
+<         - 192.168.2.221
+---
+>         - 192.168.2.220
+173a174
+>
 > Recreating ecs-install data container
 ecs-install> Initializing data container, one moment ... OK
 ecs-install> Applying deploy.yml

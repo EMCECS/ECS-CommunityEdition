@@ -103,6 +103,13 @@ Below are steps for creating a basic deploy.yml. **All fields indicated below ar
 0. After completing the deploy.yml file to your liking, exit out of `videploy` as you would the `vim` editor (ESC, :, wq, ENTER).  This will update the deploy.yml file.
 
 #### More on deploy.yml
+If you need to make changes to your deploy.yml after bootstrapping, there are two utilities for this.
+
+0. The `videploy` utility will update the installed `deploy.yml` file in place and is the preferred method.
+0. The `update_deploy` utility will update the installed `deploy.yml` file with the contents of a different `deploy.yml` file.
+
+See the [utilties][utilities] document for more information on these and other ECS CE utilities.
+
 For more information on deploy.yml, please read the reference guide found [here](deploy.yml.md).
 
 ### 4. Deploying ECS Nodes (`ova-step1`)
@@ -118,3 +125,5 @@ Once `ova-step1` has completed, you may then direct the installer to configure t
 
 ## That's it!
 Assuming all went well, you now have a functioning ECS Community Edition instance and you may now proceed with your test efforts.
+
+[utilties]: /utilities/utilities.md

@@ -106,6 +106,13 @@ Below are steps for creating a basic deploy.yml. **All fields indicated below ar
 These steps quickly set up a basic deploy.yml file
 
 #### More on deploy.yml
+If you need to make changes to your deploy.yml after bootstrapping, there are two utilities for this.
+
+0. The `videploy` utility will update the installed `deploy.yml` file in place and is the preferred method.
+0. The `update_deploy` utility will update the installed `deploy.yml` file with the contents of a different `deploy.yml` file.
+
+See the [utilties][utilities] document for more information on these and other ECS CE utilities.
+
 For more information on deploy.yml, please read the reference guide found [here](deploy.yml.md).
 
 ### 3. Bootstrapping the install node (`bootstrap.sh`)
