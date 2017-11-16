@@ -13,7 +13,7 @@ pipeline {
         string(name: 'template', defaultValue: 'jenkins/ecsce-template', description: 'VM template')
         string(name: 'resource_pool', defaultValue: 'Cisco UCS Cluster/Resources/Tests', description: 'vSphere resource pool')
         string(name: 'datacenter', defaultValue: 'Datacenter', description: 'vSphere datacenter')
-        string(name: 'network_interface', defaultValue: 'Local VLAN 999 (Tagged)', description: 'VM network interface')
+        string(name: 'network_interface', defaultValue: 'CI Network', description: 'CI network interface')
         string(name: 'ecs_nodes', defaultValue: '1', description: 'Number of ECS nodes to be deployed')
     }
 
