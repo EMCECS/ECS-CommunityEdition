@@ -135,12 +135,12 @@ Deployments into Soft-Isolated and Air-Gapped Island Environments
 Important information regarding Island deployments
 ''''''''''''''''''''''''''''''''''''''''''''''''''
 
-Please be aware that Install Node bootstrapping requires Internet access
-to the hardware or virtual machine that will become the Install Node,
+Please be aware that install node bootstrapping requires Internet access
+to the hardware or virtual machine that will become the install node,
 but once this step is complete, the machine can be removed from the
 Internet and migrated into the Island environment.
 
-If you prefer to download a prefab Install Node as an OVF/OVA, follow
+If you prefer to download a prefab install node as an OVF/OVA, follow
 one of the links below. Please note that OVAs are produced upon each
 release and do not necessarily have the most current software.
 
@@ -149,7 +149,7 @@ Please see the `release page <https://github.com/EMCECS/ECS-CommunityEdition/rel
 `ECS Multi-Node Deployment with Install Node (recommended, most reusable, full-featured) <http://ecsce.readthedocs.io/en/latest/installation/ECS-Installation.html>`__
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Using an Install Node for isolated environments, deploy a multi-node ECS
+Using an install node for isolated environments, deploy a multi-node ECS
 instance to two or more hardware or virtual machines and enable all ECS
 features. Three nodes are required for all ECS 3.0 and above features to
 be activated.
@@ -157,7 +157,7 @@ be activated.
 `ECS Single-Node Deployment with Install Node <http://ecsce.readthedocs.io/en/latest/installation/ECS-Installation.html>`__
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Using an Install Node for isolated environments, deploy a stand-alone
+Using an install node for isolated environments, deploy a stand-alone
 instance of a limited set of ECS kit to a single hardware or virtual
 machine.
 

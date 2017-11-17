@@ -60,7 +60,12 @@ case "$(basename ${0})" in
     ;;
     update_image)
         cd "${root}"
-        "${root}/ui/update_image.sh"
+        "${root}/ui/update_image.sh" ${*}
+        cd - 2>&1 >/dev/null
+    ;;
+    build_image)
+        cd "${root}"
+        "${root}/ui/build_image.sh" ${*}
         cd - 2>&1 >/dev/null
     ;;
     rebuild_image)
