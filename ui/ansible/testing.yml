@@ -1,5 +1,5 @@
 - name: Installer | Testing
-  hosts: data_node
+  hosts: install_node
   vars:
     num_data_nodes: "{{ groups['data_node'] | length }}"
     top_data_node: "{{ groups['data_node'][0] }}"
