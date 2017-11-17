@@ -5,7 +5,7 @@
 
 - name: Firewalld | Add install node to firewalld trusted zone
   firewalld:
-    source: "{{install_node}}/32"
+    source: "{{groups['install_node'][0]}}/32"
     state: enabled
     zone: trusted
     immediate: true
