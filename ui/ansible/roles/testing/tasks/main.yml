@@ -40,7 +40,7 @@
     label: "{{ host_cache_dir }}/{{ item.key }}/{{ item.value.dest }}"
 
 - name: Installer | Create cache distribution torrent file
-  shell: mktorrent-borg -ig 'facts*' -a udp://{{ groups['install_node'][0] }}:6881 -a http://{{ groups['install_node'][0] }}:6881/announce -o {{ cache_dir }}/cache.torrent -pub {{ cache_dir }}
+  shell: /usr/bin/mktorrent-borg -ig 'facts*' -a udp://{{ groups['install_node'][0] }}:6881 -a http://{{ groups['install_node'][0] }}:6881/announce -o {{ cache_dir }}/cache.torrent -pub {{ cache_dir }}
   args:
     creates: "{{ cache_dir }}/cache.torrent"
   when:
