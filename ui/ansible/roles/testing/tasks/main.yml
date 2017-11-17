@@ -1,39 +1,48 @@
-- include_vars: main.yml
 - include_vars: caches.yml
 
-- name: Common | Create and modify paths and semaphores for docker containers
-  file:
-    path: "{{item.path}}"
-    state: "{{item.state}}"
-    mode: "{{item.mode}}"
-    owner: "{{item.owner}}"
-    group: "{{item.group}}"
-  with_items: "{{ecs_docker_dirs}}"
-  tags: files
+- name: Debug
+  debug:
+    msg: "data nodes: {{num_data_nodes|int}} top data node: {{top_data_node}} install node: {{groups['install_node'][0]}} is ova?: {{ansible_local is defined and ansible_local.ova is defined}}"
+
+- name: Debug 2
+  debug:
+    msg: "{{not ( num_data_nodes|int == 1 and top_data_node == groups['install_node'][0] )}}"
+
+- name: Debug 3
+  debug:
+    msg: "{{not ( ansible_local is defined and ansible_local.ova is defined )}}"
+
+- name: Debug 4
+  debug:
+    msg: "ansible_local: {{ansible_local is defined}} ansible_local.ova: {{ansible_local is defined and ansible_local.ova is defined}}"
+
+- name: Installer | Create cache directories
+  file: state=directory path={{ cache_dir }}/{{ item }}
+  with_items: "{{ caches.keys() }}"
+  when:
+    - not ( num_data_nodes|int == 1 and top_data_node == groups['install_node'][0] )
+    - not ( ansible_local is defined and ansible_local.ova is defined )
   loop_control:
-    label: "{{item.path}}"
+    label: "{{ cache_dir }}/{{ item }}"
 
-### Generate network.json
-- name: Common | Generate network.json
-  template: src=rev1-network.json.j2 dest=/host/data/network.json owner=444 group=444 force=no
-  tags: files
+- name: Installer | Create compressed cache files
+  shell: "{{ item.value.pack_cmd }}"
+  args:
+    chdir: "{{ host_cache_dir }}/{{ item.key }}"
+    creates: "{{ host_cache_dir }}/{{ item.key }}/{{ item.value.dest }}"
+  with_dict: "{{ caches }}"
+  delegate_to: "{{ groups['install_node'][0] }}"
+  register: cacheresults
+  when:
+    - not ( num_data_nodes|int == 1 and top_data_node == groups['install_node'][0] )
+    - not ( ansible_local is defined and ansible_local.ova is defined )
+  loop_control:
+    label: "{{ host_cache_dir }}/{{ item.key }}/{{ item.value.dest }}"
 
-### Generate object-main_network.json
-- name: Common | Generate object-main_network.json
-  template: src=object-main_network.json.j2 dest=/host/data/object-main_network.json owner=444 group=444 force=no
-  tags: files
-
-### Generate id.json
-- name: Common | Generate id.json
-  template: src=id.json.j2 dest=/host/data/id.json owner=444 group=444 force=no
-  tags: files
-
-### Generate agent.json
-- name: Common | Generate agent.json
-  template: src=agent.json.j2 dest=/host/data/agent.json owner=444 group=444 force=no
-  tags: files
-
-### Generate seeds file
-- name: Common | Generate seeds file
-  template: src=seeds.j2 dest=/host/files/seeds owner=444 group=444 force=no
-  tags: files
+- name: Installer | Create cache distribution torrent file
+  shell: /usr/bin/mktorrent-borg -ig 'facts*' -a udp://{{ groups['install_node'][0] }}:6881 -a http://{{ groups['install_node'][0] }}:6881/announce -o {{ cache_dir }}/cache.torrent -pub {{ cache_dir }}
+  args:
+    creates: "{{ cache_dir }}/cache.torrent"
+  when:
+    - not ( num_data_nodes|int == 1 and top_data_node == groups['install_node'][0] )
+    - not ( ansible_local is defined and ansible_local.ova is defined )
