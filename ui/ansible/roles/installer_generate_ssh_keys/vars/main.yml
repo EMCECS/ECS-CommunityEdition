@@ -1,3 +1,5 @@
+# This is all now in ui/ansible/templates/all.j2
+
 #keys_rsa:
 #  keygen_cmd: ssh-keygen -N '' -t rsa -b 4096 -o -a 100 -f
 #  priv_key: /opt/ssh/id_rsa
