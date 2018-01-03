@@ -12,7 +12,7 @@
 /README.md
 /bootstrap.sh
 /.gitignore
-/changelog.md
+/docs
 /ECS-CommunityEdition.iml
 /.gitattributes
 /.dockerignore

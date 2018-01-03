@@ -236,10 +236,10 @@ def cache(conf):
     behind slow Internet links or into island environments.
     """
 
-    playbook = 'clicmd_access_host'
-    if not play(playbook, conf.config.verbosity):
-        click.echo('Operation failed.')
-        sys.exit(1)
+    # playbook = 'clicmd_access_host'
+    # if not play(playbook, conf.config.verbosity):
+    #     click.echo('Operation failed.')
+    #     sys.exit(1)
 
     playbook = 'clicmd_cache'
     if not play(playbook, conf.config.verbosity):
@@ -256,6 +256,7 @@ def check(conf):
     playbook = 'clicmd_preflight'
     if not play(playbook, conf.config.verbosity):
         sys.exit(1)
+
 
 @ecsdeploy.command('bootstrap', short_help='Install required packages on nodes')
 @pass_conf

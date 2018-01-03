@@ -296,14 +296,17 @@ def ping(conf, c, w, x):
                 if resp_dict is not None:
                     if resp_dict['common_name'] is not None:
                         dt_status = conf.diag_dt_status()
-                        o('PONG: api_endpoint={} username={} {}'.format(conf.api_endpoint,
-                                                                        resp_dict['common_name'],
-                                                                        dt_status['text']))
                         if x:
                             if dt_status['status'] is True:
                                 pinging = False
+                                o('PONG: api_endpoint={} username={} {}'.format(conf.api_endpoint,
+                                                                                resp_dict['common_name'],
+                                                                                dt_status['text']))
                             else:
                                 pinging = True
+                                o('WAIT: api_endpoint={} username={} {}'.format(conf.api_endpoint,
+                                                                                resp_dict['common_name'],
+                                                                                dt_status['text']))
                     else:
                         raise ECSClientException("Unexpected response from API")
             except requests.ConnectionError or httplib.HTTPException:

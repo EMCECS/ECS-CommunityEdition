@@ -1,8 +1,0 @@
-{%- set comma = joiner(",") -%}
-{%- set vdc = hostvars[inventory_hostname]['vdc'] -%}
-{%- for host in groups.data_node -%}
-{%- if ( (hostvars[host]['vdc'] is defined) and
-        (hostvars[host]['vdc'] == vdc) ) -%}
-{{ comma() }}{{ hostvars[host]['ansible_default_ipv4']['address'] }}
-{%- endif -%}
-{%- endfor %}

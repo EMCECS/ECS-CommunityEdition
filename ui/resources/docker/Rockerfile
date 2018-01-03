@@ -30,12 +30,11 @@ RUN apk -q update && \
     apk -q --no-cache upgrade
 
 # Add required system packages
-#RUN apk -q --no-cache add openssh-client sshpass openssl ca-certificates libffi libressl@edge_main \
 RUN apk -q --no-cache add python2 py-pip\
-                             openssh-client sshpass openssl ca-certificates libffi libressl@edge_main \
+                             openssh-client sshpass openssl ca-certificates libffi libressl \
                              pigz jq less \
-                             opentracker aria2 mktorrent@edge_community \
-                             ansible@edge_main
+                             opentracker aria2 mktorrent \
+                             ansible
 
 # Setup the environment
 RUN mv /etc/profile.d/color_prompt /etc/profile.d/color_prompt.sh \
