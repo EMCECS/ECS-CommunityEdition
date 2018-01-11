@@ -1,4 +1,4 @@
-# deploy.yml reference implementation v2.5.0
+# deploy.yml reference implementation v2.6.0
 
 # [Optional]
 # By changing the license_accepted boolean value to "true" you are
@@ -7,6 +7,15 @@
 # distribution.
 licensing:
   license_accepted: false
+
+#autonames:
+#  custom:
+#    - ecs01
+#    - ecs02
+#    - ecs03
+#    - ecs04
+#    - ecs05
+#    - ecs06
 
 # [Required]
 # Deployment facts reference
@@ -63,7 +72,7 @@ facts:
     # VFS path to source of randomness
     # Defaults to /dev/urandom for speed considerations.  If you prefer /dev/random, put that here.
     # If you have a /dev/srandom implementation or special entropy hardware, you may use that too
-    # so long as it implements a /dev/random type device abstraction.
+    # so long as it implements a /dev/random type device.
     entropy_source: /dev/urandom
     #
     # [Optional]
@@ -71,7 +80,9 @@ facts:
     # Available options:
     #  - "moons" (ECS CE default)
     #  - "cities" (ECS SKU-flavored)
-    autonaming: moons
+    #  - "custom" (uncomment and use the top-level autonames block to define these)
+    # autonaming: custom
+
     #
     # [Optional]
     # If your ECS comes with differing default credentials, you can specify those here

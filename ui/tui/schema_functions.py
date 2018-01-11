@@ -36,7 +36,7 @@ def alphanumeric(value, rule_obj, path):
     __validate_regex(AlphanumericRegex, value, "Not a valid name: '%s' (%s)" % (value, path))
     return True
 
-def docker_image(value, rule_obj,path):
+def docker_image(value, rule_obj, path):
     __validate_regex(DockerImageRegex, value, "Not a valid Docker image: '%s' (%s)" % (value, path))
     return True
 
@@ -46,4 +46,8 @@ def s3_secret_key(value, rule_obj, path):
 
 def valid_crypto_method(value, rule_obj, path):
     __validate_regex(ValidCryptoMethodRegex, value, "Not a supported crypto method: '%s' (%s)" % (value, path))
+    return True
+
+def valid_hostname(value, rule_obj, path):
+    __validate_regex(HostnameRegex, value, "Not a valid hostname: '%s' (%s)" % (value, path))
     return True
