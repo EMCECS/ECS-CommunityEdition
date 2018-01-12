@@ -1,5 +1,7 @@
+---
+# Selected autonames: {{ facts['node_defaults']['autonaming'] }}
 autonames:
-{%- set autonaming = facts['autonaming'] | default('moons') -%}
+{%- set autonaming = facts['node_defaults']['autonaming'] | default('moons') -%}
 {%- for name in autonames[autonaming] %}
   - {{ name -}}
 {% endfor %}

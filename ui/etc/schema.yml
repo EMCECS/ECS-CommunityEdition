@@ -9,6 +9,18 @@ mapping:
       license_accepted:
         type: bool
 
+  autonames:
+    type: map
+    required: False
+    mapping:
+      custom:
+        type: seq
+        required: True
+        sequence:
+          - type: str
+            required: True
+            func: valid_hostname
+
   facts:
     type: map
     required: True
