@@ -53,8 +53,7 @@ pipeline {
                 }
                 sh 'terraform --version'
                 sh 'ansible --version'
-                sh 'find'
-                sh 'cd tests && terraform init'
+                sh 'terraform init tests'
             }
         }
         stage('Provision infrastructure') {
