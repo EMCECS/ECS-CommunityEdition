@@ -57,6 +57,7 @@ pipeline {
         }
         stage('Provision infrastructure') {
             steps {
+                sh 'terraform init'
                 sh 'terraform plan -out=plan tests'
                 sh 'terraform apply plan'
                 sh 'terraform output -json > output.json'
