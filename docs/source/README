@@ -1,0 +1,5 @@
+To convert document files from .md to .rst a Dockerfile is included.
+
+In order to use the Dockerfile:
+1) build docker image from Dockerfile
+2) run docker image with "-f markdown -t rst <inputfile_path> -o <outputfile_path>"
