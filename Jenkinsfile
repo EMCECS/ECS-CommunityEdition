@@ -53,11 +53,12 @@ pipeline {
                 }
                 sh 'terraform --version'
                 sh 'ansible --version'
+                sh 'find'
+                sh 'terraform init'
             }
         }
         stage('Provision infrastructure') {
             steps {
-                sh 'terraform init'
                 sh 'terraform plan -out=plan tests'
                 sh 'terraform apply plan'
                 sh 'terraform output -json > output.json'
