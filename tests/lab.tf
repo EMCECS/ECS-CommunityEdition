@@ -31,7 +31,7 @@ data "vsphere_virtual_machine" "template" {
 }
 
 resource "vsphere_folder" "tests_folder" {
-  path               = "tests"
+  path               = "ecsce-test-${substr(sha1(timestamp()),0,8)}"
   type               = "vm"
   datacenter_id      = "${data.vsphere_datacenter.dc.id}"
 }
