@@ -67,6 +67,10 @@ resource "vsphere_virtual_machine" "install_node" {
 
   clone {
     template_uuid    = "${data.vsphere_virtual_machine.template.id}"
+
+    customize {
+      network_interface {}
+    }
   }
 }
 
@@ -102,5 +106,9 @@ resource "vsphere_virtual_machine" "ecs_node" {
 
   clone {
     template_uuid    = "${data.vsphere_virtual_machine.template.id}"
+
+    customize {
+      network_interface {}
+    }
   }
 }
