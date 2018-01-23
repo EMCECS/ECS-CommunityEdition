@@ -42,7 +42,7 @@ resource "vsphere_virtual_machine" "install_node" {
   num_cpus           = 2
   memory             = 4096
   resource_pool_id   = "${data.vsphere_resource_pool.pool.id}"
-  datacenter_id      = "${data.vsphere_datacenter.dc.id}"
+  datastore_id       = "${data.vsphere_datastore.ds.id}"
   guest_id           = "${data.vsphere_virtual_machine.template.guest_id}"
   scsi_type          = "${data.vsphere_virtual_machine.template.scsi_type}"
 
@@ -52,7 +52,7 @@ resource "vsphere_virtual_machine" "install_node" {
   }
 
   disk {
-    name             = "jenkins-ecsce-install-disk-${substr(sha1(timestamp()),0,8)}"
+    name             = "jenkins-ecsce-install-disk-${substr(sha1(timestamp()),0,8)}.vmdk"
     size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
     eagerly_scrub    = "${data.vsphere_virtual_machine.template.disks.0.eagerly_scrub}"
     thin_provisioned = true
@@ -70,7 +70,7 @@ resource "vsphere_virtual_machine" "ecs_node" {
   num_cpus           = 4
   memory             = 16384
   resource_pool_id   = "${data.vsphere_resource_pool.pool.id}"
-  datacenter_id      = "${data.vsphere_datacenter.dc.id}"
+  datastore_id       = "${data.vsphere_datastore.ds.id}"
   guest_id           = "${data.vsphere_virtual_machine.template.guest_id}"
   scsi_type          = "${data.vsphere_virtual_machine.template.scsi_type}"
 
@@ -80,7 +80,7 @@ resource "vsphere_virtual_machine" "ecs_node" {
   }
 
   disk {
-    name             = "jenkins-ecsce-install-disk-${substr(sha1(timestamp()),0,8)}"
+    name             = "jenkins-ecsce-ecs-disk-${substr(sha1(timestamp()),0,8)}.vmdk"
     size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
     eagerly_scrub    = "${data.vsphere_virtual_machine.template.disks.0.eagerly_scrub}"
     thin_provisioned = true
