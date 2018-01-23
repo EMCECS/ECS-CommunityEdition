@@ -69,6 +69,10 @@ resource "vsphere_virtual_machine" "install_node" {
     template_uuid    = "${data.vsphere_virtual_machine.template.id}"
 
     customize {
+      linux_options {
+        host_name = "ecsce-install"
+      }
+
       network_interface {}
     }
   }
@@ -108,6 +112,10 @@ resource "vsphere_virtual_machine" "ecs_node" {
     template_uuid    = "${data.vsphere_virtual_machine.template.id}"
 
     customize {
+      linux_options {
+        host_name = "ecsce-node-${count.index}"
+      }
+
       network_interface {}
     }
   }
