@@ -37,7 +37,7 @@ resource "vsphere_folder" "tests_folder" {
 }
 
 resource "vsphere_virtual_machine" "install_node" {
-  name               = "jenkins-ecsce-install-${substr(sha1(timestamp()),0,8)}"
+  name               = "jenkins-ecsce-install-${var.timestamp}"
   folder             = "${vsphere_folder.tests_folder.path}"
   num_cpus           = 2
   memory             = 4096
@@ -52,14 +52,14 @@ resource "vsphere_virtual_machine" "install_node" {
   }
 
   disk {
-    #name             = "jenkins-ecsce-install.vmdk"
+    name             = "jenkins-ecsce-install-${var.timestamp}.vmdk"
     size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
     thin_provisioned = true
     unit_number      = 0
   }
 
   disk {
-    #name             = "jenkins-ecsce-install_1.vmdk"
+    name             = "jenkins-ecsce-install-${var.timestamp}_1.vmdk"
     size             = "${data.vsphere_virtual_machine.template.disks.1.size}"
     thin_provisioned = true
     unit_number      = 1
@@ -72,7 +72,7 @@ resource "vsphere_virtual_machine" "install_node" {
 
 resource "vsphere_virtual_machine" "ecs_node" {
   count              = "${var.ecs_nodes}"
-  name               = "jenkins-ecsce-ecs-${count.index}-${substr(sha1(timestamp()),0,8)}"
+  name               = "jenkins-ecsce-ecs-${count.index}-${var.timestamp}"
   folder             = "${vsphere_folder.tests_folder.path}"
   num_cpus           = 4
   memory             = 16384
@@ -87,14 +87,14 @@ resource "vsphere_virtual_machine" "ecs_node" {
   }
 
   disk {
-    #name             = "jenkins-ecsce-ecs.vmdk"
+    name             = "jenkins-ecsce-ecs-${count.index}-${var.timestamp}.vmdk"
     size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
     thin_provisioned = true
     unit_number      = 0
   }
 
   disk {
-    #name             = "jenkins-ecsce-ecs_1.vmdk"
+    name             = "jenkins-ecsce-ecs-${count.index}-${var.timestamp}_1.vmdk"
     size             = "${data.vsphere_virtual_machine.template.disks.1.size}"
     thin_provisioned = true
     unit_number      = 1
