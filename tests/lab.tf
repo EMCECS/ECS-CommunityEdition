@@ -52,14 +52,14 @@ resource "vsphere_virtual_machine" "install_node" {
   }
 
   disk {
-    name             = "jenkins-ecsce-install.vmdk"
+    label            = "jenkins-ecsce-install.vmdk"
     size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
     thin_provisioned = true
     unit_number      = 0
   }
 
   disk {
-    name             = "jenkins-ecsce-install_1.vmdk"
+    label            = "jenkins-ecsce-install_1.vmdk"
     size             = "${data.vsphere_virtual_machine.template.disks.1.size}"
     thin_provisioned = true
     unit_number      = 1
@@ -67,7 +67,6 @@ resource "vsphere_virtual_machine" "install_node" {
 
   clone {
     template_uuid    = "${data.vsphere_virtual_machine.template.id}"
-
   }
 }
 
@@ -88,14 +87,14 @@ resource "vsphere_virtual_machine" "ecs_node" {
   }
 
   disk {
-    name             = "jenkins-ecsce-ecs-${count.index}.vmdk"
+    label            = "jenkins-ecsce-ecs-${count.index}.vmdk"
     size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
     thin_provisioned = true
     unit_number      = 0
   }
 
   disk {
-    name             = "jenkins-ecsce-ecs-${count.index}_1.vmdk"
+    label            = "jenkins-ecsce-ecs-${count.index}_1.vmdk"
     size             = "${data.vsphere_virtual_machine.template.disks.1.size}"
     thin_provisioned = true
     unit_number      = 1
