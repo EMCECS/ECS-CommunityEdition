@@ -61,7 +61,7 @@ The OVA is available for download from [the release notes page](https://github.c
 * (Optional) Increase vmdk from the minimum 104GB
 
 #### 1.3. Clone the VM
-Clone the VM you created enough times to reach the number of nodes desired for your deployment.  The minimum number of nodes for basic functionality is one (1).  The minimum number of nodes for erasure coding replication to be enabled is three (3).
+Clone the VM you created enough times to reach the number of nodes desired for your deployment.  The minimum number of nodes for basic functionality is one (1).  The minimum number of nodes for erasure coding replication to be enabled is four (4).
 
 #### 1.4. Collect and Configure networking information
 
