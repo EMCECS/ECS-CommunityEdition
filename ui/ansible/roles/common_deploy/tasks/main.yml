@@ -145,4 +145,5 @@
     restart_policy: no
     stop_timeout: 300
     state: present
+    privileged: yes
 
