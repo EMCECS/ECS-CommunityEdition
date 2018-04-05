@@ -6,6 +6,16 @@
   register: uuid
   ignore_errors: true
   failed_when: false
+  when: product_version | version_compare('3.2', '<')
+  tags: disks
+
+- name: Common | Gather block device partition UUIDs
+  shell: blkid -s PARTUUID -o value {{item}}1
+  with_items: "{{ecs_block_devices}}"
+  register: uuid
+  ignore_errors: true
+  failed_when: false
+  when: product_version | version_compare('3.2', '>=')
   tags: disks
 
 - name: Common | Unmount partitions
