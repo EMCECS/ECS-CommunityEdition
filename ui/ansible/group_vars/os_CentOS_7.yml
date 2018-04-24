@@ -5,7 +5,7 @@ disable_services:
 enable_services:
   - docker
   - ntp
-  - firewalld
+  - firewall
 service_names:
     ntp: ntpd
     docker: docker
