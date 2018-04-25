@@ -59,6 +59,13 @@
   shell: blkid -s UUID -o value {{item}}1
   with_items: "{{ecs_block_devices}}"
   register: uuid
+  when: product_version | version_compare('3.2', '<')
+
+- name: Common | Gather block device partition UUIDs
+  shell: blkid -s PARTUUID -o value {{item}}1
+  with_items: "{{ecs_block_devices}}"
+  register: uuid
+  when: product_version | version_compare('3.2', '>=')
 
 - name: Common | Make mountpoints for ECS block devices
   file: path="/ecs/uuid-{{ item.stdout }}" state=directory recurse=yes owner=444 group=444

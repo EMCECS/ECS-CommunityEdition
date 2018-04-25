@@ -27,7 +27,7 @@ declare COREOS_IOUTIL_HEAP_CACHE_SIZE=${COREOS_IOUTIL_HEAP_CACHE_SIZE:-209715200
 declare COREOS_NUM_DT_PER_COS=${COREOS_NUM_DT_PER_COS:-6}
 
 grep -hoE 'Xmx[0-9]+m' /opt/storageos/bin/* | grep -oE '[0-9]+'| sort -n | uniq | while read m; do
-    if [ "$m" -gt 128 ]; then
+    if [ "$m" -gt 256 ]; then
         REDUCED_MEMORY="$(( m / $COREOS_MULTI_JVM_MEMORY_DIV))"
         find /opt/storageos/bin -type f -print | while read f; do
             if file "$f" | grep -q 'shell script'; then
