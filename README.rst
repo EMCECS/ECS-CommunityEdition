@@ -53,7 +53,7 @@ Quick Start Guide
 
 If you have the following:
 
-1. A CentOS 7.3 Minimal instance with:
+1. A CentOS 7.4 Minimal instance with:
 
    1. 16GB RAM
    2. 16GB block device for system
@@ -97,7 +97,7 @@ Hardware or virtual machine with:
 -  16GB RAM
 -  16GB root block storage
 -  104GB additional block storage
--  CentOS 7.3 Minimal installation
+-  CentOS 7.4 Minimal installation
 
 Recommended
 ~~~~~~~~~~~
@@ -108,7 +108,7 @@ Hardware or virtual machine with:
 -  64GB RAM
 -  16GB root block storage
 -  1TB additional block storage
--  CentOS 7.3 Minimal installation
+-  CentOS 7.4 Minimal installation
 
 Deployment Scenarios
 --------------------

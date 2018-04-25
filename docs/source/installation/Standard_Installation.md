@@ -33,7 +33,7 @@ The recommended technical requirements for each ECS data node are:
 * 64GB RAM
 * 16GB root block storage
 * 1TB additional block storage
-* CentOS 7.3 Minimal installation
+* CentOS 7.4 Minimal installation
 
 For multi-node installations each data node must fulfill these minimum qualifications. The installer will do a pre-flight check to ensure that the minimum qualifications are met. If they are not, the installation will not continue.
 
