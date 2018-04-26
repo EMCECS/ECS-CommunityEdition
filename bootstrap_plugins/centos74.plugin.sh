@@ -9,7 +9,7 @@
 # limited to the terms and conditions of the License Agreement under which
 # it is provided by or on behalf of EMC.
 
-# OS Support library for CentOS 7.3
+# OS Support library for CentOS 7.4
 
 os_supported=true
 
