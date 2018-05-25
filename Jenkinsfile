@@ -10,7 +10,7 @@ pipeline {
     parameters {
         string(name: 'vsphere_server', defaultValue: '10.1.83.17', description: 'vSphere host')
         string(name: 'datastore', defaultValue: 'iSCSI-2', description: 'vSphere datastore')
-        string(name: 'template', defaultValue: 'jenkins/ecsce-template', description: 'VM template')
+        string(name: 'template', defaultValue: 'jenkins/jenkins-ecsce-template', description: 'VM template')
         string(name: 'resource_pool', defaultValue: 'Cisco UCS Cluster/Resources/Tests', description: 'vSphere resource pool')
         string(name: 'datacenter', defaultValue: 'Datacenter', description: 'vSphere datacenter')
         string(name: 'network_interface', defaultValue: 'CI Network', description: 'CI network interface')
