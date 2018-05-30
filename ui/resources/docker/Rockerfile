@@ -13,10 +13,6 @@ LABEL MAINTAINER='Travis Wichert <travis.wichert@emc.com>'
 ENV ANSIBLE_CONFIG="/etc/ansible/ansible.cfg"
 ENV ANSIBLE_HOSTS="/usr/local/src/ui/inventory.py"
 
-# Add Python module and Alpine repository lists
-COPY ui/resources/docker/ecs-install-requirements.txt /etc/ecs-install-requirements.txt
-COPY ui/resources/docker/apk-repositories /etc/apk/repositories
-
 # Set proxies before build
 {{ if .HTTPProxy }}
 ENV http_proxy={{ .HTTPProxy }}
@@ -25,19 +21,11 @@ ENV http_proxy={{ .HTTPProxy }}
 ENV pip_proxy={{ .PipProxy }}
 {{ end }}
 
-# Upgrade base system packages for security
-RUN apk -q update && \
-    apk -q --no-cache upgrade
-
-# Add required system packages
-RUN apk -q --no-cache add python2 py-pip\
-                             openssh-client sshpass openssl ca-certificates libffi libressl \
-                             pigz jq less \
-                             opentracker aria2 mktorrent \
-                             ansible
-
-# Setup the environment
-RUN mv /etc/profile.d/color_prompt /etc/profile.d/color_prompt.sh \
+# Add required system packages and setup the environment
+RUN apk update \
+    && apk --no-cache add python2 py-pip openssh-client sshpass openssl ca-certificates libffi \
+                             libressl pigz jq less opentracker aria2 mktorrent ansible \
+    && mv /etc/profile.d/color_prompt /etc/profile.d/color_prompt.sh \
     && ln -s /usr/local/src/ui/ansible /ansible \
     && ln -s /usr/local/src/ui /ui \
     && ln -s /usr/local/src /src \
@@ -45,27 +33,33 @@ RUN mv /etc/profile.d/color_prompt /etc/profile.d/color_prompt.sh \
     && mkdir -p /var/run/opentracker \
     && chown nobody:nobody /var/run/opentracker
 
+# Add Python required modules list
+COPY ui/resources/docker/ecs-install-requirements.txt /etc/ecs-install-requirements.txt
+
 # Generate temporary build environment and install required Python modules
-RUN apk -q --no-cache add --update --virtual .build-deps musl-dev python2-dev libffi-dev \
+RUN apk --no-cache add --update --virtual .build-deps musl-dev python2-dev libffi-dev \
                        build-base make openssl-dev linux-headers git gcc git-perl \
     && if ! [ -z "$pip_proxy" ]; then \
+            echo "Using proxy: ${pip_proxy}" && \
             export pip_proxy="--proxy $pip_proxy" && \
             git config --global http.proxy "$http_proxy" \
        ;fi \
-    && pip install -q $pip_proxy --no-cache-dir -r /etc/ecs-install-requirements.txt \
-    && apk -q --no-cache --purge del .build-deps
+    && pip install $pip_proxy --no-cache-dir --upgrade pip \
+    && pip install $pip_proxy --no-cache-dir -r /etc/ecs-install-requirements.txt \
+    && apk --no-cache --purge del .build-deps
 
 # Add Ansible configuration
 RUN mkdir -p /etc/ansible
 COPY ui/resources/docker/ansible.cfg /etc/ansible/ansible.cfg
 
+# Add bittorrent ffx daemon
+COPY ui/resources/docker/torrent.sh /usr/local/bin/torrent.sh
+RUN chmod +x /usr/local/bin/torrent.sh
+
 # Add simple init replacement
 COPY ui/resources/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
-
-# Add bittorrent ffx daemon
-COPY ui/resources/docker/torrent.sh /usr/local/bin/torrent.sh
 
 # Add installer UI and scripts
 COPY {{ .UIArtifact }} /usr/local/src/ui.tgz
@@ -83,7 +77,7 @@ ENV pip_proxy=
 # Set default volume mounts
 VOLUME [ "/opt", "/usr", "/var/log", "/root", "/etc" ]
 
-# Rubber-stamp this build and push if release
+# Rubber-stamp this build
 LABEL VERSION={{ .Version }}
 ENV VERSION={{ .Version }}
 TAG {{ .Version }}
