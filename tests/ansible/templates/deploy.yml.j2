@@ -101,3 +101,23 @@ facts:
       options:
         swift_password: ChangeMe
         s3_secret_key: ChangeMeChangeMeChangeMeChangeMeChangeMe
+
+  bucket_defaults:
+    namespace: ns1
+    replication_group: rg1
+    owner: object_admin1
+    head_type: s3
+    filesystem_enabled: False
+    stale_allowed: False
+    encryption_enabled: False
+
+  buckets:
+    - name: bucket1
+      options:
+        namespace: ns1
+        replication_group: rg1
+        owner: object_admin1
+        head_type: s3
+        filesystem_enabled: False
+        stale_allowed: False
+        encryption_enabled: False
