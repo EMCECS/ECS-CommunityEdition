@@ -168,7 +168,12 @@ DEFAULTS[OU] = {
 BUCKET = 'buckets'
 BUCKET_D = MU[:-1] + _D
 DEFAULTS[BUCKET] = {
-    DESC: DESC_DEFAULT
+    'namespace': None,
+    'replication_group': None,
+    'filesystem_enabled': False,
+    'head_type': 's3',
+    'stale_allowed': True,
+    'encryption_enabled': False,
 }
 
 # File export stuff
@@ -649,3 +654,15 @@ class ECSConf(object):
     def get_ou_dict(self, ou_name):
         logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
         return self.get_ou_options(ou_name)
+
+    def get_bucket_names(self):
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
+        return self.get_names(BUCKET)
+
+    def get_bucket_options(self, bucket_name):
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
+        opts = self.get_defaults(BUCKET)
+        bucket_opts = self.get_attr(BUCKET, OPTIONS, bucket_name).toDict()
+        if bucket_opts is not None:
+            opts.update(bucket_opts)
+        return opts

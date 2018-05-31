@@ -195,7 +195,7 @@ class DumpFacts(DataSet):
 
         except IOError as e:
             logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name + ': ' + repr(e))
-        raise
+            raise
 
     def write_file(self, dst, cooked_file):
         """
