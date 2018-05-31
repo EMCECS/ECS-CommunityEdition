@@ -28,3 +28,7 @@ RUN f=/opt/storageos/conf/cm.object.properties; grep -q 'MustHaveEnoughResources
 # Allow allocation of different blocks of a chunk to be stored on the same partition
 RUN f=/opt/storageos/conf/ssm-cf-conf.xml; grep -q '<config:boolean name="allowAllocationOnIgnoredPartitions" value="true" description="If set to true, different blocks in one chunk may be allocated on the same partition"/>' $f || sed -i 's#<config:boolean name="allowAllocationOnIgnoredPartitions" value="false" description="If set to true, different blocks in one chunk may be allocated on the same partition"/>#<config:boolean name="allowAllocationOnIgnoredPartitions" value="true" description="If set to true, different blocks in one chunk may be allocated on the same partition"/>#g' /opt/storageos/conf/ssm-cf-conf.xml $f
 
+# Tune CM 
+RUN f=/opt/storageos/conf/cm-conf.xml; grep -q '<prop key="object.BPlusTreeReaderOnHeapCacheV2MemoryCoreSize">419430400</prop>' $f || sed -i 's#<prop key="object.BPlusTreeReaderOnHeapCacheV2MemoryCoreSize">419430400</prop>#<prop key="object.BPlusTreeReaderOnHeapCacheV2MemoryCoreSize">52428800</prop>#g'
+
+52428800

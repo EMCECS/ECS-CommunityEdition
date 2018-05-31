@@ -30,16 +30,10 @@
 #  Installer should support installing a "full" build on systems with 64GB RAM+ #74
 
 - name: Common | Copy configurations out of configuration data container
-  command: docker cp ecs-config:{{item.src}} {{item.dest}}
-  with_items:
-    - dest: /host/ssm.object.properties
-      src: /opt/storageos/conf/ssm.object.properties
-    - dest: /host/common.object.properties
-      src: /opt/storageos/conf/common.object.properties
-    - dest: /host/cm.object.properties
-      src: /opt/storageos/conf/cm.object.properties
+  command: docker cp ecs-config:/opt/storageos/conf/{{item}} /host/{{item}}
+  with_items: "{{config_files}}"
   loop_control:
-    label: "{{item.src}}"
+    label: "{{item}}"
 #    - dest: /host/application.conf
 #      src: /opt/storageos/ecsportal/conf/application.conf
 
@@ -86,8 +80,6 @@
     line: 'object.NumDirectoriesPerCoSForUserDT={{ "128" if ( ansible_memtotal_mb|int > 65536 and ansible_local.data_node.ecs_block_size|int > 1000000000000 and num_data_nodes|int > 3 ) else "32" }}'
 
 ## CM Object Properties
-
-# object.MustHaveEnoughResources
 - name: 'Common | Configure CM Object properties: Disable Minimum Node Count'
   lineinfile:
     dest: /host/cm.object.properties
@@ -95,25 +87,41 @@
     regexp: '^object\.MustHaveEnoughResources=true'
     line: 'object.MustHaveEnoughResources=false'
 
+## CM configuration
+- name: 'Common | Configure CM Read Page Cache: Max'
+  lineinfile:
+    dest: /host/cm-conf.xml
+    state: present
+    regexp: '<prop key="object.BPlusTreeReaderOnHeapCacheV2MemoryMaxSize">536870912</prop>'
+    line: '<prop key="object.BPlusTreeReaderOnHeapCacheV2MemoryMaxSize">52428800</prop>'
+
+- name: 'Common | Configure CM Read Page Cache: Core'
+  lineinfile:
+    dest: /host/cm-conf.xml
+    state: present
+    regexp: '<prop key="object.BPlusTreeReaderOnHeapCacheV2MemoryCoreSize">419430400</prop>'
+    line: '<prop key="object.BPlusTreeReaderOnHeapCacheV2MemoryCoreSize">41943040</prop>'
+
+- name: 'Common | Configure CM DT Write IO: OnHeap Buffers'
+  lineinfile:
+    dest: /host/cm-conf.xml
+    state: present
+    regexp: '<constructor-arg name="initialBufferNumOnHeap" value="10"/>'
+    line: '<constructor-arg name="initialBufferNumOnHeap" value="4"/>'
+
+- name: 'Common | Configure CM Geo Shipping IO: OnHeap Buffers'
+  lineinfile:
+    dest: /host/cm-conf.xml
+    state: present
+    regexp: '<prop key="object.InitialBufferNumOnHeap">50</prop'
+    line: '<prop key="object.InitialBufferNumOnHeap">4</prop>'
+
 ### Then docker cp them into the configuration container
 - name: Common | Merge configurations into configuration data container
-  command: docker cp {{item.src}} ecs-config:{{item.dest}}
-  with_items:
-    - src: /host/ssm.object.properties
-      dest: /opt/storageos/conf/ssm.object.properties
-    - src: /host/common.object.properties
-      dest: /opt/storageos/conf/common.object.properties
-    - src: /host/cm.object.properties
-      dest: /opt/storageos/conf/cm.object.properties
+  command: docker cp /host/{{item}} ecs-config:/opt/storageos/conf/{{item}}
+  with_items: "{{config_files}}"
   loop_control:
-    label: "{{item.dest}}"
-#    - src: /host/application.conf
-#      dest: /opt/storageos/ecsportal/conf/application.conf
-#    - src: postinstall_patch
-#      dest: /etc/cron.hourly/postinstall_patch
-#    - src: setup_python_requests
-#      dest: /etc/cron.hourly/setup_python_requests
-
+    label: "{{item}}"
 
 #- name: debug docker create ecs-storageos
 #  debug:

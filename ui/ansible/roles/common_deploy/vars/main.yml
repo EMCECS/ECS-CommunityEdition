@@ -1,3 +1,8 @@
 ecs_environnment:
   SS_GENCONFIG: 1
 data_container: ecs-config
+config_files:
+  - ssm.object.properties
+  - common.object.properties
+  - cm.object.properties
+  - cm-conf.xml
