@@ -1209,7 +1209,7 @@ def bucket(conf, l, r, s, a, n):
 @click.option('-a', is_flag=True, help="Add all object user to ECS")
 @click.option('-n', default=None, help='Add the given object user to ECS')
 @pass_conf
-def object_user(conf, l, r, s, a, n):
+def object_user(conf, l, r, a, n):
     """
     Work with ECS Object Users
     """
