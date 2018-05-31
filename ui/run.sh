@@ -45,7 +45,7 @@ run() {
             ${run} ${@}
     rc=$?
 
-    o ""
+    echo ''
     return ${rc}
 }
 

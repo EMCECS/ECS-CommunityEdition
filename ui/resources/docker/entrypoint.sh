@@ -162,7 +162,7 @@ if $init_container; then
 fi
 
 if ! [ -f "/usr/local/src/ui/ansible/group_vars/all" ]; then
-    o "Applying deploy.yml"
+    o "Applying and validating deploy.yml..."
     ecsdeploy load
 fi
 

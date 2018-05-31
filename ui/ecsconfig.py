@@ -219,7 +219,22 @@ class Conf(tui.Director):
         self.api_reset()
         return self.api_client.vdc.get_local_secret_key()['key']
 
+    def get_rg_id_by_name(self, rg_name):
+        """
+        Get the RG ID of the RG named rg_name
+        :param rg_name: name of the deploy.yml RG
+        :return: RG ID
+        """
+        logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
+        rg_id_list = [x['id'] for x in self.api_client.replication_group.list()['data_service_vpool'] if x['name'] == rg_name]
+        if len(rg_id_list) > 0:
+            return rg_id_list[0]
+        else:
+            return False
+
+
 pass_conf = click.make_pass_decorator(Conf, ensure=True)
+
 
 """
 # Commands
@@ -1047,8 +1062,8 @@ def namespace(conf, l, r, a, n):
             o('\tOK')
 
     if l:
-        available_rg_configs = list_all()
-        if available_rg_configs is not None:
+        available_ns_configs = list_all()
+        if available_ns_configs is not None:
             o('Available Namespace configurations:')
             for ns_name in list_all():
                 o('\t{}'.format(ns_name))
@@ -1075,10 +1090,122 @@ def namespace(conf, l, r, a, n):
             o('No namespace named {}'.format(n))
 
 
+@ecsconfig.command('bucket', short_help='Work with ECS Buckets')
+@click.option('-l', is_flag=True, help='List known bucket configs')
+@click.option('-r', is_flag=True, help='Get all current bucket configs from ECS')
+@click.option('-s', default=None, help='Get current bucket configs from ECS for given namespace')
+@click.option('-a', is_flag=True, help="Add all buckets to ECS")
+@click.option('-n', default=None, help='Add the given bucket to ECS')
+@pass_conf
+def bucket(conf, l, r, s, a, n):
+    """
+    Work with ECS Buckets
+    """
+    """
+    Work with a collection of ECS abstractions
+    :param conf: Click object containing the configuration
+    :param l: list known configurations of this abstraction
+    :param r: list instances of this abstraction configured on ECS
+    :param a: add all known configurations of this abstraction
+    :param n: add a single known configuration of this abstraction
+    :return: retval
+    """
+    def bucket_exists(bucket_name):
+        if bucket_name in list_all():
+            return True
+        return False
+
+    def add_bucket(bucket_name):
+        bucket_opts = conf.ecs.get_bucket_options(bucket_name)
+        bkt_create_dict = {
+            'namespace': bucket_opts['namespace'],
+            'replication_group': conf.get_rg_id_by_name(bucket_opts['replication_group']),
+            'head_type': bucket_opts['head_type'],
+            'filesystem_enabled': bucket_opts['filesystem_enabled'],
+            'stale_allowed': bucket_opts['stale_allowed'],
+            'encryption_enabled': bucket_opts['encryption_enabled']
+        }
+        bkt_owner = bucket_opts['owner']
+
+        conf.api_client.bucket.create(bucket_name, **bkt_create_dict)
+        conf.api_client.bucket.set_owner(bucket_name, bkt_owner, namespace=bucket_opts['namespace'])
+        return True
+
+    def list_all():
+        return conf.ecs.get_bucket_names()
+
+    def get_all():
+        list_buckets = []
+        for namespace in conf.ecs.get_ns_names():
+            for bucket_list in get_all_in_namespace(namespace):
+                list_buckets.append(bucket_list)
+        return list_buckets
+
+    def get_all_in_namespace(namespace_name):
+        list_buckets = []
+        for dict_info in conf.api_client.bucket.list(namespace_name)['object_bucket']:
+            list_buckets.append(dict_info['id'])
+        return list_buckets
+
+    def add_all():
+        for bucket_name in list_all():
+            add_one(bucket_name)
+
+    def add_one(bucket_name):
+        conf.wait_for_dt_ready()
+        o('Creating bucket: {}'.format(bucket_name))
+        res = add_bucket(bucket_name)
+        o('\tOK')
+        return res
+
+    if l:
+        available_bucket_configs = list_all()
+        if available_bucket_configs is not None:
+            o('Available Bucket configurations:')
+            for bucket_name in list_all():
+                o('\t{}'.format(bucket_name))
+        else:
+            o('No bucket configurations in deploy.yml')
+    if s:
+        n = None
+        o('Buckets currently configured in namespace "{}":'.format(s))
+        buckets = get_all_in_namespace(s)
+        if len(buckets) > 0:
+            for bucket_id in buckets:
+                o('\t{}'.format(bucket_id))
+        if len(buckets) <= 0:
+            o('No buckets configured in namespace "{}":'.format(s))
+    if r:
+        n = None
+        o('Buckets currently configured:')
+        buckets = get_all()
+        if len(buckets) > 0:
+            for bucket_id in buckets:
+                o('\t{}'.format(bucket_id))
+        if len(buckets) <= 0:
+            o('No buckets configured.')
+    if a:
+        n = None
+        available_bucket_configs = list_all()
+        if available_bucket_configs is not None:
+            o('Creating all buckets')
+            add_all()
+            o('Created all configured buckets')
+        else:
+            o('No bucket configurations in deploy.yml')
+    if n is not None:
+        if bucket_exists(n):
+            o('Creating single bucket by name')
+            add_one(n)
+            o('Created bucket {}'.format(n))
+        else:
+            o('No bucket configuration named {} in deploy.yml'.format(n))
+
+
 @ecsconfig.command('object-user', short_help='Work with ECS Object Users')
 @click.option('-l', is_flag=True, help='List known object user configs')
 @click.option('-r', is_flag=True, help='Get all current object user configs from ECS')
-@click.option('-s', is_flag=False, help='Get current object user configs from ECS for given namespace')
+# @click.option('-s', default=None, help='Get current object user configs from ECS for given namespace')
 @click.option('-a', is_flag=True, help="Add all object user to ECS")
 @click.option('-n', default=None, help='Add the given object user to ECS')
 @pass_conf
@@ -1282,50 +1409,6 @@ def management_user(conf, l, r, a, g, n):
             o('Created {} named {}'.format(config_type, n))
         else:
             o('No {} named {}'.format(config_type, n))
-#
-#
-# @ecsconfig.command('bucket', short_help='Work with ECS Buckets')
-# @click.option('-l', is_flag=True, help='List known bucket configs')
-# @click.option('-r', is_flag=True, help='Get all current bucket configs from ECS')
-# @click.option('-s', is_flag=True, help='Get current bucket configs from ECS for given namespace')
-# @click.option('-a', is_flag=True, help="Add all buckets to ECS")
-# @click.option('-n', default=None, help='Add the given bucket to ECS')
-# @pass_conf
-# def bucket(conf, l, r, s, a, n):
-#     """
-#     Work with ECS Buckets
-#     """
-#     """
-#     Work with a collection of ECS abstractions
-#     :param conf: Click object containing the configuration
-#     :param l: list known configurations of this abstraction
-#     :param r: list instances of this abstraction configured on ECS
-#     :param a: add all known configurations of this abstraction
-#     :param n: add a single known configuration of this abstraction
-#     :return: retval
-#     """
-#     def list_all():
-#         pass
-#
-#     def get_all():
-#         pass
-#
-#     def get_one():
-#         pass
-#
-#     def add_all():
-#         pass
-#
-#     def add_one(bucket_name):
-#         pass
-#
-#     if l:
-#         list_all()
-#     if a:
-#         n = None
-#         add_all()
-#     if n is not None:
-#         add_one(n)
 
 
 if __name__ == '__main__':

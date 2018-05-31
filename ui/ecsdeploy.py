@@ -22,6 +22,7 @@ from sarge import run, shell_format
 
 import tui
 from tui.constants import *
+from tui.tools import o
 
 # TAG: DevTest
 from pprint import pprint
@@ -89,7 +90,7 @@ def ecsdeploy(conf, verbose):
     conf.config.verbosity = verbose
 
 
-@ecsdeploy.command('load', short_help='Apply deploy.yml')
+@ecsdeploy.command('load', short_help='Apply and validate deploy.yml')
 @pass_conf
 def load(conf):
     """
