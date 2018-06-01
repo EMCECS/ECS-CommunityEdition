@@ -203,3 +203,12 @@ echo "${alpine_mirror}" | awk -v v="/${alpine_version}" '
     }
 ' > "${root}/ui/resources/docker/apk-repositories"
 }
+
+docker_login() {
+    while [ -z "$(sudo jq -r '.auths[].auth' ~root/.docker/config.json)" ]; do
+        while ! sudo docker login; do
+            echo "Please try again or CTRL-C to quit."
+        done
+    done
+    return 0
+}

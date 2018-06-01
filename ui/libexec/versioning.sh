@@ -52,3 +52,4 @@ fi
 full_image_path="${repo_path}/${image_name}:${version}"
 untagged_image_path="${repo_path}/${image_name}"
 latest_image_path="${repo_path}/${image_name}:${tag}"
+dockerhub_image_path="${repo_name}/${image_name}:${version}"
