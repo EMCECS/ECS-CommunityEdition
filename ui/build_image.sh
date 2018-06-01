@@ -102,7 +102,7 @@ Artifacts=""
 # Currently using the Ansible apk
 # Artifacts="${Artifacts} -var AnsibleArtifact=${ansible_artifact}"
 Artifacts="${Artifacts} -var UIArtifact=${ui_artifact}"
-Version="-var Version=${full_image_path}" # Yes, really
+Version="-var Version=${dockerhub_image_path}"
 Rockerfile="-f ui/resources/docker/Rockerfile"
 
 o "UI artifact is: ${ui_artifact}"
@@ -110,11 +110,18 @@ o "UI artifact is: ${ui_artifact}"
 # o "Ansible artifact is: ${ansible_artifact}"
 sudo /usr/local/bin/rocker build $Context $Version $Artifacts $FromImage $Rockerfile $HTTPProxy $PipProxy . || img_build_fail
 
-o "Tagging ${full_image_path} -> ${image_release}"
-sudo docker tag "${full_image_path}" "${image_release}" || img_pull_fail
+o "Tagging ${dockerhub_image_path} -> ${full_image_path}"
+sudo docker tag "${dockerhub_image_path}" "${full_image_path}" || img_pull_fail
+o "Tagging ${dockerhub_image_path} -> ${image_release}"
+sudo docker tag "${dockerhub_image_path}" "${image_release}" || img_pull_fail
 
 if ${build_push}; then
-    sudo docker push "${image_release}"
+    o "Pushing to local repo"
+    sudo docker push "${full_image_path}"
+    if docker_login; then
+        o "Pushing to DockerHub"
+        sudo docker push "${dockerhub_image_path}"
+    fi
 fi
 
 exit 0
