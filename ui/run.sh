@@ -165,9 +165,9 @@ case "$(basename ${0})" in
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig object-user -a || exit $?
-#        o "Pinging Management API Endpoint until ready"
-#        run ecsconfig ping -c -x || exit $?
-#        run ecsconfig bucket -a || exit $?
+        o "Pinging Management API Endpoint until ready"
+        run ecsconfig ping -c -x || exit $?
+        run ecsconfig bucket -a || exit $?
     ;;
     *)
         die "Invalid operation."
