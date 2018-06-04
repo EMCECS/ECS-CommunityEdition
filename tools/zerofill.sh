@@ -3,7 +3,7 @@
 process() {
 
 echo "Reducing ephemera"
-sudo package-cleanup --oldkernels --count=1
+sudo package-cleanup -y --oldkernels --count=1
 sudo yum -y clean all
 
 echo "Truncating /var/logs"
