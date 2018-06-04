@@ -77,6 +77,9 @@ case $context in
 
 esac
 
+o "Cleaning up..."
+docker_clean
+
 o "Checking Alpine Linux mirror"
 alpine_mirror_test="${alpine_mirror}/MIRRORS.txt"
 if ! is_file_http_accessible "${alpine_mirror_test}" 2>&1 >/dev/null; then
