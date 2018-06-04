@@ -38,6 +38,9 @@ else
     repo_path="${image_release}"
 fi
 
+o "Cleaning up..."
+docker_clean
+
 o "Pulling image ${repo_path}"
 sudo docker pull ${repo_path} || img_pull_fail
 

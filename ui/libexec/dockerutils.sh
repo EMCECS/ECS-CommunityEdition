@@ -110,16 +110,8 @@ docker_clean() {
 
     o "     [exited containers] "
     if ! [ -z "$(sudo docker ps -q -f status=exited)" ]; then
-        sudo docker rm -vf $(sudo docker ps -q -f status=exited) >/dev/null
+        sudo docker rm -vf $(sudo docker ps -q -f status=exited | grep -v ecs-config) >/dev/null
     fi
-
-#    o "     [local build images] "
-#    if ! [ -z "$(sudo docker images | grep local.$(hostname -s) | awk '{print $3}')" ]; then
-#        sudo docker rmi -f $(sudo docker images | grep local.$(hostname -s) | awk '{print $3}') >/dev/null
-#    fi
-#    if ! [ -z "$(sudo docker images | grep dev.$(hostname -s) | awk '{print $3}')" ]; then
-#        sudo docker rmi -f $(sudo docker images | grep dev.$(hostname -s) | awk '{print $3}') >/dev/null
-#    fi
 
     o "     [dangling layers] "
     if ! [ -z "$(sudo docker images -q --filter "dangling=true")" ]; then
