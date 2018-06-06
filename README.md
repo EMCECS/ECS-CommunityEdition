@@ -1,6 +1,6 @@
 # ECS Community Edition
 **ECS Software Image**
-[![](https://images.microbadger.com/badges/version/emccorp/ecs-software-3.1.0.svg)](https://microbadger.com/images/emccorp/ecs-software-3.1.0 "Get your own version badge on microbadger.com")
+[![](https://images.microbadger.com/badges/version/emccorp/ecs-software-3.2.0.svg)](https://microbadger.com/images/emccorp/ecs-software-3.2.0 "Get your own version badge on microbadger.com")
 **ECS CE Install Node Image**
 [![](https://images.microbadger.com/badges/version/emccorp/ecs-install.svg)](https://microbadger.com/images/emccorp/ecs-install "Get your own version badge on microbadger.com") [![Documentation Status](http://readthedocs.org/projects/ecsce/badge/?version=latest)](http://ecsce.readthedocs.io/en/latest/?badge=latest) [![Jenkins](https://img.shields.io/jenkins/s/https/jenkins.qa.ubuntu.com/view/Precise/view/All%20Precise/job/precise-desktop-amd64_default.svg?style=flat-square)](http://10.1.83.120/job/ecs-ce/)
 
