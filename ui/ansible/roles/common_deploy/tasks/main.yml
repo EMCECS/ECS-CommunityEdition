@@ -12,6 +12,7 @@
     restart_policy: no
     volumes:
       - /opt/storageos/conf
+      - /opt/storageos/bin
       - /opt/storageos/ecsportal/conf
       - /etc
     entrypoint: /bin/echo "ECS configuration data container"
@@ -30,31 +31,35 @@
 #  Installer should support installing a "full" build on systems with 64GB RAM+ #74
 
 - name: Common | Copy configurations out of configuration data container
-  command: docker cp ecs-config:/opt/storageos/conf/{{item}} /host/{{item}}
+  command: docker cp ecs-config:{{item}} /host/{{item.split('/')[-1]}}
   with_items: "{{config_files}}"
   loop_control:
     label: "{{item}}"
 #    - dest: /host/application.conf
 #      src: /opt/storageos/ecsportal/conf/application.conf
 
-## Perform properties edits
+### Perform properties edits
 
-## SSM Object Properties
-# object.freeBlocksHighWatermarkLevels
+## ssm configuration
 - name: 'Common | Configure SSM Object properties: FBL-Highwater'
   lineinfile:
     dest: /host/ssm.object.properties
     state: present
     regexp: '^object\.freeBlocksHighWatermarkLevels=[0-9]*,[0-9]*'
     line: 'object.freeBlocksHighWatermarkLevels={{ "100,50" if ansible_local.data_node.ecs_block_size|int < 1000000000000 else "1000,200" }}'
-
-# object.freeBlocksLowWatermarkLevels
 - name: 'Common | Configure SSM Object properties: FBL-Lowwater'
   lineinfile:
     dest: /host/ssm.object.properties
     state: present
     regexp: '^object\.freeBlocksLowWatermarkLevels=[0-9]*,[0-9]*'
     line: 'object.freeBlocksLowWatermarkLevels={{ "0,20" if ansible_local.data_node.ecs_block_size|int < 1000000000000 else "0,100" }}'
+- name: 'Common | Configure Common Object properties: allowAllocationOnIgnoredPartitions'
+  lineinfile:
+    dest: /host/ssm-cf-conf.xml
+    state: present
+    backrefs: yes
+    regexp: '^(.*)name="allowAllocationOnIgnoredPartitions" value="false"(.*)'
+    line: '\1name="allowAllocationOnIgnoredPartitions" value="true"\2'
 
 ## Common Object Properties
 # When NumDtPerCoS is set to 128 (>=64GB RAM) then the number of btree
@@ -62,16 +67,12 @@
 # less than ~4 and total storage space is less than ~4TB, 128 NumDtPerCoS
 # can become unwieldy. This templated param should take into account node
 # count and total storage space available. https://github.com/EMCECS/ECS-CommunityEdition/issues/301
-
-# object.NumDirectoriesPerCoSForSystemDT
 - name: 'Common | Configure Common Object properties: System NumDtPerCoS'
   lineinfile:
     dest: /host/common.object.properties
     state: present
     regexp: '^object\.NumDirectoriesPerCoSForSystemDT=[0-9]*'
     line: 'object.NumDirectoriesPerCoSForSystemDT={{ "128" if ( ansible_memtotal_mb|int > 65536 and ansible_local.data_node.ecs_block_size|int > 1000000000000 and num_data_nodes|int > 3 ) else "32" }}'
-
-# object.NumDirectoriesPerCoSForUserDT
 - name: 'Common | Configure Common Object properties: User NumDtPerCoS'
   lineinfile:
     dest: /host/common.object.properties
@@ -79,46 +80,97 @@
     regexp: '^object\.NumDirectoriesPerCoSForUserDT=[0-9]*'
     line: 'object.NumDirectoriesPerCoSForUserDT={{ "128" if ( ansible_memtotal_mb|int > 65536 and ansible_local.data_node.ecs_block_size|int > 1000000000000 and num_data_nodes|int > 3 ) else "32" }}'
 
-## CM Object Properties
+## cm configuration
 - name: 'Common | Configure CM Object properties: Disable Minimum Node Count'
   lineinfile:
     dest: /host/cm.object.properties
     state: present
-    regexp: '^object\.MustHaveEnoughResources=true'
+    regexp: 'object.MustHaveEnoughResources=true'
     line: 'object.MustHaveEnoughResources=false'
-
-## CM configuration
 - name: 'Common | Configure CM Read Page Cache: Max'
   lineinfile:
     dest: /host/cm-conf.xml
     state: present
-    regexp: '<prop key="object.BPlusTreeReaderOnHeapCacheV2MemoryMaxSize">536870912</prop>'
-    line: '<prop key="object.BPlusTreeReaderOnHeapCacheV2MemoryMaxSize">52428800</prop>'
-
+    backrefs: yes
+    regexp: '^(.*)key="object.BPlusTreeReaderOnHeapCacheV2MemoryMaxSize">536870912(.*)'
+    line: '\1key="object.BPlusTreeReaderOnHeapCacheV2MemoryMaxSize">52428800\2'
 - name: 'Common | Configure CM Read Page Cache: Core'
   lineinfile:
     dest: /host/cm-conf.xml
     state: present
-    regexp: '<prop key="object.BPlusTreeReaderOnHeapCacheV2MemoryCoreSize">419430400</prop>'
-    line: '<prop key="object.BPlusTreeReaderOnHeapCacheV2MemoryCoreSize">41943040</prop>'
-
+    backrefs: yes
+    regexp: '^(.*)key="object.BPlusTreeReaderOnHeapCacheV2MemoryCoreSize">419430400(.*)'
+    line: '\1key="object.BPlusTreeReaderOnHeapCacheV2MemoryCoreSize">41943040\2'
 - name: 'Common | Configure CM DT Write IO: OnHeap Buffers'
   lineinfile:
     dest: /host/cm-conf.xml
     state: present
-    regexp: '<constructor-arg name="initialBufferNumOnHeap" value="10"/>'
-    line: '<constructor-arg name="initialBufferNumOnHeap" value="4"/>'
-
+    backrefs: yes
+    regexp: '^(.*)name="initialBufferNumOnHeap" value="10"(.*)'
+    line: '\1name="initialBufferNumOnHeap" value="4"\2'
 - name: 'Common | Configure CM Geo Shipping IO: OnHeap Buffers'
   lineinfile:
     dest: /host/cm-conf.xml
     state: present
-    regexp: '<prop key="object.InitialBufferNumOnHeap">50</prop'
-    line: '<prop key="object.InitialBufferNumOnHeap">4</prop>'
+    backrefs: yes
+    regexp: '^(.*)key="object.InitialBufferNumOnHeap">50(.*)'
+    line: '\1key="object.InitialBufferNumOnHeap">4\2'
+
+## georeceiver configuration
+# Set georeceiver's initialBufferNumOnHeap to something smaller for CE
+- name: 'Common | Configure georeceiver initialBufferNumOnHeap (1/2)'
+  lineinfile:
+    dest: /host/georeceiver-conf.xml
+    state: present
+    backrefs: yes
+    regexp: '^(.*)name="initialBufferNumOnHeap" value="40"(.*)'
+    line: '\1name="initialBufferNumOnHeap" value="5"\2'
+- name: 'Common | Configure georeceiver initialBufferNumOnHeap (2/2)'
+  lineinfile:
+    dest: /host/georeceiver-conf.xml
+    state: present
+    backrefs: yes
+    regexp: '^(.*)key="object.InitialBufferNumOnHeap">80(.*)'
+    line: '\1key="object.InitialBufferNumOnHeap">10\2'
+
+## dtquery configuration
+- name: 'Common | Increase memory for dtquery'
+  lineinfile:
+    dest: /host/dtquery
+    state: present
+    backrefs: yes
+    regexp: '^(.*)Xmx128m(.*)$'
+    line: '\1Xmx256m\2'
+
+## transformsvc configuration
+- name: 'Common | Increase memory for transformsvc'
+  lineinfile:
+    dest: /host/transformsvc
+    state: present
+    backrefs: yes
+    regexp: '^(.*)Xmx128m(.*)$'
+    line: '\1Xmx512m\2'
+
+## objcontrolsvc configuration
+- name: 'Common | Increase memory for objcontrolsvc'
+  lineinfile:
+    dest: /host/objcontrolsvc
+    state: present
+    backrefs: yes
+    regexp: '^(.*)Xmx96m(.*)$'
+    line: '\1Xmx256m\2'
+
+## vnest configuration
+- name: 'Common | vnest enable UseSeparateThreadPools'
+  lineinfile:
+    dest: /host/vnest-common-conf.xml
+    state: present
+    insertafter: '<util:properties id="serviceProperties" location="classpath:systemsvc.object.properties" local-override="true">'
+    line: '        <prop key="object.UseSeparateThreadPools">true</prop>'
 
 ### Then docker cp them into the configuration container
 - name: Common | Merge configurations into configuration data container
-  command: docker cp /host/{{item}} ecs-config:/opt/storageos/conf/{{item}}
+  command: docker cp /host/{{item.split('/')[-1]}} ecs-config:{{item}}
   with_items: "{{config_files}}"
   loop_control:
     label: "{{item}}"

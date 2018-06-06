@@ -2,7 +2,13 @@ ecs_environnment:
   SS_GENCONFIG: 1
 data_container: ecs-config
 config_files:
-  - ssm.object.properties
-  - common.object.properties
-  - cm.object.properties
-  - cm-conf.xml
+  - /opt/storageos/conf/ssm.object.properties
+  - /opt/storageos/conf/ssm-cf-conf.xml
+  - /opt/storageos/conf/common.object.properties
+  - /opt/storageos/conf/cm.object.properties
+  - /opt/storageos/conf/cm-conf.xml
+  - /opt/storageos/bin/dtquery
+  - /opt/storageos/bin/transformsvc
+  - /opt/storageos/bin/objcontrolsvc
+  - /opt/storageos/conf/georeceiver-conf.xml
+  - /opt/storageos/conf/vnest-common-conf.xml

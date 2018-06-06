@@ -90,7 +90,7 @@
   loop_control:
     label: "/ecs/uuid-{{ item.0.stdout }}"
 
-- name: Common | Preallocate XFS extents for chunk storage
+- name: Common | Create blockbins on partitions
   script: additional_prep.sh {{ item }}1
   with_items: "{{ ecs_block_devices }}"
 
