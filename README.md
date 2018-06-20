@@ -14,11 +14,11 @@ Please read our [Community Code of Conduct][ccoc] before contributing.  Thank yo
 
 ## Description
 
-EMC Elastic Cloud Storage (ECS) is a stateful, containerized, object storage system for cloud storage protocols.  ECS is compatible with AWS S3 and OpenStack Swift.  On file-enabled buckets, ECS can provide NFS exports for file-level access to objects.
+EMC ECS is a stateful, containerized, object storage system for cloud storage protocols.  ECS is compatible with AWS S3 and OpenStack Swift.  On file-enabled buckets, ECS can provide NFS exports for file-level access to objects.
 
 ECS can be set up on one or more hosts or virtual machines in a single-site or a multi-site geo replicated configuration. We want the wider community to use ECS and provide feedback.  Usage of this software is under the End User License Agreement at the bottom of this README.
 
-ECS Community Edition is a free, reduced footprint, version of Dell EMC's Elastic Cloud Storage software. Of course, this means there are some limitations to the use of the software, so the question arises; how is the Community Edition of ECS different from the production version?
+ECS Community Edition is a free, reduced footprint, version of Dell EMC's ECS software. Of course, this means there are some limitations to the use of the software, so the question arises; how is the Community Edition of ECS different from the production version?
 
 ### License difference
 As noted with the included license, ECS Community cannot be used in production environments and is intended to be used for trial and proof of concept purposes only. This software is still owned and protected by Dell EMC.
@@ -139,7 +139,7 @@ Please file bugs and issues at the [ECS's site in the EMC Community Network (ECS
 
 # License Agreement
 
-## EMC Elastic Cloud Storage (ECS) Software Limited-Use License Agreement
+## EMC ECS Software Limited-Use License Agreement
 
 This EMC Software License Agreement (the "Agreement") is a legal agreement between EMC Corporation, with a principal office at 176 South Street, Hopkinton, MA 01748 USA ("EMC") and you and the organization on whose behalf you are accessing this Agreement (the "Customer") and governs Customer’s access to, downloading of, and use of any and all components, associated media, printed materials, documentation, and programming accessed via the EMC software (the "Software").
 
