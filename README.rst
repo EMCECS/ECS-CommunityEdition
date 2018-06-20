@@ -20,7 +20,7 @@ file for release notes.
 Description
 -----------
 
-EMC Elastic Cloud Storage (ECS) is a stateful containerized cloud
+EMC ECS is a stateful containerized cloud
 storage. It provides persistence for your applications that can access
 data through standardized Object protocols like AWS S3 or OpenStack
 Swift. ECS can be set up on one or more hosts / VMs in a single-site or
@@ -28,7 +28,7 @@ a multi-site geo replicated configuration. We want the wider community
 to use ECS and provide feedback. Usage of this software is under the
 following End User License Agreement.
 
-ECS Community Edition is a free, reduced footprint, version of Dell EMC's Elastic Cloud Storage software. Of course, this means there are some limitations to the use of the software, so the question arises; how is the Community Edition of ECS different from the production version?
+ECS Community Edition is a free, reduced footprint, version of Dell EMC's ECS software. Of course, this means there are some limitations to the use of the software, so the question arises; how is the Community Edition of ECS different from the production version?
 
 License difference
 ^^^^^^^^^^^^^^^^^^
@@ -185,9 +185,9 @@ Directory Structure
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
 |`legacy <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/legacy>`__                                      | Legacy deployment scripts                                                                               |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-|`legacy/ecs-single-node <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/legacy/ecs-single-node>`__      | (Legacy) Contains the scripts to run a Elastic Cloud Storage single Node Docker and Vagrant deployments |
+|`legacy/ecs-single-node <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/legacy/ecs-single-node>`__      | (Legacy) Contains the scripts to run an ECS single Node Docker and Vagrant deployments |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
-|`legacy/ecs-multi-node <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/legacy/ecs-multi-node>`__        | (Legacy) Contains the scripts to run a Elastic Cloud Storage Multiple Node Docker deployment            |
+|`legacy/ecs-multi-node <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/legacy/ecs-multi-node>`__        | (Legacy) Contains the scripts to run an ECS Multiple Node Docker deployment            |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
 |`legacy/Documentation <https://github.com/EMCECS/ECS-CommunityEdition/tree/latest/legacy/Documentation>`__          | (Legacy) Contains documentation files and media                                                         |
 +---------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------+
@@ -207,7 +207,7 @@ community driven process.
 License Agreement
 =================
 
-EMC Elastic Cloud Storage (ECS) Software Limited-Use License Agreement
+EMC ECS Software Limited-Use License Agreement
 ----------------------------------------------------------------------
 
 This EMC Software License Agreement (the "Agreement") is a legal
