@@ -1,5 +1,5 @@
 
-EMC Elastic Cloud Storage (ECS) Software Limited-Use License Agreement
+EMC ECS Software Limited-Use License Agreement
 
 
 This EMC Software License Agreement (the "Agreement") is a legal agreement between EMC Corporation, with a principal office at 176 South Street, Hopkinton, MA 01748 USA ("EMC") and you and the organization on whose behalf you are accessing this Agreement (the "Customer") and governs Customer's access to, downloading of, and use of any and all components, associated media, printed materials, documentation, and programming accessed via the EMC software (the "Software"). By clicking on the "Agree" or check box or similar button set forth below, or by downloading, installing, or using the Software, you are representing to EMC that (i) you are authorized to legally bind the Customer, and (ii) you are agreeing on behalf of the Customer that the terms of this Agreement shall govern the relationship of the parties with regard to the Software. If you do not have authority to agree to the terms of this Agreement, or do not accept the terms of this Agreement, click on the "Cancel" or similar button or discontinue your efforts to download the Software, and the registration, download and/or installation process will not continue. In such event, no access to, or authorization to download or use the Software, is granted by EMC.
