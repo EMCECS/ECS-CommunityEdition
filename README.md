@@ -66,6 +66,7 @@ And if all went well, you now have a working stand-alone ECS, mostly configured,
 ## Hardware Requirements
 
 ### Minimum
+_Note: A minimum configuration is only suitable for short-term sandbox testing_  
 Hardware or virtual machine with:
 
 * 4 CPU Cores
@@ -75,6 +76,7 @@ Hardware or virtual machine with:
 * CentOS 7.4 Minimal installation
 
 ### Recommended
+_Note: A recommended configuration is more suitable for longer-term functional testing_  
 Hardware or virtual machine with:
 
 * 8 CPU Cores
