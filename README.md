@@ -1,7 +1,7 @@
 # ECS Community Edition
 
 **ECS CE Install Node Image**
-[![](https://images.microbadger.com/badges/version/emccorp/ecs-install.svg)](https://microbadger.com/images/emccorp/ecs-install "Get your own version badge on microbadger.com") 
+[![](https://images.microbadger.com/badges/version/emccorp/ecs-install.svg)](https://microbadger.com/images/emccorp/ecs-install "Get your own version badge on microbadger.com")
 
 **ECS Software Image**
 [![](https://images.microbadger.com/badges/version/emccorp/ecs-software-3.2.0.svg)](https://microbadger.com/images/emccorp/ecs-software-3.2.0 "Get your own version badge on microbadger.com")
@@ -36,7 +36,7 @@ Because of these differences, ECS Community Edition is absolutely **not** qualif
 ## Quick Start Guide
 If you have the following:
 
-1. A CentOS 7.4 Minimal instance with:
+1. A CentOS *Minimal* install of the latest CentOS release with:
     1. 16GB RAM
     2. 16GB block device for system
     3. 104GB block device for ECS
@@ -66,24 +66,24 @@ And if all went well, you now have a working stand-alone ECS, mostly configured,
 ## Hardware Requirements
 
 ### Minimum
-_Note: A minimum configuration is only suitable for short-term sandbox testing_  
+_Note: A minimum configuration is only suitable for short-term sandbox testing_
 Hardware or virtual machine with:
 
 * 4 CPU Cores
 * 16GB RAM
 * 16GB root block storage
 * 104GB additional block storage
-* CentOS 7.4 Minimal installation
+* CentOS Minimal installation of the latest CentOS release
 
 ### Recommended
-_Note: A recommended configuration is more suitable for longer-term functional testing_  
+_Note: A recommended configuration is more suitable for longer-term functional testing_
 Hardware or virtual machine with:
 
 * 8 CPU Cores
 * 64GB RAM
 * 16GB root block storage
 * 1TB additional block storage
-* CentOS 7.4 Minimal installation
+* CentOS Minimal installation of the latest CentOS release
 
 ## Deployment Scenarios
 ### Deploy into Internet-Connected Environments
