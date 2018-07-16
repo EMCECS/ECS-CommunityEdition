@@ -5,6 +5,7 @@ process() {
 echo "Reducing ephemera"
 sudo package-cleanup -y --oldkernels --count=1
 sudo yum -y clean all
+sudo find /home -type f -name 'registry.crt' -exec rm -f {} \;
 
 echo "Truncating /var/logs"
 sudo find /var/log -type f -exec truncate --size 0 {} \;
