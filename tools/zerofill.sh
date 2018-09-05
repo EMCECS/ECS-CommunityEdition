@@ -20,7 +20,7 @@ sudo find /root -name '.bash_history' -exec rm -f {} \;
 sudo history -c
 history -c
 
-rm -rf $HOME/admin/bin
+rm -f $HOME/admin/bin/*.sh
 
 ### filesys reduction
 echo "Defragmenting /"
