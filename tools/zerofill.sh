@@ -25,12 +25,15 @@ rm -rf $HOME/admin/bin
 ### filesys reduction
 echo "Defragmenting /"
 sudo xfs_fsr -vvvv /
+sync; sync
 
 echo "Zero-filling /"
 sudo dd if=/dev/zero of=/tmp/zerofill.tmp bs=10M & pid=$!
-sleep 5
+sleep 2
 while sudo kill -USR1 $pid; do sleep 1; done
+sync; sync
 sudo rm -f /tmp/zerofill.tmp
+sync; sync
 
 ### shutdown
 echo "Powering off"
