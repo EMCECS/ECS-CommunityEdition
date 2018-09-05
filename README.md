@@ -4,7 +4,7 @@
 [![](https://images.microbadger.com/badges/version/emccorp/ecs-install.svg)](https://microbadger.com/images/emccorp/ecs-install "Get your own version badge on microbadger.com")
 
 **ECS Software Image**
-[![](https://images.microbadger.com/badges/version/emccorp/ecs-software-3.2.0.svg)](https://microbadger.com/images/emccorp/ecs-software-3.2.0 "Get your own version badge on microbadger.com")
+[![](https://images.microbadger.com/badges/version/emccorp/ecs-software-3.2.2.svg)](https://microbadger.com/images/emccorp/ecs-software-3.2.2 "Get your own version badge on microbadger.com")
 
 Current releases and history are available [here][releases].
 
