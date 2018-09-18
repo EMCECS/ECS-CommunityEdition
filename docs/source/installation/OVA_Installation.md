@@ -1,6 +1,4 @@
-# ECS Community Edition Installation
-
-## OVA Installation
+# OVA Installation
 
 The OVA installation assumes deployment in a network-isolated environment.  One clone of the OVA will become an install node.  The ECS deployment will then proceed from the install node.
 

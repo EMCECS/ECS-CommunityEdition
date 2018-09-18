@@ -1,8 +1,5 @@
-ECS Community Edition Installation
-==================================
-
 Standard Installation
----------------------
+=====================
 
 The standard installation assumes an Internet connected VM which will be
 bootstrapped and become an install node. The ECS deployment will then
