@@ -11,4 +11,4 @@
 3.
 
 ---
-@padthaitofuhot @captntuttle @adrianmo
+@captntuttle

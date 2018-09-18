@@ -566,6 +566,11 @@ p Installing VM guest additions
     ping_sudo
 fi
 
+### Lock packages that we don't want updated
+v "Locking packages we don't want updated"
+p locking docker packages
+versionlock_packages 2>&1 | log
+ping_sudo
 
 ### Update repo databases and all system packages (again)
 ### This will pick up any updates pulled in from alternate repos.

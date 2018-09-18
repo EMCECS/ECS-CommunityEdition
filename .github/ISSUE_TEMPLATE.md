@@ -16,4 +16,4 @@
 ```
 
 ---
-Notifies: @padthaitofuhot @captntuttle @adrianmo
+Notifies: @captntuttle
