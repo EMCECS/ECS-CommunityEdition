@@ -12,7 +12,6 @@ Welcome to ECS Community Edition's documentation!
    :maxdepth: 1
 
    building/building.rst
-   building/development-build.rst
    installation/ECS-Installation.rst
    installation/deploy.yml.rst
    installation/public-key-authentication.rst
