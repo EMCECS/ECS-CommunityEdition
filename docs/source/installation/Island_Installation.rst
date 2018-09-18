@@ -1,8 +1,5 @@
-ECS Community Edition Installation
-==================================
-
 Island Installation
--------------------
+===================
 
 The island installation assumes an Internet connected VM which will be
 bootstrapped and become an install node. The install node will be
