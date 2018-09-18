@@ -13,17 +13,15 @@ Welcome to ECS Community Edition's documentation!
 
    building/building.rst
    installation/ECS-Installation.rst
-   installation/deploy.yml.rst
-   installation/public-key-authentication.rst
-   installation/Island_Installation.rst
-   installation/OVA_Installation.rst
-   installation/public-key-authentication.rst
    installation/Standard_Installation.rst
+   installation/OVA_Installation.rst
+   installation/Island_Installation.rst
    use/ECS-UI-Web-Interface.rst
    use/Migration.rst
+   installation/deploy.yml.rst
+   utilities/utilities.rst
    troubleshooting/ECS-Troubleshooting.rst
    troubleshooting/FAQ.rst
-   utilities/utilities.rst
 
 
 .. include:: ../../README.rst
