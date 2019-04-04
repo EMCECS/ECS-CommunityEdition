@@ -1,11 +1,11 @@
 # Fixes to the default 3.3.0.0 reduced image.
 
 # Build on object-reduced image (GA release)
-FROM emcvipr/object:3.3.0.0-108986.c0575c7-reduced
+FROM emcvipr/object:3.3.0.0-109089.4bf8a5a-reduced
 
 # Fix disk partitioning script
-RUN sed -i '/VMware/ s/$/ \&\& [ ! -e \/data\/is_community_edition ]/' /opt/storageos/bin/storageserver-partition-config.sh \
-    && /usr/bin/chmod +x /opt/storageos/bin/storageserver-partition-config.sh
+#RUN sed -i '/VMware/ s/$/ \&\& [ ! -e \/data\/is_community_edition ]/' /opt/storageos/bin/storageserver-partition-config.sh \
+#    && /usr/bin/chmod +x /opt/storageos/bin/storageserver-partition-config.sh
 
 # Set VNest useSeperateThreadPools to True
 #RUN f=/opt/storageos/conf/vnest-common-conf.xml; grep -q "object.UseSeparateThreadPools" $f || sed -i '/properties id="serviceProperties"/a \ \ \ \ \ \ \ \ <prop key="object.UseSeparateThreadPools">true</prop>' $f
