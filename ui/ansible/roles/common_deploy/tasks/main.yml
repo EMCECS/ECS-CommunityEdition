@@ -168,6 +168,14 @@
     insertafter: '<util:properties id="serviceProperties" location="classpath:systemsvc.object.properties" local-override="true">'
     line: '        <prop key="object.UseSeparateThreadPools">true</prop>'
 
+## sr configuration
+- name: 'Common | Increase memory for sr'
+  lineinfile:
+    dest: /host/sr
+    backrefs: yes
+    regexp: '^(.*)Xmx384m(.*)$'
+    line: '\1Xmx640m\2'
+
 ### Then docker cp them into the configuration container
 - name: Common | Merge configurations into configuration data container
   command: docker cp /host/{{item.split('/')[-1]}} ecs-config:{{item}}
