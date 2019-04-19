@@ -35,7 +35,7 @@ in_prefix_packages() {
 
 # packages to install
 # list_general_packages='yum-utils git python-pip python-docker-py'
-list_general_packages='git ntp docker vim rsync pigz gdisk aria2'
+list_general_packages='git ntp docker-1.13.1-75.git8633870.el7.centos vim rsync pigz gdisk aria2'
 
 # script to run for installing general_packages
 in_general_packages() {

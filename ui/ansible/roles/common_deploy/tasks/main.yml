@@ -174,7 +174,7 @@
     dest: /host/sr
     backrefs: yes
     regexp: '^(.*)Xmx384m(.*)$'
-    line: '\1Xmx640m\2'
+    line: '\1Xmx768m\2'
 
 ### Then docker cp them into the configuration container
 - name: Common | Merge configurations into configuration data container
