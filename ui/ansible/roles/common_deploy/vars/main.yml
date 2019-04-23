@@ -10,5 +10,6 @@ config_files:
   - /opt/storageos/bin/dtquery
   - /opt/storageos/bin/transformsvc
   - /opt/storageos/bin/objcontrolsvc
+  - /opt/storageos/bin/sr
   - /opt/storageos/conf/georeceiver-conf.xml
   - /opt/storageos/conf/vnest-common-conf.xml

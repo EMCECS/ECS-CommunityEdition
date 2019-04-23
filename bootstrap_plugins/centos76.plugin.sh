@@ -18,7 +18,8 @@ docker_binary='/bin/docker'
 
 # packages to clean up during preflight
 # Don't `yum autoremove curl`.  Yum is a dependency and it will throw errors.
-list_preflight_packages="git nfs-client nfs-tools rsync wget ntp docker vim pigz gdisk aria2 htop iotop iftop multitail dstat jq python-docker-py dkms qemu-guest-agent open-vm-tools open-vm-tools-desktop docker"
+
+list_preflight_packages="git nfs-client nfs-tools rsync wget ntp docker-1.13.1-75.git8633870.el7.centos vim pigz gdisk aria2 htop iotop iftop multitail dstat jq python-docker-py dkms qemu-guest-agent open-vm-tools open-vm-tools-desktop docker"
 
 # Do any OS-specific tasks that must be done prior to bootstrap
 do_preflight() {
@@ -35,7 +36,8 @@ in_prefix_packages() {
 
 # packages to install
 # list_general_packages='yum-utils git python-pip python-docker-py'
-list_general_packages='git ntp docker vim rsync pigz gdisk aria2'
+
+list_general_packages='git ntp docker-1.13.1-75.git8633870.el7.centos vim rsync pigz gdisk aria2 yum-versionlock'
 
 # script to run for installing general_packages
 in_general_packages() {
@@ -51,6 +53,9 @@ in_general_packages() {
 # packages to install after others
 list_suffix_packages='htop iotop iftop multitail dstat jq python-docker-py'
 # list_suffix_packages='htop jq pigz gdisk aria2 python-docker-py'
+
+# packages to lock after installation
+list_lock_packages='docker docker-common docker-client'
 
 # script to run for installing suffix_packages
 in_suffix_packages() {
@@ -70,6 +75,10 @@ in_vm_packages() {
     # return 0
 }
 
+versionlock_packages() {
+    lock_pkg "$list_lock_packages"
+}
+
 # command to install one or more os package manager package
 in_repo_pkg() {
     retry_with_timeout 10 300 sudo yum -y install $*
@@ -77,6 +86,11 @@ in_repo_pkg() {
 
 rm_repo_pkg() {
     retry_with_timeout 10 300 sudo yum -y autoremove $*
+}
+
+# lock packages that we don't want updated
+lock_pkg() {
+    sudo yum versionlock $*
 }
 
 # command to update all packages in the os package manager
