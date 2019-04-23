@@ -18,6 +18,7 @@ docker_binary='/bin/docker'
 
 # packages to clean up during preflight
 # Don't `yum autoremove curl`.  Yum is a dependency and it will throw errors.
+
 list_preflight_packages="git nfs-client nfs-tools rsync wget ntp docker-1.13.1-75.git8633870.el7.centos vim pigz gdisk aria2 htop iotop iftop multitail dstat jq python-docker-py dkms qemu-guest-agent open-vm-tools open-vm-tools-desktop docker"
 
 # Do any OS-specific tasks that must be done prior to bootstrap
@@ -35,6 +36,7 @@ in_prefix_packages() {
 
 # packages to install
 # list_general_packages='yum-utils git python-pip python-docker-py'
+
 list_general_packages='git ntp docker-1.13.1-75.git8633870.el7.centos vim rsync pigz gdisk aria2 yum-versionlock'
 
 # script to run for installing general_packages
