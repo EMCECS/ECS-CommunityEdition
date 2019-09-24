@@ -9,7 +9,7 @@
   file:
     state: directory
     path: "{{host_cache_dir}}/{{ item }}"
-  with_items: "{{ caches.keys() }}"
+  with_items: "{{ caches }}"
   when: flag_install_node is not defined
   tags: files
 

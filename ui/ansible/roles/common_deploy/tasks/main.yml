@@ -5,7 +5,7 @@
 #  shell: docker run -d -v /opt/storageos/conf -v /opt/storageos/ecsportal/conf -v /etc --name ecs-config --restart=no --entrypoint=/bin/echo {{product_common_name}} "ECS configuration data container" && touch {{host_cache_dir}}/ecs-config.created creates="{{host_cache_dir}}/ecs-config.created"
 
 - name: Common | Create a data container for ECS configuration control
-  docker:
+  docker_container:
     image: "{{product_common_name}}"
     name: ecs-config
     detach: true
@@ -176,6 +176,15 @@
     regexp: '^(.*)Xmx384m(.*)$'
     line: '\1Xmx768m\2'
 
+
+## blobsvc configuration
+- name: 'Common | Increase memory for blobsvc'
+  lineinfile:
+    dest: /host/blobsvc
+    backrefs: yes
+    regexp: '^(.*)Xmx2688m(.*)$'
+    line: '\1Xmx3584m\2'
+
 ### Then docker cp them into the configuration container
 - name: Common | Merge configurations into configuration data container
   command: docker cp /host/{{item.split('/')[-1]}} ecs-config:{{item}}
@@ -194,11 +203,11 @@
 
 ### And run the ECS container
 - name: Common | Create the ECS StorageOS container
-  docker:
+  docker_container:
     image: "{{product_common_name}}"
     name: ecs-storageos
     detach: true
-    net: host
+    network_mode: host
     env:
       SS_GENCONFIG: 1
     volumes_from:
