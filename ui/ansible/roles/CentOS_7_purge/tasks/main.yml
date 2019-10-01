@@ -1,4 +1,4 @@
-#- name: CentOS 7 | Destroy GPT on ECS block devices
+k#- name: CentOS 7 | Destroy GPT on ECS block devices
 #  shell: echo -e 'x\nz\nY\nY\n' | gdisk {{ item }}
 #  with_items:
 #    - "{{ ecs_block_devices }}"
