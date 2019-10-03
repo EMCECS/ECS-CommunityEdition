@@ -529,9 +529,6 @@ o ""
 v "Installing bootstrap packages pass (1/3)"
 p Installing new packages
 in_prefix_packages 2>&1 | log
-#if $proxy_flag; then
-#    set_repo_proxy_idempotent
-#fi
 ping_sudo
 
 
@@ -539,9 +536,6 @@ p Installing packages
 v "Installing bootstrap packages pass (2/3)"
 p Installing new packages
 in_general_packages 2>&1 | log
-#if $proxy_flag; then
-#    set_repo_proxy_idempotent
-#fi
 ping_sudo
 
 

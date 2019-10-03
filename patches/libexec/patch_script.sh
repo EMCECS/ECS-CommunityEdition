@@ -51,10 +51,10 @@ done
 
 # Adjust memory adjustment
 sed -i s/-Xmx128m/-Xmx512m/ /opt/storageos/bin/transformsvc
-sed -i s/-Xmx2048m/-Xmx3072m/ /opt/storageos/bin/blobsvc
+sed -i s/-Xmx2688m/-Xmx3072m/ /opt/storageos/bin/blobsvc
 # sed -i s/-Xmx512m/-Xmx256m/ /opt/storageos/bin/metering
 sed -i s/\$\(_get_mem_fraction_mb\ 428.3m\ 0.0081\)/64/ /opt/storageos/bin/ecsportalsvc
-sed -i s/-Xmx384m/-Xmx768m/ /opt/storageos/bin/sr
+sed -i s/-Xmx640m/-Xmx768m/ /opt/storageos/bin/sr
 # sed -i s/-Xmx128m/-Xmx64m/ /opt/storageos/bin/dtquery
 sed -i s/-Xmx192m/-Xmx128m/ /opt/storageos/bin/eventsvc
 sed -i s/-Xmx256m/-Xmx128m/ /opt/storageos/bin/resourcesvc
