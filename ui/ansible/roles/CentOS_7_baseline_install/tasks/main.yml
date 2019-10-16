@@ -41,7 +41,7 @@
 # two different runs of `yum update` during bootstrap.sh that causes it.
 # BUG: workaround for above the "--exclude epel-release-7-6.noarch" argument.
 - name: CentOS 7 | Install all packages in the cache
-  shell: yum -y -t -e0 -C --nogpgcheck --exclude epel-release-7-9.noarch install $(find /var/cache/yum -type f -name "*.rpm") || yum -y -t -e0 -C --nogpgcheck update
+  shell: yum -y -t -e0 -C --nogpgcheck --exclude epel-release-7-11.noarch install $(find /var/cache/yum -type f -name "*.rpm") || yum -y -t -e0 -C --nogpgcheck update
   args:
     creates: "{{host_cache_dir}}/disable_package_cache.sem"
   when:
