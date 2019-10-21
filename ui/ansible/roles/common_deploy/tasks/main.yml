@@ -5,7 +5,7 @@
 #  shell: docker run -d -v /opt/storageos/conf -v /opt/storageos/ecsportal/conf -v /etc --name ecs-config --restart=no --entrypoint=/bin/echo {{product_common_name}} "ECS configuration data container" && touch {{host_cache_dir}}/ecs-config.created creates="{{host_cache_dir}}/ecs-config.created"
 
 - name: Common | Create a data container for ECS configuration control
-  docker:
+  docker_image:
     image: "{{product_common_name}}"
     name: ecs-config
     detach: true
@@ -194,11 +194,11 @@
 
 ### And run the ECS container
 - name: Common | Create the ECS StorageOS container
-  docker:
+  docker_container:
     image: "{{product_common_name}}"
     name: ecs-storageos
     detach: true
-    net: host
+    network_mode: host
     env:
       SS_GENCONFIG: 1
     volumes_from:
