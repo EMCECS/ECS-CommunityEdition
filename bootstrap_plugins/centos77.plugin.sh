@@ -19,7 +19,7 @@ docker_binary='/bin/docker'
 # packages to clean up during preflight
 # Don't `yum autoremove curl`.  Yum is a dependency and it will throw errors.
 
-list_preflight_packages="git nfs-client nfs-tools rsync wget ntp docker vim pigz gdisk aria2 htop iotop iftop multitail dstat jq python-docker-py dkms qemu-guest-agent open-vm-tools open-vm-tools-desktop docker-ce docker-ce-cli containerd.io"
+list_preflight_packages="git nfs-client nfs-tools rsync wget ntp docker vim pigz gdisk aria2 htop iotop iftop multitail dstat jq python-docker-py dkms qemu-guest-agent open-vm-tools open-vm-tools-desktop docker"
 
 # Do any OS-specific tasks that must be done prior to bootstrap
 do_preflight() {
@@ -39,11 +39,13 @@ additional_repos='https://download.docker.com/linux/centos/docker-ce.repo'
 
 
 # packages to install
-list_general_packages='git ntp vim rsync pigz gdisk aria2 yum-versionlock docker-ce docker-ce-cli containerd.io'
+list_general_packages='git ntp vim rsync pigz gdisk aria2 yum-versionlock'
+list_docker_ce_packages='docker-ce-17.03.0.ce-1.el7.centos docker-ce-selinux-17.03.0.ce-1.el7.centos'
 
 # script to run for installing general_packages
 in_general_packages() {
     add_repo "$additional_repos"
+    in_docker_ce "$list_docker_ce_packages"
     in_repo_pkg "$list_general_packages"
     sudo systemctl enable docker
     sudo systemctl start docker
@@ -55,7 +57,7 @@ list_suffix_packages='htop iotop iftop multitail dstat jq python-docker-py'
 # list_suffix_packages='htop jq pigz gdisk aria2 python-docker-py'
 
 # packages to lock after installation
-#list_lock_packages='docker-ce-17.03.0.ce-1.el7.centos'
+list_lock_packages=''
 
 # script to run for installing suffix_packages
 in_suffix_packages() {
