@@ -18,7 +18,7 @@
 
 - name: Installer | Create cache directories
   file: state=directory path={{ cache_dir }}/{{ item }}
-  with_items: "{{ caches.keys() }}"
+  with_items: "{{ caches }}"
   when:
     - not ( num_data_nodes|int == 1 and top_data_node == groups['install_node'][0] )
     - not ( ansible_local is defined and ansible_local.ova is defined )

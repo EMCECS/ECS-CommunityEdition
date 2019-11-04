@@ -54,10 +54,6 @@ in_general_packages() {
 
 # packages to install after others
 list_suffix_packages='htop iotop iftop multitail dstat jq python-docker-py'
-# list_suffix_packages='htop jq pigz gdisk aria2 python-docker-py'
-
-# packages to lock after installation
-list_lock_packages='docker-ce-17.03.0.ce-1.el7.centos'
 
 # script to run for installing suffix_packages
 in_suffix_packages() {
