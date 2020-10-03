@@ -8,7 +8,7 @@ RUN sed -i '/VMware/ s/$/ \&\& [ ! -e \/data\/is_community_edition ]/' /opt/stor
     && /usr/bin/chmod +x /opt/storageos/bin/storageserver-partition-config.sh
 
 # Set VNest useSeperateThreadPools to True
-#RUN f=/opt/storageos/conf/vnest-common-conf.xml; grep -q "object.UseSeparateThreadPools" $f || sed -i '/properties id="serviceProperties"/a \ \ \ \ \ \ \ \ <prop key="object.UseSeparateThreadPools">true</prop>' $f
+#RUN f=/opt/storageos/conf/vnest-common-conf.xml; grep -q "object.UseSeparateThreadPools" $f || sed -i '547i \ \ \ \ \ \ \ \ <prop key="object.UseSeparateThreadPools">true</prop>' $f
 
 # Allow allocation of different blocks of a chunk to be stored on the same partition
 #RUN f=/opt/storageos/conf/ssm-cf-conf.xml; grep -q '<config:boolean name="allowAllocationOnIgnoredPartitions" value="true" description="If set to true, different blocks in one chunk may be allocated on the same partition"/>' $f || sed -i 's#<config:boolean name="allowAllocationOnIgnoredPartitions" value="false" description="If set to true, different blocks in one chunk may be allocated on the same partition"/>#<config:boolean name="allowAllocationOnIgnoredPartitions" value="true" description="If set to true, different blocks in one chunk may be allocated on the same partition"/>#g' /opt/storageos/conf/ssm-cf-conf.xml $f
