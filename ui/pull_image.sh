@@ -41,6 +41,9 @@ fi
 o "Cleaning up..."
 docker_clean
 
+o "Login into Docker for image pull (rate limits)..."
+docker_login
+
 o "Pulling image ${repo_path}"
 sudo docker pull ${repo_path} || img_pull_fail
 
