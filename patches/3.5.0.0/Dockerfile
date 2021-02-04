@@ -1,7 +1,7 @@
 # Fixes to the default 3.5.0.0 reduced image.
 
 # Build on object-reduced image (GA release)
-FROM emcvipr/object:3.5.0.0-120520.8c29468ee8b-reduced
+FROM emcvipr/object:3.5.1.2-121905.b6ac907bc40-reduced
 
 # Fix disk partitioning script
 RUN sed -i '/VMware/ s/$/ \&\& [ ! -e \/data\/is_community_edition ]/' /opt/storageos/bin/storageserver-partition-config.sh \
