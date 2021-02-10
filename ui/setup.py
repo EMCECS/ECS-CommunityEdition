@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ecsdeploy',
-    version='2.10.0r',
+    version='2.11.0r',
     packages=find_packages(),
     scripts=['ui.py',
              'ecsdeploy.py',
