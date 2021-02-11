@@ -23,17 +23,34 @@ history -c
 rm -f $HOME/admin/bin/*.sh
 
 ### filesys reduction
-echo "Defragmenting /"
+echo "Defragmenting XFS /"
 sudo xfs_fsr -vvvv /
 sync; sync
 
 echo "Zero-filling /"
-sudo dd if=/dev/zero of=/tmp/zerofill.tmp bs=10M & pid=$!
+count=$(df --sync -kP / | tail -n1  | awk -F ' ' '{print $4}')
+count=$(($count-1))
+sudo dd if=/dev/zero of=/tmp/zerofill.tmp bs=1M count=${count} & pid=$!
 sleep 2
-while sudo kill -USR1 $pid; do sleep 1; done
-sync; sync
+while sudo kill -USR1 ${pid}; do sleep 1; done
 sudo rm -f /tmp/zerofill.tmp
-sync; sync
+
+echo "Zero-filling /boot"
+count=$(df --sync -kP /boot | tail -n1  | awk -F ' ' '{print $4}')
+count=$(($count-1))
+sudo dd if=/dev/zero of=/boot/zerofill.tmp bs=1M count=${count} & pid=$!
+sleep 2
+while sudo kill -USR1 ${pid}; do sleep 1; done
+sudo rm -f /boot/zerofill.tmp
+
+echo "Zero-filling swap"
+swapuuid="$(/sbin/blkid -o value -l -s UUID -t TYPE=swap)";
+if ! [ -z "${swapuuid}" ]; then
+    swappart="$(readlink -f /dev/disk/by-uuid/${swapuuid})";
+    /sbin/swapoff "${swappart}";
+    dd if=/dev/zero of="${swappart}" bs=1M || echo "dd exit code $? is suppressed";
+    /sbin/mkswap -U "${swapuuid}" "${swappart}";
+fi
 
 ### shutdown
 echo "Powering off"
