@@ -24,7 +24,7 @@ ECS Community Edition is a free, reduced footprint, version of Dell EMC's ECS so
 As noted with the included license, ECS Community cannot be used in production environments and is intended to be used for trial and proof of concept purposes only. This software is still owned and protected by Dell EMC.
 
 ### Feature differences
-It it important to note that ECS-Community Edition is ***not*** the same as ECS software and as such lacks some features that are integral to the actual ECS software.
+It is important to note that ECS-Community Edition is ***not*** the same as ECS software and as such lacks some features that are integral to the actual ECS software.
 
 * **ECS Community Edition does NOT support encryption**
 * **ECS Community Edition does NOT include ECS' system management, or "fabric", layer**
