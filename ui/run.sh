@@ -130,6 +130,7 @@ case "$(basename ${0})" in
         run ecsdeploy bootstrap || exit $?
         run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
+	sh /home/admin/ECS-CommunityEdition/patches/3.5.0.0/vnest_patch > /dev/null 2>&1
     ;;
     step1)
         #run ecsdeploy load || exit $?
@@ -141,6 +142,7 @@ case "$(basename ${0})" in
         run ping_until_clear
         run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
+	sh /home/admin/ECS-CommunityEdition/patches/3.5.0.0/vnest_patch > /dev/null 2>&1
     ;;
     step2|island-step3|ova-step2)
         o "Pinging Management API Endpoint until ready"

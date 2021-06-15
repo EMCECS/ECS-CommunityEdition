@@ -54,6 +54,9 @@ route_os() {
         centos\ linux\ release\ 7.7*)
             source ${plugins}/centos77.plugin.sh
             ;;
+        centos\ linux\ release\ 7.*)
+            source ${plugins}/centos77.plugin.sh
+            ;;
 
         # Die on unknowns
         *)
