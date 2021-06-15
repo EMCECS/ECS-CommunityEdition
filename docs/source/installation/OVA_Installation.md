@@ -20,7 +20,7 @@ The technical requirements for the installation node are minimal, but reducing a
 The minimum technical requirements for each ECS data node are:
 
 * 4 CPU Cores
-* 16 GB Memory
+* 24 GB Memory
 * 16 GB Minimum system block storage device
 * 104 GB Minimum additional block storage device in a raw, unpartitioned state.
 * CentOS 7 Minimal installation (ISO- and network-based minimal installs are equally supported)
@@ -115,11 +115,14 @@ For more information on deploy.yml, please read the reference guide found [here]
 Once the deploy.yml file has been correctly written and the install node rebooted if needed, then the next step is to simply run `ova-step1`.
 
 After the installer initializes, the EMC ECS license agreement will appear on the screen. Press `q` to close the screen and type `yes` to accept the license and continue or `no` to abort the process. The install cannot continue until the license agreement has been accepted.
+For 3.5 multi node deployment , run the patch  sh /home/admin/ECS-CommunityEdition/patches/3.5.0.0/vnest_patch on non-installer node before proceeding with ova-step2
+For 3.5 multi node deployment , run the patch  sh /home/admin/ECS-CommunityEdition/patches/3.6.0.1/vnest_patch on non-installer node before proceeding with ova-step2
 
 ### 5. Deploying ECS Topology (`ova-step2`)
 *If you would prefer to manually configure your ECS topology, you may skip this step entirely.*
 
 Once `ova-step1` has completed, you may then direct the installer to configure the ECS topology by running `ova-step2`.  Once `ova-step2` has completed, your ECS will be ready for use.
+
 
 ## That's it!
 Assuming all went well, you now have a functioning ECS Community Edition instance and you may now proceed with your test efforts.
