@@ -116,7 +116,7 @@ Once the deploy.yml file has been correctly written and the install node reboote
 
 After the installer initializes, the EMC ECS license agreement will appear on the screen. Press `q` to close the screen and type `yes` to accept the license and continue or `no` to abort the process. The install cannot continue until the license agreement has been accepted.
 For 3.5 multi node deployment , run the patch  sh /home/admin/ECS-CommunityEdition/patches/3.5.0.0/vnest_patch on non-installer node before proceeding with ova-step2
-For 3.5 multi node deployment , run the patch  sh /home/admin/ECS-CommunityEdition/patches/3.6.0.1/vnest_patch on non-installer node before proceeding with ova-step2
+For 3.6 multi node deployment , run the patch  sh /home/admin/ECS-CommunityEdition/patches/3.6.0.1/vnest_patch on non-installer node before proceeding with ova-step2
 
 ### 5. Deploying ECS Topology (`ova-step2`)
 *If you would prefer to manually configure your ECS topology, you may skip this step entirely.*
