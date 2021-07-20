@@ -118,7 +118,7 @@ case "$(basename ${0})" in
         run ecsdeploy check || exit $?
         run ecsdeploy bootstrap || exit $?
         run ecsdeploy reboot || exit $?
-        sleep 10
+        sleep 30
         run ping_until_clear
         run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
@@ -132,6 +132,7 @@ case "$(basename ${0})" in
         run ecsdeploy bootstrap || exit $?
         run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
+	sleep 30
 	/home/admin/ECS-CommunityEdition/patches/3.6.0.0/vnest_patch
 	o "Please wait for 30 minutes before running next step for services to bootstrap"
     ;;
@@ -145,6 +146,7 @@ case "$(basename ${0})" in
         run ping_until_clear
         run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
+	sleep 30
 	/home/admin/ECS-CommunityEdition/patches/3.6.0.0/vnest_patch
 	o "Please wait for 30 minutes before running next step for services to bootstrap"
     ;;
