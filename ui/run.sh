@@ -122,6 +122,8 @@ case "$(basename ${0})" in
         run ping_until_clear
         run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
+	/home/admin/ECS-CommunityEdition/patches/3.6.0.0/vnest_patch
+	o "Please wait for 30 minutes before running next step for services to bootstrap"
     ;;
     ova-step1)
         #run ecsdeploy load || exit $?
@@ -130,6 +132,8 @@ case "$(basename ${0})" in
         run ecsdeploy bootstrap || exit $?
         run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
+	/home/admin/ECS-CommunityEdition/patches/3.6.0.0/vnest_patch
+	o "Please wait for 30 minutes before running next step for services to bootstrap"
     ;;
     step1)
         #run ecsdeploy load || exit $?
@@ -141,6 +145,8 @@ case "$(basename ${0})" in
         run ping_until_clear
         run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
+	/home/admin/ECS-CommunityEdition/patches/3.6.0.0/vnest_patch
+	o "Please wait for 30 minutes before running next step for services to bootstrap"
     ;;
     step2|island-step3|ova-step2)
         o "Pinging Management API Endpoint until ready"
@@ -149,6 +155,8 @@ case "$(basename ${0})" in
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig sp -a || exit $?
+	o "Sleeping for 15 minutes for Storage Pool to be ready"
+        sleep 900
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig vdc -a || exit $?

@@ -1,0 +1,7 @@
+echo "ECS Vnest patching" >> /tmp/vnest-patch.out
+sudo docker exec -i ecs-storageos bash <<EOF
+sed -i '561 i \ \ \ \ \ \ \ \ <prop key="object.UseSeparateThreadPools">true</prop>' /opt/storageos/conf/vnest-common-conf.xml
+sed -n 547p /opt/storageos/conf/vnest-common-conf.xml
+EOF
+sleep 3
+sudo kill `pidof vnest`
