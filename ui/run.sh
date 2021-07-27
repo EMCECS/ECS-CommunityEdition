@@ -118,7 +118,7 @@ case "$(basename ${0})" in
         run ecsdeploy check || exit $?
         run ecsdeploy bootstrap || exit $?
         run ecsdeploy reboot || exit $?
-        sleep 10
+        sleep 30
         run ping_until_clear
         run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
