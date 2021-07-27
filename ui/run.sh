@@ -122,7 +122,6 @@ case "$(basename ${0})" in
         run ping_until_clear
         run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
-	/home/admin/ECS-CommunityEdition/patches/3.6.0.0/vnest_patch
 	o "Please wait for 30 minutes before running next step for services to bootstrap"
     ;;
     ova-step1)
@@ -132,7 +131,6 @@ case "$(basename ${0})" in
         run ecsdeploy bootstrap || exit $?
         run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
-	/home/admin/ECS-CommunityEdition/patches/3.6.0.0/vnest_patch
 	o "Please wait for 30 minutes before running next step for services to bootstrap"
     ;;
     step1)
@@ -145,7 +143,6 @@ case "$(basename ${0})" in
         run ping_until_clear
         run ecsdeploy deploy || exit $?
         run ecsdeploy start || exit $?
-	/home/admin/ECS-CommunityEdition/patches/3.6.0.0/vnest_patch
 	o "Please wait for 30 minutes before running next step for services to bootstrap"
     ;;
     step2|island-step3|ova-step2)
