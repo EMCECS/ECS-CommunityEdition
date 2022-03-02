@@ -48,6 +48,7 @@ Then you should be able to get up and going with a Single-Node All-in-One instal
 ```
 # git clone https://github.com/EMCECS/ECS-CommunityEdition
 # cd ECS-CommunityEdition
+# git checkout 3.7.0.0   # use the branch version - 3.6.2.0 for 3.6.2 and 3.7.0.0 for 3.7 etc
 # cp docs/design/reference.deploy.yml deploy.yml
 # echo "Edit this deploy.yml to match your VM's environment"
 # vi deploy.yml
