@@ -9,8 +9,7 @@ session from casual eves-dropping. Take the IP of your first ECS node,
 fire up your browser, and point ``https://`` at it. For this example,
 the latest Google Chrome browser was used.
 
-You cannot add, change, or remove administrative users in this build.
-Use the default below.
+While login fist time , it ask to change the root password , use the default account as below.
 
     Username: **root**\ Password: **ChangeMe**
 
