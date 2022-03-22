@@ -108,6 +108,7 @@ The OVA is shipped as a bootstrapped install node.  It must be cloned multiple t
 * All nodes **MUST** have their virtual hardware configurations updated to match the node type requirements.
 ###### Default Credentials
 * The default password for the `admin` accounts is `ChangeMe`. The default password for `root` is unknowable.
+* For security reasons, it is strongly advised to change the password for admin immediately after installation.
 ###### Network Configuration
 * The OVA is configured to acquire network settings via DHCP.  Static configurations must be manually configured with `sudo nmtui`
 
