@@ -114,6 +114,7 @@ The OVA is shipped as a bootstrapped install node.  It must be cloned multiple t
 
 ##### OVA Download Links
 Please see the [release page](https://github.com/EMCECS/ECS-CommunityEdition/releases) for OVA download links.
+Please validate the package integrity against the provided sha512 hash mentioned for a release, before commencing deployment. 
 
 #### [ECS Single-Node Deployment with Install Node (recommended)](docs/source/installation/ECS-Installation.md)
 Using an install node for isolated environments, deploy a stand-alone instance of ECS to a single hardware or virtual machine.
