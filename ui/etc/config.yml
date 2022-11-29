@@ -13,7 +13,7 @@
 ---
 ui:
   name: ECS Community Edition Install Node
-  version: 2.11.0r
+  version: 2.9.1-r-2
   host_root_dir: /opt/emc/ecs-install
   state_file: /opt/state.yml
   deploy_file: /opt/deploy.yml
@@ -32,9 +32,9 @@ ui:
   ffx_sem: /opt/ffx.sem
 product:
   name: ECS
-  version: 3.5.1.2
+  version: 3.6.2.0
   vendor: Dell EMC
   flavor: Community Edition
   slogan: Free and Frictionless
   license_file: /usr/local/src/license.txt
-  common_name: "emccorp/ecs-software:latest"
+  common_name: "emccorp/ecs-software:3.6.0"
