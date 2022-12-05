@@ -13,7 +13,7 @@
 ---
 ui:
   name: ECS Community Edition Install Node
-  version: 2.11.0r
+  version: 2.9.1r
   host_root_dir: /opt/emc/ecs-install
   state_file: /opt/state.yml
   deploy_file: /opt/deploy.yml
