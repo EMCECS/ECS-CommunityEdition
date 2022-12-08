@@ -1,0 +1,5 @@
+#! /bin/bash
+sudo docker exec -it ecs-storageos  /opt/storageos/tools/cf_client --user emcservice --password ChangeMe --set --name com.emc.ecs.chunk.gc.btree.occupancy.min_major_interval --value 1 --reason "ecs-ce-tune"
+sudo docker exec -it ecs-storageos  /opt/storageos/tools/cf_client --user emcservice --password ChangeMe --set --name com.emc.ecs.prtable.gc.btree.min_major_interval --value 1 --reason "ecs-ce-tune"
+sudo docker exec -it ecs-storageos  /opt/storageos/tools/cf_client --user emcservice --password ChangeMe --set --name com.emc.ecs.prtable.gc.record_expiration --value "0 days" --reason "ecs-ce-tune"
+sudo docker exec -it ecs-storageos  /opt/storageos/tools/cf_client --user emcservice --password ChangeMe --set --name com.emc.ecs.chunk.gc.journal.protection_period --value "0 days"  --reason "ecs-ce-tune"
