@@ -151,14 +151,16 @@ case "$(basename ${0})" in
         run ecsconfig sp -a || exit $?
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
-	sleep 10
+        o "Storagepool configuration takes 30 mins to ready.. pls wait"
+	sleep 600
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
-        o "Storagepool configuration takes 30 mins for disks to ready.. pls wait"
-	sleep 10
+        o "Storagepool configuration takes 30 mins to ready.. pls wait"
+	sleep 600
         o "Pinging Management API Endpoint until ready"
+        o "Storagepool configuration takes 30 mins to ready.. pls wait"
         run ecsconfig ping -c -x || exit $?
-	sleep 10
+	sleep 600
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig vdc -a || exit $?
