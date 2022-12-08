@@ -151,11 +151,23 @@ case "$(basename ${0})" in
         run ecsconfig sp -a || exit $?
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
+	sleep 10
+        o "Pinging Management API Endpoint until ready"
+        run ecsconfig ping -c -x || exit $?
+        o "Storagepool configuration takes 30 mins for disks to ready.. pls wait"
+	sleep 10
+        o "Pinging Management API Endpoint until ready"
+        run ecsconfig ping -c -x || exit $?
+	sleep 10
+        o "Pinging Management API Endpoint until ready"
+        run ecsconfig ping -c -x || exit $?
         run ecsconfig vdc -a || exit $?
         run ecsconfig vdc -p || exit $?
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig rg -a || exit $?
+        o "Tuning Space reclamation for ECS CE"
+	/home/admin/ECS-CommunityEdition/patches/3.8.0.1/tune_sr
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig management-user -a || exit $?
