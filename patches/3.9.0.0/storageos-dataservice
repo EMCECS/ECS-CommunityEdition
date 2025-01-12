@@ -1,0 +1,1122 @@
+#!/bin/sh
+#
+# Copyright (c) 2012-2022 Dell Inc. or its subsidiaries. All Rights Reserved.
+#
+# This software contains the intellectual property of Dell Inc.
+# or is licensed to Dell Inc. from third parties. Use of this software
+# and the intellectual property contained therein is expressly limited to the
+# terms and conditions of the License Agreement under which it is provided by or
+# on behalf of Dell Inc. or its subsidiaries.
+#
+# /etc/init.d/storageos-dataservice
+#
+# System startup script for the ViPR services on data nodes
+#
+### BEGIN INIT INFO
+# Provides:          storageos-dataservice
+# Required-Start:    $network $local_fs $time $syslog $named SuSEfirewall2_setup
+# Required-Stop:     $network $local_fs $time $syslog $named SuSEfirewall2_setup
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 6
+# Description: Start ViPR services
+### END INIT INFO
+
+# Return values acc. to LSB for all commands but status:
+# 0 - success
+# 1 - generic or unspecified error
+# 2 - invalid or excess argument(s)
+# 3 - unimplemented feature (e.g. "reload")
+# 4 - insufficient privilege
+# 5 - program is not installed
+# 6 - program is not configured
+# 7 - program is not running
+# 8 - concurrent execution
+# 
+# Note that starting an already running service, stopping
+# or restarting a not-running service as well as the restart
+# with force-reload (in case signalling is not supported) are
+# considered a success.
+
+PIDFILE=/var/run/storageos-dataservice.pid
+ATTEMPTS=10
+ATTEMPT_DELAY_SEC=5
+
+# set to blobsvc or objectsvc
+currentObjectsvc=blobsvc
+
+prevent_concurrent() {
+    if [ -f $PIDFILE ]
+    then
+        PID=$(cat $PIDFILE)
+        PIDINFO=$(ps -p $PID -f | grep storageos-dataservice)
+        if [ ! -z "$PIDINFO" ]
+        then
+            if [ $1 -eq 1 ]
+            then
+                echo "concurrent execution not allowed, existing process info: \"$PIDINFO\""
+                exit 8
+            else
+                echo "busy, retry in $ATTEMPT_DELAY_SEC seconds"
+                sleep $ATTEMPT_DELAY_SEC
+                prevent_concurrent `expr $1 - 1`
+            fi
+        else
+            ## Process not found assume not running
+            echo $$ > $PIDFILE
+            if [ $? -ne 0 ]
+            then
+                echo "Could not create PID file"
+                exit 1
+            fi
+        fi
+    else
+        echo $$ > $PIDFILE
+        if [ $? -ne 0 ]
+        then
+            echo "Could not create PID file"
+            exit 1
+        fi
+    fi
+}
+
+#
+# input parameters
+#
+readonly ACTION="$1"
+readonly FORCE_CONCURRENT="$2"
+
+if [ "${FORCE_CONCURRENT}" != "-fc" ]
+then
+    prevent_concurrent $ATTEMPTS
+    trap "rm -f $PIDFILE" EXIT
+fi
+
+# Source /etc/sysconfig/storageos and make the basic checks
+#
+STORAGEOS_SYSCONFIG=${STORAGEOS_SYSCONFIG:-'/etc/sysconfig/storageos'}
+test -r "${STORAGEOS_SYSCONFIG}"           || exit 6
+. ${STORAGEOS_SYSCONFIG}
+
+# If running not on a datanode, exit immediately
+#
+test "${STORAGEOS_NODETYPE}" = "datanode" || exit 0
+
+STORAGEOS_DIR=${STORAGEOS_DIR:-'/opt/storageos'}
+test -d "${STORAGEOS_DIR}"                 || exit 5
+
+STORAGEOS_LOGS=${STORAGEOS_LOGS:-"${STORAGEOS_DIR}/logs"}
+test -d "${STORAGEOS_LOGS}"                || exit 6
+
+STORAGEOS_SERVICE_STARTER=${STORAGEOS_SERVICE_STARTER:-'/opt/storageos/bin/monitor'}
+test -x "${STORAGEOS_SERVICE_STARTER}"     || exit 7
+
+[[ "${STORAGEOS_START_SS}" == "true" || \
+   "${STORAGEOS_START_SS}" == "false" ]]   || exit 8
+
+DEPLOYMENT_TYPE=$(/etc/fabrictool --mode)
+
+# storageserver config file utility functions
+CONF_LIB_SH=$STORAGEOS_DIR/bin/config_lib.sh
+test -e "${CONF_LIB_SH}" && source "${CONF_LIB_SH}"
+
+# Source /etc/rc.status and reset status of this service
+#
+. /etc/rc.status
+
+rc_reset
+
+# Reset all unneeded environment variables
+#
+resetenv() {
+    env | while read var ; do
+        var="${var%%=*}"
+        case ${var} in '_'|HOME|PATH|SHELL|TERM|RUNLEVEL|PREVLEVEL) continue ;; esac
+        echo "unset ${var};"
+    done
+}
+
+eval $(resetenv)
+export PRODUCT_HOME="${STORAGEOS_DIR}"
+export PLATFORM="linux"
+export LD_LIBRARY_PATH=/opt/storageos/lib:/usr/local/lib:.${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+PMON="$STORAGEOS_DIR/tools/pmon.py"
+OUTFILE_MON="$STORAGEOS_DIR/tools/outfile_mon.py"
+CRONTAB=/usr/bin/crontab
+ZK_DIR=/data/zk
+zkjar="zookeeper-3.5.9-2-ecs.jar"
+
+
+# load preserved spring profile
+test -e /opt/storageos/conf/preserve_spring_profile_active && . /opt/storageos/conf/preserve_spring_profile_active
+
+# the object.nvmeEnabled flag is set in boot.sh so use it to define start ss or nvme engine
+NVME_ENABLED=$(grep "object.nvmeEnabled\s*=\s*true\s*" /opt/storageos/conf/common.object.properties)
+if [ "${NVME_ENABLED}" != "" ]; then
+  export STORAGEOS_START_SS="false"
+  export STORAGEOS_START_NVMEENGINE="true"
+  STORAGEOS_NVME_CPU_MASK=`grep "ioCoresBinding" ${STORAGEOS_DIR}/conf/nvmeengine.conf | awk -Fx '{print $2}'`
+  test -z ${STORAGEOS_NVME_CPU_MASK} && STORAGEOS_NVME_CPU_MASK="c"
+else
+  export STORAGEOS_START_NVMEENGINE="false"
+fi
+
+FAKE_FABRIC_ZK_ENABLED=$(grep "STORAGEOS_VM\s*=\s*1\s*" /etc/sysconfig/storageos)
+ATLAS_ON_ECS="false"
+ATLAS_FRESH_ON_ECS="false"
+STORAGEOS_START_FAKE_FABRIC_ZK="false"
+if [[ -v SPRING_PROFILES_ACTIVE ]]; then
+  case ${SPRING_PROFILES_ACTIVE} in
+    *atlasOnEcs*)
+      ATLAS_ON_ECS="true"
+      case ${SPRING_PROFILES_ACTIVE} in
+        *atlasFreshOnEcs*)
+          ATLAS_FRESH_ON_ECS="true"
+        ;;
+      esac
+      if [ "${FAKE_FABRIC_ZK_ENABLED}" != "" ]; then
+        STORAGEOS_START_FAKE_FABRIC_ZK="true"
+      fi
+      ;;
+  esac
+fi
+
+# Set resource limits
+# - allow 30000 open file descriptors per process
+#
+ulimit -n 30000
+
+# enable core dump
+ulimit -c unlimited
+
+# do not limit locked memory
+ulimit -l unlimited
+
+CORE_FILE_DIR=/opt/storageos/logs/cores
+mkdir -p $CORE_FILE_DIR
+chmod 777 $CORE_FILE_DIR
+# core file pattern = program_name.pid.timestamp.signal.core
+# echo $CORE_FILE_DIR/%e.%p.%t.%s.core > /proc/sys/kernel/core_pattern
+
+# program_name.signal.core. Only one core file per program(and signal_num
+# combination) is retained in order to prevent disk space from filling up.
+# Since path /opt/storageos/logs/cores is not available outside of docker, the default path: /var/lib/systemd/coredump/
+# will be used as it is accessible both in & out docker.(Although they are different folders actually.)
+# echo $CORE_FILE_DIR/%e.%s.core > /proc/sys/kernel/core_pattern
+
+SERVICE_CONTROL_DIR=/data/servicecontrol
+# file to mark current status of transformsvc. Start transformsvc in start and restart when file exists.
+TRANSFORMSVC_ON=${SERVICE_CONTROL_DIR}/transformsvc.on
+# file to mark current status of dm. Start dm in start and restart when file exists.
+DM_ON=${SERVICE_CONTROL_DIR}/dm.on
+CLUSTER_NETWORK_CONFIG_FILE=/host/data/object-main_network.json
+NODES_IPADDR=$(grep -o '"private_ip": *"[^"]*' ${CLUSTER_NETWORK_CONFIG_FILE} | grep -o '[^"]*$')
+# check if the transformsvc.on file exists in other nodes
+_check_transformsvc_all_nodes(){
+    if [ -e ${TRANSFORMSVC_ON} ]; then
+        # echo "TRANSFORMSVC_ON true"
+        return
+    else
+        # echo "TRANSFORMSVC_ON doesn't exist on local machine"
+        if [ ! -d ${SERVICE_CONTROL_DIR} ]; then
+            mkdir ${SERVICE_CONTROL_DIR}
+        fi;
+        chmod a+w ${SERVICE_CONTROL_DIR}
+        for i in ${NODES_IPADDR};
+        do
+        curl -s http://${i}:9101/diagnostic -m 2 | grep TT >> /dev/null 2>&1
+        if [ $? -eq 0 ];then
+            echo "Set ${TRANSFORMSVC_ON}"
+            touch ${TRANSFORMSVC_ON}
+            break
+        fi;
+        done;
+    fi
+}
+_check_transformsvc_all_nodes
+
+# Standard LSB startproc, checkproc and killproc do not work for ViPR services
+# because symlinks /proc/<pid>/exe point to the "java" executable rather than to our
+# startup scripts.
+#
+# Also, we need to check for multiple processes.
+#
+_startproc() {
+    test ${STORAGEOS_START_NVMEENGINE} == "true" && SET_NVME_ENABLED="-N ${STORAGEOS_NVME_CPU_MASK}"
+    ${STORAGEOS_SERVICE_STARTER} ${STORAGEOS_USER} -c / -l ${STORAGEOS_LOGS}/${1}.out -p /var/run/${1}.pid ${SET_NVME_ENABLED} ${STORAGEOS_DIR}/bin/${1} file:${STORAGEOS_DIR}/conf/${1%%svc}-conf.xml
+}
+
+_startproc_standalone() {
+    ${STORAGEOS_SERVICE_STARTER} ${STORAGEOS_USER} -c / -l ${STORAGEOS_LOGS}/${1}.out -p /var/run/${1}.pid ${STORAGEOS_DIR}/bin/${1} file:${STORAGEOS_DIR}/conf/${1%%svc}-standalone-conf.xml
+}
+
+_start_ss() {
+    SSNICESOFTLIMIT=40
+    SSNICEHARDLIMIT=40
+
+    STORAGESERVER=${1:-'storageserver'}
+    $STORAGEOS_DIR/bin/storageserver-partition-config.sh > /dev/null
+
+    if [ $? != 0 ]; then
+        return 1
+    fi
+
+    if [ -f /data/partitions.json ]; then
+        PARTITIONS_JSON=" \"--partitionconfig\" /data/partitions.json"
+    fi
+
+    VOLUMECHK=${STORAGEOS_DIR}/bin/volumechk
+    if [ -x "${VOLUMECHK}" ] ; then
+        chown root ${VOLUMECHK}
+        chmod u+s ${VOLUMECHK}
+    fi
+    ${STORAGEOS_SERVICE_STARTER} ${STORAGEOS_USER} \
+        -c / -l ${STORAGEOS_LOGS}/${STORAGESERVER}.out \
+        -p /var/run/${STORAGESERVER}.pid \
+        -i ${SSNICESOFTLIMIT} \
+        -I ${SSNICEHARDLIMIT} \
+        ${STORAGEOS_DIR}/bin/${STORAGESERVER} \
+            \"--config\" ${STORAGEOS_DIR}/conf/storageserver.conf \
+            $PARTITIONS_JSON \
+            \"--listenaddress\" ${STORAGEOS_NODE_DATA_IPADDR} \
+            \"--httpListenHost\" ${STORAGEOS_NODE_DATA_IPADDR} \
+            \"--uuid\" $(get_nodeid)
+
+    return 0
+}
+
+_start_fake_fabric_zk() {
+  # create zk conf from first min(3, N) nodes in cluster
+  bak="$IFS"
+  IFS=$'\n'
+  seq=0; ip=(); id=();
+
+  zkd=/data/fakefabriczk
+  zkf=${zkd}/conf/zoo.cfg
+  myidf=${zkd}/myid
+  mkdir -p $zkd/bin
+  mkdir -p $zkd/conf
+
+  [ ! -e "$zkd/lib" ] && ln -s "$STORAGEOS_DIR/lib" "$zkd/lib"
+  [ ! -e "$zkd/$zkjar" ] && ln -s "$STORAGEOS_DIR/lib/$zkjar" "$zkd/$zkjar"
+  [ ! -d "$zkd/bin" ] && mkdir -p "$zkd/bin"
+  for s in zkCli.sh zkEnv.sh zkServer.sh zkJps.sh zkClasspath.sh; do
+      [ ! -e "$zkd/bin/$s" ] && ln -s "$STORAGEOS_DIR/bin/$s" "$zkd/bin/$s"
+  done
+
+  for line in `python -m json.tool < $CLUSTER_NETWORK_CONFIG_FILE | grep -e data_ip -e agent_id | awk -F ':' '{print $2}' | sed 's/[\",]//g; s/\s*//'`; do
+    [[ $(($((seq++)) % 2)) == 0 ]] && ip+=($line) || id+=($line)
+  done
+
+  myip=`grep data_ip /host/data/network.json | grep -oPm1 '(?<=data_ip\":)[^,]+' | awk -F '\"' '{print $2}'`
+
+  {
+        echo dataDir=${zkd}
+        echo dataLogDir=${zkd}
+        echo quorum.cnxn.threads.size=20
+        echo tickTime=2000
+        echo syncLimit=5
+        echo initLimit=5
+        echo clientPort=2182
+        echo clientPortAddress=${myip}
+  } > $zkf
+
+  myid=""
+  cstr=""
+  for i in `seq 0 $((${#id[*]}-1))`; do
+          [[ $i -ge 3 ]] && break
+          echo "server.$((i+1))=${id[$i]},2183,2184" >> $zkf
+          if [[ ${id[$i]} == $myip ]]; then
+            myid="$((i+1))"
+          fi
+          cstr="${cstr}${id[$i]}:2182,"
+  done
+
+  IFS="$bak"
+
+  if [ "${myid}" != "" ]; then
+    echo -n "$myid" > $myidf
+    pushd $zkd
+    bin/zkServer.sh start
+    popd
+  fi
+}
+
+_start_nvmeengine() {
+    NVMFDIR=/data/nvmf
+    [ ! -d "$NVMFDIR" ] && mkdir -p "$NVMFDIR" && chown storageos:storageos $NVMFDIR
+    NVMEENGINE=${1:-'nvmeengine'}
+    NVMETARGETVIEWER=${1:-'nvmetargetviewer'}
+    ROOT_USER="-u root -g root"
+    if [ -x "${STORAGEOS_DIR}/bin/${NVMEENGINE}" ] ; then
+        chown root:root ${STORAGEOS_DIR}/bin/${NVMEENGINE}
+        chmod u+s ${STORAGEOS_DIR}/bin/${NVMEENGINE}
+    fi
+    ${STORAGEOS_SERVICE_STARTER} ${ROOT_USER} -c / -l ${STORAGEOS_LOGS}/${NVMEENGINE}.out -p /var/run/${NVMEENGINE}.pid ${STORAGEOS_DIR}/bin/${NVMEENGINE} \"--config\" ${STORAGEOS_DIR}/conf/nvmeengine.conf
+    ${STORAGEOS_SERVICE_STARTER} ${STORAGEOS_USER} -c / -l ${STORAGEOS_LOGS}/${NVMETARGETVIEWER}.out -p /var/run/${NVMETARGETVIEWER}.pid -N ${STORAGEOS_NVME_CPU_MASK} ${STORAGEOS_DIR}/bin/${NVMETARGETVIEWER} \"--config\" ${STORAGEOS_DIR}/conf/nvmeengine.conf
+}
+
+_start_dmsvc() {
+      if [ -e ${DM_ON} ]; then
+          _startproc dm
+      elif [[ "x$SPRING_PROFILES_ACTIVE" != "x" ]]; then
+               SPRING_PROFLIES_ARRAY=($(echo $SPRING_PROFILES_ACTIVE | sed "s/,/\ /g"))
+               SUPPORT_MEM_PROFILES=("xxlarge" "xxxlarge")
+               for spring_profile in ${SPRING_PROFLIES_ARRAY[@]}; do
+                   echo "spring profile: $spring_profile"
+                   for mem_profile in ${SUPPORT_MEM_PROFILES[@]}; do
+                      if [ "$spring_profile" = "$mem_profile" ]; then
+                          echo "found matched profile $mem_profile"
+                          _startproc dm
+                          break;
+                      fi
+                   done
+               done
+      fi
+}
+
+_checkproc_init() {
+    _running=""; _pids=""; _status1=""; _status3=""
+}
+
+_checkproc_test() {
+    local pids=$(pgrep -f "^${STORAGEOS_DIR}/bin/${1} ")
+    local pidfile=/var/run/${1}.pid
+    if [ -e "${pidfile}" ] ; then
+        local pid=$(<${pidfile})
+        [ -z "${pids}"          ] && _status1="${_status1} ${1}" && return 1
+        [ "${pid}" != "${pids}" ] && echo "Warning: Found orphan instances of ${1}:" ${pids/${pid}/}
+    else
+        [ -z "${pids}"          ] && _status3="${_status3} ${1}" && return 3
+        echo "Warning: Found orphan instances of ${1}:" ${pids/${pid}/}
+    fi
+    _running="${_running} ${1}"
+    _pids="${_pids} ${pids}"
+    return 0
+}
+
+_checkproc_summary() {
+    [ -n "${_running}" ] && echo "Services running:${_running}" && return 0
+    [ -n "${_status1}" ] && echo "Services status 1:${_status1}" && return 1
+    [ -n "${_status3}" ] && echo "Services status 3:${_status3}"
+    return 3
+}
+
+_killproc() {
+    local pidfile=/var/run/${2}.pid
+    if [ -e "${pidfile}" ] ; then
+        local pid=$(<${pidfile})
+        if ( name=${2}; set -- `ps -p ${pid} -o cmd=` && [ "${1}" = "${STORAGEOS_DIR}/bin/${name}" ] ) ; then
+            if [ "${STORAGEOS_SERVICE_STARTER}" == "startproc" ] ; then
+                kill ${1} ${pid}
+            else
+                local pidfromcmd=`ps -ef | grep "${STORAGEOS_DIR}/bin/${2} " | grep -v grep | grep -v "${STORAGEOS_SERVICE_STARTER}" | awk '{print $2}'`
+                if [ "${pidfromcmd}" == "${pid}" ] ; then
+                    local ppid=`ps --pid $(cat $pidfile) h -o ppid`
+                    kill ${1} ${ppid}
+                fi
+            fi
+        else
+            rm -f ${pidfile}
+        fi
+    fi
+}
+
+_killzk() {
+    # object zk
+    local pid=`ps -ef | grep "bin/java" | grep -v grep | grep zookeeper | awk '{print $2}'`
+    [ ! -z "$pid" ] && kill ${1} ${pid}
+
+    # fake fabric zk
+    pid=`ps aux | grep -v grep | grep java | grep "/data/fakefabriczk/" | awk '{print $2}'`
+    [ ! -z "$pid" ] && kill ${1} ${pid}
+}
+
+_killatlas() {
+    local pid=`pidof atlas`
+    [ ! -z "$pid" ] && kill ${1} ${pid}
+}
+
+_cleanZkPidFile() {
+    local pidfile=/data/zk/${1}.pid
+    rm -f ${pidfile}
+
+    local pidfile2=/data/fakefabriczk/${1}.pid
+    rm -f ${pidfile2}
+}
+
+_cleanServicesPidFile() {
+    local pidfile=/var/run/${1}.pid
+    rm -f ${pidfile}
+}
+
+_forceStopServices() {
+    _checkproc_init
+    _checkproc_test georeceiver
+    _checkproc_test repsvc
+    _checkproc_test eventsvc
+    _checkproc_test blobsvc
+    _checkproc_test objectsvc
+    _checkproc_test dataheadsvc
+    _checkproc_test resourcesvc
+    _checkproc_test rm   
+    _checkproc_test cm
+    _checkproc_test ssm
+    _checkproc_test objcontrolsvc
+    _checkproc_test metering
+    _checkproc_test sr
+    _checkproc_test storageserver
+    _checkproc_test nvmeengine
+    _checkproc_test nvmetargetviewer
+    _checkproc_test vnest
+    _checkproc_test am
+    _checkproc_test atlas
+    _checkproc_test dtquery
+    _checkproc_test dtsm
+    _checkproc_test dm
+    _checkproc_test stat
+    _checkproc_test ecsportalsvc
+    _checkproc_test transformsvc
+    _checkproc_test coordinatorsvc
+    _checkproc_test monitor   # Make sure the above sequence of test is the same as these processes got terminated in the stop) clause, this leaves enough time for the process to shut down
+
+    for pid in ${_pids} ; do
+        kill -KILL ${pid}
+    done
+    _cleanServicesPidFile georeceiver
+    _cleanServicesPidFile repsvc
+    _cleanServicesPidFile eventsvc
+    _cleanServicesPidFile blobsvc
+    _cleanServicesPidFile objectsvc
+    _cleanServicesPidFile dataheadsvc
+    _cleanServicesPidFile resourcesvc
+    _cleanServicesPidFile rm
+    _cleanServicesPidFile cm
+    _cleanServicesPidFile ssm
+    _cleanServicesPidFile objcontrolsvc
+    _cleanServicesPidFile metering
+    _cleanServicesPidFile sr
+    _cleanServicesPidFile storageserver
+    _cleanServicesPidFile nvmeengine
+    _cleanServicesPidFile nvmetargetviewer
+    _cleanServicesPidFile vnest
+    _cleanServicesPidFile am
+    _cleanServicesPidFile dtquery
+    _cleanServicesPidFile dtsm
+    _cleanServicesPidFile dm
+    _cleanServicesPidFile stat
+    _cleanServicesPidFile ecsportalsvc
+    _cleanServicesPidFile transformsvc
+    _cleanServicesPidFile coordinatorsvc
+    _cleanZkPidFile zk
+}
+
+_config_ssl() {
+    if [ -n "${STORAGEOS_SSL_SETUP}" ] ; then
+        echo -n "Setting up SSL certificates"
+        eval ${STORAGEOS_SSL_SETUP}
+        rc_status -v
+    fi
+}
+
+_setup_zk() {
+    # we no longer want to symlink conf directory, remove existing link if any
+    [ -L "$ZK_DIR/conf" ] && rm "$ZK_DIR/conf"
+    # symlink lib dir
+    [ ! -e "$ZK_DIR/lib" ] && ln -s "$STORAGEOS_DIR/lib" "$ZK_DIR/lib"
+
+    mkdir -p "$ZK_DIR/conf"
+    chown storageos:storageos "$ZK_DIR/conf"
+    cp "$STORAGEOS_DIR/conf/jaas.file-template" "$ZK_DIR/conf"
+
+    # remove old jars in zk_dir if any
+    for f in $(ls "$ZK_DIR/zookeeper-"*"jar" 2> /dev/null ;) ; do
+        [ -e "$f" ] && [ "$f" != "$ZK_DIR/$zkjar" ] && rm "$f"
+    done
+
+    [ ! -e "$ZK_DIR/$zkjar" ] && ln -s "$STORAGEOS_DIR/lib/$zkjar" "$ZK_DIR/$zkjar"
+
+    [ ! -d "$ZK_DIR/bin" ] && mkdir -p "$ZK_DIR/bin"
+    for s in zkCli.sh zkEnv.sh zkServer.sh zkJps.sh zkClasspath.sh; do
+        [ ! -e "$ZK_DIR/bin/$s" ] && ln -s "$STORAGEOS_DIR/bin/$s" "$ZK_DIR/bin/$s"
+    done
+}
+
+_setup_vnest() {
+  BIN="/data/vnest/vnest-main/index/recycleBin"
+  [ -d "$BIN" ] && chown storageos:storageos $BIN
+  [ -d "$BIN/root" ] && chown storageos:storageos $BIN/root
+  [ -d "$BIN/pagePool" ] && chown storageos:storageos $BIN/pagePool
+  [ -d "$BIN/pageMap" ] && chown storageos:storageos $BIN/pageMap
+
+  cdir="/data/vnest/vnest-main/configuration"
+  [ ! -e $cdir ] && mkdir -p $cdir
+  [ -d $cdir ] && chown storageos:storageos $cdir
+
+  cdir="/data/vnest/vnest-main/index"
+  [ ! -e $cdir ] && mkdir -p $cdir
+
+  chown storageos:storageos /data/vnest/vnest-main
+  chown storageos:storageos /data/vnest/vnest-main/index
+
+
+  mkdir -p /data/atlas-client/configuration
+  chown -R storageos:storageos /data/atlas-client/configuration
+}
+
+_setup_kerberos() {
+    if [ -f "/data/hdfs/krb5.conf" ]; then
+        ln -sf "/data/hdfs/krb5.conf" "/etc/krb5.conf"
+    fi
+    if [ -f "/data/hdfs/krb5.keytab" ]; then
+        ln -sf "/data/hdfs/krb5.keytab" "/etc/krb5.keytab"
+    fi
+    if [ -f "/data/hdfs/hdfssvc_machine_local.conf" ]; then
+        ln -sf "/data/hdfs/hdfssvc_machine_local.conf" "/opt/storageos/conf/hdfssvc_machine_local.conf"
+    fi
+}
+
+_stop_georeceiver() {
+    echo -n "Stopping dataservice georeceiver"
+    for sig in TERM CONT CONT CONT CONT KILL ; do
+        if [ -z "${sig}" ] ; then
+            rc_failed 1
+            rc_status -v
+            rc_exit
+        fi
+        _killproc -${sig} georeceiver
+        sleep 1
+    done
+    _checkproc_init
+    _checkproc_test georeceiver
+    for pid in ${_pids} ; do
+        kill -KILL ${pid}
+    done
+    _cleanServicesPidFile georeceiver
+    rc_status -v
+}
+
+_stop_repsvc() {
+    echo -n "Stopping dataservice repsvc"
+    for sig in TERM CONT CONT CONT CONT KILL ; do
+        if [ -z "${sig}" ] ; then
+            rc_failed 1
+            rc_status -v
+            rc_exit
+        fi
+        _killproc -${sig} repsvc
+        sleep 1
+    done
+    _checkproc_init
+    _checkproc_test repsvc
+    for pid in ${_pids} ; do
+        kill -KILL ${pid}
+    done
+    _cleanServicesPidFile repsvc
+    rc_status -v
+}
+
+
+
+_stop_dtquery() {
+    echo -n "Stopping dataservice dtquery"
+    for sig in TERM CONT CONT CONT CONT KILL ; do
+        if [ -z "${sig}" ] ; then
+            rc_failed 1
+            rc_status -v
+            rc_exit
+        fi
+        _killproc -${sig} dtquery
+        sleep 1
+    done
+    _checkproc_init
+    _checkproc_test dtquery
+    for pid in ${_pids} ; do
+        kill -KILL ${pid}
+    done
+    _cleanServicesPidFile dtquery
+    rc_status -v
+}
+
+_stop_authsvc() {
+    echo -n "Stopping dataservice authentication..."
+    for sig in TERM CONT CONT CONT CONT KILL ; do
+        if [ -z "${sig}" ] ; then
+            rc_failed 1
+            rc_status -v
+            rc_exit
+        fi
+        _killproc -${sig} authsvc
+        sleep 1
+    done
+    _checkproc_init
+    _checkproc_test authsvc
+    for pid in ${_pids} ; do
+        kill -KILL ${pid}
+    done
+    _cleanServicesPidFile authsvc
+    rc_status -v
+}
+
+_stop_transformsvc() {
+    echo -n "Stopping dataservice transformsvc..."
+        for sig in TERM CONT CONT CONT CONT KILL ; do
+        if [ -z "${sig}" ] ; then
+            rc_failed 1
+            rc_status -v
+            rc_exit
+        fi
+        _killproc -${sig} transformsvc
+        sleep 1
+    done
+    _checkproc_init
+    _checkproc_test transformsvc
+    for pid in ${_pids} ; do
+        kill -KILL ${pid}
+    done
+    _cleanServicesPidFile transformsvc
+    rc_status -v
+}
+
+_stop_service() {
+    echo -n "Stopping dataservice '$1' ..."
+        for sig in TERM CONT CONT CONT CONT KILL ; do
+        if [ -z "${sig}" ] ; then
+            rc_failed 1
+            rc_status -v
+            rc_exit
+        fi
+        _killproc -${sig} $1
+        sleep 1
+    done
+    _checkproc_init
+    _checkproc_test $1
+    for pid in ${_pids} ; do
+        kill -KILL ${pid}
+    done
+    _cleanServicesPidFile $1
+    rc_status -v
+}
+
+# Do not start if already running!
+#
+case "${ACTION}" in
+start)
+    $0 status -fc
+    case $? in
+        1) echo "Warning: Found stale pidfile(s) (unclean shutdown?)";;
+        0) echo "ViPR services already running!"
+           rc_failed 0
+           rc_status -v1
+           rc_exit
+    esac
+esac
+
+# Actions
+#
+case "${ACTION}" in
+start)
+    if [ "${DEPLOYMENT_TYPE}" != "fabric" ]; then
+        /etc/ipchecktool --panic
+    fi
+    _config_ssl
+    echo -n "Starting ViPR services"
+    # set new zk filesystem
+    _setup_zk
+    _setup_vnest # still call setup even if vnest not used, sets up some dirs
+    test ${STORAGEOS_START_FAKE_FABRIC_ZK} == "true" && _start_fake_fabric_zk
+    test ${ATLAS_ON_ECS} == "true" && _startproc am
+    test ${ATLAS_FRESH_ON_ECS} == "false" &&_startproc coordinatorsvc
+    test ${ATLAS_FRESH_ON_ECS} == "false" && _startproc vnest
+    _startproc stat
+    _startproc rm
+    _startproc cm
+    test ${STORAGEOS_START_SS} == "true" && _start_ss
+    test ${STORAGEOS_START_NVMEENGINE} == "true" && _start_nvmeengine
+    _startproc ssm
+    _startproc objcontrolsvc
+    _startproc metering
+    _startproc sr
+    _startproc $currentObjectsvc
+    _startproc dataheadsvc
+    _startproc resourcesvc
+    _startproc eventsvc
+    #enable the line if running standalone mode
+    #_startproc_standalone objcontrolsvc
+    _startproc georeceiver
+    _setup_kerberos
+    _startproc dtquery
+    _start_dmsvc
+    if [[ -v SPRING_PROFILES_ACTIVE ]]; then
+      case ${SPRING_PROFILES_ACTIVE} in
+        *spitfire*)
+          _startproc dtsm
+          ;;
+      esac
+    fi
+    _startproc ecsportalsvc
+    if [ -e ${TRANSFORMSVC_ON} ]; then
+        _startproc transformsvc
+    fi
+    rc_status -v
+    # run process memory monitor every 10-15 minutes and run outfile monitor every 1 minute to stop DU from happening due to huge out files
+    (echo -e " */$(( ( RANDOM % 6 )  + 10 )) * * * * $PMON" ; echo -e " */1 * * * * $OUTFILE_MON") | $CRONTAB -
+    # have observed that cron is not running inside container
+    # so explicitly start cron daemon.remove this when the cron
+    # daemon start up issue is fixed
+    service cron restart
+    ;;
+
+startam)
+    test ${STORAGEOS_START_FAKE_FABRIC_ZK} == "true" && _start_fake_fabric_zk
+    test ${ATLAS_ON_ECS} == "true" && _startproc am
+    ;;
+
+startcoordsvc)
+    test ${ATLAS_FRESH_ON_ECS} == "false" && _startproc coordinatorsvc
+    ;;
+
+startvneststandalone)
+    if [ "${ATLAS_FRESH_ON_ECS}" == "true" ]; then
+      echo "not supported"
+      exit 1
+    fi
+
+    if [ "${DEPLOYMENT_TYPE}" != "fabric" ]; then
+      /etc/ipchecktool --panic
+    fi
+    _config_ssl
+    echo -n "Starting ViPR services"
+    # set new zk filesystem
+    _setup_zk
+    _setup_vnest
+    _startproc coordinatorsvc
+    _startproc vnest
+    test ${STORAGEOS_START_SS} == "true" && _start_ss
+    test ${STORAGEOS_START_NVMEENGINE} == "true" && _start_nvmeengine
+    _startproc dataheadsvc
+    #enable the line if running standalone mode
+    #_startproc_standalone objcontrolsvc
+    _startproc georeceiver
+    _startproc dtquery
+    _start_dmsvc
+    if [[ -v SPRING_PROFILES_ACTIVE ]]; then
+      case ${SPRING_PROFILES_ACTIVE} in
+        *spitfire*)
+          _startproc dtsm
+          ;;
+      esac
+    fi
+    rc_status -v
+    # run process memory monitor every 10-15 minutes and run outfile monitor every 1 minute to stop DU from happening due to huge out files
+    (echo -e " */$(( ( RANDOM % 6 )  + 10 )) * * * * $PMON" ; echo -e " */1 * * * * $OUTFILE_MON") | $CRONTAB -
+    # have observed that cron is not running inside container
+    # so explicitly start cron daemon.remove this when the cron
+    # daemon start up issue is fixed
+    service cron restart
+    ;;
+startperf)
+    _config_ssl
+    echo -n "Starting ViPR services with performance monitor"
+    _setup_zk
+    _setup_vnest
+    test ${STORAGEOS_START_FAKE_FABRIC_ZK} == "true" && _start_fake_fabric_zk
+    test ${ATLAS_ON_ECS} == "true" && _startproc am
+    test ${ATLAS_FRESH_ON_ECS} == "false" && _startproc coordinatorsvc
+    test ${ATLAS_FRESH_ON_ECS} == "false" && _startproc vnest
+    _startproc stat
+    _startproc rm
+    _startproc cm
+    test ${STORAGEOS_START_SS} == "true" && _start_ss
+    test ${STORAGEOS_START_NVMEENGINE} == "true" && _start_nvmeengine
+    _startproc ssm
+    _startproc objcontrolsvc
+    _startproc metering
+    _startproc sr
+    _startproc blobsvc-perf
+    _startproc dataheadsvc-perf
+    _startproc resourcesvc-perf
+    _startproc georeceiver
+    _startproc ecsportalsvc
+    if [ -e ${TRANSFORMSVC_ON} ]; then
+        _startproc transformsvc
+    fi
+    _start_dmsvc
+    rc_status -v
+    ;;
+startfi)
+    _config_ssl
+    echo -n "Starting ViPR services with fault injection"
+    _setup_zk
+    _setup_vnest
+    test ${STORAGEOS_START_FAKE_FABRIC_ZK} == "true" && _start_fake_fabric_zk
+    test ${ATLAS_ON_ECS} == "true" && _startproc am
+    test ${ATLAS_FRESH_ON_ECS} == "false" && _startproc coordinatorsvc
+    test ${ATLAS_FRESH_ON_ECS} == "false" && _startproc vnest
+    _startproc stat
+    _startproc rm
+    _startproc cm
+    test ${STORAGEOS_START_SS} == "true" && _start_ss
+    test ${STORAGEOS_START_NVMEENGINE} == "true" && _start_nvmeengine
+    _startproc ssm
+    _startproc objcontrolsvc
+    _startproc blobsvc-fi
+    _startproc dataheadsvc
+    _startproc resourcesvc-fi
+    _startproc georeceiver
+    _startproc ecsportalsvc
+    if [ -e ${TRANSFORMSVC_ON} ]; then
+        _startproc transformsvc
+    fi
+    _start_dmsvc
+    rc_status -v
+    ;;
+stop)
+    # remove memory monitor from cron
+    CRON_FILE="/tmp/cron.bak"
+    $CRONTAB -l | grep -v '^#' > $CRON_FILE
+    sed -i '/'`basename $PMON`'/d' $CRON_FILE
+    $CRONTAB $CRON_FILE
+
+    echo -n "Stopping ViPR services"
+    for sig in TERM CONT CONT CONT CONT KILL ; do
+        if [ -z "${sig}" ] ; then
+            rc_failed 1
+            rc_status -v
+            rc_exit
+        fi
+
+        _killproc -${sig} georeceiver
+        _killproc -${sig} repsvc
+        _killproc -${sig} eventsvc
+        _killproc -${sig} blobsvc
+        _killproc -${sig} blobsvc-perf
+        _killproc -${sig} blobsvc-fi
+        _killproc -${sig} objectsvc
+        _killproc -${sig} objectsvc-perf
+        _killproc -${sig} objectsvc-fi
+        _killproc -${sig} dataheadsvc
+        _killproc -${sig} resourcesvc
+        _killproc -${sig} resourcesvc-perf
+        _killproc -${sig} resourcesvc-fi
+        _killproc -${sig} rm
+        _killproc -${sig} cm
+        _killproc -${sig} ssm
+        _killproc -${sig} objcontrolsvc
+        _killproc -${sig} metering
+        _killproc -${sig} sr
+        _killproc -${sig} storageserver
+        _killproc -${sig} nvmeengine
+        _killproc -${sig} nvmetargetviewer
+        _killproc -${sig} vnest
+        _killproc -${sig} am
+        _killatlas -${sig} atlas # after stop am
+        _killproc -${sig} dtquery
+        _killproc -${sig} dtsm
+        _killproc -${sig} stat
+        _killproc -${sig} ecsportalsvc
+        _killproc -${sig} transformsvc
+        _killproc -${sig} dm
+        _killproc -${sig} coordinatorsvc
+        _killzk -${sig} zk # TODO: wait for coordinatorsvc to die first
+        $0 status -fc &>/dev/null || break
+        sleep 5
+    done
+    _forceStopServices
+    rc_status -v
+    ;;
+status)
+    _checkproc_init
+    _checkproc_test stat
+    _checkproc_test georeceiver
+    _checkproc_test eventsvc
+    _checkproc_test blobsvc
+    _checkproc_test objectsvc
+    _checkproc_test dataheadsvc
+    _checkproc_test blobsvc-perf
+    _checkproc_test blobsvc-fi
+    _checkproc_test objectsvc-perf
+    _checkproc_test objectsvc-fi
+    _checkproc_test resourcesvc
+    _checkproc_test resourcesvc-perf
+    _checkproc_test resourcesvc-fi
+    _checkproc_test rm
+    _checkproc_test cm
+    _checkproc_test ssm
+    _checkproc_test objcontrolsvc
+    _checkproc_test metering
+    _checkproc_test sr
+    _checkproc_test storageserver
+    _checkproc_test nvmeengine
+    _checkproc_test nvmetargetviewer
+    _checkproc_test dtquery
+    _checkproc_test dtsm
+    _checkproc_test am
+    _checkproc_test atlas
+    _checkproc_test vnest
+    _checkproc_test coordinatorsvc
+    _checkproc_test ecsportalsvc
+    _checkproc_test transformsvc
+    _checkproc_test dm
+    _checkproc_summary
+    rc_status
+    ;;
+reload|restart)
+    $0 stop -fc
+    $0 start -fc
+    rc_status
+    ;;
+restarthdfs)
+    echo -n "Stopping Hdfs ViPR services"
+    for sig in TERM CONT CONT CONT CONT KILL ; do
+        if [ -z "${sig}" ] ; then
+            rc_failed 1
+            rc_status -v
+            rc_exit
+        fi
+        _killproc -${sig} dataheadsvc
+        sleep 1
+    done
+    _checkproc_init
+    _checkproc_test dataheadsvc
+    for pid in ${_pids} ; do
+        kill -KILL ${pid}
+    done
+    _cleanServicesPidFile dataheadsvc
+    rc_status -v
+
+    # check if blobsvc or objectsvc running ?
+    _checkproc_test $currentObjectsvc 
+    if [ $? == 0 ] ; then
+        _setup_kerberos
+        echo -n "Starting Hdfs ViPR services"
+        _startproc dataheadsvc
+        rc_status
+    else
+        echo -n "Not Starting Hdfs ViPR services due to datasvc not running"
+    fi
+    ;;
+restartdtquery)
+    _stop_dtquery
+
+    # check if datasvc running ?
+    _checkproc_test $currentObjectsvc
+    if [ $? == 0 ] ; then
+        _setup_kerberos
+        echo -n "Starting Dataservice Dt Query"
+        _startproc dtquery
+        rc_status
+    else
+        echo -n "Not Starting Dataservice Dt Query due to datasvc not running"
+    fi
+    ;;
+stopdtquery)
+    _stop_dtquery
+    ;;
+startauth)
+    echo -n "Starting dataservice authentication..."
+    _startproc authsvc
+    rc_status -v
+    ;;
+stopauth)
+    _stop_authsvc
+    ;;
+restartauth)
+    _stop_authsvc
+    echo -n "Restarting dataservice authentication..."
+    _startproc authsvc
+    rc_status -v
+    ;;
+stoptransformsvc)
+    _stop_transformsvc
+    ;;
+starttransformsvc)
+    echo -n "Starting dataservice transformsvc..."
+    _startproc transformsvc
+    rc_status -v
+    ;;
+stopdm)
+    _stop_service dm
+    ;;
+startdm)
+    echo -n "Starting dataservice dm..."
+    _start_dmsvc
+    rc_status -v
+    ;;
+stopgeoreceiver)
+    _stop_georeceiver
+    ;;
+startgeoreceiver)
+    echo -n "Starting dataservice georeceiver..."
+    _startproc georeceiver
+    rc_status -v
+    ;;
+stoprepsvc)
+    _stop_repsvc
+    ;;
+startrepsvc)
+    echo -n "Starting dataservice repsvc..."
+    _startproc repsvc
+    rc_status -v
+    ;;
+restarttransformsvc)
+    _stop_transformsvc
+
+    # check if datasvc running ?
+    _checkproc_test $currentObjectsvc
+    if [ $? == 0 ] ; then
+        _setup_kerberos
+        echo -n "Starting dataservice transformsvc..."
+        _startproc transformsvc
+        rc_status
+    else
+        echo -n "Not Starting Dataservice transformsvc due to datasvc not running"
+    fi
+    ;;
+restartdm)
+  _stop_service dm
+
+  # check if datasvc running ?
+  _checkproc_test $currentObjectsvc
+  if [ $? == 0 ] ; then
+      _setup_kerberos
+      echo -n "Starting dataservice dm..."
+      _start_dmsvc
+      rc_status
+  else
+      echo -n "Not Starting Dataservice dm due to datasvc not running"
+  fi
+  ;;
+stopblobsvc)
+    _stop_service blobsvc
+    ;;
+startblobsvc)
+    echo -n "Starting dataservice blobsvc..."
+    _stop_service objectsvc
+    _startproc blobsvc
+    rc_status -v
+    ;;
+stopobjectsvc)
+    _stop_service objectsvc
+    ;;
+startobjectsvc)
+    echo -n "Starting dataservice objectsvc..."
+    _stop_service blobsvc
+    _startproc objectsvc
+    rc_status -v
+    ;;
+
+stopsr)
+    _stop_service sr
+    ;;
+startsr)
+    echo -n "Starting dataservice sr..."
+    _startproc sr
+    rc_status -v
+    ;;
+*)
+    echo "Usage: $0 [ start | startperf | startfi | stop | status | restart | restarthdfs | startvneststandalone ]"
+    rc_failed 2
+esac
+
+rc_exit
+

@@ -1,0 +1,555 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright (c) 2013 EMC Corporation
+ * All Rights Reserved
+ *
+ * This software contains the intellectual property of EMC Corporation
+ * or is licensed to EMC Corporation from third parties.  Use of this
+ * software and the intellectual property contained therein is expressly
+ * limited to the terms and conditions of the License Agreement under which
+ * it is provided by or on behalf of EMC.
+ -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+    <context:annotation-config />
+
+
+    <bean id="globalProgressRefresherThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="GLOBAL_PROGRESS_REFRESHER"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+    </bean>
+
+    <bean id="dTBootStrapTaskScannerThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="DT_BOOT_STRAP_TASK_SCANNER"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+    </bean>
+
+    <bean id="communicatorThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="COMMUNICATOR"/>
+        <constructor-arg name="corePoolSize" value="225"/>
+        <constructor-arg name="maxPoolSize" value="2500"/>
+        <constructor-arg name="queueSize" value="1200"/>
+    </bean>
+
+    <bean id="threadPoolPrototype" class="com.emc.storageos.data.object.communicator.util.ThreadPoolExecutorPrototype">
+        <constructor-arg value="225"/><!-- core pool size -->
+        <constructor-arg value="2500"/><!-- max pool size -->
+        <constructor-arg value="10"/><!-- keep alive time -->
+        <constructor-arg value="SECONDS" />
+        <constructor-arg value="1200" /><!-- queue capacity-->
+    </bean>
+    <bean id="executorFactory" class="com.emc.storageos.data.object.communicator.util.CommunicationExecutorFactory">
+        <constructor-arg name="executorType" value="CommunicationThreadPoolExecutor" />
+        <property name="prototype" ref="threadPoolPrototype" />
+        <property name="numOfExecutors" value="1" />
+    </bean>
+
+
+    <bean id="directoryOperationTaskThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="DIRECTORY_OPERATION_TASK"/>
+        <constructor-arg name="corePoolSize" value="250"/>
+        <constructor-arg name="maxPoolSize" value="2500"/>
+        <constructor-arg name="queueSize" value="2500"/>
+    </bean>
+
+    <bean id="bfwThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="BFW"/>
+        <constructor-arg name="corePoolSize" value="25"/>
+        <constructor-arg name="maxPoolSize" value="75"/>
+        <constructor-arg name="queueSize" value="250"/>
+    </bean>
+
+    <bean id="readThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="READ"/>
+        <constructor-arg name="corePoolSize" value="250"/>
+        <constructor-arg name="maxPoolSize" value="250"/>
+        <constructor-arg name="queueSize" value="250"/>
+    </bean>
+
+    <bean id="copyThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="COPY"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+        <constructor-arg name="maxPoolSize" value="12"/>
+        <constructor-arg name="queueSize" value="5"/>
+    </bean>
+
+    <bean id="queryDataIndicesThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="QUERY_DATA_INDICES"/>
+        <constructor-arg name="corePoolSize" value="12"/>
+        <constructor-arg name="maxPoolSize" value="250"/>
+        <constructor-arg name="queueSize" value="250"/>
+    </bean>
+
+    <bean id="removeChunkThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="DELETE_CHUNK"/>
+        <constructor-arg name="corePoolSize" value="25"/>
+    </bean>
+
+    <bean id="remoteConnThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="REMOTE_CONN"/>
+        <constructor-arg name="corePoolSize" value="120"/>
+        <constructor-arg name="maxPoolSize" value="250"/>
+        <constructor-arg name="queueSize" value="120"/>
+    </bean>
+
+    <bean id="jobImmediateSenderThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="JOB_IMMEDIATE_SENDER"/>
+        <constructor-arg name="corePoolSize" value="120"/>
+        <constructor-arg name="maxPoolSize" value="120"/>
+        <constructor-arg name="queueSize" value="250"/>
+    </bean>
+
+    <bean id="jobSenderThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="JOB_SENDER"/>
+        <constructor-arg name="corePoolSize" value="25"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="250"/>
+    </bean>
+
+    <bean id="jobDoneSenderThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="JOB_DONE_SENDER"/>
+        <constructor-arg name="corePoolSize" value="25"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="250"/>
+    </bean>
+
+    <bean id="allocateBlockThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="ALLOCATE_BLOCK"/>
+        <constructor-arg name="corePoolSize" value="12"/>
+        <constructor-arg name="maxPoolSize" value="120"/>
+        <constructor-arg name="queueSize" value="250"/>
+    </bean>
+
+    <bean id="allocateBlockMigrationThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="ALLOCATE_BLOCK_MIGRATION"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+        <constructor-arg name="maxPoolSize" value="12"/>
+        <constructor-arg name="queueSize" value="250"/>
+    </bean>
+
+    <bean id="allocateBlockNodeRebalanceThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="ALLOCATE_BLOCK_NODE_REBALANCE"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+        <constructor-arg name="maxPoolSize" value="12"/>
+        <constructor-arg name="queueSize" value="250"/>
+    </bean>
+
+    <bean id="allocateBlockDiskRebalanceThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="ALLOCATE_BLOCK_DISK_REBALANCE"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+        <constructor-arg name="maxPoolSize" value="12"/>
+        <constructor-arg name="queueSize" value="250"/>
+    </bean>
+
+    <bean id="ccScanThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="CC_SCAN"/>
+        <constructor-arg name="corePoolSize" value="1"/>
+        <constructor-arg name="maxPoolSize" value="10"/>
+        <constructor-arg name="queueSize" value="250"/>
+        <constructor-arg name="isTaskThreadPool" value="true"/>
+        <constructor-arg name="removeTaskAfterExecute" value="true"/>
+    </bean>
+
+    <bean id="clientEcEncodeTypeIChunk" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="CLIENT_EC_ENCODE_TYPE_I_CHUNK"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+        <constructor-arg name="maxPoolSize" value="12"/>
+        <constructor-arg name="queueSize" value="25"/>
+    </bean>
+
+    <bean id="clientEcEncodeTypeIIChunk" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="CLIENT_EC_ENCODE_TYPE_II_CHUNK"/>
+        <constructor-arg name="corePoolSize" value="20"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="25"/>
+    </bean>
+
+    <bean id="clientRefreshChunkInfoCache" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="CLIENT_REFRESH_CHUNK_INFO_CACHE"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="25"/>
+    </bean>
+
+    <bean id="indexCompactionThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="INDEX_COMPACTION"/>
+        <constructor-arg name="corePoolSize" value="250"/>
+        <constructor-arg name="maxPoolSize" value="250"/>
+        <constructor-arg name="queueSize" value="0"/>
+        <constructor-arg name="isTaskThreadPool" value="true"/>
+        <constructor-arg name="removeTaskAfterExecute" value="true"/>
+    </bean>
+
+    <bean id="chunkIngestionThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="CHUNK_INGESTION"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="250"/>
+        <constructor-arg name="isTaskThreadPool" value="true"/>
+        <constructor-arg name="removeTaskAfterExecute" value="true"/>
+    </bean>
+
+    <bean id="baseUrlRefreshThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="BASE_URL_REFRESH"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="250"/>
+        <constructor-arg name="isTaskThreadPool" value="true"/>
+        <constructor-arg name="removeTaskAfterExecute" value="true"/>
+    </bean>
+
+    <bean id="secretKeyRefreshThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="SECRET_KEY_REFRESH"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="250"/>
+        <constructor-arg name="isTaskThreadPool" value="true"/>
+        <constructor-arg name="removeTaskAfterExecute" value="true"/>
+    </bean>
+
+    <bean id="delegationTokenRefreshThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="DELEGATION_TOKEN_REFRESH"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="250"/>
+        <constructor-arg name="isTaskThreadPool" value="true"/>
+        <constructor-arg name="removeTaskAfterExecute" value="true"/>
+    </bean>
+
+    <bean id="blockAllocateConfirmThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="BLOCK_ALLOCATE_CONFIRM"/>
+        <constructor-arg name="corePoolSize" value="25"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="250"/>
+        <constructor-arg name="isTaskThreadPool" value="true"/>
+        <constructor-arg name="removeTaskAfterExecute" value="true"/>
+    </bean>
+
+    <bean id="freeBlockThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="FREE_BLOCK"/>
+        <constructor-arg name="corePoolSize" value="25"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="250"/>
+        <constructor-arg name="isTaskThreadPool" value="true"/>
+        <constructor-arg name="removeTaskAfterExecute" value="true"/>
+    </bean>
+
+    <bean id="dataConsolidatorThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="DATA_CONSOLIDATOR"/>
+        <constructor-arg name="corePoolSize" value="12"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="12"/>
+        <constructor-arg name="isTaskThreadPool" value="true"/>
+        <constructor-arg name="removeTaskAfterExecute" value="true"/>
+    </bean>
+
+    <bean id="updateMetadataForExpiryThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="UPDATE_METADATA_FOR_EXPIRY"/>
+        <constructor-arg name="corePoolSize" value="25"/>
+        <constructor-arg name="maxPoolSize" value="250"/>
+        <constructor-arg name="queueSize" value="10"/>
+    </bean>
+
+    <bean id="clientSealChunkThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="CLIENT_SEAL_CHUNK"/>
+        <constructor-arg name="corePoolSize" value="25"/>
+        <constructor-arg name="maxPoolSize" value="250"/>
+        <constructor-arg name="queueSize" value="250"/>
+    </bean>
+
+
+    <bean id="ingestionScannerThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="INGESTION_SCANNER"/>
+        <constructor-arg name="corePoolSize" value="1"/>
+    </bean>
+
+    <bean id="chunkPrefetchHintRefresherThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="CHUNK_PREFETCH_HINT_REFRESHER"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+    </bean>
+
+
+    <bean id="unsealGeoDataCommitThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="UNSEAL_GEO_DATA_COMMIT"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="120"/>
+    </bean>
+
+    <bean id="DTInitStatusThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="DTINIT_STATUS"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="250"/>
+    </bean>
+
+    <bean id="DTUpgradeStatusThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="UPRADE_MIGRATION_STATUS"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="250"/>
+    </bean>
+
+    <bean id="bPlusTreeScanThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="BPLUSTREE_SCAN"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+    </bean>
+
+    <bean id="repoScanThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="REPO_SCAN"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+    </bean>
+
+    <bean id="refTableRebuildThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="REFTABLE_REBUILD"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+    </bean>
+
+    <bean id="geoChunkCachingThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="GEO_CHUNK_CACHING"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+    </bean>
+
+
+    <bean id="indexStoreSealerThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="INDEX_STORE_SEALER"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+    </bean>
+
+    <bean id="varrayCheckerThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType">
+            <util:constant static-field="com.emc.storageos.data.object.impl.ThreadPoolConfig.TaskType.VARRAY_VALIDITY_CHECKER"/>
+        </constructor-arg>
+        <constructor-arg name="corePoolSize" value="1"/>
+    </bean>
+    <bean id="namespaceCacheThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="NAMESPACE_CACHE_REFRESH"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+        <constructor-arg name="maxPoolSize" value="12"/>
+        <constructor-arg name="queueSize" value="25"/>
+        <constructor-arg name="isTaskThreadPool" value="true"/>
+        <constructor-arg name="removeTaskAfterExecute" value="true"/>
+    </bean>
+    <bean id="tokenCacheThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="TOKEN_CACHE_REFRESH"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+        <constructor-arg name="maxPoolSize" value="12"/>
+        <constructor-arg name="queueSize" value="25"/>
+        <constructor-arg name="isTaskThreadPool" value="true"/>
+        <constructor-arg name="removeTaskAfterExecute" value="true"/>
+    </bean>
+    <bean id="loginCacheThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="LOGIN_CACHE_REFRESH"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+        <constructor-arg name="maxPoolSize" value="12"/>
+        <constructor-arg name="queueSize" value="25"/>
+        <constructor-arg name="isTaskThreadPool" value="true"/>
+        <constructor-arg name="removeTaskAfterExecute" value="true"/>
+    </bean>
+
+    <bean id="partialGCTaskThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="PARTIALGC_TASK"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+    </bean>
+    <bean id="partialGCChunkCopyTaskThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="PARTIALGC_CHUNK_COPY_TASK"/>
+        <constructor-arg name="corePoolSize" value="4"/>
+    </bean>
+
+    <bean id="insertReferenceThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="INSERT_REFERENCE"/>
+        <constructor-arg name="corePoolSize" value="12"/>
+        <constructor-arg name="maxPoolSize" value="37"/>
+        <constructor-arg name="queueSize" value="75"/>
+    </bean>
+
+    <bean id="insertBatchReferenceThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="INSERT_BATCH_REFERENCE"/>
+        <constructor-arg name="corePoolSize" value="37"/>
+        <constructor-arg name="maxPoolSize" value="87"/>
+        <constructor-arg name="queueSize" value="175"/>
+    </bean>
+
+    <bean id="insertReferenceBigHammerThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="INSERT_REFERENCE_BIG_HAMMER"/>
+        <constructor-arg name="corePoolSize" value="12"/>
+    </bean>
+
+    <bean id="geoDataConnThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="GEO_DATA_REMOTE_CONN"/>
+        <constructor-arg name="corePoolSize" value="25"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="25"/>
+    </bean>
+
+    <bean id="chunkCorruptionScanThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="CHUNK_CORRUPTION_SCAN"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+        <constructor-arg name="maxPoolSize" value="20"/>
+        <constructor-arg name="queueSize" value="25"/>
+    </bean>
+
+    <bean id="ecChunkWriteThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="EC_CHUNK_WRITE"/>
+        <constructor-arg name="corePoolSize" value="30"/>
+        <constructor-arg name="maxPoolSize" value="30"/>
+        <constructor-arg name="queueSize" value="12"/>
+    </bean>
+
+    <bean id="recoveryStatusRefresherThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="RECOVERY_STATUS_REFRESHER"/>
+        <constructor-arg name="corePoolSize" value="16"/>
+    </bean>
+
+    <bean id="journalEntryFetcherThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="JOURNAL_ENTRY_FETCHER"/>
+        <constructor-arg name="corePoolSize" value="16"/>
+    </bean>
+
+    <bean id="journalEntryFeederThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="JOURNAL_ENTRY_FEEDER"/>
+        <constructor-arg name="corePoolSize" value="16"/>
+    </bean>
+
+    <bean id="replicationCheckerThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="REPLICATION_CHECKER"/>
+        <constructor-arg name="corePoolSize" value="16"/>
+    </bean>
+
+    <bean id="chunkSeqNumberInitThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="CHUNK_SEQ_NUMBER_INIT"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+    </bean>
+
+    <bean id="listableTagUpgradeScanThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="LISTABLE_TAG_UPGRADE_SCAN"/>
+        <constructor-arg name="corePoolSize" value="16"/>
+        <constructor-arg name="maxPoolSize" value="16"/>
+        <constructor-arg name="queueSize" value="16"/>
+    </bean>
+
+    <bean id="listableTagFsSearchThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="LISTABLE_TAG_FS_SEARCH"/>
+        <constructor-arg name="corePoolSize" value="16"/>
+        <constructor-arg name="maxPoolSize" value="16"/>
+        <constructor-arg name="queueSize" value="16"/>
+    </bean>
+
+    <bean id="userInfoCacheThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="USER_INFO_CACHE"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+        <constructor-arg name="maxPoolSize" value="12"/>
+        <constructor-arg name="queueSize" value="25"/>
+        <constructor-arg name="isTaskThreadPool" value="true"/>
+        <constructor-arg name="removeTaskAfterExecute" value="true"/>
+    </bean>
+
+    <bean id="listQueryOperationThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="LIST_QUERY_OPERATION"/>
+        <constructor-arg name="corePoolSize" value="250"/>
+        <constructor-arg name="maxPoolSize" value="2500"/>
+        <constructor-arg name="queueSize" value="2500"/>
+    </bean>
+
+    <bean id="objectGCThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="OBJECT_GC_TASK_SCANNER"/>
+        <constructor-arg name="corePoolSize" value="8"/>
+    </bean>
+
+    <bean id="objectGCParseCDFThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="OBJECT_GC_CDF_PARSE"/>
+        <constructor-arg name="corePoolSize" value="8"/>
+        <constructor-arg name="maxPoolSize" value="8"/>
+        <constructor-arg name="queueSize" value="25"/>
+    </bean>
+
+    <bean id="pageTableReplayThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="INDEX_STORE_PAGE_TABLE_REPLAY"/>
+        <constructor-arg name="corePoolSize" value="8"/>
+    </bean>
+
+    <bean id="listingConversionThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="LISTING_CONVERSION"/>
+        <constructor-arg name="corePoolSize" value="8"/>
+    </bean>
+
+    <bean id="defaultBackgroundOperation" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="DEFAULT_BACKGROUND_OPERATION"/>
+        <constructor-arg name="corePoolSize" value="75"/>
+    </bean>
+    <bean id="nonBlockCommunicatorThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="NONBLOCK_COMMUNICATOR"/>
+        <constructor-arg name="corePoolSize" value="37"/>
+        <constructor-arg name="maxPoolSize" value="75"/>
+        <constructor-arg name="queueSize" value="2500"/>
+    </bean>
+    <bean id="ownershipThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="OWNERSHIP"/>
+        <constructor-arg name="corePoolSize" value="25"/>
+        <constructor-arg name="maxPoolSize" value="250"/>
+        <constructor-arg name="queueSize" value="2500"/>
+    </bean>
+    <bean id="unsealGeoHeartbeatThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="UNSEAL_GEO_HEARTBEAT"/>
+        <constructor-arg name="corePoolSize" value="15"/>
+        <constructor-arg name="maxPoolSize" value="25"/>
+        <constructor-arg name="queueSize" value="25"/>
+    </bean>
+    <bean id="updateRegionsThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="UPDATE_REGIONS"/>
+        <constructor-arg name="corePoolSize" value="5"/>
+    </bean>
+    <bean id="deleteJobThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="DELETE_JOB"/>
+        <constructor-arg name="corePoolSize" value="25"/>
+        <constructor-arg name="maxPoolSize" value="100"/>
+        <constructor-arg name="queueSize" value="120"/>
+    </bean>
+    <bean id="rejoinTaskSendThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="REJOIN_TASK_SEND"/>
+        <constructor-arg name="corePoolSize" value="25"/>
+        <constructor-arg name="maxPoolSize" value="120"/>
+        <constructor-arg name="queueSize" value="120"/>
+    </bean>
+    <bean id="miRejoinTaskSendThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="MI_REJOIN_TASK_SEND"/>
+        <constructor-arg name="corePoolSize" value="25"/>
+        <constructor-arg name="maxPoolSize" value="120"/>
+        <constructor-arg name="queueSize" value="120"/>
+    </bean>
+    <bean id="lsValidationRejoinTaskSendThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="LS_VALIDATION_TASK_SEND"/>
+        <constructor-arg name="corePoolSize" value="25"/>
+        <constructor-arg name="maxPoolSize" value="120"/>
+        <constructor-arg name="queueSize" value="120"/>
+    </bean>
+    <bean id="dataMovementTaskThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="DATA_MOVEMENT_TASK"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+    </bean>
+
+    <bean id="serverNamesAcceptListCacheThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="SERVER_NAMES_ACCEPT_LIST_CACHE"/>
+        <constructor-arg name="corePoolSize" value="1"/>
+    </bean>
+
+    <bean id="uploadAccessLogThreadPoolConfig" class="com.emc.storageos.data.object.impl.ThreadPoolConfig">
+        <constructor-arg name="taskType" value="UPLOAD_ACCESS_LOG"/>
+        <constructor-arg name="corePoolSize" value="10"/>
+        <constructor-arg name="maxPoolSize" value="12"/>
+        <constructor-arg name="queueSize" value="25"/>
+    </bean>
+
+    <import resource="classpath:shared-threadpool-flex-performance-conf.xml"/>
+    <import resource="classpath:shared-threadpool-spitfire-conf.xml"/>
+    <import resource="classpath:shared-threadpool-obsafa-conf.xml"/>
+</beans>
