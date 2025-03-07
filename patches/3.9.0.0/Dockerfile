@@ -1,7 +1,7 @@
-# Fixes to the default 3.8.1.2 reduced image.
+# Fixes to the default 3.9.0.0 reduced image.
 
 # Build on object-reduced image (GA release)
-FROM emcvipr/object:3.9.0.0-141206.7387ba21196-reduced
+FROM emcvipr/object:3.9.0.0-141228.b9e3c09a0d1-reduced
 
 #Modified SS partition script for CE.
 ADD storageserver-partition-config.sh /opt/storageos/bin/
@@ -16,4 +16,4 @@ ADD shared-threadpool-conf.xml /opt/storageos/conf/shared-threadpool-conf.xml
 # Allow allocation of different blocks of a chunk to be stored on the same partition for CE.
 RUN f=/opt/storageos/conf/ssm-cf-conf.xml ; sed -i '200s/value="false"/value="true"/' $f
 #UI removal of monitoring
-ADD app.acbc922074b0cc5197f2.js /opt/storageos/ecsportal/public/scripts/
+ADD app.6fb9f5b2bd922a3cb087.js /opt/storageos/ecsportal/public/scripts/
