@@ -1,0 +1,106 @@
+#!/bin/sh
+INSTALL_DIR="/opt/storageos"
+LIB_DIR="${INSTALL_DIR}/lib"
+
+# Set Environment
+export MALLOC_ARENA_MAX=2
+
+# Set Env
+# Parse Platform String
+# e.g. SPRING_PROFILES_ACTIVE=lite,abc,def,flex,small
+KNOWN_PLATFORMS=("spitfire" "ecshdd" "ecsssd" "ex3000" "ex5000" "lite" "santorini" "obsafa")
+KNOWN_DEPLOY_TYPES=("flex")
+KNOWN_MEM_PROFILES=("micro" "small" "medium" "large" "regular" "xlarge" "xxlarge" "xxxlarge")
+test "x$SPRING_PROFILES_ACTIVE" != "x" && SPRING_PROFLIES_ARRAY=($(echo $SPRING_PROFILES_ACTIVE | sed "s/,/\ /g"))
+CURRENT_DEPLOY_TYPE="default"
+for tmp in ${SPRING_PROFLIES_ARRAY[@]}; do 
+    for deploy in ${KNOWN_DEPLOY_TYPES[@]}; do 
+        if [ "$tmp" = "$deploy" ]; then 
+            CURRENT_DEPLOY_TYPE="$deploy"
+            break;
+        fi
+    done
+done
+CURRENT_PLATFORM="default"
+for tmp in ${SPRING_PROFLIES_ARRAY[@]}; do 
+    for plat in ${KNOWN_PLATFORMS[@]}; do 
+        if [ "$tmp" = "$plat" ]; then 
+            CURRENT_PLATFORM="$plat"
+            break;
+        fi
+    done
+done
+CURRENT_MEM_PROFILE="regular"
+for tmp in ${SPRING_PROFLIES_ARRAY[@]}; do 
+    for mp in ${KNOWN_MEM_PROFILES[@]}; do 
+        if [ "$tmp" = "$mp" ]; then 
+            CURRENT_MEM_PROFILE="$mp"
+            break;
+        fi
+    done
+done
+# e.g. lite_flex_small
+#      ecshdd_default_regular
+#      spitfire_default_xxlarge
+export PLATFORM_MEM_PROFILE=${CURRENT_PLATFORM}_${CURRENT_DEPLOY_TYPE}_${CURRENT_MEM_PROFILE}
+
+KNOWN_PAGETABLE_STATUS=("dt.usept")
+USE_PAGE_TABLE="noPt"
+for tmp in ${SPRING_PROFLIES_ARRAY[@]}; do 
+    for enabled in ${KNOWN_PAGETABLE_STATUS[@]}; do 
+        if [ "$tmp" = "$enabled" ]; then 
+            USE_PAGE_TABLE="$enabled"
+            break;
+        fi
+    done
+done
+if [ "$USE_PAGE_TABLE" != "noPt" ]; then
+    export PLATFORM_MEM_PROFILE=${PLATFORM_MEM_PROFILE}_${USE_PAGE_TABLE}
+fi
+
+
+
+
+# Default GC logs
+if [ "${CURRENT_PLATFORM}" = "flex" ]; then
+  GC_LOG_ARGS=-Xlog:gc*=info,safepoint*=info,gc+age*=trace,gc+tlab*=debug:file=${INSTALL_DIR}/logs/rm-gc-0.log:tags,uptime,time,level:filecount=2,filesize=5m
+else
+  GC_LOG_ARGS=-Xlog:gc*=info,safepoint*=info,gc+age*=trace,gc+tlab*=debug:file=${INSTALL_DIR}/logs/rm-gc-$((($(ls ${INSTALL_DIR}/logs/rm-gc-*.* -t 2>/dev/null | head -n1 | sed 's/.*-gc-\([0-9]\).*/\1/')+1)%10)).log:tags,uptime,time,level:filecount=3,filesize=50m
+fi
+
+export JAVA_HOME="/usr/java/latest"
+export PATH="${JAVA_HOME}/bin:${INSTALL_DIR}/bin:/bin:/usr/bin"
+export JVM_ARGS="${GC_LOG_ARGS} -server -Dproduct.home="${PRODUCT_HOME:-${INSTALL_DIR}}" -Dlog4j.configurationFile=file:${INSTALL_DIR}/conf/rm-log4j2.xml -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${INSTALL_DIR}/logs/rm-$$.hprof -Dco.paralleluniverse.fibers.DefaultFiberPool.parallelism=300 -Dco.paralleluniverse.fibers.verifyInstrumentation=false -Dco.paralleluniverse.fibers.detectRunawayFibers=false -Djdk.nio.maxCachedBufferSize=1048576 -Dcom.emc.storageos.atlas.shaded.io.grpc.netty.shaded.io.netty.allocator.useCacheForAllThreads=false -XX:-UseBiasedLocking -XX:MaxTenuringThreshold=8 -XX:+UseConcMarkSweepGC -XX:+ExplicitGCInvokesConcurrent -XX:CMSInitiatingOccupancyFraction=75 -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRemarkEnabled -XX:+UseCMSInitiatingOccupancyOnly -Dio.netty.allocator.type=unpooled -Dio.netty.allocator.useCacheForAllThreads=false -XX:+ExitOnOutOfMemoryError"
+
+export CLASSPATH="/opt/storageos/conf:${LIB_DIR}:${LIB_DIR}/storageos-rm.jar:${LIB_DIR}/storageos-directoryserver.jar:${LIB_DIR}/storageos-directoryactions.jar:${LIB_DIR}/storageos-directorytable.jar:${LIB_DIR}/storageos-devicescanner.jar:${LIB_DIR}/storageos-gc.jar:${LIB_DIR}/storageos-blobclient_common.jar:${LIB_DIR}/storageos-client.jar:${LIB_DIR}/storageos-controller.jar:${LIB_DIR}/storageos-ssmclient.jar:${LIB_DIR}/storageos-sscontrolclient.jar:${LIB_DIR}/storageos-nvmfcommunicator.jar:${LIB_DIR}/storageos-centeramapiclient.jar:${LIB_DIR}/rsa-bsafe-for-centera.jar:${LIB_DIR}/storageos-cas_common.jar:${LIB_DIR}/storageos-iamclient.jar:${LIB_DIR}/storageos-daresecurity.jar:${LIB_DIR}/storageos-datasecurity.jar:${LIB_DIR}/storageos-ipc.jar:${LIB_DIR}/storageos-keypool.jar:${LIB_DIR}/storageos-directoryclient.jar:${LIB_DIR}/storageos-cs-core.jar:${LIB_DIR}/conf:${LIB_DIR}/storageos-resourceclient.jar:${LIB_DIR}/storageos-zkstore.jar:${LIB_DIR}/storageos-paxos.jar:${LIB_DIR}/storageos-scanner.jar:${LIB_DIR}/storageos-throttle.jar:${LIB_DIR}/storageos-iamresources.jar:${LIB_DIR}/storageos-ownership.jar:${LIB_DIR}/storageos-sscommunicator.jar:${LIB_DIR}/storageos-ec.jar:${LIB_DIR}/storageos-dynamicconfig.jar:${LIB_DIR}/storageos-vnestclient.jar:${LIB_DIR}/storageos-nfsclient.jar:${LIB_DIR}/storageos-netty.jar:${LIB_DIR}/storageos-communication.jar:${LIB_DIR}/storageos-vnest-common.jar:${LIB_DIR}/storageos-address-resolver.jar:${LIB_DIR}/storageos-monitoring.jar:${LIB_DIR}/storageos-zkbtree.jar:${LIB_DIR}/storageos-iamclient_common.jar:${LIB_DIR}/storageos-faultinjection.jar:${LIB_DIR}/storageos-shared.jar:${LIB_DIR}/storageos-jerpc.jar:${LIB_DIR}/storageos-common.jar:${LIB_DIR}/storageos-ni.jar:${LIB_DIR}/storageos-dbclient.jar:${LIB_DIR}/storageos-jmx.jar:${LIB_DIR}/storageos-coordinator-client.jar:${LIB_DIR}/storageos-serviceutils.jar:${LIB_DIR}/storageos-zk.jar:${LIB_DIR}/storageos-servicediscovery.jar:${LIB_DIR}/storageos-coordinator-common.jar:${LIB_DIR}/storageos-errorhandling.jar:${LIB_DIR}/guava-32.0.0-android.jar:${LIB_DIR}/failureaccess-1.0.1.jar:${LIB_DIR}/error_prone_annotations-2.11.0.jar:${LIB_DIR}/commons-codec-1.15.jar:${LIB_DIR}/spring-aop-5.3.39.jar:${LIB_DIR}/spring-aspects-5.3.39.jar:${LIB_DIR}/spring-beans-5.3.39.jar:${LIB_DIR}/spring-context-5.3.39.jar:${LIB_DIR}/spring-context-support-5.3.39.jar:${LIB_DIR}/spring-core-5.3.39.jar:${LIB_DIR}/spring-expression-5.3.39.jar:${LIB_DIR}/spring-instrument-5.3.39.jar:${LIB_DIR}/spring-oxm-5.3.39.jar:${LIB_DIR}/spring-test-5.3.39.jar:${LIB_DIR}/spring-tx-5.3.39.jar:${LIB_DIR}/spring-web-5.3.39.jar:${LIB_DIR}/spring-security-aspects-5.8.15.jar:${LIB_DIR}/spring-security-config-5.8.15.jar:${LIB_DIR}/spring-security-core-5.8.15.jar:${LIB_DIR}/spring-security-crypto-5.8.15.jar:${LIB_DIR}/spring-security-ldap-5.8.15.jar:${LIB_DIR}/spring-security-openid-5.8.15.jar:${LIB_DIR}/spring-security-remoting-5.8.15.jar:${LIB_DIR}/spring-security-taglibs-5.8.15.jar:${LIB_DIR}/spring-ldap-core-2.4.0.jar:${LIB_DIR}/storageos-casnaming.jar:${LIB_DIR}/storageos-blobaddress.jar:${LIB_DIR}/storageos-npacket.jar:${LIB_DIR}/storageos-utils.jar:${LIB_DIR}/storageos-bytes.jar:${LIB_DIR}/storageos-logging.jar:${LIB_DIR}/storageos-geomodels.jar:${LIB_DIR}/storageos-cs-ni.jar:${LIB_DIR}/slf4j-api-1.7.26.jar:${LIB_DIR}/slf4j-ext-1.7.26.jar:${LIB_DIR}/jul-to-slf4j-1.7.26.jar:${LIB_DIR}/jcl-over-slf4j-1.7.26.jar:${LIB_DIR}/log4j-core-2.17.1.jar:${LIB_DIR}/log4j-api-2.17.1.jar:${LIB_DIR}/log4j-slf4j-impl-2.17.1.jar:${LIB_DIR}/log4j-jcl-2.17.1.jar:${LIB_DIR}/jline-2.11.jar:${LIB_DIR}/netty-all-4.1.108.Final.jar:${LIB_DIR}/netty-common-4.1.108.Final.jar:${LIB_DIR}/netty-buffer-4.1.108.Final.jar:${LIB_DIR}/netty-resolver-4.1.108.Final.jar:${LIB_DIR}/netty-transport-4.1.108.Final.jar:${LIB_DIR}/netty-codec-4.1.108.Final.jar:${LIB_DIR}/netty-handler-4.1.108.Final.jar:${LIB_DIR}/netty-codec-http-4.1.108.Final.jar:${LIB_DIR}/netty-transport-native-unix-common-4.1.108.Final.jar:${LIB_DIR}/netty-transport-classes-epoll-4.1.108.Final.jar:${LIB_DIR}/netty-transport-native-epoll-4.1.108.Final-linux-x86_64.jar:${LIB_DIR}/zookeeper-3.5.9-2-ecs.jar:${LIB_DIR}/commons-cli-1.2.jar:${LIB_DIR}/audience-annotations-0.5.0.jar:${LIB_DIR}/curator-client-4.3.0.jar:${LIB_DIR}/curator-framework-4.3.0.jar:${LIB_DIR}/curator-recipes-4.3.0.jar:${LIB_DIR}/curator-test-4.3.0.jar:${LIB_DIR}/curator-x-discovery-4.3.0.jar:${LIB_DIR}/curator-x-discovery-server-4.3.0.jar:${LIB_DIR}/commons-logging-1.2.jar:${LIB_DIR}/commons-logging-adapters-1.1.jar:${LIB_DIR}/commons-logging-api-1.1.jar:${LIB_DIR}/storageos-models.jar:${LIB_DIR}/jackson-core-2.16.0.jar:${LIB_DIR}/jackson-databind-2.16.0.jar:${LIB_DIR}/jackson-annotations-2.16.0.jar:${LIB_DIR}/jackson-jaxrs-json-provider-2.16.0.jar:${LIB_DIR}/jackson-jaxrs-base-2.16.0.jar:${LIB_DIR}/jackson-module-jaxb-annotations-2.16.0.jar:${LIB_DIR}/jersey-client-1.19.4.jar:${LIB_DIR}/jersey-core-1.19.4.jar:${LIB_DIR}/asm-3.1.jar:${LIB_DIR}/jersey-json-1.19.4.jar:${LIB_DIR}/jersey-server-1.19.4.jar:${LIB_DIR}/jersey-servlet-1.19.4.jar:${LIB_DIR}/jettison-1.5.4.jar:${LIB_DIR}/jsr311-api-1.1.1.jar:${LIB_DIR}/jersey-apache-client4-1.19.4.jar:${LIB_DIR}/jersey-multipart-1.19.4.jar:${LIB_DIR}/mimepull-1.6.jar:${LIB_DIR}/stax-api-1.0.1.jar:${LIB_DIR}/javax.servlet-api-4.0.1.jar:${LIB_DIR}/jetty-server-10.0.20.jar:${LIB_DIR}/jetty-util-10.0.20.jar:${LIB_DIR}/jetty-servlet-10.0.20.jar:${LIB_DIR}/jetty-servlets-10.0.20.jar:${LIB_DIR}/jetty-http-10.0.20.jar:${LIB_DIR}/jetty-security-10.0.20.jar:${LIB_DIR}/jetty-io-10.0.20.jar:${LIB_DIR}/jetty-deploy-10.0.20.jar:${LIB_DIR}/jetty-webapp-10.0.20.jar:${LIB_DIR}/jetty-xml-10.0.20.jar:${LIB_DIR}/jetty-util-ajax-10.0.20.jar:${LIB_DIR}/commons-jexl-1.1.jar:${LIB_DIR}/perf4j-0.9.16.jar:${LIB_DIR}/cglib-nodep-2.2.2.jar:${LIB_DIR}/httpcore-4.4.15.jar:${LIB_DIR}/httpclient-4.5.13.jar:${LIB_DIR}/jna-3.5.1.jar:${LIB_DIR}/platform-3.5.1.jar:${LIB_DIR}/protobuf-java-2.5.0.jar:${LIB_DIR}/kryo-2.24.0.jar:${LIB_DIR}/quasar-core-0.8.0.jar:${LIB_DIR}/comsat-okhttp-0.7.0.jar:${LIB_DIR}/asm-7.3.1.jar:${LIB_DIR}/commons-collections-3.2.2.jar:${LIB_DIR}/owasp-java-html-sanitizer-20220608.1.jar:${LIB_DIR}/FPLibrary-3.3.62.jar:${LIB_DIR}/commons-pool2-2.8.1.jar:${LIB_DIR}/simpleclient-0.0.26.jar:${LIB_DIR}/storageos-atlas-comm-shaded-dummy.jar:${LIB_DIR}/storageos-atlas-comm-shaded.jar:${LIB_DIR}/client-java-14.0.1.jar:${LIB_DIR}/client-java-api-14.0.1.jar:${LIB_DIR}/gson-fire-1.8.5.jar:${LIB_DIR}/nile-apisvc_models-1.0.0.0.466.502508c.jar:${LIB_DIR}/aspectjweaver-1.9.6.jar:${LIB_DIR}/aspectjrt-1.9.6.jar:${LIB_DIR}/cryptix-3.2.0.jar:${LIB_DIR}/bcutil-jdk18on-1.78.1.jar:${LIB_DIR}/bcpkix-jdk18on-1.78.1.jar:${LIB_DIR}/bcprov-jdk18on-1.78.1.jar:${LIB_DIR}/joda-time-2.9.9.jar:${LIB_DIR}/javax.ws.rs-api-2.0.1.jar:${LIB_DIR}/jol-core-0.9.jar:${LIB_DIR}/fastutil-8.3.1.jar:${LIB_DIR}/cron-utils-9.1.6.jar:${LIB_DIR}/concurrentlinkedhashmap-lru-1.3.jar:${LIB_DIR}/commons-compress-1.26.0.jar:${LIB_DIR}/xz-1.9.jar:${LIB_DIR}/gson-2.8.9.jar:${LIB_DIR}/okhttp-4.9.2.jar:${LIB_DIR}/logging-interceptor-4.9.2.jar:${LIB_DIR}/okio-3.5.0.jar:${LIB_DIR}/okio-jvm-3.5.0.jar:${LIB_DIR}/kotlin-stdlib-jdk8-1.9.10.jar:${LIB_DIR}/kotlin-stdlib-1.9.10.jar:${LIB_DIR}/client-java-proto-14.0.1.jar:${LIB_DIR}/snakeyaml-2.0.jar:${LIB_DIR}/commons-lang3-3.12.0.jar:${LIB_DIR}/commons-collections4-4.4.jar:${LIB_DIR}/jose4j-0.9.4.jar:${LIB_DIR}/maven-artifact-3.8.6.jar:${LIB_DIR}/snappy-java-1.1.10.4.jar:${LIB_DIR}/storageos-fastmd5.jar:${LIB_DIR}/storageos-security.jar:${LIB_DIR}/storageos-objectsvc-common-3.9.0.0.3713.36c1ac7.jar:${LIB_DIR}/json-path-2.9.0.jar:${LIB_DIR}/json-smart-2.4.10.jar:${LIB_DIR}/json-20231013.jar:${LIB_DIR}/commons-net-3.9.0.jar:${LIB_DIR}/fabric-agent-api-3.9.0.0-4500.9d71189.jar:${LIB_DIR}/fabric-agent-client-3.9.0.0-4500.9d71189.jar:${LIB_DIR}/fabric-base-3.9.0.0-4500.9d71189.jar:${LIB_DIR}/fabric-lifecycle-api-3.9.0.0-4500.9d71189.jar:${LIB_DIR}/fabric-lifecycle-client-3.9.0.0-4500.9d71189.jar:${LIB_DIR}/cryptojce-6.3.jar:${LIB_DIR}/cryptojcommon-6.3.jar:${LIB_DIR}/jcmFIPS-6.3.jar:${LIB_DIR}/certj-6.2.4.jar:${LIB_DIR}/sslj-7.1.1.0.1.jar:${LIB_DIR}/commons-io-2.11.0.jar:${LIB_DIR}/javassist-3.28.0-GA.jar:${LIB_DIR}/commons-validator-1.7.jar:${LIB_DIR}/mapi-4.3.519.jar:${LIB_DIR}/storageos-cas_security.jar:${LIB_DIR}/jaxen-1.1.1.jar:${LIB_DIR}/dom4j-2.1.3.jar:${LIB_DIR}/junit-4.13.1.jar:${LIB_DIR}/hamcrest-core-1.3.jar:${LIB_DIR}/hamcrest-library-1.3.jar:${LIB_DIR}/rocksdbjni-6.4.6.jar:${LIB_DIR}/core-0.1.4.jar:${LIB_DIR}/commons-lang-2.6.jar:${LIB_DIR}/okhttp-2.7.5.jar:${LIB_DIR}/okhttp-urlconnection-2.7.5.jar:${LIB_DIR}/okhttp-apache-2.7.5.jar:${LIB_DIR}/json-simple-1.1.jar:${LIB_DIR}/cse-common-1.0.0.jar:${LIB_DIR}/lockbox-1.0.2.jar:${LIB_DIR}/ktp-1.2.2-ecs.jar:${LIB_DIR}/passay-1.4.0.jar:${LIB_DIR}/jjwt-api-0.11.2.jar:${LIB_DIR}/jjwt-impl-0.11.2.jar:${LIB_DIR}/jjwt-jackson-0.11.2.jar:${LIB_DIR}/federation-fedsvc-client-3.8.1.0.483.22cf9c4.jar:${LIB_DIR}/federation-fedsvc-common-3.8.1.0.483.22cf9c4.jar:${LIB_DIR}/commons-math3-3.6.1.jar:${LIB_DIR}/scala-library-2.12.8.jar:${LIB_DIR}/scala-java8-compat_2.12-0.9.0.jar:${LIB_DIR}/akka-actor_2.12-2.5.21.jar:${LIB_DIR}/akka-slf4j_2.12-2.5.21.jar:${LIB_DIR}/config-1.3.3.jar:${LIB_DIR}/caffeine-2.8.8.jar:${LIB_DIR}/libthrift-0.16.0.jar:${LIB_DIR}/jaxb-impl-2.3.2.jar:${LIB_DIR}/jaxws-api-2.3.1.jar:${LIB_DIR}/jaxb-runtime-2.3.2.jar:${LIB_DIR}/istack-commons-runtime-3.0.8.jar:${LIB_DIR}/FastInfoset-1.2.16.jar:${LIB_DIR}/jakarta.activation-api-1.2.1.jar:${LIB_DIR}/jakarta.xml.bind-api-2.3.2.jar:${LIB_DIR}/txw2-2.3.2.jar:${LIB_DIR}/stax-ex-1.8.1.jar:${LIB_DIR}/jakarta.annotation-api-1.3.5.jar:${LIB_DIR}/cache2k-api-2.2.1.Final.jar:${LIB_DIR}/cache2k-core-2.2.1.Final.jar:${LIB_DIR}/jakarta.servlet-api-5.0.0.jar:${LIB_DIR}/storageos-statclient.jar:${LIB_DIR}/influxdb-java-2.21.jar:${LIB_DIR}/retrofit-2.5.0.jar:${LIB_DIR}/converter-moshi-2.5.0.jar:${LIB_DIR}/moshi-1.9.2.jar:${LIB_DIR}/mapdb-3.0.8.jar:${LIB_DIR}/lz4-1.3.0.jar:${LIB_DIR}/eclipse-collections-api-7.0.0.jar:${LIB_DIR}/eclipse-collections-7.0.0.jar:${LIB_DIR}/eclipse-collections-forkjoin-7.0.0.jar:${LIB_DIR}/elsa-3.0.0-M5.jar"
+
+# Rewrite JVM_ARGS by platform_memory profiles
+case ${PLATFORM_MEM_PROFILE} in
+    # Set for profile "spitfire_*_*"
+    spitfire_*_*)
+      export JVM_ARGS="${JVM_ARGS} -Xmx${JVM_XMX:-6g} -Xmn${JVM_XMN:-2g}"
+      ;;
+    # Set for profile "obsafa_flex_*"
+    obsafa_flex_*)
+      export JVM_ARGS="${JVM_ARGS} -Xmx${JVM_XMX:-6g} -Xmn${JVM_XMN:-2g}"
+      ;;
+    # Set for profile "ecs*_*_xxlarge,ex[35]000_*_xxlarge"
+    ecs*_*_xxlarge)
+      export JVM_ARGS="${JVM_ARGS} -Xmx${JVM_XMX:-6g} -Xmn${JVM_XMN:-2g}"
+      ;;
+    ex[35]000_*_xxlarge)
+      export JVM_ARGS="${JVM_ARGS} -Xmx${JVM_XMX:-6g} -Xmn${JVM_XMN:-2g}"
+      ;;
+    # Default profile
+    *)
+      export JVM_ARGS="${JVM_ARGS} -Xmx${JVM_XMX:-4096m} -Xmn${JVM_XMX:-1536m} -Dcom.emc.storageos.atlas.shaded.io.grpc.netty.shaded.io.netty.allocator.numHeapArenas=2 -Dcom.emc.storageos.atlas.shaded.io.grpc.netty.shaded.io.netty.allocator.numDirectArenas=0 -Dcom.emc.storageos.atlas.shaded.io.grpc.netty.shaded.io.netty.allocator.maxOrder=7 -Dcom.emc.storageos.atlas.shaded.io.grpc.netty.shaded.io.netty.allocator.pageSize=8192"
+      ;;
+esac
+
+# Save PID
+echo $$ >/var/run/storageos/rmsvc.pid
+
+# Launch service
+exec -a /opt/storageos/bin/rm ${JAVA_HOME}/bin/java \
+    ${JVM_ARGS} \
+    com.emc.storageos.data.recordmanager.Main "${@}"
