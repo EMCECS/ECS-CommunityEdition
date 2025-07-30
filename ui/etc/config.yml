@@ -31,8 +31,8 @@ ui:
   ansible_resources: /usr/local/src/ui/resources/
   ffx_sem: /opt/ffx.sem
 product:
-  name: ECS
-  version: 3.9.0.0
+  name: OBS
+  version: 4.1.0.0
   vendor: Dell EMC
   flavor: Community Edition
   slogan: Free and Frictionless
