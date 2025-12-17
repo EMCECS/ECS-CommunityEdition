@@ -1,7 +1,7 @@
 # Fixes to the default 4.1.0.0 reduced image.
 
 # Build on object-reduced image (GA release)
-FROM emcvipr/object:4.2.0.0-142739.6747b7efd73c-reduced
+FROM emcvipr/object:4.2.0.0-142592.95ca160719fb-reduced
 
 #Modified SS partition script for CE.
 ADD storageserver-partition-config.sh /opt/storageos/bin/
