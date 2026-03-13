@@ -49,38 +49,6 @@ run() {
     return ${rc}
 }
 
-install_certificate(){
-
- echo "> Installing licensing in ECS VDC(s)"
- cert_path="/home/admin/ECS-CommunityEdition/ui/tui/"
- tok=$(curl -iks  'https://localhost:4443/login' -u root:ChangeMe | grep X-SDS-AUTH-TOKEN)
- if [[ -z "${tok}" ]]; then
-     echo '> [ERROR] Could not obtain token for the root user'
-     exit 2
- fi
-
- echo '> Using default license'
- echo '> Adding licensing to VDC'
-
- #curl -k -X POST -H "$tok" -H "Content-Type: application/json" -H "ACCEPT: application/json" --data-ascii @"${cert_path}lic.json" https://localhost:4443/license.json -v
- http_code=$(curl -sk -o /dev/null -w "%{http_code}" -X POST -H "$tok" -H "Content-Type: application/json" -H "ACCEPT: application/json" --data-ascii @"${cert_path}lic.json" https://localhost:4443/license.json)
-
-if [[ "$http_code" == "200" ]]; then
-  echo -e "> \t OK"
-  echo '> Added default license to ECS'
-  
-else
-  echo
-  echo "> Could not add default license"
-  exit 3
-
-fi
-
-
-
-
-}
-
 case "$(basename ${0})" in
     videploy)
         if ${deploy_flag}; then
@@ -177,11 +145,7 @@ case "$(basename ${0})" in
     step2|island-step3|ova-step2)
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
-        #run ecsconfig licensing -a || exit $?  
-        #o "copying license"
-        #sudo cp /home/admin/lic.json "/opt/emc/ecs-install/lic.json"
-        #run ecsconfig licensing -c /opt/lic.json || exit $?
-        install_certificate
+        run ecsconfig licensing -a || exit $?
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig sp -a || exit $?
@@ -204,6 +168,8 @@ case "$(basename ${0})" in
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig rg -a || exit $?
+        o "Tuning Space reclamation for ECS CE"
+	/home/admin/ECS-CommunityEdition/patches/3.8.0.1/tune_sr
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig management-user -a || exit $?
@@ -216,9 +182,6 @@ case "$(basename ${0})" in
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig bucket -a || exit $?
-    ;;
-    licenseadd)
-        install_certificate
     ;;
     *)
         die "Invalid operation."
