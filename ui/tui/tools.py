@@ -108,7 +108,7 @@ class DataSet(object):
         :return: a pyyaml object
         """
         logging.debug(self.__class__.__name__ + ': ' + sys._getframe().f_code.co_name)
-        return yaml.load(yam)
+        return yaml.load(yam, Loader=yaml.SafeLoader)
 
     def render_template(self, template, template_vars=None, **kwargs):
         """
@@ -232,5 +232,6 @@ def die(message, exception=None):
     :return:
     """
     o("FATAL: {}".format(message))
-    o(exception)
+    if exception is not None:
+        o(exception)
     sys.exit(1)

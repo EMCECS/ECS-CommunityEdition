@@ -185,12 +185,36 @@
     regexp: '^(.*)Xmx2688m(.*)$'
     line: '\1Xmx3584m\2'
 
+## sudoers fix: preserve SS_GENCONFIG and SS_ROOT through sudo env_reset
+## The ECS container entrypoint is 'sudo /opt/vipr/boot/boot.sh', and the default
+## sudoers env_reset strips Docker -e environment variables. Without SS_GENCONFIG
+## the boot script skips partition JSON generation, leaving storageserver with an
+## empty disk configuration.
+- name: 'Common | Fix sudoers to preserve SS_GENCONFIG and SS_ROOT through env_reset'
+  lineinfile:
+    dest: /host/sudoers
+    state: present
+    backrefs: yes
+    regexp: '^(Defaults\s+env_keep\s*=\s*".*)"'
+    line: '\1 SS_GENCONFIG SS_ROOT"'
+
 ### Then docker cp them into the configuration container
 - name: Common | Merge configurations into configuration data container
   command: docker cp /host/{{item.split('/')[-1]}} ecs-config:{{item}}
   with_items: "{{config_files}}"
   loop_control:
     label: "{{item}}"
+
+## Copy the patched storageserver-partition-config.sh into the ecs-config
+## container.  The stock script is corrupted by _fix_ss_partitionroot()'s
+## greedy sed; the patched version uses an intermediate variable to avoid it.
+- name: Common | Deploy patched storageserver-partition-config.sh
+  copy:
+    src: storageserver-partition-config.sh
+    dest: /host/storageserver-partition-config.sh
+    mode: '0755'
+- name: Common | Copy patched storageserver-partition-config.sh into ecs-config
+  command: docker cp /host/storageserver-partition-config.sh ecs-config:/opt/storageos/bin/storageserver-partition-config.sh
 
 #- name: debug docker create ecs-storageos
 #  debug:
@@ -202,6 +226,10 @@
 #  shell: docker create --name ecs-storageos -e SS_GENCONFIG=1 --volumes-from ecs-config -v /ecs:/dae:z -v /ecs:/disks:z -v /host:/host:z -v /var/log/vipr/emcvipr-object:/var/log:z -v /data:/data:z -v {{host_cache_dir}}/ecs_python:/host/ecs_python:z -v {{entropy_source}}:/dev/random:z --net=host {{product_common_name}} && touch {{host_cache_dir}}/ecs-storageos.created creates="{{host_cache_dir}}/ecs-storageos.created"
 
 ### And run the ECS container
+# NOTE: The Ansible docker_container module silently drops duplicate source-path
+# bind mounts, so /ecs:/dae:z and /ecs:/disks:z cannot both be specified.
+# Instead we mount /ecs only to /disks and override SS_ROOT=/disks so the
+# storageserver partition generator looks for uuid-* volumes under /disks.
 - name: Common | Create the ECS StorageOS container
   docker_container:
     image: "{{product_common_name}}"
@@ -210,10 +238,10 @@
     network_mode: host
     env:
       SS_GENCONFIG: 1
+      SS_ROOT: /disks
     volumes_from:
       - ecs-config
     volumes:
-      - /ecs:/dae:z
       - /ecs:/disks:z
       - /host:/host:z
       - /var/log/vipr/emcvipr-object:/var/log:z

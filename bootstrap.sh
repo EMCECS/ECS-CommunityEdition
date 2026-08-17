@@ -720,6 +720,39 @@ fi
 ping_sudo
 
 
+### Portal UI Image
+if [ -n "${portal_image:-}" ] && [ -n "${portal_tag:-}" ]; then
+    p "Checking for portal UI image"
+    if sudo docker image inspect "${portal_image}:${portal_tag}" >/dev/null 2>&1; then
+        v "Portal image ${portal_image}:${portal_tag} already loaded"
+        o "Portal UI image already present."
+    else
+        o ""
+        o "We are now pulling the ${portal_image}:${portal_tag} image."
+        o ""
+        v "Pulling ${portal_image}:${portal_tag} Docker image"
+        p "Pulling portal UI image"
+        if ${registry_flag}; then
+            if ! sudo docker pull "${registry_val}/${portal_image}:${portal_tag}" 2>&1 | log; then
+                error "Could not pull portal UI image from custom registry."
+                error "Ensure '${portal_image}:${portal_tag}' exists in your registry."
+                error "The dashboard will not work until the image is available."
+            else
+                sudo docker tag "${registry_val}/${portal_image}:${portal_tag}" "${portal_image}:${portal_tag}" 2>&1 | log
+            fi
+        else
+            if ! sudo docker pull "${portal_image}:${portal_tag}" 2>&1 | log; then
+                error "Could not pull portal UI image from Docker Hub."
+                error "Check your Internet connection and try manually:"
+                error "    sudo docker pull ${portal_image}:${portal_tag}"
+                error "The dashboard will not work until the image is available."
+            fi
+        fi
+    fi
+fi
+ping_sudo
+
+
 ### Log Docker Inventory
 v "Logging Docker Inventory"
 p Logging Docker Inventory
@@ -752,6 +785,13 @@ o '    $ island-step2'
 o '  [Wait for deployment to complete, then run:]'
 o '    $ island-step3'
 o ''
+if [ -n "${portal_image:-}" ] && [ -n "${portal_tag:-}" ]; then
+    o '[Portal UI]'
+    o "  step2 will automatically start the portal UI container."
+    o "  If it does not start for any reason, you can start it manually:"
+    o "    $ sudo docker run -d --name objs-ui --network host --restart=unless-stopped ${portal_image}:${portal_tag}"
+    o ''
+fi
 
 
 ### Needs rebooting?

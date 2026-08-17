@@ -141,6 +141,8 @@ case "$(basename ${0})" in
         run "$(basename ${0})" ${@} || exit $?
     ;;
     island-step1)
+        # Clean stale lock files that can cause storageos boot failures
+        sudo rm -f /tmp/systool.lock
         #run ecsdeploy load || exit $?
         run ecsdeploy cache || exit $?
     ;;
@@ -156,6 +158,8 @@ case "$(basename ${0})" in
         run ecsdeploy start || exit $?
     ;;
     ova-step1)
+        # Clean stale lock files that can cause storageos boot failures
+        sudo rm -f /tmp/systool.lock
         #run ecsdeploy load || exit $?
         run ecsdeploy access || exit $?
         run ecsdeploy check || exit $?
@@ -164,6 +168,8 @@ case "$(basename ${0})" in
         run ecsdeploy start || exit $?
     ;;
     step1)
+        # Clean stale lock files that can cause storageos boot failures
+        sudo rm -f /tmp/systool.lock
         #run ecsdeploy load || exit $?
         run ecsdeploy access || exit $?
         run ecsdeploy check || exit $?
@@ -175,47 +181,187 @@ case "$(basename ${0})" in
         run ecsdeploy start || exit $?
     ;;
     step2|island-step3|ova-step2)
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        #run ecsconfig licensing -a || exit $?  
-        #o "copying license"
-        #sudo cp /home/admin/lic.json "/opt/emc/ecs-install/lic.json"
-        #run ecsconfig licensing -c /opt/lic.json || exit $?
-        install_certificate
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        run ecsconfig sp -a || exit $?
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        o "Storagepool configuration takes 30 mins to ready.. pls wait"
-	sleep 600
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        o "Storagepool configuration takes 30 mins to ready.. pls wait"
-	sleep 600
-        o "Pinging Management API Endpoint until ready"
-        o "Storagepool configuration takes 30 mins to ready.. pls wait"
-        run ecsconfig ping -c -x || exit $?
-	sleep 600
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        run ecsconfig vdc -a || exit $?
-        run ecsconfig vdc -p || exit $?
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        run ecsconfig rg -a || exit $?
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        run ecsconfig management-user -a || exit $?
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        run ecsconfig namespace -a || exit $?
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        run ecsconfig object-user -a || exit $?
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        run ecsconfig bucket -a || exit $?
+
+        # -----------------------------------------------------------------
+        # Helper: retry a command with delay between attempts.
+        #   retry_cmd <max_attempts> <delay_secs> <description> <cmd...>
+        # Prints a status line every attempt. Never exits the script on
+        # failure — returns 0 on success, 1 if all attempts exhausted.
+        # -----------------------------------------------------------------
+        retry_cmd() {
+            local _max=${1}; shift
+            local _delay=${1}; shift
+            local _desc="${1}"; shift
+            local _attempt=1
+            while [ ${_attempt} -le ${_max} ]; do
+                o "  [attempt ${_attempt}/${_max}] ${_desc}..."
+                if "${@}"; then
+                    o "  ${_desc} — succeeded."
+                    return 0
+                fi
+                if [ ${_attempt} -lt ${_max} ]; then
+                    o "  ${_desc} — failed, retrying in ${_delay}s..."
+                    sleep ${_delay}
+                fi
+                _attempt=$((_attempt + 1))
+            done
+            error "${_desc} — failed after ${_max} attempts."
+            return 1
+        }
+
+        # -----------------------------------------------------------------
+        # Phase 1: Wait for Management API to become responsive
+        # -----------------------------------------------------------------
+        o ""
+        o "=========================================="
+        o " step2: Configuring OBS CE"
+        o "=========================================="
+        o ""
+        o "[Phase 1/8] Waiting for Management API..."
+        retry_cmd 30 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+
+        # -----------------------------------------------------------------
+        # Phase 2: Install license
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 2/8] Installing license..."
+        retry_cmd 5 60 "Installing license" \
+            install_certificate || exit $?
+
+        o ""
+        o "Pinging Management API after license install..."
+        retry_cmd 10 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+
+        # -----------------------------------------------------------------
+        # Phase 3: Create Storage Pool + add data stores
+        #   This is the step most likely to fail if services are still
+        #   initializing. Retry with generous delays.
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 3/8] Creating Storage Pool..."
+        o "  (Services may still be initializing — will retry up to 20"
+        o "   times with 2 min delay between attempts, ~40 min max)"
+        retry_cmd 20 120 "Creating Storage Pool" \
+            run ecsconfig sp -a || exit $?
+
+        # -----------------------------------------------------------------
+        # Wait for storage pool to fully initialize before proceeding.
+        # The VDC create call will fail if the pool is not ready.
+        # Check every 1 minute, up to 45 minutes.
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 3/8] Waiting for storage pool to initialize..."
+        o "  This typically takes 15-30 minutes. Checking every 1 minute."
+        sp_wait_interval=60     # seconds between checks
+        sp_wait_max=2700        # give up after 45 min
+        sp_waited=0
+        while [ ${sp_waited} -lt ${sp_wait_max} ]; do
+            sleep ${sp_wait_interval}
+            sp_waited=$((sp_waited + sp_wait_interval))
+            sp_minutes=$((sp_waited / 60))
+            if run ecsconfig ping -c -x 2>/dev/null; then
+                if [ ${sp_waited} -ge 600 ]; then
+                    o "  [${sp_minutes} min] API responding and minimum wait (10 min) reached."
+                    o "  Storage pool initialization complete."
+                    break
+                else
+                    o "  [${sp_minutes} min] API responding, waiting for minimum 10 min..."
+                fi
+            else
+                o "  [${sp_minutes} min] API not ready yet, will retry..."
+            fi
+        done
+        if [ ${sp_waited} -ge ${sp_wait_max} ]; then
+            error "Storage pool did not become ready within 45 minutes."
+            error "Check: sudo docker logs ecs-storageos 2>&1 | tail -50"
+            die "Aborting step2."
+        fi
+
+        # -----------------------------------------------------------------
+        # Phase 4: Create Virtual Data Center
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 4/8] Creating Virtual Data Center..."
+        retry_cmd 10 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+        retry_cmd 10 60 "Creating VDC" \
+            run ecsconfig vdc -a || exit $?
+        retry_cmd 5 60 "Populating VDC" \
+            run ecsconfig vdc -p || exit $?
+
+        # -----------------------------------------------------------------
+        # Phase 5: Create Replication Group
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 5/8] Creating Replication Group..."
+        retry_cmd 10 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+        retry_cmd 10 60 "Creating Replication Group" \
+            run ecsconfig rg -a || exit $?
+
+        # -----------------------------------------------------------------
+        # Phase 6: Create Management User
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 6/8] Creating Management User..."
+        retry_cmd 10 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+        retry_cmd 10 60 "Creating Management User" \
+            run ecsconfig management-user -a || exit $?
+
+        # -----------------------------------------------------------------
+        # Phase 7: Create Namespace, Object Users, Buckets
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 7/8] Creating Namespace, Object Users, and Buckets..."
+        retry_cmd 10 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+        retry_cmd 10 60 "Creating Namespace" \
+            run ecsconfig namespace -a || exit $?
+
+        retry_cmd 10 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+        retry_cmd 10 60 "Creating Object Users" \
+            run ecsconfig object-user -a || exit $?
+
+        retry_cmd 10 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+        retry_cmd 10 60 "Creating Buckets" \
+            run ecsconfig bucket -a || exit $?
+
+        # -----------------------------------------------------------------
+        # Phase 8: Start Portal UI container
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 8/8] Starting Portal UI..."
+        o ""
+        o "step2 complete. All resources created successfully."
+        source "${root}/ui/etc/release.conf" 2>/dev/null
+        if [ -n "${portal_image:-}" ] && [ -n "${portal_tag:-}" ]; then
+            if sudo docker image inspect "${portal_image}:${portal_tag}" >/dev/null 2>&1; then
+                if ! sudo docker ps --format '{{.Names}}' | grep -q '^objs-ui$'; then
+                    o "Starting portal UI container..."
+                    sudo docker run -d --name objs-ui --network host --restart=unless-stopped \
+                        "${portal_image}:${portal_tag}" >/dev/null 2>&1
+                    sleep 30
+                    if sudo docker ps --filter name=objs-ui --format '{{.Status}}' | grep -q 'Up'; then
+                        o "Portal UI started successfully."
+                        o "Dashboard available at: https://$(hostname -I | awk '{print $1}')/"
+                    else
+                        error "Portal UI container failed to start. Check: sudo docker logs objs-ui"
+                    fi
+                else
+                    o "Portal UI container (objs-ui) is already running."
+                fi
+            else
+                o ""
+                o "Portal UI image not found. To start the dashboard later:"
+                o "  sudo docker pull ${portal_image}:${portal_tag}"
+                o "  sudo docker run -d --name objs-ui --network host --restart=unless-stopped ${portal_image}:${portal_tag}"
+            fi
+        fi
     ;;
     licenseadd)
         install_certificate
