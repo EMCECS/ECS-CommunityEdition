@@ -97,8 +97,8 @@ prepared. If acquiring the software via the GitHub repository, run:
 2. ``git clone https://github.com/EMCECS/ECS-CommunityEdition``.
 
 If the repository is being added to the machine via usb drive, scp, or
-some other file-based means, please copy the archive into ``$HOME/`` and
-run:
+some other file-based means, please copy the latest archive (4.4.0.0)
+into ``$HOME/`` and run:
 
 -  for .zip archive ``unzip ECS-CommunityEdition.zip``
 -  for .tar.gz archive ``tar -xzvf ECS-CommunityEdition.tar.gz``

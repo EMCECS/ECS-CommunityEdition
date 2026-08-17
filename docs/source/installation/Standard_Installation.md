@@ -57,7 +57,7 @@ Before data store nodes can be created, the install node must be prepared. If ac
 0. `sudo yum install -y git`
 0. `git clone https://github.com/EMCECS/ECS-CommunityEdition`.
 
-If the repository is being added to the machine via usb drive, scp, or some other file-based means, please copy the archive into `$HOME/` and run:
+If the repository is being added to the machine via usb drive, scp, or some other file-based means, please copy the latest archive (4.4.0.0) into `$HOME/` and run:
 
 * for .zip archive `unzip ECS-CommunityEdition.zip`
 * for .tar.gz archive `tar -xzvf ECS-CommunityEdition.tar.gz`

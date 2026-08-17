@@ -69,6 +69,7 @@ All-in-One install using these commands on your VM:
 
     # git clone https://github.com/EMCECS/ECS-CommunityEdition
     # cd ECS-CommunityEdition
+    # git checkout 4.4.0.0
     # cp docs/design/reference.deploy.yml deploy.yml
     # echo "Edit this deploy.yml to match your VM's environment"
     # vi deploy.yml
