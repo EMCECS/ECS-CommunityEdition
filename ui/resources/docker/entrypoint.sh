@@ -152,7 +152,7 @@ if $init_container; then
     # echo -n "."
     # unpack ansible.tgz "pip install -q ."
     echo -n "."
-    unpack ui.tgz "pip install -q ."
+    unpack ui.tgz "pip install --no-build-isolation -q ."
     cond_incr_rc $?
     # echo -n "."
     # Version hack Ansible when installing to site-packages

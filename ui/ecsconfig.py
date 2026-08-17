@@ -563,25 +563,73 @@ def sp(conf, l, r, a, n):
     def get_all():
         return conf.api_client.storage_pool.list()
 
+    def sp_get_existing(name):
+        """
+        Look up an existing storage pool by name.
+        Handles both response formats: list of dicts or {'varray': [...]}.
+        :param name: name of storage pool
+        :return: Storage Pool ID as URN, or None if not found
+        """
+        try:
+            result = conf.api_client.storage_pool.list()
+            if result is not None:
+                pools = result.get('varray', result) if isinstance(result, dict) else result
+                for pool in pools:
+                    if pool.get('name') == name:
+                        return pool['id']
+        except Exception:
+            pass
+        return None
+
     def sp_create(name, sp_ecs_options):
         """
-        Create a storage pool
+        Create a storage pool, or return the existing one if it already exists.
         :param name: name of storage pool
         :param sp_ecs_options: dict of kwargs
         :return: Storage Pool ID as URN
         """
         kwargs = {"name": name}
         kwargs.update(sp_ecs_options)
-        resp = conf.api_client.storage_pool.create(**kwargs)
-        return resp['id']
+        try:
+            resp = conf.api_client.storage_pool.create(**kwargs)
+            return resp['id']
+        except Exception as e:
+            if 'Exceeding limit' in str(e) or '1031' in str(e):
+                existing_id = sp_get_existing(name)
+                if existing_id is not None:
+                    o('\tStorage pool already exists, will add data stores.')
+                    return existing_id
+            raise
+
+    def sp_node_already_in_pool(sp_id, node_ip):
+        """
+        Check if a data store for the given node already exists in the pool.
+        :param sp_id: Storage Pool URN
+        :param node_ip: IP address of node
+        :return: True if node is already in the pool
+        """
+        try:
+            stores = conf.api_client.data_store.list()
+            if stores and 'data_store' in stores:
+                for ds in stores['data_store']:
+                    if ds.get('name') == node_ip or ds.get('id') == node_ip:
+                        return True
+        except Exception:
+            pass
+        return False
 
     def sp_add_node(sp_id, node_ip):
         """
-        Add given node to named storage pool
+        Add given node to named storage pool. Skips if node is already added.
         :param sp_id: Storage Pool URN
         :param node_ip: IP address of node
         :return: retval
         """
+
+        # Check if this node's data store already exists (idempotent retry)
+        if sp_node_already_in_pool(sp_id, node_ip):
+            o('\tOK (data store already exists)')
+            return None
 
         node_dict = conf.ecs.get_node_options(node_ip)
 
@@ -658,8 +706,13 @@ def sp(conf, l, r, a, n):
             n = None
             conf.api_set_timeout(300)
             conf.api_reset()
-            tasks = add_all()
-            #o(tasks)
+            try:
+                tasks = add_all()
+                #o(tasks)
+            except ECSClientException as e:
+                conf.api_set_timeout(API_TIMEOUT)
+                conf.api_reset()
+                sys.exit(1)
             conf.api_set_timeout(API_TIMEOUT)
             conf.api_reset()
         else:
@@ -668,8 +721,13 @@ def sp(conf, l, r, a, n):
     if n is not None:
         conf.api_set_timeout(300)
         conf.api_reset()
-        tasks = add_one(n)
-        #o(tasks)
+        try:
+            tasks = add_one(n)
+            #o(tasks)
+        except ECSClientException as e:
+            conf.api_set_timeout(API_TIMEOUT)
+            conf.api_reset()
+            sys.exit(1)
         conf.api_set_timeout(API_TIMEOUT)
         conf.api_reset()
 
@@ -914,16 +972,20 @@ def vdc(conf, l, r, a, n, p):
         available_vdc_configs = list_all()
         if available_vdc_configs is not None:
             o('Creating all VDCs...')
-            # apparently doesn't return tasks
-            tasks = add_all()
-            o('Created all VDCs')
-        else:
-            o('No VDC configurations are present in deploy.yml')
+            try:
+                # apparently doesn't return tasks
+                tasks = add_all()
+                o('Created all VDCs')
+            except ECSClientException as e:
+                sys.exit(1)
 
     if n is not None:
         o('Creating VDC...')
-        add_one(n)
-        o('Created VDC')
+        try:
+            add_one(n)
+            o('Created VDC')
+        except ECSClientException as e:
+            sys.exit(1)
 
 
 @ecsconfig.command('rg', short_help='Work with ECS Replication Groups')
@@ -951,7 +1013,22 @@ def rg(conf, l, r, a, n):
     def get_all():
         return conf.api_client.replication_group.list()['data_service_vpool']
 
+    def rg_exists_on_ecs(rg_name):
+        """Check if a replication group already exists on ECS by name."""
+        try:
+            existing_id = conf.get_rg_id_by_name(rg_name)
+            if existing_id:
+                return True
+        except Exception:
+            pass
+        return False
+
     def add_rg(rg_name):
+        # Skip if RG already exists (idempotent retry)
+        if rg_exists_on_ecs(rg_name):
+            o('Replication group {} already exists, skipping.'.format(rg_name))
+            return {'name': rg_name}
+
         o('Creating replication group {}'.format(rg_name))
         zone_mappings = []
         for vdc_name in conf.ecs.get_rg_members(rg_name):
@@ -999,8 +1076,11 @@ def rg(conf, l, r, a, n):
         n = None
         available_rg_configs = list_all()
         if available_rg_configs is not None:
-            results = add_all()
-            o('Created all Replication Groups')
+            try:
+                results = add_all()
+                o('Created all Replication Groups')
+            except ECSClientException as e:
+                sys.exit(1)
         else:
             o('No replication group configurations in deploy.yml')
 
@@ -1039,7 +1119,24 @@ def namespace(conf, l, r, a, n):
             return True
         return False
 
+    def ns_exists_on_ecs(namespace_name):
+        """Check if a namespace already exists on ECS by name."""
+        try:
+            namespaces = conf.api_client.namespace.list()
+            if namespaces and 'namespace' in namespaces:
+                for ns in namespaces['namespace']:
+                    if ns.get('name') == namespace_name:
+                        return True
+        except Exception:
+            pass
+        return False
+
     def add_namespace(namespace_name):
+        # Skip if namespace already exists (idempotent retry)
+        if ns_exists_on_ecs(namespace_name):
+            o('\tNamespace {} already exists, skipping.'.format(namespace_name))
+            return None
+
         ns_dict = conf.ecs.get_ns_dict(namespace_name)
         default_data_services_vpool = [
             x['id']
@@ -1078,8 +1175,11 @@ def namespace(conf, l, r, a, n):
         n = None
         available_ns_configs = list_all()
         if available_ns_configs is not None:
-            add_all()
-            o('Created all configured namespaces')
+            try:
+                add_all()
+                o('Created all configured namespaces')
+            except ECSClientException as e:
+                sys.exit(1)
         else:
             o('No namespace configurations in deploy.yml')
     if n is not None:
@@ -1115,7 +1215,25 @@ def bucket(conf, l, r, s, a, n):
             return True
         return False
 
+    def bucket_exists_on_ecs(bucket_name):
+        """Check if a bucket already exists on ECS."""
+        try:
+            for ns_name in conf.ecs.get_ns_names():
+                buckets = conf.api_client.bucket.list(ns_name)
+                if buckets and 'object_bucket' in buckets:
+                    for bkt in buckets['object_bucket']:
+                        if bkt.get('id') == bucket_name:
+                            return True
+        except Exception:
+            pass
+        return False
+
     def add_bucket(bucket_name):
+        # Skip if bucket already exists (idempotent retry)
+        if bucket_exists_on_ecs(bucket_name):
+            o('\tBucket {} already exists, skipping.'.format(bucket_name))
+            return True
+
         bucket_opts = conf.ecs.get_bucket_options(bucket_name)
         bkt_create_dict = {
             'namespace': bucket_opts['namespace'],
@@ -1189,8 +1307,11 @@ def bucket(conf, l, r, s, a, n):
         available_bucket_configs = list_all()
         if available_bucket_configs is not None:
             o('Creating all buckets')
-            add_all()
-            o('Created all configured buckets')
+            try:
+                add_all()
+                o('Created all configured buckets')
+            except ECSClientException as e:
+                sys.exit(1)
         else:
             o('No bucket configurations in deploy.yml')
     if n is not None:
@@ -1247,9 +1368,26 @@ def object_user(conf, l, r, a, n):
         for this_name in list_all():
             add_one(this_name)
 
+    def ou_exists_on_ecs(name):
+        """Check if an object user already exists on ECS by name."""
+        try:
+            users = conf.api_client.object_user.list()
+            if users and 'blobuser' in users:
+                for user in users['blobuser']:
+                    if user == name or (isinstance(user, dict) and user.get('userid') == name):
+                        return True
+        except Exception:
+            pass
+        return False
+
     def add_one(name):
         ou_namespace = conf.ecs.get_ou_namespace(name)
         ou_dict = conf.ecs.get_ou_dict(name)
+
+        # Skip if user already exists (idempotent retry)
+        if ou_exists_on_ecs(name):
+            o("Object user '{}' already exists, skipping.".format(name))
+            return
 
         o("Creating '{}' in namespace '{}'".format(name, ou_namespace))
         conf.api_client.object_user.create(name, namespace=ou_namespace)
@@ -1291,7 +1429,7 @@ def object_user(conf, l, r, a, n):
                 creds_added = True
             except Exception as e:
                 creds_added = False
-                time.sleep()
+                time.sleep(5)
 
     available_configs = list_all()
     if l:
@@ -1305,8 +1443,11 @@ def object_user(conf, l, r, a, n):
         n = None
         if available_configs is not None:
             o('Creating all configured {}s:'.format(config_type))
-            add_all()
-            o('Created all configured {}s'.format(config_type))
+            try:
+                add_all()
+                o('Created all configured {}s'.format(config_type))
+            except ECSClientException as e:
+                sys.exit(1)
         else:
             o('No {} configurations in deploy.yml'.format(config_type))
     if r:
@@ -1372,7 +1513,24 @@ def management_user(conf, l, r, a, g, n):
             add_one(this_name)
             o('\t{}'.format(this_name))
 
+    def mu_exists_on_ecs(name):
+        """Check if a management user already exists on ECS by name."""
+        try:
+            users = conf.api_client.management_user.list()
+            if users and 'mgmt_user_info' in users:
+                for user in users['mgmt_user_info']:
+                    if user.get('userId') == name:
+                        return True
+        except Exception:
+            pass
+        return False
+
     def add_one(name):
+        # Skip if management user already exists (idempotent retry)
+        if mu_exists_on_ecs(name):
+            o('\tManagement user {} already exists, skipping.'.format(name))
+            return
+
         mu_pass = conf.ecs.get_mu_password(name)
         mu_dict = conf.ecs.get_mu_dict(name)
         conf.api_client.management_user.create(name, password=mu_pass, **mu_dict)
@@ -1390,8 +1548,11 @@ def management_user(conf, l, r, a, g, n):
         n = None
         if available_configs is not None:
             o('Creating all configured {}s:'.format(config_type))
-            add_all()
-            o('Created all configured {}s'.format(config_type))
+            try:
+                add_all()
+                o('Created all configured {}s'.format(config_type))
+            except ECSClientException as e:
+                sys.exit(1)
         else:
             o('No {} configurations in deploy.yml'.format(config_type))
     if r:
