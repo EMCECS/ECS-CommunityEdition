@@ -45,6 +45,15 @@ run() {
             ${run} ${@}
     rc=$?
 
+    # Clean up any stale ecs-install runner containers whose entrypoint
+    # background processes (opentracker/aria2c) prevented a clean exit.
+    for cid in $(sudo docker ps -q --filter "ancestor=${image_release}" 2>/dev/null); do
+        cname=$(sudo docker inspect --format '{{.Name}}' "$cid" 2>/dev/null | sed 's/^\///')
+        if [ "$cname" != "ecs-install-data" ]; then
+            sudo docker rm -f "$cid" >/dev/null 2>&1
+        fi
+    done
+
     echo ''
     return ${rc}
 }
@@ -148,6 +157,10 @@ case "$(basename ${0})" in
         #run ecsdeploy load || exit $?
         run ecsdeploy access || exit $?
         run ecsdeploy check || exit $?
+        # Regenerate torrent after access/check so fact cache changes
+        # are included in the torrent hashes (fixes island multi-node hang)
+        sudo rm -f /var/cache/emc/ecs-install/cache.torrent
+        run ecsdeploy cache || exit $?
         run ecsdeploy bootstrap || exit $?
         run ecsdeploy reboot || exit $?
         sleep 10
@@ -158,6 +171,21 @@ case "$(basename ${0})" in
     ova-step1)
         #run ecsdeploy load || exit $?
         run ecsdeploy access || exit $?
+        # Create OVA fact on all data nodes so ansible_local.ova is defined.
+        # This skips torrent sync and cache unpack (OVA nodes already have
+        # Docker images loaded and packages installed).
+        sudo tee /opt/emc/ecs-install/ova_fact.yml > /dev/null << 'OVAFACT'
+---
+- hosts: data_node
+  become: true
+  tasks:
+    - name: Create facts directory
+      file: path=/etc/ansible/facts.d state=directory
+    - name: Create OVA fact marker
+      copy: content="[ova]\nis_ova=true\n" dest=/etc/ansible/facts.d/ova.fact mode=0644
+OVAFACT
+        run ansible-playbook /opt/ova_fact.yml || exit $?
+        sudo rm -f /opt/emc/ecs-install/ova_fact.yml
         run ecsdeploy check || exit $?
         run ecsdeploy bootstrap || exit $?
         run ecsdeploy deploy || exit $?
@@ -175,47 +203,312 @@ case "$(basename ${0})" in
         run ecsdeploy start || exit $?
     ;;
     step2|island-step3|ova-step2)
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        #run ecsconfig licensing -a || exit $?  
-        #o "copying license"
-        #sudo cp /home/admin/lic.json "/opt/emc/ecs-install/lic.json"
-        #run ecsconfig licensing -c /opt/lic.json || exit $?
-        install_certificate
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        run ecsconfig sp -a || exit $?
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        o "Storagepool configuration takes 30 mins to ready.. pls wait"
-	sleep 600
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        o "Storagepool configuration takes 30 mins to ready.. pls wait"
-	sleep 600
-        o "Pinging Management API Endpoint until ready"
-        o "Storagepool configuration takes 30 mins to ready.. pls wait"
-        run ecsconfig ping -c -x || exit $?
-	sleep 600
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        run ecsconfig vdc -a || exit $?
-        run ecsconfig vdc -p || exit $?
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        run ecsconfig rg -a || exit $?
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        run ecsconfig management-user -a || exit $?
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        run ecsconfig namespace -a || exit $?
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        run ecsconfig object-user -a || exit $?
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        run ecsconfig bucket -a || exit $?
+
+        # -----------------------------------------------------------------
+        # Helper: retry a command with delay between attempts.
+        #   retry_cmd <max_attempts> <delay_secs> <description> <cmd...>
+        # Prints a status line every attempt. Never exits the script on
+        # failure — returns 0 on success, 1 if all attempts exhausted.
+        # -----------------------------------------------------------------
+        retry_cmd() {
+            local _max=${1}; shift
+            local _delay=${1}; shift
+            local _desc="${1}"; shift
+            local _attempt=1
+            while [ ${_attempt} -le ${_max} ]; do
+                o "  [attempt ${_attempt}/${_max}] ${_desc}..."
+                if "${@}"; then
+                    o "  ${_desc} — succeeded."
+                    return 0
+                fi
+                if [ ${_attempt} -lt ${_max} ]; then
+                    o "  ${_desc} — failed, retrying in ${_delay}s..."
+                    sleep ${_delay}
+                fi
+                _attempt=$((_attempt + 1))
+            done
+            error "${_desc} — failed after ${_max} attempts."
+            return 1
+        }
+
+        # -----------------------------------------------------------------
+        # Phase 1: Wait for Management API to become responsive
+        # -----------------------------------------------------------------
+        o ""
+        o "=========================================="
+        o " step2: Configuring OBS CE"
+        o "=========================================="
+        o ""
+        o "[Phase 1/9] Waiting for Management API..."
+        retry_cmd 30 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+
+        # -----------------------------------------------------------------
+        # Phase 2: Install license
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 2/9] Installing license..."
+        retry_cmd 5 60 "Installing license" \
+            install_certificate || exit $?
+
+        o ""
+        o "Pinging Management API after license install..."
+        retry_cmd 10 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+
+        # -----------------------------------------------------------------
+        # Phase 3: Create Storage Pool + add data stores
+        #   This is the step most likely to fail if services are still
+        #   initializing. Retry with generous delays.
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 3/9] Creating Storage Pool..."
+        o "  (Services may still be initializing — will retry up to 20"
+        o "   times with 2 min delay between attempts, ~40 min max)"
+        retry_cmd 20 120 "Creating Storage Pool" \
+            run ecsconfig sp -a || exit $?
+
+        # -----------------------------------------------------------------
+        # Wait for storage pool to fully initialize before proceeding.
+        # The VDC create call will fail if the pool is not ready.
+        # Check every 1 minute, up to 45 minutes.
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 3/9] Waiting for storage pool to initialize..."
+        o "  This typically takes 15-30 minutes. Checking every 1 minute."
+        sp_wait_interval=60     # seconds between checks
+        sp_wait_max=2700        # give up after 45 min
+        sp_waited=0
+        while [ ${sp_waited} -lt ${sp_wait_max} ]; do
+            sleep ${sp_wait_interval}
+            sp_waited=$((sp_waited + sp_wait_interval))
+            sp_minutes=$((sp_waited / 60))
+            if run ecsconfig ping -c -x 2>/dev/null; then
+                if [ ${sp_waited} -ge 600 ]; then
+                    o "  [${sp_minutes} min] API responding and minimum wait (10 min) reached."
+                    o "  Storage pool initialization complete."
+                    break
+                else
+                    o "  [${sp_minutes} min] API responding, waiting for minimum 10 min..."
+                fi
+            else
+                o "  [${sp_minutes} min] API not ready yet, will retry..."
+            fi
+        done
+        if [ ${sp_waited} -ge ${sp_wait_max} ]; then
+            error "Storage pool did not become ready within 45 minutes."
+            error "Check: sudo docker logs ecs-storageos 2>&1 | tail -50"
+            die "Aborting step2."
+        fi
+
+        # -----------------------------------------------------------------
+        # Phase 4: Create Virtual Data Center
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 4/9] Creating Virtual Data Center..."
+        retry_cmd 10 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+        retry_cmd 10 60 "Creating VDC" \
+            run ecsconfig vdc -a || exit $?
+        retry_cmd 5 60 "Populating VDC" \
+            run ecsconfig vdc -p || exit $?
+
+        # -----------------------------------------------------------------
+        # Phase 5: Create Replication Group
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 5/9] Creating Replication Group..."
+        retry_cmd 10 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+        retry_cmd 10 60 "Creating Replication Group" \
+            run ecsconfig rg -a || exit $?
+
+        # -----------------------------------------------------------------
+        # Phase 6: Create Management User
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 6/9] Creating Management User..."
+        retry_cmd 10 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+        retry_cmd 10 60 "Creating Management User" \
+            run ecsconfig management-user -a || exit $?
+
+        # -----------------------------------------------------------------
+        # Phase 7: Create Namespace, Object Users, Buckets
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 7/9] Creating Namespace, Object Users, and Buckets..."
+        retry_cmd 10 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+        retry_cmd 10 60 "Creating Namespace" \
+            run ecsconfig namespace -a || exit $?
+
+        retry_cmd 10 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+        retry_cmd 10 60 "Creating Object Users" \
+            run ecsconfig object-user -a || exit $?
+
+        retry_cmd 10 60 "Pinging Management API" \
+            run ecsconfig ping -c -x || exit $?
+        retry_cmd 10 60 "Creating Buckets" \
+            run ecsconfig bucket -a || exit $?
+
+        # -----------------------------------------------------------------
+        # Phase 8: Enable CAS (Content Addressable Storage) protocol
+        #   CAS runs as a headlet inside dataheadsvc.  The CMF key
+        #   com.emc.ecs.service.cas.settings defaults to "disabled" in 4.4.
+        #   On fresh clusters, CASConfigUpdateInitiator may auto-disable
+        #   CAS shortly after it is enabled (race condition).  We handle
+        #   this by looping: enable -> wait for port -> if the setting was
+        #   flipped back, sleep to let the cluster settle, then re-enable.
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 8/9] Enabling CAS protocol..."
+
+        _cas_get_token() {
+            curl -ks https://localhost:4443/login -u root:ChangeMe \
+                 -D - -o /dev/null 2>&1 | grep X-SDS-AUTH-TOKEN | tr -d '\r'
+        }
+        _cas_enable() {
+            local _tok
+            _tok=$(_cas_get_token)
+            [ -n "${_tok}" ] || return 1
+            local _code
+            _code=$(curl -ks -o /dev/null -w '%{http_code}' -X PUT \
+                        -H "${_tok}" \
+                        -H 'Content-Type: application/json' \
+                        -H 'Accept: application/json' \
+                        'https://localhost:4443/service/cas' \
+                        -d '{"name":"cas","settings":["enabled"]}')
+            [ "${_code}" = "200" ]
+        }
+        _cas_port_up() {
+            sudo docker exec ecs-storageos bash -c 'ss -tlnp | grep -q ":3218 "' 2>/dev/null
+        }
+        _cas_is_enabled() {
+            local _tok
+            _tok=$(_cas_get_token)
+            [ -n "${_tok}" ] || return 1
+            curl -ks -H "${_tok}" 'https://localhost:4443/service/cas' 2>/dev/null \
+                | grep -q '>enabled<'
+        }
+
+        _cas_ok=false
+        _cas_max_rounds=5
+        _cas_round=1
+        while [ ${_cas_round} -le ${_cas_max_rounds} ] && ! ${_cas_ok}; do
+            o "  [round ${_cas_round}/${_cas_max_rounds}] Enabling CAS..."
+
+            # Try to enable via API
+            _cas_api_ok=false
+            for _i in 1 2 3 4 5; do
+                if _cas_enable; then
+                    _cas_api_ok=true
+                    break
+                fi
+                o "    API call failed (attempt ${_i}/5), retrying in 30s..."
+                sleep 30
+            done
+            if ! ${_cas_api_ok}; then
+                error "  Could not reach CAS API after 5 attempts."
+                _cas_round=$((_cas_round + 1))
+                continue
+            fi
+
+            # Wait for port 3218 — up to ~2 min (12 x 10s)
+            for _i in $(seq 1 12); do
+                if _cas_port_up; then
+                    _cas_ok=true
+                    break
+                fi
+                sleep 10
+            done
+            if ${_cas_ok}; then
+                break
+            fi
+
+            # Port not up. Check if auto-disabler flipped the setting.
+            if ! _cas_is_enabled; then
+                o "  CAS was auto-disabled (CASConfigUpdateInitiator race)."
+                o "  Waiting 60s for cluster to settle before re-enabling..."
+                sleep 60
+            else
+                o "  CAS setting is 'enabled' but port 3218 not yet up."
+                o "  Waiting 30s before retrying..."
+                sleep 30
+            fi
+            _cas_round=$((_cas_round + 1))
+        done
+
+        # Final verification: confirm CAS is enabled AND port is up
+        if ${_cas_ok}; then
+            # Double-check the setting didn't flip after port came up
+            sleep 5
+            if _cas_is_enabled && _cas_port_up; then
+                o "  CAS enabled and listening on port 3218."
+            else
+                o "  WARNING: CAS port came up but setting may have changed."
+                o "  Re-enabling as a precaution..."
+                _cas_enable
+                sleep 10
+                if _cas_port_up; then
+                    o "  CAS confirmed listening on port 3218."
+                else
+                    o "  CAS may still be initializing."
+                fi
+            fi
+        else
+            _cas_ok=false
+            o "  CAS port 3218 not listening after ${_cas_max_rounds} rounds."
+            o "  CAS may still initialize later. To enable manually, run:"
+            o "    enable_cas"
+        fi
+
+        # -----------------------------------------------------------------
+        # Phase 9: Start Portal UI container
+        # -----------------------------------------------------------------
+        o ""
+        o "[Phase 9/9] Starting Portal UI..."
+        source "${root}/ui/etc/release.conf" 2>/dev/null
+        if [ -n "${portal_image:-}" ] && [ -n "${portal_tag:-}" ]; then
+            if sudo docker image inspect "${portal_image}:${portal_tag}" >/dev/null 2>&1; then
+                if ! sudo docker ps --format '{{.Names}}' | grep -q '^objs-ui$'; then
+                    o "Starting portal UI container..."
+                    sudo docker run -d --name objs-ui --network host --restart=unless-stopped \
+                        "${portal_image}:${portal_tag}" >/dev/null 2>&1
+                    sleep 30
+                    if sudo docker ps --filter name=objs-ui --format '{{.Status}}' | grep -q 'Up'; then
+                        o "Portal UI started successfully."
+                        o "Dashboard available at: https://$(hostname -I | awk '{print $1}')/"
+                    else
+                        error "Portal UI container failed to start. Check: sudo docker logs objs-ui"
+                    fi
+                else
+                    o "Portal UI container (objs-ui) is already running."
+                fi
+            else
+                o ""
+                o "Portal UI image not found. To start the dashboard later:"
+                o "  sudo docker pull ${portal_image}:${portal_tag}"
+                o "  sudo docker run -d --name objs-ui --network host --restart=unless-stopped ${portal_image}:${portal_tag}"
+            fi
+        fi
+
+        o ""
+        o "=========================================="
+        o " step2 complete."
+        o "=========================================="
+        o ""
+        o " Dashboard: https://$(hostname -I | awk '{print $1}')/"
+        o " Login:     root / ChangeMe"
+        o ""
+        if ${_cas_ok}; then
+            o " CAS:      enabled (port 3218)"
+        else
+            o " CAS:      NOT enabled. To enable, run:"
+            o "   curl -ks -X PUT -H \"\$(curl -ks https://localhost:4443/login -u root:ChangeMe -D - -o /dev/null 2>&1 | grep X-SDS-AUTH-TOKEN | tr -d '\\r')\" -H 'Content-Type: application/json' https://localhost:4443/service/cas -d '{\"name\":\"cas\",\"settings\":[\"enabled\"]}'"
+        fi
+        o ""
     ;;
     licenseadd)
         install_certificate

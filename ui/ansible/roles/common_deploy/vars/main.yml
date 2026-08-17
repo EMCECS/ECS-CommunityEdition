@@ -14,3 +14,4 @@ config_files:
   - /opt/storageos/bin/blobsvc
   - /opt/storageos/conf/georeceiver-conf.xml
   - /opt/storageos/conf/vnest-common-conf.xml
+  - /etc/sudoers
