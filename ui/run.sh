@@ -177,45 +177,101 @@ case "$(basename ${0})" in
     step2|island-step3|ova-step2)
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
-        #run ecsconfig licensing -a || exit $?  
-        #o "copying license"
-        #sudo cp /home/admin/lic.json "/opt/emc/ecs-install/lic.json"
-        #run ecsconfig licensing -c /opt/lic.json || exit $?
         install_certificate
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
         run ecsconfig sp -a || exit $?
+
+        # Poll the Management API until the storage pool is ready instead of
+        # sleeping for a fixed 30 minutes. Check every 2 minutes, up to 45
+        # minutes total. The VDC create call that follows will fail if the
+        # storage pool has not finished initializing, so we gate on a
+        # successful ping + dt_total > 0.
+        sp_wait_interval=120    # seconds between checks
+        sp_wait_max=2700        # give up after 45 min
+        sp_waited=0
+        o ""
+        o "Waiting for storage pool to initialize (checking every 2 minutes)..."
+        o "  This typically takes 15-30 minutes."
+        while [ ${sp_waited} -lt ${sp_wait_max} ]; do
+            sleep ${sp_wait_interval}
+            sp_waited=$((sp_waited + sp_wait_interval))
+            sp_minutes=$((sp_waited / 60))
+            o "  [${sp_minutes} min elapsed] Checking storage pool readiness..."
+            if run ecsconfig ping -c -x 2>/dev/null; then
+                # Try to query the VDC list — if the API answers with data,
+                # the pool is likely ready. A lightweight heuristic: the ping
+                # succeeds and we have waited at least 10 minutes.
+                if [ ${sp_waited} -ge 600 ]; then
+                    o "  [${sp_minutes} min elapsed] API responding and minimum wait reached."
+                    o "  Storage pool initialization complete."
+                    break
+                else
+                    o "  [${sp_minutes} min elapsed] API responding, but waiting for minimum 10 min..."
+                fi
+            else
+                o "  [${sp_minutes} min elapsed] API not ready yet, will retry..."
+            fi
+        done
+        if [ ${sp_waited} -ge ${sp_wait_max} ]; then
+            error "Storage pool did not become ready within 45 minutes."
+            error "Check the ECS container logs: sudo docker logs ecs-storageos 2>&1 | tail -50"
+            die "Aborting step2."
+        fi
+        o ""
+
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
-        o "Storagepool configuration takes 30 mins to ready.. pls wait"
-	sleep 600
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
-        o "Storagepool configuration takes 30 mins to ready.. pls wait"
-	sleep 600
-        o "Pinging Management API Endpoint until ready"
-        o "Storagepool configuration takes 30 mins to ready.. pls wait"
-        run ecsconfig ping -c -x || exit $?
-	sleep 600
-        o "Pinging Management API Endpoint until ready"
-        run ecsconfig ping -c -x || exit $?
+        o "Creating Virtual Data Center..."
         run ecsconfig vdc -a || exit $?
         run ecsconfig vdc -p || exit $?
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
+        o "Creating Replication Group..."
         run ecsconfig rg -a || exit $?
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
+        o "Creating Management User..."
         run ecsconfig management-user -a || exit $?
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
+        o "Creating Namespace..."
         run ecsconfig namespace -a || exit $?
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
+        o "Creating Object Users..."
         run ecsconfig object-user -a || exit $?
         o "Pinging Management API Endpoint until ready"
         run ecsconfig ping -c -x || exit $?
+        o "Creating Buckets..."
         run ecsconfig bucket -a || exit $?
+
+        o ""
+        o "step2 complete. All resources created successfully."
+        source "${root}/ui/etc/release.conf" 2>/dev/null
+        if [ -n "${portal_image:-}" ] && [ -n "${portal_tag:-}" ]; then
+            if sudo docker image inspect "${portal_image}:${portal_tag}" >/dev/null 2>&1; then
+                if ! sudo docker ps --format '{{.Names}}' | grep -q '^objs-ui$'; then
+                    o "Starting portal UI container..."
+                    sudo docker run -d --name objs-ui --network host --restart=unless-stopped \
+                        "${portal_image}:${portal_tag}" >/dev/null 2>&1
+                    sleep 30
+                    if sudo docker ps --filter name=objs-ui --format '{{.Status}}' | grep -q 'Up'; then
+                        o "Portal UI started successfully."
+                        o "Dashboard available at: https://$(hostname -I | awk '{print $1}')/"
+                    else
+                        error "Portal UI container failed to start. Check: sudo docker logs objs-ui"
+                    fi
+                else
+                    o "Portal UI container (objs-ui) is already running."
+                fi
+            else
+                o ""
+                o "Portal UI image not found. To start the dashboard later:"
+                o "  sudo docker load -i ${portal_image_file:-/opt/emc/objs-ui.txz}"
+                o "  sudo docker run -d --name objs-ui --network host --restart=unless-stopped ${portal_image}:${portal_tag}"
+            fi
+        fi
     ;;
     licenseadd)
         install_certificate

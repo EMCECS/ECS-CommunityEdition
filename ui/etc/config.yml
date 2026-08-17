@@ -32,7 +32,7 @@ ui:
   ffx_sem: /opt/ffx.sem
 product:
   name: OBS
-  version: 4.3.0.0
+  version: 4.4.0.0
   vendor: Dell EMC
   flavor: Community Edition
   slogan: Free and Frictionless

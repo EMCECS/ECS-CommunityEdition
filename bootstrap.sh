@@ -720,6 +720,33 @@ fi
 ping_sudo
 
 
+### Portal UI Image
+if [ -n "${portal_image:-}" ] && [ -n "${portal_tag:-}" ]; then
+    p "Checking for portal UI image"
+    if sudo docker image inspect "${portal_image}:${portal_tag}" >/dev/null 2>&1; then
+        v "Portal image ${portal_image}:${portal_tag} already loaded"
+        o "Portal UI image already present."
+    elif [ -f "${portal_image_file:-}" ]; then
+        o "Loading portal UI image from ${portal_image_file}"
+        p "Loading portal UI image"
+        if sudo docker load -i "${portal_image_file}" 2>&1 | log; then
+            o "Portal UI image loaded successfully."
+        else
+            error "Failed to load portal UI image from ${portal_image_file}."
+            error "You can try manually: sudo docker load -i ${portal_image_file}"
+        fi
+    else
+        o ""
+        o "Portal UI image not found at ${portal_image_file:-<not configured>}."
+        o "The dashboard will not work until the image is loaded."
+        o "Copy objs-ui.txz to the target and run:"
+        o "    sudo docker load -i ${portal_image_file:-/opt/emc/objs-ui.txz}"
+        o ""
+    fi
+fi
+ping_sudo
+
+
 ### Log Docker Inventory
 v "Logging Docker Inventory"
 p Logging Docker Inventory
@@ -752,6 +779,11 @@ o '    $ island-step2'
 o '  [Wait for deployment to complete, then run:]'
 o '    $ island-step3'
 o ''
+if [ -n "${portal_image:-}" ] && [ -n "${portal_tag:-}" ]; then
+    o '[AFTER step2 completes, start the portal UI:]'
+    o "    $ sudo docker run -d --name objs-ui --network host --restart=unless-stopped ${portal_image}:${portal_tag}"
+    o ''
+fi
 
 
 ### Needs rebooting?
